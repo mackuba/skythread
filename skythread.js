@@ -173,6 +173,10 @@ function sameDay(date1, date2) {
   );
 }
 
+function hideLoader() {
+  document.getElementById('loader').style.display = 'none';
+}
+
 function loadThread(url) {
   loadThreadJSON(url).then(json => {
     let tree = buildPostTree(json);
@@ -186,8 +190,10 @@ function loadThread(url) {
     }
 
     let list = buildElementForTree(tree, tree);
+    hideLoader();
     document.body.appendChild(list);
   }).catch(error => {
+    hideLoader();
     console.log(error);
   });
 }
