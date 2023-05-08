@@ -57,15 +57,10 @@ function parsePost(json) {
 
 function buildPostTree(json) {
   let root = buildPostSubtree(json.thread);
-  /*let current = json.thread;
 
-  while (current.parent) {
-    current = current.parent;
-
-    let newRoot = parsePost(current);
-    newRoot.replies = [root];
-    root = newRoot;
-  }*/
+  if (json.thread.parent) {
+    root.parent = parsePost(json.thread.parent);
+  }
 
   return root;
 }
@@ -132,6 +127,18 @@ function buildElementForTree(post) {
   return div;
 }
 
+function buildParentLink(post) {
+  let p = document.createElement('p');
+  p.className = 'back';
+
+  let link = document.createElement('a');
+  let url = getLocation() + '?q=' + encodeURIComponent(post.uri);
+  link.innerHTML = `<i class="fa-solid fa-reply"></i><a href="${url}">See parent post (@${post.author.handle})</a>`;
+  p.appendChild(link);
+
+  return p;
+}
+
 function getLocation() {
   return location.origin + '/' + location.pathname;
 }
@@ -142,6 +149,12 @@ function loadThread(url) {
     console.log(json);
     console.log(tree);
     window.json = json;
+
+    if (tree.parent) {
+      let p = buildParentLink(tree.parent);
+      document.body.appendChild(p);
+    }
+
     let list = buildElementForTree(tree);
     document.body.appendChild(list);
   }).catch(error => {
