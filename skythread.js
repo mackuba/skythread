@@ -1,79 +1,4 @@
 window.dateLocale = localStorage.getItem('locale') || undefined;
-let $accessToken = localStorage.getItem('accessToken');
-let $refreshToken = localStorage.getItem('refreshToken');
-
-class APIError extends Error {
-  constructor(code) {
-    super("APIError status " + code);
-    this.code = code;
-  }
-}
-
-async function getRequest(method, params, token) {
-  let url = 'https://bsky.social/xrpc/' + method;
-
-  if (params) {
-    url += '?' + Object.entries(params).map((x) => `${x[0]}=${encodeURIComponent(x[1])}`).join('&');
-  }
-
-  let response = await fetch(url, { headers: { 'Authorization': `Bearer ${token}` }});
-
-  if (response.status != 200) {
-    throw new APIError(response.status);
-  }
-
-  let json = await response.json();
-  return json;
-}
-
-async function postRequest(method, token) {
-  let url = 'https://bsky.social/xrpc/' + method;
-  let response = await fetch(url, { method: 'POST', headers: { 'Authorization': `Bearer ${token}` }});
-
-  if (response.status != 200) {
-    throw new APIError(response.status);
-  }
-
-  let json = await response.json();
-  return json;
-}
-
-async function refreshAccessToken() {
-  let json = await postRequest('com.atproto.server.refreshSession', $refreshToken);
-
-  $accessToken = json['accessJwt'];
-  $refreshToken = json['refreshJwt'];
-
-  localStorage.setItem('accessToken', $accessToken);
-  localStorage.setItem('refreshToken', $refreshToken);
-}
-
-async function loadThreadJSON(url) {
-  if (url.startsWith('https://')) {
-    let parts = url.substring(8).split('/');
-
-    if (parts.length < 5 || parts[0] != 'staging.bsky.app' || parts[1] != 'profile' || parts[3] != 'post') {
-      console.log('invalid url');
-      return;    
-    }
-
-    let handle = parts[2];
-    let postId = parts[4];
-
-    let json = await getRequest('com.atproto.identity.resolveHandle', { handle }, $accessToken);
-    let did = json['did']
-
-    let postURI = `at://${did}/app.bsky.feed.post/${postId}`;
-    let threadJSON = await getRequest('app.bsky.feed.getPostThread', { uri: postURI }, $accessToken);
-
-    return threadJSON;
-  } else if (url.startsWith('at://')) {
-    let threadJSON = await getRequest('app.bsky.feed.getPostThread', { uri: url }, $accessToken);
-    return threadJSON;
-  } else {
-    console.log('invalid url');
-  }
-}
 
 function parsePost(json) {
   let post = json.post;
@@ -91,18 +16,12 @@ function parsePost(json) {
   };
 }
 
-function buildPostTree(json) {
-  let root = buildPostSubtree(json.thread);
-
-  if (json.thread.parent) {
-    root.parent = parsePost(json.thread.parent);
-  }
-
-  return root;
-}
-
 function buildPostSubtree(json) {
   let post = parsePost(json);
+
+  if (json.parent) {
+    post.parent = parsePost(json.parent);
+  }
 
   if (json.replies) {
     post.replies = json.replies.map(x => buildPostSubtree(x));
@@ -214,8 +133,10 @@ function hideLoader() {
 }
 
 function loadThread(url) {
-  loadThreadJSON(url).then(json => {
-    let tree = buildPostTree(json);
+  let api = new BlueskyAPI();
+
+  api.loadThreadJSON(url).then(json => {
+    let tree = buildPostSubtree(json.thread);
     console.log(json);
     console.log(tree);
     window.json = json;
@@ -231,7 +152,7 @@ function loadThread(url) {
   }).catch(error => {
     if (error instanceof APIError) {
       console.log('Refreshing access token...');
-      refreshAccessToken().then(() => {
+      api.refreshAccessToken().then(() => {
         loadThread(url);
       }).catch((error) => {
         console.log(error);

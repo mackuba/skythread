@@ -2,6 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
+  <title>Skythread</title>
   <link href="./fontawesome/fontawesome.min.css" rel="stylesheet">
   <link href="./fontawesome/solid.min.css" rel="stylesheet">
   <link href="./fontawesome/regular.min.css" rel="stylesheet">
@@ -9,7 +10,10 @@
 </head>
 <body>
   <div id="loader"><img src="sunny.png"></div>
+
+  <script src="api.js"></script>
   <script src="skythread.js"></script>
+
   <script>
     if (window.location.search) {
       let params = location.search.substring(1).split('&').map(x => x.split('='));
