@@ -83,6 +83,11 @@ function buildElementForTree(post) {
   h.innerHTML = `${post.author.displayName} <span class="handle">(@${post.author.handle})</span>`;
   div.appendChild(h);
 
+  let avatar = document.createElement('img');
+  avatar.src = post.author.avatar;
+  avatar.className = 'avatar';
+  h.prepend(avatar);
+
   let p = document.createElement('p');
   p.innerText = post.text;
   div.appendChild(p);
