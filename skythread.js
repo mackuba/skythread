@@ -127,14 +127,14 @@ function buildElementForTree(post, root) {
 
   let formattedTime = post.createdAt.toLocaleString(window.dateLocale, timeFormat);
   let isoTime = post.createdAt.toISOString();
-  let url = post.uri.replace('at://', 'https://staging.bsky.app/profile/').replace('app.bsky.feed.post', 'post');
   let profileURL = 'https://staging.bsky.app/profile/' + post.author.handle;
+  let postURL = profileURL + '/post/' + post.uri.split('/').slice(-1)[0];
 
   let h = document.createElement('h2');
   h.innerHTML = `${post.author.displayName} ` +
     `<a class="handle" href="${profileURL}" target="_blank">@${post.author.handle}</a> ` +
     `<span class="separator">&bull;</span> ` +
-    `<a class="time" href="${url}" target="_blank" title="${isoTime}">${formattedTime}</a> `;
+    `<a class="time" href="${postURL}" target="_blank" title="${isoTime}">${formattedTime}</a> `;
 
   if (post.replyCount > 0) {
     let threadURL = getLocation() + '?q=' + encodeURIComponent(post.uri);
