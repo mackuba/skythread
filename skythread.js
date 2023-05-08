@@ -1,15 +1,51 @@
 window.dateLocale = localStorage.getItem('locale') || undefined;
+let $accessToken = localStorage.getItem('accessToken');
+let $refreshToken = localStorage.getItem('refreshToken');
 
-async function getRequest(method, params) {
+class APIError extends Error {
+  constructor(code) {
+    super("APIError status " + code);
+    this.code = code;
+  }
+}
+
+async function getRequest(method, params, token) {
   let url = 'https://bsky.social/xrpc/' + method;
 
   if (params) {
     url += '?' + Object.entries(params).map((x) => `${x[0]}=${encodeURIComponent(x[1])}`).join('&');
   }
 
-  let response = await fetch(url, { headers: { 'Authorization': `Bearer ${window.accessToken}` }});
+  let response = await fetch(url, { headers: { 'Authorization': `Bearer ${token}` }});
+
+  if (response.status != 200) {
+    throw new APIError(response.status);
+  }
+
   let json = await response.json();
   return json;
+}
+
+async function postRequest(method, token) {
+  let url = 'https://bsky.social/xrpc/' + method;
+  let response = await fetch(url, { method: 'POST', headers: { 'Authorization': `Bearer ${token}` }});
+
+  if (response.status != 200) {
+    throw new APIError(response.status);
+  }
+
+  let json = await response.json();
+  return json;
+}
+
+async function refreshAccessToken() {
+  let json = await postRequest('com.atproto.server.refreshSession', $refreshToken);
+
+  $accessToken = json['accessJwt'];
+  $refreshToken = json['refreshJwt'];
+
+  localStorage.setItem('accessToken', $accessToken);
+  localStorage.setItem('refreshToken', $refreshToken);
 }
 
 async function loadThreadJSON(url) {
@@ -24,15 +60,15 @@ async function loadThreadJSON(url) {
     let handle = parts[2];
     let postId = parts[4];
 
-    let json = await getRequest('com.atproto.identity.resolveHandle', { handle });
+    let json = await getRequest('com.atproto.identity.resolveHandle', { handle }, $accessToken);
     let did = json['did']
 
     let postURI = `at://${did}/app.bsky.feed.post/${postId}`;
-    let threadJSON = await getRequest('app.bsky.feed.getPostThread', { uri: postURI });
+    let threadJSON = await getRequest('app.bsky.feed.getPostThread', { uri: postURI }, $accessToken);
 
     return threadJSON;
   } else if (url.startsWith('at://')) {
-    let threadJSON = await getRequest('app.bsky.feed.getPostThread', { uri: url });
+    let threadJSON = await getRequest('app.bsky.feed.getPostThread', { uri: url }, $accessToken);
     return threadJSON;
   } else {
     console.log('invalid url');
@@ -193,7 +229,16 @@ function loadThread(url) {
     hideLoader();
     document.body.appendChild(list);
   }).catch(error => {
-    hideLoader();
-    console.log(error);
+    if (error instanceof APIError) {
+      console.log('Refreshing access token...');
+      refreshAccessToken().then(() => {
+        loadThread(url);
+      }).catch((error) => {
+        console.log(error);
+      });
+    } else {
+      hideLoader();
+      console.log(error);      
+    }
   });
 }
