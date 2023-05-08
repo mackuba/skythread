@@ -150,7 +150,7 @@ function buildParentLink(post) {
 }
 
 function getLocation() {
-  return location.origin + '/' + location.pathname;
+  return location.origin + location.pathname;
 }
 
 function sameDay(date1, date2) {
