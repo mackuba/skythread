@@ -5,47 +5,21 @@
   <link href="./fontawesome/fontawesome.min.css" rel="stylesheet">
   <link href="./fontawesome/solid.min.css" rel="stylesheet">
   <link href="./fontawesome/regular.min.css" rel="stylesheet">
+  <link href="style.css" rel="stylesheet">
 </head>
 <body>
-<script src="skythread.js"></script>
-<script>
-  window.accessToken = "qqqqqq";
+  <script src="skythread.js"></script>
+  <script>
+    window.accessToken = "qqqqqq";
 
-  if (window.location.search) {
-    let params = location.search.substring(1).split('&').map(x => x.split('='));
-    let query = params.find(x => x[0] == 'q');
+    if (window.location.search) {
+      let params = location.search.substring(1).split('&').map(x => x.split('='));
+      let query = params.find(x => x[0] == 'q');
 
-    if (query) {
-      loadThread(decodeURIComponent(query[1]));
+      if (query) {
+        loadThread(decodeURIComponent(query[1]));
+      }
     }
-  }
-</script>
-<style>
-  body {
-    width: 960px;
-    margin: 0px auto;
-    font-family: -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-    text-rendering: optimizeLegibility;
-    -webkit-font-smoothing: antialiased;
-  }
-  p.back a { font-size: 11pt; color: #666; }
-  p.back i { font-size: 10pt; color: #888; margin-right: 5px; }
-  a { text-decoration: none; }
-  a:hover { text-decoration: underline; }
-  .post { padding-left: 20px; margin-top: 30px; border-left: 1px solid #aaa; }
-  .post .avatar { width: 32px; height: 32px; border-radius: 16px; vertical-align: middle; margin-bottom: 3px; margin-right: 8px; }
-  .post .missing { color: #aaa; background-color: #eee; border-radius: 16px; vertical-align: middle; margin-right: 8px; }
-  .post h2 { font-size: 12pt; margin-bottom: 0; }
-  .post h2 .handle { color: #888; font-weight: normal; font-size: 11pt; vertical-align: text-top; }
-  .post h2 .separator { color: #888; font-weight: normal; font-size: 11pt; vertical-align: text-top; }
-  .post h2 .time { color: #666; font-weight: normal; font-size: 10pt; vertical-align: text-top; }
-  .post h2 .action { color: #888; font-weight: normal; font-size: 10pt; vertical-align: text-top; }
-  .post p { margin-top: 10px; }
-  .post .stats { font-size: 10pt; color: #666; }
-  .post .stats i { font-size: 9pt; color: #888; }
-  .post .stats i.fa-heart { color: #aaa; }  
-  .post .stats i.liked { color: #e03030; }  
-  .post .stats span { margin-right: 10px; }
-</style>
+  </script>
 </body>
 </html>
