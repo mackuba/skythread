@@ -11,28 +11,30 @@ async function getRequest(method, params) {
 }
 
 async function loadThreadJSON(url) {
-  if (!url.startsWith('https://')) {
+  if (url.startsWith('https://')) {
+    let parts = url.substring(8).split('/');
+
+    if (parts.length < 5 || parts[0] != 'staging.bsky.app' || parts[1] != 'profile' || parts[3] != 'post') {
+      console.log('invalid url');
+      return;    
+    }
+
+    let handle = parts[2];
+    let postId = parts[4];
+
+    let json = await getRequest('com.atproto.identity.resolveHandle', { handle });
+    let did = json['did']
+
+    let postURI = `at://${did}/app.bsky.feed.post/${postId}`;
+    let threadJSON = await getRequest('app.bsky.feed.getPostThread', { uri: postURI });
+
+    return threadJSON;
+  } else if (url.startsWith('at://')) {
+    let threadJSON = await getRequest('app.bsky.feed.getPostThread', { uri: url });
+    return threadJSON;
+  } else {
     console.log('invalid url');
-    return;
   }
-
-  let parts = url.substring(8).split('/');
-
-  if (parts.length < 5 || parts[0] != 'staging.bsky.app' || parts[1] != 'profile' || parts[3] != 'post') {
-    console.log('invalid url');
-    return;    
-  }
-
-  let handle = parts[2];
-  let postId = parts[4];
-
-  let json = await getRequest('com.atproto.identity.resolveHandle', { handle });
-  let did = json['did']
-
-  let postURI = `at://${did}/app.bsky.feed.post/${postId}`;
-  let threadJSON = await getRequest('app.bsky.feed.getPostThread', { uri: postURI });
-
-  return threadJSON;
 }
 
 function parsePost(json) {
@@ -46,7 +48,8 @@ function parsePost(json) {
     uri: post.uri,
     createdAt: post.record.createdAt,
     text: post.record.text,
-    liked: !!post.viewer.like
+    liked: !!post.viewer.like,
+    replies: []
   };
 }
 
@@ -94,20 +97,30 @@ function buildElementForTree(post) {
 
   let stats = document.createElement('p');
   stats.innerText = `${post.replyCount}`;
-  if (post.replyCount != (post.replies?.length ?? 0)) {
-    stats.innerText += " +++";
-  }
   if (post.liked) {
     stats.innerText += " [LIKED]"
   }
   div.appendChild(stats);
 
-  for (let reply of post.replies ?? []) {
+  for (let reply of post.replies) {
     let subdiv = buildElementForTree(reply);
     div.appendChild(subdiv);
   }
 
+  if (post.replyCount != post.replies.length) {
+    let loadMore = document.createElement('p');
+    let link = document.createElement('a');
+    link.innerText = "Load more replies…";
+    link.href = getLocation() + '?q=' + encodeURIComponent(post.uri);
+    loadMore.appendChild(link);
+    div.appendChild(loadMore);
+  }
+
   return div;
+}
+
+function getLocation() {
+  return location.origin + '/' + location.pathname;
 }
 
 function loadThread(url) {
