@@ -96,9 +96,10 @@ function buildElementForTree(post) {
   div.appendChild(p);
 
   let stats = document.createElement('p');
-  stats.innerText = `${post.replyCount}`;
-  if (post.liked) {
-    stats.innerText += " [LIKED]"
+  stats.className = 'stats';
+  stats.innerHTML = `<span><i class="fa-solid fa-heart ${post.liked ? 'liked' : ''}"></i> ${post.likeCount}</span>`;
+  if (post.repostCount > 0) {
+    stats.innerHTML += `<span><i class="fa-solid fa-retweet"></i> ${post.repostCount}</span>`;
   }
   div.appendChild(stats);
 
