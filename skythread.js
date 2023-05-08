@@ -84,14 +84,17 @@ function buildElementForTree(post) {
   let div = document.createElement('div');
   div.className = 'post';
 
-  let h = document.createElement('h2');
   let formattedTime = post.createdAt.toLocaleString(window.dateLocale, {
     day: 'numeric', month: 'short', hour: 'numeric', minute: 'numeric'
   });
   let isoTime = post.createdAt.toISOString();
   let url = post.uri.replace('at://', 'https://staging.bsky.app/profile/').replace('app.bsky.feed.post', 'post');
+  let profileURL = 'https://staging.bsky.app/profile/' + post.author.handle;
+
+  let h = document.createElement('h2');
   h.innerHTML = `${post.author.displayName} ` +
-    `<span class="handle">@${post.author.handle} &bull; </span>` +
+    `<a class="handle" href="${profileURL}" target="_blank">@${post.author.handle}</a> ` +
+    `<span class="separator">&bull;</span> ` +
     `<a class="time" href="${url}" target="_blank"><time datetime="${isoTime}">${formattedTime}</time></a>`;
   div.appendChild(h);
 
