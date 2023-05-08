@@ -103,10 +103,16 @@ function buildElementForTree(post, root) {
 
   div.appendChild(h);
 
-  let avatar = document.createElement('img');
-  avatar.src = post.author.avatar;
-  avatar.className = 'avatar';
-  h.prepend(avatar);
+  if (post.author.avatar) {
+    let avatar = document.createElement('img');
+    avatar.src = post.author.avatar;
+    avatar.className = 'avatar';
+    h.prepend(avatar);    
+  } else {
+    let missing = document.createElement('i');
+    missing.className = 'missing fa-regular fa-face-smile fa-2x';
+    h.prepend(missing);
+  }
 
   let p = document.createElement('p');
   p.innerText = post.text;
