@@ -75,13 +75,15 @@ function buildPostSubtree(json) {
   return post;
 }
 
-function buildElementForTree(post) {
+function buildElementForTree(post, root) {
   let div = document.createElement('div');
   div.className = 'post';
 
-  let formattedTime = post.createdAt.toLocaleString(window.dateLocale, {
-    day: 'numeric', month: 'short', hour: 'numeric', minute: 'numeric'
-  });
+  let timeFormat = (post !== root && sameDay(post.createdAt, root.createdAt)) ?
+    { hour: 'numeric', minute: 'numeric' } :
+    { day: 'numeric', month: 'short', hour: 'numeric', minute: 'numeric' };
+
+  let formattedTime = post.createdAt.toLocaleString(window.dateLocale, timeFormat);
   let isoTime = post.createdAt.toISOString();
   let url = post.uri.replace('at://', 'https://staging.bsky.app/profile/').replace('app.bsky.feed.post', 'post');
   let profileURL = 'https://staging.bsky.app/profile/' + post.author.handle;
@@ -111,7 +113,7 @@ function buildElementForTree(post) {
   div.appendChild(stats);
 
   for (let reply of post.replies) {
-    let subdiv = buildElementForTree(reply);
+    let subdiv = buildElementForTree(reply, root);
     div.appendChild(subdiv);
   }
 
@@ -143,6 +145,14 @@ function getLocation() {
   return location.origin + '/' + location.pathname;
 }
 
+function sameDay(date1, date2) {
+  return (
+    date1.getDate() == date2.getDate() &&
+    date1.getMonth() == date2.getMonth() &&
+    date1.getFullYear() == date2.getFullYear()
+  );
+}
+
 function loadThread(url) {
   loadThreadJSON(url).then(json => {
     let tree = buildPostTree(json);
@@ -155,7 +165,7 @@ function loadThread(url) {
       document.body.appendChild(p);
     }
 
-    let list = buildElementForTree(tree);
+    let list = buildElementForTree(tree, tree);
     document.body.appendChild(list);
   }).catch(error => {
     console.log(error);
