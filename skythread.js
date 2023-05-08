@@ -79,9 +79,15 @@ function buildElementForTree(post, root) {
   let div = document.createElement('div');
   div.className = 'post';
 
-  let timeFormat = (post !== root && sameDay(post.createdAt, root.createdAt)) ?
-    { hour: 'numeric', minute: 'numeric' } :
-    { day: 'numeric', month: 'short', hour: 'numeric', minute: 'numeric' };
+  let timeFormat;
+
+  if (post === root) {
+    timeFormat = { day: 'numeric', month: 'short', year: 'numeric', hour: 'numeric', minute: 'numeric' };
+  } else if (!sameDay(post.createdAt, root.createdAt)) {
+    timeFormat = { day: 'numeric', month: 'short', hour: 'numeric', minute: 'numeric' };
+  } else {
+    timeFormat = { hour: 'numeric', minute: 'numeric' };
+  }
 
   let formattedTime = post.createdAt.toLocaleString(window.dateLocale, timeFormat);
   let isoTime = post.createdAt.toISOString();
