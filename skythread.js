@@ -55,7 +55,7 @@ function parsePost(json) {
 
 function buildPostTree(json) {
   let root = buildPostSubtree(json.thread);
-  let current = json.thread;
+  /*let current = json.thread;
 
   while (current.parent) {
     current = current.parent;
@@ -63,7 +63,7 @@ function buildPostTree(json) {
     let newRoot = parsePost(current);
     newRoot.replies = [root];
     root = newRoot;
-  }
+  }*/
 
   return root;
 }
