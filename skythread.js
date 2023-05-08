@@ -92,7 +92,15 @@ function buildElementForTree(post, root) {
   h.innerHTML = `${post.author.displayName} ` +
     `<a class="handle" href="${profileURL}" target="_blank">@${post.author.handle}</a> ` +
     `<span class="separator">&bull;</span> ` +
-    `<a class="time" href="${url}" target="_blank"><time datetime="${isoTime}">${formattedTime}</time></a>`;
+    `<a class="time" href="${url}" target="_blank" title="${isoTime}">${formattedTime}</a> `;
+
+  if (post.replyCount > 0) {
+    let threadURL = getLocation() + '?q=' + encodeURIComponent(post.uri);
+    h.innerHTML +=
+      `<span class="separator">&bull;</span> <a href="${threadURL}" class="action" title="Load this subtree">` +
+      `<i class="fa-solid fa-arrows-split-up-and-left fa-rotate-180"></i></a> `;
+  }
+
   div.appendChild(h);
 
   let avatar = document.createElement('img');
