@@ -56,7 +56,7 @@ function buildElementForTree(post, root) {
     `<span class="separator">&bull;</span> ` +
     `<a class="time" href="${postURL}" target="_blank" title="${isoTime}">${formattedTime}</a> `;
 
-  if (post.replyCount > 0) {
+  if (post.replyCount > 0 && post !== root) {
     let threadURL = getLocation() + '?q=' + encodeURIComponent(post.uri);
     h.innerHTML +=
       `<span class="separator">&bull;</span> <a href="${threadURL}" class="action" title="Load this subtree">` +
