@@ -9,9 +9,10 @@ function parsePost(json) {
     replyCount: post.replyCount,
     repostCount: post.repostCount,
     uri: post.uri,
+    cid: post.cid,
     createdAt: new Date(post.record.createdAt),
     text: post.record.text,
-    liked: !!post.viewer.like,
+    like: post.viewer.like,
     replies: []
   };
 }
@@ -47,7 +48,7 @@ function buildElementForTree(post, root) {
   let formattedTime = post.createdAt.toLocaleString(window.dateLocale, timeFormat);
   let isoTime = post.createdAt.toISOString();
   let profileURL = 'https://staging.bsky.app/profile/' + post.author.handle;
-  let postURL = profileURL + '/post/' + post.uri.split('/').slice(-1)[0];
+  let postURL = profileURL + '/post/' + lastPathComponent(post.uri);
 
   let h = document.createElement('h2');
   h.innerHTML = `${post.author.displayName} ` +
@@ -81,10 +82,21 @@ function buildElementForTree(post, root) {
 
   let stats = document.createElement('p');
   stats.className = 'stats';
-  stats.innerHTML = `<span><i class="fa-solid fa-heart ${post.liked ? 'liked' : ''}"></i> ${post.likeCount}</span>`;
+
+  let span = document.createElement('span');
+  let heart = document.createElement('i');
+  heart.className = 'fa-solid fa-heart ' + (post.like ? 'liked' : '');
+  heart.addEventListener('click', (e) => onHeartClick(heart, post));
+  span.append(heart);
+  span.append(` ${post.likeCount}`);
+  stats.append(span);
+
   if (post.repostCount > 0) {
-    stats.innerHTML += `<span><i class="fa-solid fa-retweet"></i> ${post.repostCount}</span>`;
+    let span = document.createElement('span');
+    span.innerHTML = `<i class="fa-solid fa-retweet"></i> ${post.repostCount}`;
+    stats.append(span);
   }
+
   div.appendChild(stats);
 
   for (let reply of post.replies) {
@@ -104,6 +116,25 @@ function buildElementForTree(post, root) {
   return div;
 }
 
+function onHeartClick(heart, post) {
+  let api = new BlueskyAPI();
+
+  if (!heart.classList.contains('liked')) {
+    api.likePost(post.uri, post.cid).then((like) => {
+      post.like = like.uri;
+      heart.classList.add('liked');
+    }).catch((error) => {
+      console.log(error);
+    });
+  } else {
+    api.removeLike(post.like).then(() => {
+      heart.classList.remove('liked');
+    }).catch((error) => {
+      console.log(error);
+    });
+  }
+}
+
 function buildParentLink(post) {
   let p = document.createElement('p');
   p.className = 'back';
@@ -114,18 +145,6 @@ function buildParentLink(post) {
   p.appendChild(link);
 
   return p;
-}
-
-function getLocation() {
-  return location.origin + location.pathname;
-}
-
-function sameDay(date1, date2) {
-  return (
-    date1.getDate() == date2.getDate() &&
-    date1.getMonth() == date2.getMonth() &&
-    date1.getFullYear() == date2.getFullYear()
-  );
 }
 
 function hideLoader() {

@@ -130,8 +130,17 @@ p.back i {
   color: #aaa;
 }
 
-.post .stats i.liked {
+.post .stats i.fa-heart.liked {
   color: #e03030;
+}
+
+.post .stats i.fa-heart:hover {
+  color: #888;
+  cursor: pointer;
+}
+
+.post .stats i.fa-heart.liked:hover {
+  color: #c02020;
 }
 
 .post .stats span {

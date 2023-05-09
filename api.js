@@ -33,20 +33,32 @@ class BlueskyAPI {
     return json;
   }
 
-  async postRequest(method, token) {
+  async postRequest(method, data, token) {
     let url = 'https://bsky.social/xrpc/' + method;
-    let response = await fetch(url, { method: 'POST', headers: { 'Authorization': `Bearer ${token}` }});
+    let request = { method: 'POST', headers: { 'Authorization': `Bearer ${token}` }};
+
+    if (data) {
+      request.body = JSON.stringify(data);
+      request.headers['Content-Type'] = 'application/json';
+    }
+
+    let response = await fetch(url, request);
 
     if (response.status != 200) {
       throw new APIError(response.status);
     }
 
-    let json = await response.json();
-    return json;
+    let contentType = response.headers.get('Content-Type');
+
+    if (contentType && contentType.includes('json')) {
+      return await response.json();
+    } else {
+      return response;
+    }
   }
 
   async refreshAccessToken() {
-    let json = await this.postRequest('com.atproto.server.refreshSession', this.#refreshToken);
+    let json = await this.postRequest('com.atproto.server.refreshSession', null, this.#refreshToken);
 
     this.#accessToken = json['accessJwt'];
     this.#refreshToken = json['refreshJwt'];
@@ -82,5 +94,27 @@ class BlueskyAPI {
     } else {
       console.log('invalid url');
     }
+  }
+
+  async likePost(atURI, cid) {
+    return await this.postRequest('com.atproto.repo.createRecord', {
+      repo: this.#userDID,
+      collection: 'app.bsky.feed.like',
+      record: {
+        subject: {
+          uri: atURI,
+          cid: cid
+        },
+        createdAt: new Date().toISOString()
+      }
+    }, this.#accessToken);
+  }
+
+  async removeLike(atURI) {
+    await this.postRequest('com.atproto.repo.deleteRecord', {
+      repo: this.#userDID,
+      collection: 'app.bsky.feed.like',
+      rkey: lastPathComponent(atURI)
+    }, this.#accessToken);
   }
 }
