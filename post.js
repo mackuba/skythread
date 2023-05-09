@@ -95,7 +95,11 @@ class PostComponent {
     heart.className = 'fa-solid fa-heart ' + (this.post.like ? 'liked' : '');
     heart.addEventListener('click', (e) => this.onHeartClick(heart));
     span.append(heart);
-    span.append(` ${this.post.likeCount}`);
+    span.append(' ');
+
+    let count = document.createElement('output');
+    count.innerText = this.post.likeCount;
+    span.append(count);
     stats.append(span);
 
     if (this.post.repostCount > 0) {
@@ -118,17 +122,20 @@ class PostComponent {
 
   onHeartClick(heart) {
     let api = new BlueskyAPI();
+    let count = heart.nextElementSibling;
 
     if (!heart.classList.contains('liked')) {
       api.likePost(this.post.uri, this.post.cid).then((like) => {
         this.post.like = like.uri;
         heart.classList.add('liked');
+        count.innerText = parseInt(count.innerText, 10) + 1;
       }).catch((error) => {
         console.log(error);
       });
     } else {
       api.removeLike(this.post.like).then(() => {
         heart.classList.remove('liked');
+        count.innerText = parseInt(count.innerText, 10) - 1;
       }).catch((error) => {
         console.log(error);
       });
