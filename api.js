@@ -74,7 +74,7 @@ class BlueskyAPI {
   }
 
   isInvalidToken(response, json) {
-    return (response.status == 400) && json && ['InvalidToken', 'ExpiredToken'].includes(json['Error']);
+    return (response.status == 400) && json && ['InvalidToken', 'ExpiredToken'].includes(json.error);
   }
 
   async parseResponse(response) {
