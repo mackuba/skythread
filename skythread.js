@@ -25,7 +25,7 @@ function buildPostSubtree(json) {
   }
 
   if (json.replies) {
-    post.replies = json.replies.map(x => buildPostSubtree(x));
+    post.replies = json.replies.reverse().map(x => buildPostSubtree(x));
   }
 
   return post;
