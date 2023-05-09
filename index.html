@@ -18,11 +18,11 @@
 
   <script>
     if (window.location.search) {
-      let params = location.search.substring(1).split('&').map(x => x.split('='));
-      let query = params.find(x => x[0] == 'q');
+      let params = new URLSearchParams(location.search);
+      let query = params.get('q');
 
       if (query) {
-        loadThread(decodeURIComponent(query[1]));
+        loadThread(decodeURIComponent(query));
       }
     }
   </script>
