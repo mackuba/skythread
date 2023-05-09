@@ -6,6 +6,12 @@ class APIError extends Error {
   }
 }
 
+class URLError extends Error {
+  constructor(message) {
+    super(message);
+  }
+}
+
 class BlueskyAPI {
   #accessToken;
   #refreshToken;
@@ -94,31 +100,39 @@ class BlueskyAPI {
     localStorage.setItem('userDID', this.#userDID);
   }
 
-  async loadThreadJSON(url) {
+  async loadThreadByURL(url) {
     if (url.startsWith('https://')) {
       let parts = url.substring(8).split('/');
 
       if (parts.length < 5 || parts[0] != 'staging.bsky.app' || parts[1] != 'profile' || parts[3] != 'post') {
-        console.log('invalid url');
-        return;    
+        throw new URLError('Invalid URL');
       }
 
       let handle = parts[2];
       let postId = parts[4];
 
-      let json = await this.getRequest('com.atproto.identity.resolveHandle', { handle });
-      let did = json['did']
-
-      let postURI = `at://${did}/app.bsky.feed.post/${postId}`;
-      let threadJSON = await this.getRequest('app.bsky.feed.getPostThread', { uri: postURI });
-
-      return threadJSON;
+      return await this.loadThreadById(handle, postId);
     } else if (url.startsWith('at://')) {
       let threadJSON = await this.getRequest('app.bsky.feed.getPostThread', { uri: url });
       return threadJSON;
     } else {
-      console.log('invalid url');
+      throw new URLError('Invalid URL');
     }
+  }
+
+  async loadThreadById(author, postId) {
+    let did;
+
+    if (author.startsWith('did:')) {
+      did = author;
+    } else {
+      let json = await this.getRequest('com.atproto.identity.resolveHandle', { handle: author });
+      did = json['did'];      
+    }
+
+    let postURI = `at://${did}/app.bsky.feed.post/${postId}`;
+    let threadJSON = await this.getRequest('app.bsky.feed.getPostThread', { uri: postURI });
+    return threadJSON;
   }
 
   async likePost(atURI, cid) {

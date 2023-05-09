@@ -20,9 +20,13 @@
     if (window.location.search) {
       let params = new URLSearchParams(location.search);
       let query = params.get('q');
+      let author = params.get('author');
+      let post = params.get('post');
 
       if (query) {
         loadThread(decodeURIComponent(query));
+      } else if (author && post) {
+        loadThread(decodeURIComponent(author), decodeURIComponent(post));
       }
     }
   </script>

@@ -47,10 +47,11 @@ function hideLoader() {
   document.getElementById('loader').style.display = 'none';
 }
 
-function loadThread(url) {
+function loadThread(url, postId) {
   let api = new BlueskyAPI();
+  let load = postId ? api.loadThreadById(url, postId) : api.loadThreadByURL(url);
 
-  api.loadThreadJSON(url).then(json => {
+  load.then(json => {
     let tree = buildPostSubtree(json.thread);
     console.log(json);
     console.log(tree);
