@@ -65,16 +65,7 @@ function loadThread(url) {
     hideLoader();
     document.body.appendChild(list);
   }).catch(error => {
-    if (error instanceof APIError) {
-      console.log('Refreshing access token...');
-      api.refreshAccessToken().then(() => {
-        loadThread(url);
-      }).catch((error) => {
-        console.log(error);
-      });
-    } else {
-      hideLoader();
-      console.log(error);      
-    }
+    hideLoader();
+    console.log(error);      
   });
 }
