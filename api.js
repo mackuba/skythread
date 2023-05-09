@@ -8,10 +8,12 @@ class APIError extends Error {
 class BlueskyAPI {
   #accessToken;
   #refreshToken;
+  #userDID;
 
   constructor() {
     this.#accessToken = localStorage.getItem('accessToken');
     this.#refreshToken = localStorage.getItem('refreshToken');
+    this.#userDID = localStorage.getItem('userDID');
   }
 
   async getRequest(method, params, token) {
@@ -48,9 +50,11 @@ class BlueskyAPI {
 
     this.#accessToken = json['accessJwt'];
     this.#refreshToken = json['refreshJwt'];
+    this.#userDID = json['did'];
 
     localStorage.setItem('accessToken', this.#accessToken);
     localStorage.setItem('refreshToken', this.#refreshToken);
+    localStorage.setItem('userDID', this.#userDID);
   }
 
   async loadThreadJSON(url) {
