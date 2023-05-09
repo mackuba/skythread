@@ -36,7 +36,7 @@ function buildParentLink(post) {
   p.className = 'back';
 
   let link = document.createElement('a');
-  let url = getLocation() + '?q=' + encodeURIComponent(post.uri);
+  let url = linkToPostThread(post);
   link.innerHTML = `<i class="fa-solid fa-reply"></i><a href="${url}">See parent post (@${post.author.handle})</a>`;
   p.appendChild(link);
 

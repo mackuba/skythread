@@ -14,3 +14,10 @@ function lastPathComponent(uri) {
   let parts = uri.replace(/\/$/, '').split('/');
   return parts[parts.length-1];
 }
+
+function linkToPostThread(post) {
+  let url = new URL(getLocation());
+  url.searchParams.set('author', post.author.handle);
+  url.searchParams.set('post', lastPathComponent(post.uri));
+  return url.toString();
+}

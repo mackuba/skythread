@@ -8,10 +8,6 @@ class PostComponent {
     return this.post === this.root;
   }
 
-  get linkToPostThread() {
-    return getLocation() + '?q=' + encodeURIComponent(this.post.uri);
-  }
-
   get linkToAuthor() {
     return 'https://staging.bsky.app/profile/' + this.post.author.handle;
   }
@@ -72,7 +68,7 @@ class PostComponent {
     if (this.post.replyCount > 0 && !this.isRoot) {
       h.innerHTML +=
         `<span class="separator">&bull;</span> ` +
-        `<a href="${this.linkToPostThread}" class="action" title="Load this subtree">` +
+        `<a href="${linkToPostThread(this.post)}" class="action" title="Load this subtree">` +
         `<i class="fa-solid fa-arrows-split-up-and-left fa-rotate-180"></i></a> `;
     }
 
@@ -115,7 +111,7 @@ class PostComponent {
     let loadMore = document.createElement('p');
     let link = document.createElement('a');
     link.innerText = "Load more replies…";
-    link.href = this.linkToPostThread;
+    link.href = linkToPostThread(this.post);
     loadMore.appendChild(link);
     return loadMore;
   }
