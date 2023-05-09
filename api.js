@@ -1,7 +1,8 @@
 class APIError extends Error {
-  constructor(code) {
+  constructor(code, json) {
     super("APIError status " + code);
     this.code = code;
+    this.json = json;
   }
 }
 
@@ -24,17 +25,18 @@ class BlueskyAPI {
     }
 
     let response = await fetch(url, { headers: { 'Authorization': `Bearer ${this.#accessToken}` }});
+    let json = await this.parseResponse(response);
 
-    if (response.status == 400) {
+    if (this.isInvalidToken(response, json)) {
       await this.refreshAccessToken();
       response = await fetch(url, { headers: { 'Authorization': `Bearer ${this.#accessToken}` }});
+      json = await this.parseResponse(response);
     }
 
     if (response.status != 200) {
-      throw new APIError(response.status);
+      throw new APIError(response.status, json);
     }
 
-    let json = await response.json();
     return json;
   }
 
@@ -49,23 +51,33 @@ class BlueskyAPI {
     }
 
     let response = await fetch(url, request);
+    let json = await this.parseResponse(response);
 
-    if (response.status == 400 && !useRefreshToken) {
+    if (!useRefreshToken && this.isInvalidToken(response, json)) {
       await this.refreshAccessToken();
       request.headers['Authorization'] = `Bearer ${this.#accessToken}`;
       response = await fetch(url, request);
+      json = await this.parseResponse(response);
     }
 
     if (response.status != 200) {
-      throw new APIError(response.status);
+      throw new APIError(response.status, json);
     }
 
-    let contentType = response.headers.get('Content-Type');
+    return json;
+  }
 
-    if (contentType && contentType.includes('json')) {
-      return await response.json();
+  isInvalidToken(response, json) {
+    return (response.status == 400) && json && ['InvalidToken', 'ExpiredToken'].includes(json['Error']);
+  }
+
+  async parseResponse(response) {
+    let text = await response.text();
+
+    if (text.trim().length > 0) {
+      return JSON.parse(text);
     } else {
-      return response;
+      return undefined;
     }
   }
 
