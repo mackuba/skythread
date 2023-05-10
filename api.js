@@ -23,6 +23,10 @@ class BlueskyAPI {
     this.#userDID = localStorage.getItem('userDID');
   }
 
+  get isLoggedIn() {
+    return !!(this.#accessToken && this.#refreshToken && this.#userDID);
+  }
+
   async getRequest(method, params) {
     let url = 'https://bsky.social/xrpc/' + method;
 
@@ -46,10 +50,14 @@ class BlueskyAPI {
     return json;
   }
 
-  async postRequest(method, data, useRefreshToken) {
+  async postRequest(method, data, useRefreshToken, useAuthentication) {
     let url = 'https://bsky.social/xrpc/' + method;
-    let token = useRefreshToken ? this.#refreshToken : this.#accessToken;
-    let request = { method: 'POST', headers: { 'Authorization': `Bearer ${token}` }};
+    let request = { method: 'POST', headers: {}};
+
+    if (!(useAuthentication === false)) {
+      let token = useRefreshToken ? this.#refreshToken : this.#accessToken;
+      request.headers['Authorization'] = `Bearer ${token}`;
+    }
 
     if (data) {
       request.body = JSON.stringify(data);
@@ -90,7 +98,19 @@ class BlueskyAPI {
   async refreshAccessToken() {
     console.log('Refreshing access token…');
     let json = await this.postRequest('com.atproto.server.refreshSession', null, true);
+    this.saveTokens(json);
+  }
 
+  async logIn(handle, password) {
+    let json = await this.postRequest('com.atproto.server.createSession', {
+      identifier: handle,
+      password: password
+    }, false, false);
+
+    this.saveTokens(json);
+  }
+
+  saveTokens(json) {
     this.#accessToken = json['accessJwt'];
     this.#refreshToken = json['refreshJwt'];
     this.#userDID = json['did'];

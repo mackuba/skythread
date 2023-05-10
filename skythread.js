@@ -1,6 +1,16 @@
 function init() {
   window.dateLocale = localStorage.getItem('locale') || undefined;
 
+  document.querySelector('#login .info a').addEventListener('click', (e) => {
+    e.preventDefault();
+    toggleLoginInfo();
+  });
+
+  document.querySelector('#login form').addEventListener('submit', (e) => {
+    e.preventDefault();
+    submitLogin();
+  });
+
   document.querySelector('#search input').addEventListener('mousedown', (e) => {
     e.target.classList.add('click');
   });
@@ -9,7 +19,13 @@ function init() {
     e.target.classList.remove('click');
   });
 
-  parseQueryParams();
+  let api = new BlueskyAPI();
+
+  if (api.isLoggedIn) {
+    parseQueryParams();
+  } else {
+    showLogin();
+  }
 }
 
 function parseQueryParams() {
@@ -86,6 +102,38 @@ function showSearch() {
 
 function hideSearch() {
   document.getElementById('search').style.visibility = 'hidden';
+}
+
+function showLogin() {
+  document.getElementById('login').style.visibility = 'visible';
+}
+
+function hideLogin() {
+  document.getElementById('login').style.visibility = 'hidden';
+}
+
+function toggleLoginInfo(event) {
+  document.getElementById('login').classList.toggle('expanded');
+}
+
+function submitLogin() {
+  let handle = document.getElementById('login_handle').value;
+  let password = document.getElementById('login_password').value;
+  let submit = document.getElementById('login_submit');
+
+  submit.value = '';
+  submit.disabled = true;
+
+  let api = new BlueskyAPI();
+  api.logIn(handle, password).then(() => {
+    hideLogin();
+    parseQueryParams();
+  }).catch((error) => {
+    submit.value = 'Log in';
+    submit.disabled = false;
+    console.log(error);
+    alert(error);
+  });
 }
 
 function loadThread(url, postId) {

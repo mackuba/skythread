@@ -60,6 +60,95 @@ a:visited {
   outline: none;
 }
 
+#login {
+  visibility: hidden;
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-bottom: 5%;
+}
+
+#login.expanded {
+  padding-bottom: 0;
+}
+
+#login form {
+  border: 2px solid hsl(210, 100%, 85%);
+  background-color: hsl(210, 100%, 98%);
+  border-radius: 10px;
+  padding: 15px 25px;
+}
+
+#login p {
+  text-align: center;
+}
+
+#login h2 {
+  font-size: 13pt;
+  font-weight: 600;
+  text-align: center;
+  margin-bottom: 25px;
+  padding-right: 10px;
+}
+
+#login p.submit {
+  margin-top: 25px;
+}
+
+#login p.info {
+  font-size: 9pt;
+}
+
+#login p.info a {
+  color: #888;
+}
+
+#login input[type="text"], #login input[type="password"] {
+  width: 200px;
+  font-size: 11pt;
+  border: 1px solid #d6d6d6;
+  border-radius: 4px;
+  padding: 5px 6px;
+  margin: 0px 15px;
+}
+
+#login input[type="submit"] {
+  width: 150px;
+  font-size: 11pt;
+  border: 1px solid hsl(210, 90%, 85%);
+  background-color: hsl(210, 100%, 92%);
+  border-radius: 4px;
+  padding: 5px 6px;
+}
+
+#login input[type="submit"]:active {
+  background-color: hsl(210, 100%, 90%);
+}
+
+#login .info-box {
+  display: none;
+  border: 1px solid hsl(45, 100%, 60%);
+  background-color: hsl(50, 100%, 96%);
+  width: 360px;
+  font-size: 11pt;
+  border-radius: 6px;
+}
+
+#login.expanded .info-box {
+  display: block;
+}
+
+#login .info-box p {
+  margin: 15px 15px;
+  line-height: 125%;
+  text-align: left;
+}
+
 #loader {
   display: none;
   position: fixed;
