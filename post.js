@@ -131,6 +131,7 @@ class PostComponent {
         count.innerText = parseInt(count.innerText, 10) + 1;
       }).catch((error) => {
         console.log(error);
+        alert(error);
       });
     } else {
       api.removeLike(this.post.like).then(() => {
@@ -138,6 +139,7 @@ class PostComponent {
         count.innerText = parseInt(count.innerText, 10) - 1;
       }).catch((error) => {
         console.log(error);
+        alert(error);
       });
     }
   }

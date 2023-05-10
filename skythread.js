@@ -109,5 +109,6 @@ function loadThread(url, postId) {
   }).catch(error => {
     hideLoader();
     console.log(error);
+    alert(error);
   });
 }

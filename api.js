@@ -1,6 +1,6 @@
 class APIError extends Error {
   constructor(code, json) {
-    super("APIError status " + code);
+    super("APIError status " + code + "\n\n" + JSON.stringify(json));
     this.code = code;
     this.json = json;
   }
