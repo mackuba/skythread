@@ -76,7 +76,7 @@ class PostComponent {
       let avatar = document.createElement('img');
       avatar.src = this.post.author.avatar;
       avatar.className = 'avatar';
-      h.prepend(avatar);    
+      h.prepend(avatar);
     } else {
       let missing = document.createElement('i');
       missing.className = 'missing fa-regular fa-face-smile fa-2x';
@@ -141,5 +141,4 @@ class PostComponent {
       });
     }
   }
-  
 }

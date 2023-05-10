@@ -108,6 +108,6 @@ function loadThread(url, postId) {
     document.body.appendChild(list);
   }).catch(error => {
     hideLoader();
-    console.log(error);      
+    console.log(error);
   });
 }

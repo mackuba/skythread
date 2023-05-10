@@ -127,7 +127,7 @@ class BlueskyAPI {
       did = author;
     } else {
       let json = await this.getRequest('com.atproto.identity.resolveHandle', { handle: author });
-      did = json['did'];      
+      did = json['did'];
     }
 
     let postURI = `at://${did}/app.bsky.feed.post/${postId}`;
