@@ -11,24 +11,19 @@
 <body>
   <div id="loader"><img src="sunny.png"></div>
 
+  <div id="search">
+    <form method="get">
+      🌤 <input type="text" placeholder="Paste the thread link here" name="q">
+    </form>
+  </div>
+
   <script src="api.js"></script>
   <script src="post.js"></script>
   <script src="utils.js"></script>
   <script src="skythread.js"></script>
 
   <script>
-    if (window.location.search) {
-      let params = new URLSearchParams(location.search);
-      let query = params.get('q');
-      let author = params.get('author');
-      let post = params.get('post');
-
-      if (query) {
-        loadThread(decodeURIComponent(query));
-      } else if (author && post) {
-        loadThread(decodeURIComponent(author), decodeURIComponent(post));
-      }
-    }
+    init();
   </script>
 </body>
 </html>

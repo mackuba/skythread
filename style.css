@@ -29,7 +29,39 @@ a:visited {
   color: rgb(0, 0, 255);
 }
 
+#search {
+  visibility: hidden;
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-bottom: 5%;
+}
+
+#search form {
+  border: 2px solid hsl(210, 100%, 80%);
+  border-radius: 10px;
+  padding: 15px 20px;
+  margin-left: 50px;
+}
+
+#search input {
+  font-size: 16pt;
+  width: 600px;
+  border: 0;
+  margin-left: 8px;
+}
+
+#search input.click:focus {
+  outline: none;
+}
+
 #loader {
+  display: none;
   position: fixed;
   top: 0;
   bottom: 0;

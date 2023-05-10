@@ -1,4 +1,33 @@
-window.dateLocale = localStorage.getItem('locale') || undefined;
+function init() {
+  window.dateLocale = localStorage.getItem('locale') || undefined;
+
+  document.querySelector('#search input').addEventListener('mousedown', (e) => {
+    e.target.classList.add('click');
+  });
+
+  document.querySelector('#search input').addEventListener('blur', (e) => {
+    e.target.classList.remove('click');
+  });
+
+  parseQueryParams();
+}
+
+function parseQueryParams() {
+  let params = new URLSearchParams(location.search);
+  let query = params.get('q');
+  let author = params.get('author');
+  let post = params.get('post');
+
+  if (query) {
+    showLoader();
+    loadThread(decodeURIComponent(query));
+  } else if (author && post) {
+    showLoader();
+    loadThread(decodeURIComponent(author), decodeURIComponent(post));
+  } else {
+    showSearch();
+  }
+}
 
 function parsePost(json) {
   let post = json.post;
@@ -43,8 +72,20 @@ function buildParentLink(post) {
   return p;
 }
 
+function showLoader() {
+  document.getElementById('loader').style.display = 'block';
+}
+
 function hideLoader() {
   document.getElementById('loader').style.display = 'none';
+}
+
+function showSearch() {
+  document.getElementById('search').style.visibility = 'visible';
+}
+
+function hideSearch() {
+  document.getElementById('search').style.visibility = 'hidden';
 }
 
 function loadThread(url, postId) {
