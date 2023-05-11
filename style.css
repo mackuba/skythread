@@ -130,6 +130,12 @@ a:visited {
   background-color: hsl(210, 100%, 90%);
 }
 
+#login #cloudy {
+  color: hsl(210, 60%, 75%);
+  margin: 14px 0px;
+  display: none;
+}
+
 #login .info-box {
   display: none;
   border: 1px solid hsl(45, 100%, 60%);

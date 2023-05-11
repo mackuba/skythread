@@ -117,20 +117,26 @@ function toggleLoginInfo(event) {
 }
 
 function submitLogin() {
-  let handle = document.getElementById('login_handle').value;
-  let password = document.getElementById('login_password').value;
+  let handle = document.getElementById('login_handle');
+  let password = document.getElementById('login_password');
   let submit = document.getElementById('login_submit');
+  let cloudy = document.getElementById('cloudy');
 
-  submit.value = '';
-  submit.disabled = true;
+  if (submit.style.display == 'none') { return }
+
+  handle.blur();
+  password.blur();
+
+  submit.style.display = 'none';
+  cloudy.style.display = 'inline-block';
 
   let api = new BlueskyAPI();
-  api.logIn(handle, password).then(() => {
+  api.logIn(handle.value, password.value).then(() => {
     hideLogin();
     parseQueryParams();
   }).catch((error) => {
-    submit.value = 'Log in';
-    submit.disabled = false;
+    submit.style.display = 'inline';
+    cloudy.style.display = 'none';
     console.log(error);
     alert(error);
   });

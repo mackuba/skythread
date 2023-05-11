@@ -30,7 +30,10 @@
         <p>At the moment there is no way to log in using OAuth, only with a password. The password is only passed to the Bluesky API and isn't saved anywhere. The returned access token is stored in local storage. You can create an "app password" in the Bluesky app settings that you will only use to log in here.</p>
         <p>You can see the complete source code of this page <a href="http://github.com/mackuba/skythread" target="_blank">on GitHub</a> (and in your browser's web inspector!).</p>
       </div>
-      <p class="submit"><input id="login_submit" type="submit" value="Log in"></p>
+      <p class="submit">
+        <input id="login_submit" type="submit" value="Log in">
+        <i id="cloudy" class="fa-solid fa-cloud fa-beat fa-xl"></i>
+      </p>
     </form>
   </div>
 
