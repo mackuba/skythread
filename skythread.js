@@ -11,6 +11,11 @@ function init() {
     submitLogin();
   });
 
+  document.querySelector('#search form').addEventListener('submit', (e) => {
+    e.preventDefault();
+    submitSearch();
+  });
+
   document.querySelector('#search input').addEventListener('mousedown', (e) => {
     e.target.classList.add('click');
   });
@@ -140,6 +145,22 @@ function submitLogin() {
     console.log(error);
     alert(error);
   });
+}
+
+function submitSearch() {
+  let url = document.getElementById('search').querySelector('input[name=q]').value.trim();
+
+  if (!url) { return }
+
+  try {
+    let [handle, postId] = BlueskyAPI.parsePostURL(url);
+
+    let newURL = linkToPostById(handle, postId);
+    location.assign(newURL);
+  } catch (error) {
+    console.log(error);
+    alert(error);
+  }
 }
 
 function loadThread(url, postId) {

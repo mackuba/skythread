@@ -120,24 +120,38 @@ class BlueskyAPI {
     localStorage.setItem('userDID', this.#userDID);
   }
 
-  async loadThreadByURL(url) {
-    if (url.startsWith('https://')) {
-      let parts = url.substring(8).split('/');
+  static parsePostURL(string) {
+    let url;
 
-      if (parts.length < 5 || parts[0] != 'staging.bsky.app' || parts[1] != 'profile' || parts[3] != 'post') {
-        throw new URLError('Invalid URL');
-      }
-
-      let handle = parts[2];
-      let postId = parts[4];
-
-      return await this.loadThreadById(handle, postId);
-    } else if (url.startsWith('at://')) {
-      let threadJSON = await this.getRequest('app.bsky.feed.getPostThread', { uri: url });
-      return threadJSON;
-    } else {
-      throw new URLError('Invalid URL');
+    try {
+      url = new URL(string);
+    } catch (error) {
+      throw new URLError("This is not a valid URL");
     }
+
+    if (url.protocol != 'https:') {
+      throw new URLError('URL must start with https://');
+    }
+
+    if (!(url.host == 'staging.bsky.app' || url.host == 'bsky.app')) {
+      throw new URLError('Only bsky.app and staging.bsky.app URLs are supported');
+    }
+
+    let parts = url.pathname.split('/');
+
+    if (parts.length < 5 || parts[1] != 'profile' || parts[3] != 'post') {
+      throw new URLError('This is not a valid thread URL');
+    }
+
+    let handle = parts[2];
+    let postId = parts[4];
+
+    return [handle, postId];
+  }
+
+  async loadThreadByURL(url) {
+    let [handle, postId] = BlueskyAPI.parsePostURL(url);
+    return await this.loadThreadById(handle, postId);
   }
 
   async loadThreadById(author, postId) {

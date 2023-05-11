@@ -16,8 +16,12 @@ function lastPathComponent(uri) {
 }
 
 function linkToPostThread(post) {
+  return linkToPostById(post.author.handle, lastPathComponent(post.uri));
+}
+
+function linkToPostById(handle, postId) {
   let url = new URL(getLocation());
-  url.searchParams.set('author', post.author.handle);
-  url.searchParams.set('post', lastPathComponent(post.uri));
+  url.searchParams.set('author', handle);
+  url.searchParams.set('post', postId);
   return url.toString();
 }
