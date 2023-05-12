@@ -27,6 +27,12 @@ class PostComponent {
     p.innerText = this.post.text;
     div.appendChild(p);
 
+    if (this.post.embed) {
+      let embed = document.createElement('p');
+      embed.innerText = `[${this.post.embed.$type}]`;
+      div.appendChild(embed);
+    }
+
     let stats = this.buildStatsFooter();
     div.appendChild(stats);
 

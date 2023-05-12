@@ -63,7 +63,8 @@ function parsePost(json) {
     createdAt: new Date(post.record.createdAt),
     text: post.record.text,
     like: post.viewer.like,
-    replies: []
+    replies: [],
+    embed: post.record.embed
   };
 }
 
