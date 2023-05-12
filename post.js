@@ -53,6 +53,16 @@ class PostComponent {
     }
   }
 
+  get authorName() {
+    if (this.post.author.displayName) {
+      return this.post.author.displayName;
+    } else if (this.post.author.handle.endsWith('.bsky.social')) {
+      return this.post.author.handle.replace(/\.bsky\.social$/, '');
+    } else {
+      return this.post.author.handle;
+    }
+  }
+
   buildPostHeader() {
     let timeFormat = this.timeFormatForTimestamp();
     let formattedTime = this.post.createdAt.toLocaleString(window.dateLocale, timeFormat);
@@ -60,7 +70,7 @@ class PostComponent {
 
     let h = document.createElement('h2');
 
-    h.innerHTML = `${this.post.author.displayName} ` +
+    h.innerHTML = `${this.authorName} ` +
       `<a class="handle" href="${this.linkToAuthor}" target="_blank">@${this.post.author.handle}</a> ` +
       `<span class="separator">&bull;</span> ` +
       `<a class="time" href="${this.linkToPost}" target="_blank" title="${isoTime}">${formattedTime}</a> `;
