@@ -139,6 +139,13 @@ class PostComponent {
     let link = document.createElement('a');
     link.innerText = "Load more replies…";
     link.href = linkToPostThread(this.post);
+
+    link.addEventListener('click', (e) => {
+      e.preventDefault();
+      link.innerHTML = `<img class="loader" src="sunny.png">`;
+      loadThread(this.post.author.handle, lastPathComponent(this.post.uri), loadMore.parentNode.parentNode);
+    });
+
     loadMore.appendChild(link);
     return loadMore;
   }

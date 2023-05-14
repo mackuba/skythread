@@ -279,3 +279,9 @@ p.back i {
 .post .stats span {
   margin-right: 10px;
 }
+
+.post img.loader {
+  width: 24px;
+  animation: rotation 3s infinite linear;
+  margin-top: 5px;
+}

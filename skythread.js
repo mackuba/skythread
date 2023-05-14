@@ -176,7 +176,7 @@ function submitSearch() {
   }
 }
 
-function loadThread(url, postId) {
+function loadThread(url, postId, nodeToUpdate) {
   let api = new BlueskyAPI();
   let load = postId ? api.loadThreadById(url, postId) : api.loadThreadByURL(url);
 
@@ -186,14 +186,19 @@ function loadThread(url, postId) {
     console.log(tree);
     window.json = json;
 
-    if (tree.parent) {
+    if (tree.parent && !nodeToUpdate) {
       let p = buildParentLink(tree.parent);
       document.body.appendChild(p);
     }
 
     let list = new PostComponent(tree, tree).buildElement();
     hideLoader();
-    document.body.appendChild(list);
+
+    if (nodeToUpdate) {
+      nodeToUpdate.querySelector('.content').replaceWith(list.querySelector('.content'));
+    } else {
+      document.body.appendChild(list);      
+    }
   }).catch(error => {
     hideLoader();
     console.log(error);
