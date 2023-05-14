@@ -60,6 +60,7 @@ function parsePost(json) {
     repostCount: post.repostCount,
     uri: post.uri,
     cid: post.cid,
+    id: lastPathComponent(post.uri),
     createdAt: new Date(post.record.createdAt),
     text: post.record.text,
     like: post.viewer.like,

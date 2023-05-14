@@ -13,7 +13,7 @@ class PostComponent {
   }
 
   get linkToPost() {
-    return this.linkToAuthor + '/post/' + lastPathComponent(this.post.uri);
+    return this.linkToAuthor + '/post/' + this.post.id;
   }
 
   buildElement() {
@@ -143,7 +143,7 @@ class PostComponent {
     link.addEventListener('click', (e) => {
       e.preventDefault();
       link.innerHTML = `<img class="loader" src="sunny.png">`;
-      loadThread(this.post.author.handle, lastPathComponent(this.post.uri), loadMore.parentNode.parentNode);
+      loadThread(this.post.author.handle, this.post.id, loadMore.parentNode.parentNode);
     });
 
     loadMore.appendChild(link);

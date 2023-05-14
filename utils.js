@@ -16,7 +16,7 @@ function lastPathComponent(uri) {
 }
 
 function linkToPostThread(post) {
-  return linkToPostById(post.author.handle, lastPathComponent(post.uri));
+  return linkToPostById(post.author.handle, post.id);
 }
 
 function linkToPostById(handle, postId) {
