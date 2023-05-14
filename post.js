@@ -36,9 +36,16 @@ class PostComponent {
     let stats = this.buildStatsFooter();
     div.appendChild(stats);
 
-    for (let reply of this.post.replies) {
-      let component = new PostComponent(reply, this.root);
-      div.appendChild(component.buildElement());
+    if (this.post.replies.length == 1 && this.post.replies[0].author.did == this.post.author.did) {
+      let component = new PostComponent(this.post.replies[0], this.root);
+      let element = component.buildElement();
+      element.classList.add('flat');
+      div.appendChild(element);
+    } else {
+      for (let reply of this.post.replies) {
+        let component = new PostComponent(reply, this.root);
+        div.appendChild(component.buildElement());
+      }
     }
 
     if (this.post.replyCount != this.post.replies.length) {

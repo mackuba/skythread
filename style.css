@@ -189,6 +189,12 @@ p.back i {
   border-left: 1px solid #aaa;
 }
 
+.post.flat {
+  padding-left: 0px;
+  border-left: 0px;
+  margin-top: 25px;
+}
+
 .post .avatar {
   width: 32px;
   height: 32px;
