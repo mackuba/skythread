@@ -76,7 +76,19 @@ function buildPostSubtree(json) {
   }
 
   if (json.replies) {
-    post.replies = json.replies.reverse().map(x => buildPostSubtree(x));
+    post.replies = json.replies.map(x => buildPostSubtree(x)).sort((a, b) => {
+      if (a.author.did == post.author.did && b.author.did != post.author.did) {
+        return -1;
+      } else if (a.author.did != post.author.did && b.author.did == post.author.did) {
+        return 1;
+      } else if (a.createdAt.getTime() < b.createdAt.getTime()) {
+        return -1;
+      } else if (a.createdAt.getTime() > b.createdAt.getTime()) {
+        return 1;
+      } else {
+        return 0;
+      }
+    });
   }
 
   return post;
