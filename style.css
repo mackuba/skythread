@@ -189,6 +189,10 @@ p.back i {
   border-left: 1px solid #aaa;
 }
 
+body > .post {
+  border-left: 0px;
+}
+
 .post.flat {
   padding-left: 0px;
   border-left: 0px;
