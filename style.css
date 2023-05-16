@@ -184,19 +184,46 @@ p.back i {
 }
 
 .post {
-  padding-left: 20px;
+  position: relative;
+  padding-left: 21px;
   margin-top: 30px;
+}
+
+.post .edge {
+  position: absolute;
+  left: -2px;
+  top: 30px;
+  bottom: 0px;
+  width: 6px;
+}
+
+.post .edge .line {
+  position: absolute;
+  left: 2px;
+  top: 0px;
+  bottom: 0px;
   border-left: 1px solid #aaa;
 }
 
-body > .post {
-  border-left: 0px;
+.post .edge:hover .line {
+  border-left: 2px solid #888;
+}
+
+.post.collapsed .line {
+  display: none;
+}
+
+.post.collapsed .content {
+  display: none;
 }
 
 .post.flat {
   padding-left: 0px;
-  border-left: 0px;
   margin-top: 25px;
+}
+
+.post.flat .line {
+  display: none;
 }
 
 .post .avatar {
@@ -214,6 +241,13 @@ body > .post {
   border-radius: 16px;
   vertical-align: middle;
   margin-right: 8px;
+}
+
+.post .plus {
+  position: absolute;
+  top: 8px;
+  left: -6px;
+  width: 14px;
 }
 
 .post h2 {

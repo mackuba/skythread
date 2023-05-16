@@ -23,37 +23,76 @@ class PostComponent {
     let header = this.buildPostHeader();
     div.appendChild(header);
 
+    let content = document.createElement('div');
+    content.className = 'content';
+
+    if (!this.isRoot) {
+      let edge = document.createElement('div');
+      edge.className = 'edge';
+      div.appendChild(edge);
+
+      let line = document.createElement('div');
+      line.className = 'line';
+      edge.appendChild(line);
+
+      let plus = document.createElement('img');
+      plus.className = 'plus';
+      plus.src = 'icons/subtract-square.png';
+      div.appendChild(plus);
+
+      for (let element of [edge, plus]) {
+        element.addEventListener('click', (e) => {
+          e.preventDefault();
+          this.toggleSectionFold(div);
+        });
+      }
+    }
+
     let p = document.createElement('p');
     p.innerText = this.post.text;
-    div.appendChild(p);
+    content.appendChild(p);
 
     if (this.post.embed) {
       let embed = document.createElement('p');
       embed.innerText = `[${this.post.embed.$type}]`;
-      div.appendChild(embed);
+      content.appendChild(embed);
     }
 
     let stats = this.buildStatsFooter();
-    div.appendChild(stats);
+    content.appendChild(stats);
 
     if (this.post.replies.length == 1 && this.post.replies[0].author.did == this.post.author.did) {
       let component = new PostComponent(this.post.replies[0], this.root);
       let element = component.buildElement();
       element.classList.add('flat');
-      div.appendChild(element);
+      content.appendChild(element);
     } else {
       for (let reply of this.post.replies) {
         let component = new PostComponent(reply, this.root);
-        div.appendChild(component.buildElement());
+        content.appendChild(component.buildElement());
       }
     }
 
     if (this.post.replyCount != this.post.replies.length) {
       let loadMore = this.buildLoadMoreLink()
-      div.appendChild(loadMore);
+      content.appendChild(loadMore);
     }
 
+    div.appendChild(content);
+
     return div;
+  }
+
+  toggleSectionFold(div) {
+    let plus = div.querySelector('.plus');
+
+    if (div.classList.contains('collapsed')) {
+      div.classList.remove('collapsed');
+      plus.src = 'icons/subtract-square.png'
+    } else {
+      div.classList.add('collapsed');
+      plus.src = 'icons/add-square.png'
+    }
   }
 
   timeFormatForTimestamp() {
@@ -142,7 +181,7 @@ class PostComponent {
 
     link.addEventListener('click', (e) => {
       e.preventDefault();
-      link.innerHTML = `<img class="loader" src="sunny.png">`;
+      link.innerHTML = `<img class="loader" src="icons/sunny.png">`;
       loadThread(this.post.author.handle, this.post.id, loadMore.parentNode.parentNode);
     });
 
