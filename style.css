@@ -172,7 +172,7 @@ a:visited {
   animation: rotation 3s infinite linear;
 }
 
-p.back a {
+p.back, p.back a {
   font-size: 11pt;
   color: #666;
 }

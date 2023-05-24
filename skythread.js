@@ -53,6 +53,10 @@ function parseQueryParams() {
 function parsePost(json) {
   let post = json.post;
 
+  if (!post) {
+    return { missing: true };
+  }
+
   return {
     author: post.author,
     likeCount: post.likeCount,
@@ -99,10 +103,14 @@ function buildParentLink(post) {
   let p = document.createElement('p');
   p.className = 'back';
 
-  let link = document.createElement('a');
-  let url = linkToPostThread(post);
-  link.innerHTML = `<i class="fa-solid fa-reply"></i><a href="${url}">See parent post (@${post.author.handle})</a>`;
-  p.appendChild(link);
+  if (post.missing) {
+    p.innerHTML = `<i class="fa-solid fa-ban"></i> parent post has been deleted`;
+  } else {
+    let link = document.createElement('a');
+    let url = linkToPostThread(post);
+    link.innerHTML = `<i class="fa-solid fa-reply"></i><a href="${url}">See parent post (@${post.author.handle})</a>`;
+    p.appendChild(link);    
+  }
 
   return p;
 }
