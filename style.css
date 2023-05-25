@@ -222,7 +222,7 @@ p.back i {
   margin-top: 25px;
 }
 
-.post.flat > .edge .line {
+.post.flat > .edge {
   display: none;
 }
 
