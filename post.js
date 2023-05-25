@@ -9,7 +9,7 @@ class PostComponent {
   }
 
   get linkToAuthor() {
-    return 'https://staging.bsky.app/profile/' + this.post.author.handle;
+    return 'https://bsky.app/profile/' + this.post.author.handle;
   }
 
   get linkToPost() {
