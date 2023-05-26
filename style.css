@@ -291,6 +291,15 @@ p.back i {
   margin-top: 10px;
 }
 
+.post.blocked p, .post.blocked a {
+  font-size: 11pt;
+  color: #666;
+}
+
+.post.blocked p i {
+  margin-right: 2px;
+}
+
 .post .stats {
   font-size: 10pt;
   color: #666;

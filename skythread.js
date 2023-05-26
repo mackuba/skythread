@@ -54,7 +54,7 @@ function parsePost(json) {
   let post = json.post;
 
   if (!post) {
-    return { missing: true };
+    return { missing: true, uri: json.uri };
   }
 
   return {
@@ -82,7 +82,13 @@ function buildPostSubtree(json) {
 
   if (json.replies) {
     post.replies = json.replies.map(x => buildPostSubtree(x)).sort((a, b) => {
-      if (a.author.did == post.author.did && b.author.did != post.author.did) {
+      if (a.missing && b.missing) {
+        return 0;
+      } else if (a.missing && !b.missing) {
+        return 1;
+      } else if (b.missing && !a.missing) {
+        return -1;
+      } else if (a.author.did == post.author.did && b.author.did != post.author.did) {
         return -1;
       } else if (a.author.did != post.author.did && b.author.did == post.author.did) {
         return 1;

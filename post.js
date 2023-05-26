@@ -16,9 +16,29 @@ class PostComponent {
     return this.linkToAuthor + '/post/' + this.post.id;
   }
 
+  get rawLinkToAuthor() {
+    let parts = this.post.uri.replace('at://', '').split('/');
+    return 'https://bsky.app/profile/' + parts[0];
+  }
+
+  get rawLinkToPost() {
+    let parts = this.post.uri.replace('at://', '').split('/');
+    return 'https://bsky.app/profile/' + parts[0] + '/post/' + parts[2];
+  }
+
   buildElement() {
     let div = document.createElement('div');
     div.className = 'post';
+
+    if (this.post.missing) {
+      let p = document.createElement('p');
+      p.innerHTML = `<i class="fa-solid fa-ban"></i> ` +
+        `<a href="${this.rawLinkToPost}" target="_blank">Blocked post</a> ` +
+        `<a href="${this.rawLinkToAuthor}" target="_blank">(see author)</a> `;
+      div.appendChild(p);
+      div.className += ' blocked';
+      return div;
+    }
 
     let header = this.buildPostHeader();
     div.appendChild(header);
