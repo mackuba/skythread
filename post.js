@@ -81,7 +81,7 @@ class PostComponent {
     let stats = this.buildStatsFooter();
     content.appendChild(stats);
 
-    if (this.post.replies.length == 1 && this.post.replies[0].author.did == this.post.author.did) {
+    if (this.post.replies.length == 1 && this.post.replies[0].author?.did == this.post.author.did) {
       let component = new PostComponent(this.post.replies[0], this.root);
       let element = component.buildElement();
       element.classList.add('flat');
