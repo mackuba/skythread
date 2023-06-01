@@ -26,6 +26,6 @@ At the moment there is no way to log in using OAuth, only with a password. The p
 
 ## Credits
 
-Copyright © 2023 [Kuba Suder](https://mackuba.eu) (<a href="https://bsky.app/profile/mackuba.eu">@mackuba.eu</a> on Bluesky). Licensed under [MIT License](https://choosealicense.com/licenses/mit/).
+Copyright © 2023 [Kuba Suder](https://mackuba.eu) (<a href="https://bsky.app/profile/mackuba.eu">@mackuba.eu</a> on Bluesky). Licensed under [zlib license](https://choosealicense.com/licenses/zlib/) (permissive, similar to MIT).
 
 Pull requests, bug reports and suggestions are welcome :)
