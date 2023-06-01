@@ -4,7 +4,7 @@ Skythread is a web tool that allows you to read long Bluesky threads in the form
 
 It looks like this:
 
-<img width="600" src="https://github.com/mackuba/skythread/assets/28465/7905fa5d-bea4-47f0-9094-624e66caa973">
+<img width="600" src="https://github.com/mackuba/skythread/assets/28465/d1314c89-61e9-4667-b906-32e0cb96f198">
 
 To use Skythread, open the GitHub pages view of this repo: https://mackuba.github.io/skythread/ (or download a copy and use it locally).
 
@@ -21,7 +21,6 @@ At the moment there is no way to log in using OAuth, only with a password. The p
 * logging out
 * showing images
 * linkifying links
-* buttons to fold/unfold subtrees
 
 
 ## Credits
