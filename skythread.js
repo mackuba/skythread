@@ -69,7 +69,9 @@ function parsePost(json) {
     text: post.record.text,
     like: post.viewer.like,
     replies: [],
-    embed: post.record.embed
+    embed: post.record.embed,
+    muted: post.author.viewer.muted,
+    muteList: post.author.viewer.mutedByList?.name
   };
 }
 

@@ -30,6 +30,10 @@ class PostComponent {
     let div = document.createElement('div');
     div.className = 'post';
 
+    if (this.post.muted) {
+      div.classList.add('muted');
+    }
+
     if (this.post.missing) {
       let p = document.createElement('p');
       p.innerHTML = `<i class="fa-solid fa-ban"></i> ` +
@@ -68,18 +72,37 @@ class PostComponent {
       }
     }
 
+    let wrapper;
+
+    if (this.post.muted) {
+      let details = document.createElement('details');
+      let summary = document.createElement('summary');
+
+      if (this.post.muteList) {
+        summary.innerText = `Muted (${this.post.muteList})`;
+      } else {
+        summary.innerText = 'Muted - click to show';
+      }
+
+      details.appendChild(summary);
+      content.appendChild(details);
+      wrapper = details;
+    } else {
+      wrapper = content;
+    }
+
     let p = document.createElement('p');
     p.innerText = this.post.text;
-    content.appendChild(p);
+    wrapper.appendChild(p);
 
     if (this.post.embed) {
       let embed = document.createElement('p');
       embed.innerText = `[${this.post.embed.$type}]`;
-      content.appendChild(embed);
+      wrapper.appendChild(embed);
     }
 
     let stats = this.buildStatsFooter();
-    content.appendChild(stats);
+    wrapper.appendChild(stats);
 
     if (this.post.replies.length == 1 && this.post.replies[0].author?.did == this.post.author.did) {
       let component = new PostComponent(this.post.replies[0], this.root);
@@ -154,7 +177,11 @@ class PostComponent {
         `<i class="fa-solid fa-arrows-split-up-and-left fa-rotate-180"></i></a> `;
     }
 
-    if (this.post.author.avatar) {
+    if (this.post.muted) {
+      let muted = document.createElement('i');
+      muted.className = 'missing fa-regular fa-circle-user fa-2x';
+      h.prepend(muted);
+    } else if (this.post.author.avatar) {
       let avatar = document.createElement('img');
       avatar.src = this.post.author.avatar;
       avatar.className = 'avatar';

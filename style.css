@@ -243,6 +243,10 @@ p.back i {
   margin-right: 8px;
 }
 
+.post.muted .missing {
+  color: #bbb;
+}
+
 .post .plus {
   position: absolute;
   top: 8px;
@@ -298,6 +302,25 @@ p.back i {
 
 .post.blocked p i {
   margin-right: 2px;
+}
+
+.post.muted > h2, .post.muted > .content > details {
+  opacity: 0.3;
+}
+
+.post.muted > h2 {
+  font-weight: 600;
+}
+
+.post.muted details {
+  margin-top: 12px;
+}
+
+.post.muted details summary {
+  font-size: 10pt;
+  user-select: none;
+  -webkit-user-select: none;
+  cursor: default;
 }
 
 .post .stats {
