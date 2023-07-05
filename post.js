@@ -35,12 +35,7 @@ class PostComponent {
     }
 
     if (this.post.missing) {
-      let p = document.createElement('p');
-      p.innerHTML = `<i class="fa-solid fa-ban"></i> ` +
-        `<a href="${this.rawLinkToPost}" target="_blank">Blocked post</a> ` +
-        `<a href="${this.rawLinkToAuthor}" target="_blank">(see author)</a> `;
-      div.appendChild(p);
-      div.className += ' blocked';
+      this.buildBlockedPostElement(div);
       return div;
     }
 
@@ -123,6 +118,35 @@ class PostComponent {
 
     div.appendChild(content);
 
+    return div;
+  }
+
+  buildBlockedPostElement(div) {
+    let p = document.createElement('p');
+    p.innerHTML = `<i class="fa-solid fa-ban"></i> ` +
+      `<a href="${this.rawLinkToPost}" target="_blank">Blocked post</a> ` +
+      `<a href="${this.rawLinkToAuthor}" target="_blank">(see author)</a> `;
+    div.appendChild(p);
+
+    let loadPost = document.createElement('p');
+    let a = document.createElement('a');
+    a.innerText = "Load post…";
+    a.href = '#';
+    a.addEventListener('click', (e) => {
+      e.preventDefault();
+      loadPost.remove();
+
+      let api = new BlueskyAPI();
+      api.loadRawPostRecord(this.post.uri).then(post => {
+        let p = document.createElement('p');
+        p.innerText = post.value.text;
+        div.appendChild(p);
+      });
+    });
+
+    loadPost.appendChild(a);
+    div.appendChild(loadPost);
+    div.classList.add('blocked');
     return div;
   }
 

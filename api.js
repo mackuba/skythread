@@ -169,6 +169,16 @@ class BlueskyAPI {
     return threadJSON;
   }
 
+  async loadRawPostRecord(atURI) {
+    let parts = atURI.replace('at://', '').split('/');
+
+    return await this.getRequest('com.atproto.repo.getRecord', {
+      repo: parts[0],
+      collection: 'app.bsky.feed.post',
+      rkey: parts[2]
+    });
+  }
+
   async likePost(atURI, cid) {
     return await this.postRequest('com.atproto.repo.createRecord', {
       repo: this.#userDID,
