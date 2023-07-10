@@ -29,6 +29,21 @@ a:visited {
   color: rgb(0, 0, 255);
 }
 
+#github {
+  position: fixed;
+  bottom: 10px;
+  right: 10px;
+}
+
+#github img {
+  width: 20px;
+  opacity: 0.4;
+}
+
+#github a:hover img {
+  opacity: 0.6;
+}
+
 #search {
   visibility: hidden;
   position: fixed;
