@@ -295,6 +295,29 @@ p.back i {
   margin-top: 10px;
 }
 
+.post .quote-embed {
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background-color: #fbfcfd;
+  margin-top: 25px;
+  margin-bottom: 15px;
+  margin-left: 0px;
+  max-width: 800px;
+}
+
+.post .quote-embed .post {
+  margin-top: 16px;
+  padding-left: 16px;
+  padding-right: 16px;
+  padding-bottom: 5px;
+}
+
+.post .quote-embed .placeholder {
+  font-style: italic;
+  font-size: 11pt;
+  color: #888;
+}
+
 .post.blocked p, .post.blocked a {
   font-size: 11pt;
   color: #666;

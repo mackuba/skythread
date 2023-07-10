@@ -91,13 +91,14 @@ class PostComponent {
     wrapper.appendChild(p);
 
     if (this.post.embed) {
-      let embed = document.createElement('p');
-      embed.innerText = `[${this.post.embed.$type}]`;
+      let embed = this.buildEmbedElement(this.post.embed);
       wrapper.appendChild(embed);
     }
 
-    let stats = this.buildStatsFooter();
-    wrapper.appendChild(stats);
+    if (this.post.likeCount !== undefined && this.post.repostCount !== undefined) {
+      let stats = this.buildStatsFooter();
+      wrapper.appendChild(stats);      
+    }
 
     if (this.post.replies.length == 1 && this.post.replies[0].author?.did == this.post.author.did) {
       let component = new PostComponent(this.post.replies[0], this.root);
@@ -119,6 +120,34 @@ class PostComponent {
     div.appendChild(content);
 
     return div;
+  }
+
+  buildEmbedElement(embed) {
+    if (embed.$type == 'app.bsky.embed.record') {
+      let div = document.createElement('div');
+      div.className = 'quote-embed'
+      div.innerHTML = '<p class="post placeholder">Loading quoted post...</p>';
+
+      this.loadQuotedPost(embed.record, div);
+      return div;
+    } else {
+      let p = document.createElement('p');
+      p.innerText = `[${embed.$type}]`;
+      return p;
+    }
+  }
+
+  async loadQuotedPost(record, div) {
+    let api = new BlueskyAPI();
+
+    let handle = record.uri.split('/')[2];
+    let post = parseRawPost(await api.loadRawPostRecord(record.uri));
+    post.author = await api.loadRawProfileRecord(handle);
+    post.isEmbed = true;
+
+    let postView = new PostComponent(post, post).buildElement();
+    div.innerHTML = '';
+    div.appendChild(postView);
   }
 
   buildBlockedPostElement(div) {
@@ -194,7 +223,7 @@ class PostComponent {
       `<span class="separator">&bull;</span> ` +
       `<a class="time" href="${this.linkToPost}" target="_blank" title="${isoTime}">${formattedTime}</a> `;
 
-    if (this.post.replyCount > 0 && !this.isRoot) {
+    if (this.post.replyCount > 0 && !this.isRoot || this.post.isEmbed) {
       h.innerHTML +=
         `<span class="separator">&bull;</span> ` +
         `<a href="${linkToPostThread(this.post)}" class="action" title="Load this subtree">` +

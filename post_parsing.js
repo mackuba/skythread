@@ -54,3 +54,17 @@ function buildPostSubtree(json) {
 
   return post;
 }
+
+function parseRawPost(json) {
+  return {
+    replyCount: 0,
+    uri: json.uri,
+    cid: json.cid,
+    id: lastPathComponent(json.uri),
+    createdAt: new Date(json.value.createdAt),
+    text: json.value.text,
+    replies: [],
+    embed: json.value.embed,
+    parentURI: json.value.reply?.parent?.uri
+  };
+}

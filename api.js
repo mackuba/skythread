@@ -179,6 +179,10 @@ class BlueskyAPI {
     });
   }
 
+  async loadRawProfileRecord(handle) {
+    return await this.getRequest('app.bsky.actor.getProfile', { actor: handle });
+  }
+
   async likePost(atURI, cid) {
     return await this.postRequest('com.atproto.repo.createRecord', {
       repo: this.#userDID,
