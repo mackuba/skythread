@@ -130,6 +130,14 @@ class PostComponent {
 
       this.loadQuotedPost(embed.record, div);
       return div;
+    } else if (embed.$type == 'app.bsky.embed.recordWithMedia') {
+      // TODO: load image
+      let div = document.createElement('div');
+      div.className = 'quote-embed'
+      div.innerHTML = '<p class="post placeholder">Loading quoted post...</p>';
+
+      this.loadQuotedPost(embed.record.record, div);
+      return div;
     } else {
       let p = document.createElement('p');
       p.innerText = `[${embed.$type}]`;
