@@ -166,7 +166,14 @@ class PostComponent {
       loadPost.remove();
 
       let api = new BlueskyAPI();
-      api.loadRawPostRecord(this.post.uri).then(post => {
+      let loadRecord = api.loadRawPostRecord(this.post.uri);
+      let loadProfile = api.loadRawProfileRecord(this.post.uri.split('/')[2]);
+
+      Promise.all([loadRecord, loadProfile]).then((results) => {
+        let [post, author] = results;
+        let a = document.createElement('p');
+        a.innerText = `@${author.handle}:`;
+        div.appendChild(a);
         let p = document.createElement('p');
         p.innerText = post.value.text;
         div.appendChild(p);
