@@ -54,7 +54,12 @@ function buildParentLink(post) {
   let p = document.createElement('p');
   p.className = 'back';
 
-  if (post.missing) {
+  if (post.blocked) {
+    let element = new PostComponent(post, post).buildElement();
+    element.className = 'back';
+    element.querySelector('p a').innerText = 'Parent post blocked';
+    return element;
+  } else if (post.missing) {
     p.innerHTML = `<i class="fa-solid fa-ban"></i> parent post has been deleted`;
   } else {
     let url = linkToPostThread(post);
