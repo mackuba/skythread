@@ -165,7 +165,7 @@ class PostComponent {
     let handle = record.uri.split('/')[2];
     let data = await api.loadRawPostRecord(record.uri);
     let author = await api.loadRawProfileRecord(handle);
-    let post = new Post(data, { author: author, isEmbed: true });
+    let post = new Post(data, { author, isEmbed: true });
 
     let postView = new PostComponent(post).buildElement();
     div.innerHTML = '';
@@ -323,7 +323,7 @@ class PostComponent {
     let count = heart.nextElementSibling;
 
     if (!heart.classList.contains('liked')) {
-      api.likePost(this.post.uri, this.post.cid).then((like) => {
+      api.likePost(this.post).then((like) => {
         this.post.viewerLike = like.uri;
         heart.classList.add('liked');
         count.innerText = parseInt(count.innerText, 10) + 1;

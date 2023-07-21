@@ -212,14 +212,14 @@ class BlueskyAPI {
     return await this.getRequest('app.bsky.actor.getProfile', { actor: handle });
   }
 
-  async likePost(atURI, cid) {
+  async likePost(post) {
     return await this.postRequest('com.atproto.repo.createRecord', {
       repo: this.#userDID,
       collection: 'app.bsky.feed.like',
       record: {
         subject: {
-          uri: atURI,
-          cid: cid
+          uri: post.uri,
+          cid: post.cid
         },
         createdAt: new Date().toISOString()
       }
