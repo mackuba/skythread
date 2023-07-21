@@ -16,14 +16,14 @@ class PostComponent {
     return this.linkToAuthor + '/post/' + this.post.rkey;
   }
 
-  get rawLinkToAuthor() {
-    let parts = this.post.uri.replace('at://', '').split('/');
-    return 'https://bsky.app/profile/' + parts[0];
+  get didLinkToAuthor() {
+    let { repo } = atURI(this.post.uri);
+    return `https://bsky.app/profile/${repo}`;
   }
 
-  get rawLinkToPost() {
-    let parts = this.post.uri.replace('at://', '').split('/');
-    return 'https://bsky.app/profile/' + parts[0] + '/post/' + parts[2];
+  get didLinkToPost() {
+    let { repo, rkey } = atURI(this.post.uri);
+    return `https://bsky.app/profile/${repo}/post/${rkey}`;
   }
 
   buildElement() {
@@ -162,7 +162,7 @@ class PostComponent {
   async loadQuotedPost(record, div) {
     let api = new BlueskyAPI();
 
-    let handle = record.uri.split('/')[2];
+    let handle = atURI(record.uri).repo;
     let data = await api.loadRawPostRecord(record.uri);
     let author = await api.loadRawProfileRecord(handle);
     let post = new Post(data, { author, isEmbed: true });
@@ -175,8 +175,8 @@ class PostComponent {
   buildBlockedPostElement(div) {
     let p = document.createElement('p');
     p.innerHTML = `<i class="fa-solid fa-ban"></i> ` +
-      `<a href="${this.rawLinkToPost}" target="_blank">Blocked post</a> ` +
-      `<a href="${this.rawLinkToAuthor}" target="_blank">(see author)</a> `;
+      `<a href="${this.didLinkToPost}" target="_blank">Blocked post</a> ` +
+      `<a href="${this.didLinkToAuthor}" target="_blank">(see author)</a> `;
     div.appendChild(p);
 
     let loadPost = document.createElement('p');
@@ -188,8 +188,9 @@ class PostComponent {
       loadPost.remove();
 
       let api = new BlueskyAPI();
+      let handle = atURI(this.post.uri).repo;
       let loadRecord = api.loadRawPostRecord(this.post.uri);
-      let loadProfile = api.loadRawProfileRecord(this.post.uri.split('/')[2]);
+      let loadProfile = api.loadRawProfileRecord(handle);
 
       Promise.all([loadRecord, loadProfile]).then((results) => {
         let [post, author] = results;

@@ -1,3 +1,25 @@
+function atURI(uri) {
+  return new AtURI(uri);
+}
+
+class AtURI {
+  constructor(uri) {
+    if (!uri.startsWith('at://')) {
+      throw new URLError(`Not an at:// URI: ${uri}`);
+    }
+
+    let parts = uri.split('/');
+
+    if (parts.length != 5) {
+      throw new URLError(`Invalid at:// URI: ${uri}`);
+    }
+
+    this.repo = parts[2];
+    this.collection = parts[3];
+    this.rkey = parts[4];
+  }
+}
+
 function getLocation() {
   return location.origin + location.pathname;
 }
@@ -8,11 +30,6 @@ function sameDay(date1, date2) {
     date1.getMonth() == date2.getMonth() &&
     date1.getFullYear() == date2.getFullYear()
   );
-}
-
-function lastPathComponent(uri) {
-  let parts = uri.replace(/\/$/, '').split('/');
-  return parts[parts.length-1];
 }
 
 function linkToPostThread(post) {

@@ -16,7 +16,7 @@ class Record {
   }
 
   get rkey() {
-    return lastPathComponent(this.uri);
+    return atURI(this.uri).rkey;
   }
 }
 

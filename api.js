@@ -198,14 +198,10 @@ class BlueskyAPI {
     return threadJSON;
   }
 
-  async loadRawPostRecord(atURI) {
-    let parts = atURI.replace('at://', '').split('/');
+  async loadRawPostRecord(uri) {
+    let { repo, collection, rkey } = atURI(uri);
 
-    return await this.getRequest('com.atproto.repo.getRecord', {
-      repo: parts[0],
-      collection: 'app.bsky.feed.post',
-      rkey: parts[2]
-    });
+    return await this.getRequest('com.atproto.repo.getRecord', { repo, collection, rkey });
   }
 
   async loadRawProfileRecord(handle) {
@@ -226,11 +222,13 @@ class BlueskyAPI {
     });
   }
 
-  async removeLike(atURI) {
+  async removeLike(uri) {
+    let { rkey } = atURI(uri);
+
     await this.postRequest('com.atproto.repo.deleteRecord', {
       repo: this.#userDID,
       collection: 'app.bsky.feed.like',
-      rkey: lastPathComponent(atURI)
+      rkey: rkey
     });
   }
 }
