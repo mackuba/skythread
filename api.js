@@ -45,6 +45,7 @@ class BlueskyAPI {
     this.#refreshToken = localStorage.getItem('refreshToken');
     this.#userDID = localStorage.getItem('userDID');
     this.handleCache = new HandleCache();
+    this.profiles = {};
   }
 
   get isLoggedIn() {
@@ -144,6 +145,14 @@ class BlueskyAPI {
     localStorage.setItem('userDID', this.#userDID);
   }
 
+  cacheProfile(author) {
+    this.profiles[author.did] = author;
+
+    if (author.handle) {
+      this.profiles[author.handle] = author;      
+    }
+  }
+
   static parsePostURL(string) {
     let url;
 
@@ -205,7 +214,13 @@ class BlueskyAPI {
   }
 
   async loadRawProfileRecord(handle) {
-    return await this.getRequest('app.bsky.actor.getProfile', { actor: handle });
+    if (this.profiles[handle]) {
+      return this.profiles[handle];
+    } else {
+      let profile = await this.getRequest('app.bsky.actor.getProfile', { actor: handle });
+      this.cacheProfile(profile);
+      return profile;
+    }
   }
 
   async likePost(post) {

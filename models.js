@@ -58,6 +58,10 @@ class Post extends Record {
     this.replies = [];
     this.embed = this.record.embed && Embed.parse(this.record.embed);
     this.viewerLike = data.viewer?.like;
+
+    if (this.author) {
+      api.cacheProfile(this.author);      
+    }
   }
 
   get text() {
