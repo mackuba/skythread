@@ -12,6 +12,29 @@ class URLError extends Error {
   }
 }
 
+class HandleCache {
+  prepareCache() {
+    if (!this.cache) {
+      this.cache = JSON.parse(localStorage.getItem('handleCache') ?? '{}');
+    }
+  }
+
+  saveCache() {
+    localStorage.setItem('handleCache', JSON.stringify(this.cache));
+  }
+
+  getHandleDid(handle) {
+    this.prepareCache();
+    return this.cache[handle];
+  }
+
+  setHandleDid(handle, did) {
+    this.prepareCache();
+    this.cache[handle] = did;
+    this.saveCache();    
+  }
+}
+
 class BlueskyAPI {
   #accessToken;
   #refreshToken;
@@ -21,6 +44,7 @@ class BlueskyAPI {
     this.#accessToken = localStorage.getItem('accessToken');
     this.#refreshToken = localStorage.getItem('refreshToken');
     this.#userDID = localStorage.getItem('userDID');
+    this.handleCache = new HandleCache();
   }
 
   get isLoggedIn() {
@@ -149,21 +173,26 @@ class BlueskyAPI {
     return [handle, postId];
   }
 
+  async resolveHandle(handle) {
+    let did = this.handleCache.getHandleDid(handle);
+
+    if (did) {
+      return did;
+    } else {
+      let json = await this.getRequest('com.atproto.identity.resolveHandle', { handle });
+      did = json['did'];
+      this.handleCache.setHandleDid(handle, did);
+      return did;
+    }
+  }
+
   async loadThreadByURL(url) {
     let [handle, postId] = BlueskyAPI.parsePostURL(url);
     return await this.loadThreadById(handle, postId);
   }
 
   async loadThreadById(author, postId) {
-    let did;
-
-    if (author.startsWith('did:')) {
-      did = author;
-    } else {
-      let json = await this.getRequest('com.atproto.identity.resolveHandle', { handle: author });
-      did = json['did'];
-    }
-
+    let did = author.startsWith('did:') ? author : await this.resolveHandle(author);
     let postURI = `at://${did}/app.bsky.feed.post/${postId}`;
     let threadJSON = await this.getRequest('app.bsky.feed.getPostThread', { uri: postURI });
     return threadJSON;
