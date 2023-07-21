@@ -131,7 +131,7 @@ class PostComponent {
       div.className = 'quote-embed'
       div.innerHTML = '<p class="post placeholder">Loading quoted post...</p>';
 
-      this.loadQuotedPost(embed.record, div);
+      this.loadQuotedPost(embed.record.uri, div);
       return div;
 
     case RecordWithMediaEmbed:
@@ -141,7 +141,7 @@ class PostComponent {
       div.className = 'quote-embed'
       div.innerHTML = '<p class="post placeholder">Loading quoted post...</p>';
 
-      this.loadQuotedPost(embed.record, div);
+      this.loadQuotedPost(embed.record.uri, div);
 
       // TODO: load image
       p = document.createElement('p');
@@ -159,11 +159,9 @@ class PostComponent {
     }
   }
 
-  async loadQuotedPost(record, div) {
-    let handle = atURI(record.uri).repo;
-    let data = await api.loadRawPostRecord(record.uri);
-    let author = await api.loadRawProfileRecord(handle);
-    let post = new Post(data, { author, isEmbed: true });
+  async loadQuotedPost(uri, div) {
+    let results = await api.loadRawPostWithAuthor(uri);
+    let post = new Post(results.post, { author: results.author, isEmbed: true });
 
     let postView = new PostComponent(post).buildElement();
     div.innerHTML = '';
@@ -185,15 +183,13 @@ class PostComponent {
       e.preventDefault();
       loadPost.remove();
 
-      let handle = atURI(this.post.uri).repo;
-      let loadRecord = api.loadRawPostRecord(this.post.uri);
-      let loadProfile = api.loadRawProfileRecord(handle);
+      api.loadRawPostWithAuthor(this.post.uri).then((results) => {
+        let { post, author } = results;
 
-      Promise.all([loadRecord, loadProfile]).then((results) => {
-        let [post, author] = results;
         let a = document.createElement('p');
         a.innerText = `@${author.handle}:`;
         div.appendChild(a);
+
         let p = document.createElement('p');
         p.innerText = post.value.text;
         div.appendChild(p);

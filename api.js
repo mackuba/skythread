@@ -223,6 +223,15 @@ class BlueskyAPI {
     }
   }
 
+  async loadRawPostWithAuthor(postURI) {
+    let handle = atURI(postURI).repo;
+    let loadRecord = this.loadRawPostRecord(postURI);
+    let loadProfile = this.loadRawProfileRecord(handle);
+
+    let [post, author] = await Promise.all([loadRecord, loadProfile]);
+    return { post, author };
+  }
+
   async likePost(post) {
     return await this.postRequest('com.atproto.repo.createRecord', {
       repo: this.#userDID,
