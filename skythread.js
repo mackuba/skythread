@@ -55,7 +55,7 @@ function buildParentLink(post) {
   p.className = 'back';
 
   if (post.blocked) {
-    let element = new PostComponent(post, post).buildElement();
+    let element = new PostComponent(post).buildElement();
     element.className = 'back';
     element.querySelector('p a').innerText = 'Parent post blocked';
     return element;
@@ -144,15 +144,15 @@ function loadThread(url, postId, nodeToUpdate) {
   let load = postId ? api.loadThreadById(url, postId) : api.loadThreadByURL(url);
 
   load.then(json => {
-    let tree = Post.parse(json.thread);
-    window.tree = tree;
+    let root = Post.parse(json.thread);
+    window.root = root;
 
-    if (tree.parent && !nodeToUpdate) {
-      let p = buildParentLink(tree.parent);
+    if (root.parent && !nodeToUpdate) {
+      let p = buildParentLink(root.parent);
       document.body.appendChild(p);
     }
 
-    let list = new PostComponent(tree, tree).buildElement();
+    let list = new PostComponent(root).buildElement();
     hideLoader();
 
     if (nodeToUpdate) {

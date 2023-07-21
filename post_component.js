@@ -1,7 +1,7 @@
 class PostComponent {
   constructor(post, root) {
     this.post = post;
-    this.root = root;
+    this.root = root ?? post;
   }
 
   get isRoot() {
@@ -167,7 +167,7 @@ class PostComponent {
     let author = await api.loadRawProfileRecord(handle);
     let post = new Post(data, { author: author, isEmbed: true });
 
-    let postView = new PostComponent(post, post).buildElement();
+    let postView = new PostComponent(post).buildElement();
     div.innerHTML = '';
     div.appendChild(postView);
   }
