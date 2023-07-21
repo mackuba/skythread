@@ -160,8 +160,6 @@ class PostComponent {
   }
 
   async loadQuotedPost(record, div) {
-    let api = new BlueskyAPI();
-
     let handle = atURI(record.uri).repo;
     let data = await api.loadRawPostRecord(record.uri);
     let author = await api.loadRawProfileRecord(handle);
@@ -187,7 +185,6 @@ class PostComponent {
       e.preventDefault();
       loadPost.remove();
 
-      let api = new BlueskyAPI();
       let handle = atURI(this.post.uri).repo;
       let loadRecord = api.loadRawPostRecord(this.post.uri);
       let loadProfile = api.loadRawProfileRecord(handle);
@@ -320,7 +317,6 @@ class PostComponent {
   }
 
   onHeartClick(heart) {
-    let api = new BlueskyAPI();
     let count = heart.nextElementSibling;
 
     if (!heart.classList.contains('liked')) {

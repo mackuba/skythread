@@ -24,7 +24,7 @@ function init() {
     e.target.classList.remove('click');
   });
 
-  let api = new BlueskyAPI();
+  window.api = new BlueskyAPI();
 
   if (api.isLoggedIn) {
     parseQueryParams();
@@ -111,7 +111,6 @@ function submitLogin() {
   submit.style.display = 'none';
   cloudy.style.display = 'inline-block';
 
-  let api = new BlueskyAPI();
   api.logIn(handle.value, password.value).then(() => {
     hideLogin();
     parseQueryParams();
@@ -140,7 +139,6 @@ function submitSearch() {
 }
 
 function loadThread(url, postId, nodeToUpdate) {
-  let api = new BlueskyAPI();
   let load = postId ? api.loadThreadById(url, postId) : api.loadThreadByURL(url);
 
   load.then(json => {
