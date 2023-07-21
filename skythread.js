@@ -144,10 +144,8 @@ function loadThread(url, postId, nodeToUpdate) {
   let load = postId ? api.loadThreadById(url, postId) : api.loadThreadByURL(url);
 
   load.then(json => {
-    let tree = buildPostSubtree(json.thread);
-    console.log(json);
-    console.log(tree);
-    window.json = json;
+    let tree = Post.parse(json.thread);
+    window.tree = tree;
 
     if (tree.parent && !nodeToUpdate) {
       let p = buildParentLink(tree.parent);

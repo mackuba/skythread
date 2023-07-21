@@ -13,7 +13,7 @@ class PostComponent {
   }
 
   get linkToPost() {
-    return this.linkToAuthor + '/post/' + this.post.id;
+    return this.linkToAuthor + '/post/' + this.post.rkey;
   }
 
   get rawLinkToAuthor() {
@@ -112,7 +112,7 @@ class PostComponent {
       }
     }
 
-    if (this.post.replyCount != this.post.replies.length) {
+    if (this.post.hasMoreReplies) {
       let loadMore = this.buildLoadMoreLink()
       content.appendChild(loadMore);
     }
@@ -123,24 +123,38 @@ class PostComponent {
   }
 
   buildEmbedElement(embed) {
-    if (embed.$type == 'app.bsky.embed.record') {
-      let div = document.createElement('div');
+    let div, p, wrapper;
+
+    switch (embed.constructor) {
+    case RecordEmbed:
+      div = document.createElement('div');
       div.className = 'quote-embed'
       div.innerHTML = '<p class="post placeholder">Loading quoted post...</p>';
 
       this.loadQuotedPost(embed.record, div);
       return div;
-    } else if (embed.$type == 'app.bsky.embed.recordWithMedia') {
-      // TODO: load image
-      let div = document.createElement('div');
+
+    case RecordWithMediaEmbed:
+      wrapper = document.createElement('div');
+
+      div = document.createElement('div');
       div.className = 'quote-embed'
       div.innerHTML = '<p class="post placeholder">Loading quoted post...</p>';
 
-      this.loadQuotedPost(embed.record.record, div);
-      return div;
-    } else {
-      let p = document.createElement('p');
-      p.innerText = `[${embed.$type}]`;
+      this.loadQuotedPost(embed.record, div);
+
+      // TODO: load image
+      p = document.createElement('p');
+      p.innerText = `[${embed.json.media.$type}]`;
+
+      wrapper.appendChild(p);
+      wrapper.appendChild(div);
+
+      return wrapper;
+
+    default:
+      p = document.createElement('p');
+      p.innerText = `[${embed.type}]`;
       return p;
     }
   }
@@ -149,9 +163,9 @@ class PostComponent {
     let api = new BlueskyAPI();
 
     let handle = record.uri.split('/')[2];
-    let post = parseRawPost(await api.loadRawPostRecord(record.uri));
-    post.author = await api.loadRawProfileRecord(handle);
-    post.isEmbed = true;
+    let data = await api.loadRawPostRecord(record.uri);
+    let author = await api.loadRawProfileRecord(handle);
+    let post = new Post(data, { author: author, isEmbed: true });
 
     let postView = new PostComponent(post, post).buildElement();
     div.innerHTML = '';
@@ -269,7 +283,7 @@ class PostComponent {
 
     let span = document.createElement('span');
     let heart = document.createElement('i');
-    heart.className = 'fa-solid fa-heart ' + (this.post.like ? 'liked' : '');
+    heart.className = 'fa-solid fa-heart ' + (this.post.liked ? 'liked' : '');
     heart.addEventListener('click', (e) => this.onHeartClick(heart));
     span.append(heart);
     span.append(' ');
@@ -297,7 +311,7 @@ class PostComponent {
     link.addEventListener('click', (e) => {
       e.preventDefault();
       link.innerHTML = `<img class="loader" src="icons/sunny.png">`;
-      loadThread(this.post.author.handle, this.post.id, loadMore.parentNode.parentNode);
+      loadThread(this.post.author.handle, this.post.rkey, loadMore.parentNode.parentNode);
     });
 
     loadMore.appendChild(link);
@@ -310,7 +324,7 @@ class PostComponent {
 
     if (!heart.classList.contains('liked')) {
       api.likePost(this.post.uri, this.post.cid).then((like) => {
-        this.post.like = like.uri;
+        this.post.viewerLike = like.uri;
         heart.classList.add('liked');
         count.innerText = parseInt(count.innerText, 10) + 1;
       }).catch((error) => {
@@ -318,7 +332,8 @@ class PostComponent {
         alert(error);
       });
     } else {
-      api.removeLike(this.post.like).then(() => {
+      api.removeLike(this.post.viewerLike).then(() => {
+        this.post.viewerLike = undefined;
         heart.classList.remove('liked');
         count.innerText = parseInt(count.innerText, 10) - 1;
       }).catch((error) => {
