@@ -245,9 +245,17 @@ class PostComponent {
       `<a href="${this.didLinkToAuthor}" target="_blank">(see author)</a> `;
     div.appendChild(p);
 
-    api.loadRawProfileRecord(atURI(this.post.uri).repo).then((author) => {
-      p.querySelectorAll('a')[1].innerText = `(@${author.handle})`;
-    });
+    let authorLink = p.querySelectorAll('a')[1];
+    let did = atURI(this.post.uri).repo;
+    let cachedHandle = api.findHandleByDid(did);
+
+    if (cachedHandle) {
+      authorLink.innerText = `(@${cachedHandle})`;
+    } else {
+      api.loadRawProfileRecord(did).then((author) => {
+        authorLink.innerText = `(@${author.handle})`;
+      });      
+    }
 
     let loadPost = document.createElement('p');
     let a = document.createElement('a');

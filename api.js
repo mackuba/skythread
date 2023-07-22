@@ -33,6 +33,12 @@ class HandleCache {
     this.cache[handle] = did;
     this.saveCache();    
   }
+
+  findHandleByDid(did) {
+    this.prepareCache();
+    let found = Object.entries(this.cache).find((e) => e[1] == did);
+    return found ? found[0] : undefined;
+  }
 }
 
 class BlueskyAPI {
@@ -147,7 +153,12 @@ class BlueskyAPI {
 
   cacheProfile(author) {
     this.profiles[author.did] = author;
-    this.profiles[author.handle] = author;      
+    this.profiles[author.handle] = author;
+    this.handleCache.setHandleDid(author.handle, author.did);
+  }
+
+  findHandleByDid(did) {
+    return this.handleCache.findHandleByDid(did);
   }
 
   static parsePostURL(string) {
