@@ -211,7 +211,7 @@ class BlueskyAPI {
   async loadThreadById(author, postId) {
     let did = author.startsWith('did:') ? author : await this.resolveHandle(author);
     let postURI = `at://${did}/app.bsky.feed.post/${postId}`;
-    let threadJSON = await this.getRequest('app.bsky.feed.getPostThread', { uri: postURI });
+    let threadJSON = await this.getRequest('app.bsky.feed.getPostThread', { uri: postURI, depth: 10 });
     return threadJSON;
   }
 
