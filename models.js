@@ -56,7 +56,15 @@ class Post extends Record {
     this.author = this.author ?? data.author;
     this.record = data.value ?? data.record;
     this.replies = [];
-    this.embed = this.record.embed && Embed.parse(this.record.embed);
+
+    if (data.embed) {
+      this.embed = Embed.parse(data.embed);
+    } else if (data.embeds && data.embeds.length > 0) {
+      this.embed = Embed.parse(data.embeds[0]);
+    } else if (this.record.embed) {
+      this.embed = Embed.parse(this.record.embed);
+    }
+
     this.viewerLike = data.viewer?.like;
 
     if (this.author) {
@@ -124,6 +132,18 @@ class Embed {
     case 'app.bsky.embed.external':
       return new LinkEmbed(json);
 
+    case 'app.bsky.embed.record#view':
+      return new InlineRecordEmbed(json);
+
+    case 'app.bsky.embed.recordWithMedia#view':
+      return new InlineRecordWithMediaEmbed(json);
+
+    case 'app.bsky.embed.images#view':
+      return new InlineImageEmbed(json);
+
+    case 'app.bsky.embed.external#view':
+      return new InlineLinkEmbed(json);
+
     default:
       return new Embed(json);
     }
@@ -166,6 +186,37 @@ class RecordWithMediaEmbed extends Embed {
     super(json);
     this.record = new Record(json.record.record);
     this.media = Embed.parse(json.media);
+  }
+}
+
+class InlineRecordEmbed extends Embed {
+  constructor(json) {
+    super(json);
+    this.post = new Post(json.record, { isEmbed: true });
+  }  
+}
+
+class InlineRecordWithMediaEmbed extends Embed {
+  constructor(json) {
+    super(json);
+    this.post = new Post(json.record.record, { isEmbed: true });
+    this.media = Embed.parse(json.media);
+  }  
+}
+
+class InlineLinkEmbed extends Embed {
+  constructor(json) {
+    super(json);
+
+    this.url = json.external.uri;
+    this.title = json.external.title;
+  }
+}
+
+class InlineImageEmbed extends Embed {
+  constructor(json) {
+    super(json);
+    this.images = json.images;
   }
 }
 

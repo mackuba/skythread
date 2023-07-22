@@ -123,7 +123,7 @@ class PostComponent {
   }
 
   buildEmbedElement(embed) {
-    let div, p, a, wrapper, mediaView;
+    let div, p, a, wrapper, postView, mediaView;
 
     switch (embed.constructor) {
     case RecordEmbed:
@@ -149,12 +149,36 @@ class PostComponent {
 
       return wrapper;
 
+    case InlineRecordEmbed:
+      div = document.createElement('div');
+      div.className = 'quote-embed'
+
+      postView = new PostComponent(embed.post).buildElement();
+      div.appendChild(postView);
+      return div;
+
+    case InlineRecordWithMediaEmbed:
+      wrapper = document.createElement('div');
+
+      mediaView = this.buildEmbedElement(embed.media);
+      wrapper.appendChild(mediaView);
+
+      div = document.createElement('div');
+      div.className = 'quote-embed'
+
+      postView = new PostComponent(embed.post).buildElement();
+      div.appendChild(postView);
+      wrapper.appendChild(div);
+      return wrapper;
+
     case ImageEmbed:
+    case InlineImageEmbed:
       wrapper = document.createElement('div');
       this.addImagesFromEmbed(embed, wrapper);
       return wrapper;
 
     case LinkEmbed:
+    case InlineLinkEmbed:
       p = document.createElement('p');
       p.append('[Link: ');
 
@@ -179,10 +203,16 @@ class PostComponent {
       p.append('[');
 
       // TODO: load image
-      let cid = image.image.ref['$link'];
       let a = document.createElement('a');
       a.innerText = "Image";
-      a.href = `https://bsky.social/xrpc/com.atproto.sync.getBlob?did=${this.post.author.did}&cid=${cid}`;
+
+      if (image.fullsize) {
+        a.href = image.fullsize;
+      } else {
+        let cid = image.image.ref['$link'];
+        a.href = `https://bsky.social/xrpc/com.atproto.sync.getBlob?did=${this.post.author.did}&cid=${cid}`;          
+      }
+
       p.append(a);
       p.append('] ');
       wrapper.append(p);        
