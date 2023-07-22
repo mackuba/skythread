@@ -245,6 +245,10 @@ class PostComponent {
       `<a href="${this.didLinkToAuthor}" target="_blank">(see author)</a> `;
     div.appendChild(p);
 
+    api.loadRawProfileRecord(atURI(this.post.uri).repo).then((author) => {
+      p.querySelectorAll('a')[1].innerText = `(@${author.handle})`;
+    });
+
     let loadPost = document.createElement('p');
     let a = document.createElement('a');
     a.innerText = "Load post…";
@@ -253,13 +257,7 @@ class PostComponent {
       e.preventDefault();
       loadPost.remove();
 
-      api.loadRawPostWithAuthor(this.post.uri).then((results) => {
-        let { post, author } = results;
-
-        let a = document.createElement('p');
-        a.innerText = `@${author.handle}:`;
-        div.appendChild(a);
-
+      api.loadRawPostRecord(this.post.uri).then((post) => {
         let p = document.createElement('p');
         p.innerText = post.value.text;
         div.appendChild(p);

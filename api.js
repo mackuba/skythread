@@ -147,10 +147,7 @@ class BlueskyAPI {
 
   cacheProfile(author) {
     this.profiles[author.did] = author;
-
-    if (author.handle) {
-      this.profiles[author.handle] = author;      
-    }
+    this.profiles[author.handle] = author;      
   }
 
   static parsePostURL(string) {
