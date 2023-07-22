@@ -337,6 +337,21 @@ p.back i {
   color: #888;
 }
 
+.post .image-alt {
+  font-size: 11pt;
+  color: #666;
+  margin-bottom: 20px;
+}
+
+.post .image-alt summary {
+  font-size: 11pt;
+  color: #666;
+  margin-bottom: 5px;
+  user-select: none;
+  -webkit-user-select: none;
+  cursor: default;
+}
+
 .post.blocked p, .post.blocked a {
   font-size: 11pt;
   color: #666;

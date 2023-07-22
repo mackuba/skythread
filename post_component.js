@@ -91,7 +91,7 @@ class PostComponent {
     wrapper.appendChild(p);
 
     if (this.post.embed) {
-      let embed = this.buildEmbedElement(this.post.embed);
+      let embed = this.buildEmbedElement();
       wrapper.appendChild(embed);
     }
 
@@ -122,8 +122,9 @@ class PostComponent {
     return div;
   }
 
-  buildEmbedElement(embed) {
+  buildEmbedElement() {
     let div, p, a, wrapper;
+    let embed = this.post.embed;
 
     switch (embed.constructor) {
     case RecordEmbed:
@@ -143,12 +144,60 @@ class PostComponent {
 
       this.loadQuotedPost(embed.record.uri, div);
 
-      // TODO: load image
-      p = document.createElement('p');
-      p.innerText = `[${embed.json.media.$type}]`;
+      for (let image of embed.images) {
+        let p = document.createElement('p');
+        p.append('[');
 
-      wrapper.appendChild(p);
+        // TODO: load image
+        let cid = image.image.ref['$link'];
+        let a = document.createElement('a');
+        a.innerText = "Image"
+        a.href = `https://bsky.social/xrpc/com.atproto.sync.getBlob?did=${this.post.author.did}&cid=${cid}`;
+        p.append(a);
+        p.append('] ');
+        wrapper.append(p);        
+
+        if (image.alt) {
+          let details = document.createElement('details');
+          let summary = document.createElement('summary');
+          summary.innerText = 'Show alt';
+          details.appendChild(summary);
+          details.append(image.alt);
+          details.className = 'image-alt';
+          wrapper.appendChild(details);
+        }
+      }
+
       wrapper.appendChild(div);
+
+      return wrapper;
+
+    case ImageEmbed:
+      wrapper = document.createElement('div');
+
+      for (let image of embed.images) {
+        let p = document.createElement('p');
+        p.append('[');
+
+        // TODO: load image
+        let cid = image.image.ref['$link'];
+        let a = document.createElement('a');
+        a.innerText = "Image";
+        a.href = `https://bsky.social/xrpc/com.atproto.sync.getBlob?did=${this.post.author.did}&cid=${cid}`;
+        p.append(a);
+        p.append('] ');
+        wrapper.append(p);        
+
+        if (image.alt) {
+          let details = document.createElement('details');
+          let summary = document.createElement('summary');
+          summary.innerText = 'Show alt';
+          details.appendChild(summary);
+          details.append(image.alt);
+          details.className = 'image-alt';
+          wrapper.appendChild(details);
+        }
+      }
 
       return wrapper;
 

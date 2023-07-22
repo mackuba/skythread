@@ -141,6 +141,7 @@ class Embed {
 class ImageEmbed extends Embed {
   constructor(json) {
     super(json);
+    this.images = json.images;
   }
 }
 
@@ -164,6 +165,7 @@ class RecordWithMediaEmbed extends Embed {
   constructor(json) {
     super(json);
     this.record = new Record(json.record.record);
+    this.images = json.media.images;
   }
 }
 
