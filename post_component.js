@@ -91,7 +91,7 @@ class PostComponent {
     wrapper.appendChild(p);
 
     if (this.post.embed) {
-      let embed = this.buildEmbedElement();
+      let embed = this.buildEmbedElement(this.post.embed);
       wrapper.appendChild(embed);
     }
 
@@ -122,9 +122,8 @@ class PostComponent {
     return div;
   }
 
-  buildEmbedElement() {
-    let div, p, a, wrapper;
-    let embed = this.post.embed;
+  buildEmbedElement(embed) {
+    let div, p, a, wrapper, mediaView;
 
     switch (embed.constructor) {
     case RecordEmbed:
@@ -138,11 +137,12 @@ class PostComponent {
     case RecordWithMediaEmbed:
       wrapper = document.createElement('div');
 
+      mediaView = this.buildEmbedElement(embed.media);
+      wrapper.appendChild(mediaView);
+
       div = document.createElement('div');
       div.className = 'quote-embed'
       div.innerHTML = '<p class="post placeholder">Loading quoted post...</p>';
-
-      this.addImagesFromEmbed(embed, wrapper);
       wrapper.appendChild(div);
 
       this.loadQuotedPost(embed.record.uri, div);

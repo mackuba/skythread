@@ -165,7 +165,7 @@ class RecordWithMediaEmbed extends Embed {
   constructor(json) {
     super(json);
     this.record = new Record(json.record.record);
-    this.images = json.media.images;
+    this.media = Embed.parse(json.media);
   }
 }
 
