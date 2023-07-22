@@ -121,6 +121,9 @@ class Embed {
     case 'app.bsky.embed.images':
       return new ImageEmbed(json);
 
+    case 'app.bsky.embed.external':
+      return new LinkEmbed(json);
+
     default:
       return new Embed(json);
     }
@@ -138,6 +141,15 @@ class Embed {
 class ImageEmbed extends Embed {
   constructor(json) {
     super(json);
+  }
+}
+
+class LinkEmbed extends Embed {
+  constructor(json) {
+    super(json);
+
+    this.url = json.external.uri;
+    this.title = json.external.title;
   }
 }
 

@@ -123,7 +123,7 @@ class PostComponent {
   }
 
   buildEmbedElement(embed) {
-    let div, p, wrapper;
+    let div, p, a, wrapper;
 
     switch (embed.constructor) {
     case RecordEmbed:
@@ -151,6 +151,18 @@ class PostComponent {
       wrapper.appendChild(div);
 
       return wrapper;
+
+    case LinkEmbed:
+      p = document.createElement('p');
+      p.append('[Link: ');
+
+      a = document.createElement('a');
+      a.innerText = embed.title;
+      a.href = embed.url;
+      p.append(a);
+
+      p.append(']');
+      return p;
 
     default:
       p = document.createElement('p');
