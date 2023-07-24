@@ -183,7 +183,7 @@ class PostComponent {
       p.append('[Link: ');
 
       a = document.createElement('a');
-      a.innerText = embed.title;
+      a.innerText = embed.title || embed.url;
       a.href = embed.url;
       p.append(a);
 
