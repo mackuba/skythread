@@ -153,8 +153,15 @@ class PostComponent {
       div = document.createElement('div');
       div.className = 'quote-embed'
 
-      postView = new PostComponent(embed.post).buildElement();
-      div.appendChild(postView);
+      if (embed.post instanceof Post) {
+        postView = new PostComponent(embed.post).buildElement();
+        div.appendChild(postView);
+      } else {
+        p = document.createElement('p');
+        p.innerText = `[${embed.post.type}]`;
+        div.appendChild(p);
+      }
+
       return div;
 
     case InlineRecordWithMediaEmbed:
@@ -166,8 +173,15 @@ class PostComponent {
       div = document.createElement('div');
       div.className = 'quote-embed'
 
-      postView = new PostComponent(embed.post).buildElement();
-      div.appendChild(postView);
+      if (embed.post instanceof Post) {
+        postView = new PostComponent(embed.post).buildElement();
+        div.appendChild(postView);
+      } else {
+        p = document.createElement('p');
+        p.innerText = `[${embed.post.type}]`;
+        div.appendChild(p);
+      }
+
       wrapper.appendChild(div);
       return wrapper;
 

@@ -18,6 +18,10 @@ class Record {
   get rkey() {
     return atURI(this.uri).rkey;
   }
+
+  get type() {
+    return this.data.$type;
+  }
 }
 
 class Post extends Record {
