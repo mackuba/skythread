@@ -361,7 +361,7 @@ p.back i {
   margin-right: 2px;
 }
 
-.post.muted > h2, .post.muted > .content > details {
+.post.muted > h2, .post.muted > .content > details > p, .post.muted > .content > details summary {
   opacity: 0.3;
 }
 
