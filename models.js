@@ -38,10 +38,15 @@ class Post extends Record {
 
       return post;
 
+    case 'app.bsky.embed.record#viewRecord':
+      return new Post(json, { isEmbed: true });
+
     case 'app.bsky.feed.defs#notFoundPost':
+    case 'app.bsky.embed.record#viewNotFound':
       return new Record(json, { missing: true });
 
     case 'app.bsky.feed.defs#blockedPost':
+    case 'app.bsky.embed.record#viewBlocked':
       return new Record(json, { missing: true, blocked: true });
 
     default:
@@ -192,14 +197,14 @@ class RecordWithMediaEmbed extends Embed {
 class InlineRecordEmbed extends Embed {
   constructor(json) {
     super(json);
-    this.post = new Post(json.record, { isEmbed: true });
+    this.post = Post.parse(json.record);
   }  
 }
 
 class InlineRecordWithMediaEmbed extends Embed {
   constructor(json) {
     super(json);
-    this.post = new Post(json.record.record, { isEmbed: true });
+    this.post = Post.parse(json.record.record);
     this.media = Embed.parse(json.media);
   }  
 }
