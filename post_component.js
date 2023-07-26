@@ -279,9 +279,22 @@ class PostComponent {
       e.preventDefault();
       loadPost.remove();
 
-      api.loadRawPostRecord(this.post.uri).then((post) => {
+      api.loadRawPostRecord(this.post.uri).then((record) => {
+        let post = new Post(record);
+
+        if (this.isRoot && post.parentReference) {
+          let p = document.createElement('p');
+          p.className = 'back';
+
+          let { repo, rkey } = atURI(post.parentReference.uri);
+          let url = linkToPostById(repo, rkey);
+
+          p.innerHTML = `<i class="fa-solid fa-reply"></i><a href="${url}">See parent post</a>`;
+          div.appendChild(p);
+        }
+
         let p = document.createElement('p');
-        p.innerText = post.value.text;
+        p.innerText = post.text;
         div.appendChild(p);
       });
     });
