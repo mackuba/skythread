@@ -16,6 +16,16 @@ Bluesky API currently requires authentication to the `app.bsky.feed.getPostThrea
 At the moment there is no way to log in using OAuth, only with a password. The password is only passed to the Bluesky API and isn't saved anywhere. The returned access token is stored in local storage. You can create an "app password" in the Bluesky app settings that you will only use to log in here.
 
 
+## Bookmarklet
+
+<p>To quickly access the Skythread view of a given thread when you're reading it on the <a href="https://bsky.app">bsky.app</a> website, you can use a bookmarklet. Drag <a href="javascript:(function(){let%20st=\"https:\\/mackuba.github.io/skythread/\";if(location.hostname.endsWith(\"bsky.app\")){let%20url=st+\"?q=\"+encodeURIComponent(location.href);let%20a=document.createElement('a');a.target='_blank';a.href=url;a.click()}else{location.href=st}}()))">this link</a> to the favorites bar in your browser and then click the bookmark when you're reading a thread.</p>
+
+Alternatively, create a bookmark manually and paste this JavaScript link:
+
+```
+javascript:(function(){let%20st="https://mackuba.github.io/skythread/";if(location.hostname.endsWith("bsky.app")){let%20url=st+"?q="+encodeURIComponent(location.href);Object.assign(document.createElement('a'),{target:'_blank',href:url}).click()}else{location.href=st}}())
+```
+
 ## TODO
 
 * logging out
