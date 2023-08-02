@@ -62,7 +62,13 @@ class BlueskyAPI {
     let url = 'https://bsky.social/xrpc/' + method;
 
     if (params) {
-      url += '?' + Object.entries(params).map((x) => `${x[0]}=${encodeURIComponent(x[1])}`).join('&');
+      url += '?' + Object.entries(params).map((x) => {
+        if (x[1] instanceof Array) {
+          return x[1].map((i) => `${x[0]}=${encodeURIComponent(i)}`).join('&');
+        } else {
+          return `${x[0]}=${encodeURIComponent(x[1])}`;
+        }
+      }).join('&');
     }
 
     let response = await fetch(url, { headers: { 'Authorization': `Bearer ${this.#accessToken}` }});
