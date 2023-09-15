@@ -254,20 +254,26 @@ class PostComponent {
 
   buildBlockedPostElement(div) {
     let p = document.createElement('p');
-    p.innerHTML = `<i class="fa-solid fa-ban"></i> ` +
-      `<a href="${this.didLinkToPost}" target="_blank">Blocked post</a> ` +
-      `<a href="${this.didLinkToAuthor}" target="_blank">(see author)</a> `;
+    p.innerHTML = `<i class="fa-solid fa-ban"></i> Blocked post ` +
+      `(<a href="${this.didLinkToAuthor}" target="_blank">see author</a>) `;
     div.appendChild(p);
 
-    let authorLink = p.querySelectorAll('a')[1];
+    let authorLink = p.querySelector('a');
     let did = atURI(this.post.uri).repo;
     let cachedHandle = api.findHandleByDid(did);
+    let blockStatus = this.post.blockedByUser ? 'has blocked you' : 'blocked by you';
 
     if (cachedHandle) {
-      authorLink.innerText = `(@${cachedHandle})`;
+      this.post.author.handle = cachedHandle;
+      authorLink.href = this.linkToAuthor;
+      authorLink.innerText = `@${cachedHandle}`;
+      authorLink.after(`, ${blockStatus}`);
     } else {
       api.loadRawProfileRecord(did).then((author) => {
-        authorLink.innerText = `(@${author.handle})`;
+        this.post.author = author;
+        authorLink.href = this.linkToAuthor;
+        authorLink.innerText = `@${author.handle}`;
+        authorLink.after(`, ${blockStatus}`);
       });      
     }
 

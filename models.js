@@ -51,7 +51,7 @@ class Post extends Record {
 
     case 'app.bsky.feed.defs#blockedPost':
     case 'app.bsky.embed.record#viewBlocked':
-      return new Record(json, { missing: true, blocked: true });
+      return new BlockedPost(json);
 
     default:
       console.warn('Unknown record type:', json.$type);
@@ -123,6 +123,24 @@ class Post extends Record {
 
   get rootReference() {
     return this.record.reply?.root && new Record(this.record.reply?.root);
+  }
+}
+
+class BlockedPost extends Record {
+  constructor(data) {
+    super(data);
+
+    this.blocked = true;
+    this.missing = true;
+    this.author = data.author;
+  }
+
+  get blocksUser() {
+    return !!this.author.viewer?.blocking;
+  }
+
+  get blockedByUser() {
+    return this.author.viewer?.blockedBy;
   }
 }
 
