@@ -2,10 +2,7 @@ class PostComponent {
   constructor(post, root) {
     this.post = post;
     this.root = root ?? post;
-  }
-
-  get isRoot() {
-    return this.post === this.root;
+    this.isRoot = (this.post === this.root);
   }
 
   get linkToAuthor() {
@@ -265,13 +262,13 @@ class PostComponent {
 
   async loadBlockedPost(uri, div) {
     let record = await api.loadRawPostRecord(this.post.uri);
-    let post = new Post(record);
+    this.post = new Post(record);
 
-    if (this.isRoot && post.parentReference) {
+    if (this.isRoot && this.post.parentReference) {
       let p = document.createElement('p');
       p.className = 'back';
 
-      let { repo, rkey } = atURI(post.parentReference.uri);
+      let { repo, rkey } = atURI(this.post.parentReference.uri);
       let url = linkToPostById(repo, rkey);
 
       p.innerHTML = `<i class="fa-solid fa-reply"></i><a href="${url}">See parent post</a>`;
@@ -279,7 +276,7 @@ class PostComponent {
     }
 
     let p = document.createElement('p');
-    p.innerText = post.text;
+    p.innerText = this.post.text;
     div.appendChild(p);
   }
 
