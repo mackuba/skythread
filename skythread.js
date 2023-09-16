@@ -57,7 +57,7 @@ function buildParentLink(post) {
   if (post.blocked) {
     let element = new PostComponent(post).buildElement();
     element.className = 'back';
-    element.querySelector('p a').innerText = 'Parent post blocked';
+    element.querySelector('p.blocked-header span').innerText = 'Parent post blocked';
     return element;
   } else if (post.missing) {
     p.innerHTML = `<i class="fa-solid fa-ban"></i> parent post has been deleted`;

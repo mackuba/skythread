@@ -220,7 +220,7 @@ class PostComponent {
   buildBlockedPostElement(div) {
     let p = document.createElement('p');
     p.className = 'blocked-header';
-    p.innerHTML = `<i class="fa-solid fa-ban"></i> Blocked post ` +
+    p.innerHTML = `<i class="fa-solid fa-ban"></i> <span>Blocked post</span> ` +
       `(<a href="${this.didLinkToAuthor}" target="_blank">see author</a>) `;
     div.appendChild(p);
 
