@@ -278,7 +278,9 @@ class PostComponent {
       let { repo, rkey } = atURI(this.post.parentReference.uri);
       let url = linkToPostById(repo, rkey);
 
-      p.innerHTML = `<i class="fa-solid fa-reply"></i><a href="${url}">See parent post</a>`;
+      let handle = api.findHandleByDid(repo);
+      let link = handle ? `See parent post (@${handle})` : "See parent post";
+      p.innerHTML = `<i class="fa-solid fa-reply"></i><a href="${url}">${link}</a>`;
       div.appendChild(p);
     }
 
