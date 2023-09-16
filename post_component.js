@@ -26,6 +26,26 @@ class PostComponent {
     return `https://bsky.app/profile/${repo}/post/${rkey}`;
   }
 
+  get authorName() {
+    if (this.post.author.displayName) {
+      return this.post.author.displayName;
+    } else if (this.post.author.handle.endsWith('.bsky.social')) {
+      return this.post.author.handle.replace(/\.bsky\.social$/, '');
+    } else {
+      return this.post.author.handle;
+    }
+  }
+
+  get timeFormatForTimestamp() {
+    if (this.isRoot) {
+      return { day: 'numeric', month: 'short', year: 'numeric', hour: 'numeric', minute: 'numeric' };
+    } else if (!sameDay(this.post.createdAt, this.root.createdAt)) {
+      return { day: 'numeric', month: 'short', hour: 'numeric', minute: 'numeric' };
+    } else {
+      return { hour: 'numeric', minute: 'numeric' };
+    }
+  }
+
   buildElement() {
     let div = document.createElement('div');
     div.className = 'post';
@@ -122,99 +142,8 @@ class PostComponent {
     return div;
   }
 
-  buildBlockedPostElement(div) {
-    let p = document.createElement('p');
-    p.innerHTML = `<i class="fa-solid fa-ban"></i> Blocked post ` +
-      `(<a href="${this.didLinkToAuthor}" target="_blank">see author</a>) `;
-    div.appendChild(p);
-
-    let authorLink = p.querySelector('a');
-    let did = atURI(this.post.uri).repo;
-    let cachedHandle = api.findHandleByDid(did);
-    let blockStatus = this.post.blockedByUser ? 'has blocked you' : 'blocked by you';
-
-    if (cachedHandle) {
-      this.post.author.handle = cachedHandle;
-      authorLink.href = this.linkToAuthor;
-      authorLink.innerText = `@${cachedHandle}`;
-      authorLink.after(`, ${blockStatus}`);
-    } else {
-      api.loadRawProfileRecord(did).then((author) => {
-        this.post.author = author;
-        authorLink.href = this.linkToAuthor;
-        authorLink.innerText = `@${author.handle}`;
-        authorLink.after(`, ${blockStatus}`);
-      });      
-    }
-
-    let loadPost = document.createElement('p');
-    let a = document.createElement('a');
-    a.innerText = "Load post…";
-    a.href = '#';
-    a.addEventListener('click', (e) => {
-      e.preventDefault();
-      loadPost.remove();
-
-      api.loadRawPostRecord(this.post.uri).then((record) => {
-        let post = new Post(record);
-
-        if (this.isRoot && post.parentReference) {
-          let p = document.createElement('p');
-          p.className = 'back';
-
-          let { repo, rkey } = atURI(post.parentReference.uri);
-          let url = linkToPostById(repo, rkey);
-
-          p.innerHTML = `<i class="fa-solid fa-reply"></i><a href="${url}">See parent post</a>`;
-          div.appendChild(p);
-        }
-
-        let p = document.createElement('p');
-        p.innerText = post.text;
-        div.appendChild(p);
-      });
-    });
-
-    loadPost.appendChild(a);
-    div.appendChild(loadPost);
-    div.classList.add('blocked');
-    return div;
-  }
-
-  toggleSectionFold(div) {
-    let plus = div.querySelector('.plus');
-
-    if (div.classList.contains('collapsed')) {
-      div.classList.remove('collapsed');
-      plus.src = 'icons/subtract-square.png'
-    } else {
-      div.classList.add('collapsed');
-      plus.src = 'icons/add-square.png'
-    }
-  }
-
-  timeFormatForTimestamp() {
-    if (this.isRoot) {
-      return { day: 'numeric', month: 'short', year: 'numeric', hour: 'numeric', minute: 'numeric' };
-    } else if (!sameDay(this.post.createdAt, this.root.createdAt)) {
-      return { day: 'numeric', month: 'short', hour: 'numeric', minute: 'numeric' };
-    } else {
-      return { hour: 'numeric', minute: 'numeric' };
-    }
-  }
-
-  get authorName() {
-    if (this.post.author.displayName) {
-      return this.post.author.displayName;
-    } else if (this.post.author.handle.endsWith('.bsky.social')) {
-      return this.post.author.handle.replace(/\.bsky\.social$/, '');
-    } else {
-      return this.post.author.handle;
-    }
-  }
-
   buildPostHeader() {
-    let timeFormat = this.timeFormatForTimestamp();
+    let timeFormat = this.timeFormatForTimestamp;
     let formattedTime = this.post.createdAt.toLocaleString(window.dateLocale, timeFormat);
     let isoTime = this.post.createdAt.toISOString();
 
@@ -289,6 +218,77 @@ class PostComponent {
 
     loadMore.appendChild(link);
     return loadMore;
+  }
+
+  buildBlockedPostElement(div) {
+    let p = document.createElement('p');
+    p.innerHTML = `<i class="fa-solid fa-ban"></i> Blocked post ` +
+      `(<a href="${this.didLinkToAuthor}" target="_blank">see author</a>) `;
+    div.appendChild(p);
+
+    let authorLink = p.querySelector('a');
+    let did = atURI(this.post.uri).repo;
+    let cachedHandle = api.findHandleByDid(did);
+    let blockStatus = this.post.blockedByUser ? 'has blocked you' : 'blocked by you';
+
+    if (cachedHandle) {
+      this.post.author.handle = cachedHandle;
+      authorLink.href = this.linkToAuthor;
+      authorLink.innerText = `@${cachedHandle}`;
+      authorLink.after(`, ${blockStatus}`);
+    } else {
+      api.loadRawProfileRecord(did).then((author) => {
+        this.post.author = author;
+        authorLink.href = this.linkToAuthor;
+        authorLink.innerText = `@${author.handle}`;
+        authorLink.after(`, ${blockStatus}`);
+      });      
+    }
+
+    let loadPost = document.createElement('p');
+    let a = document.createElement('a');
+    a.innerText = "Load post…";
+    a.href = '#';
+    a.addEventListener('click', (e) => {
+      e.preventDefault();
+      loadPost.remove();
+
+      api.loadRawPostRecord(this.post.uri).then((record) => {
+        let post = new Post(record);
+
+        if (this.isRoot && post.parentReference) {
+          let p = document.createElement('p');
+          p.className = 'back';
+
+          let { repo, rkey } = atURI(post.parentReference.uri);
+          let url = linkToPostById(repo, rkey);
+
+          p.innerHTML = `<i class="fa-solid fa-reply"></i><a href="${url}">See parent post</a>`;
+          div.appendChild(p);
+        }
+
+        let p = document.createElement('p');
+        p.innerText = post.text;
+        div.appendChild(p);
+      });
+    });
+
+    loadPost.appendChild(a);
+    div.appendChild(loadPost);
+    div.classList.add('blocked');
+    return div;
+  }
+
+  toggleSectionFold(div) {
+    let plus = div.querySelector('.plus');
+
+    if (div.classList.contains('collapsed')) {
+      div.classList.remove('collapsed');
+      plus.src = 'icons/subtract-square.png'
+    } else {
+      div.classList.add('collapsed');
+      plus.src = 'icons/add-square.png'
+    }
   }
 
   onHeartClick(heart) {
