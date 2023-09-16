@@ -227,19 +227,23 @@ class PostComponent {
     let authorLink = p.querySelector('a');
     let did = atURI(this.post.uri).repo;
     let cachedHandle = api.findHandleByDid(did);
-    let blockStatus = this.post.blockedByUser ? 'has blocked you' : 'blocked by you';
+    let blockStatus = this.post.blockedByUser ? 'has blocked you' : this.post.blocksUser ? 'blocked by you' : '';
 
     if (cachedHandle) {
       this.post.author.handle = cachedHandle;
       authorLink.href = this.linkToAuthor;
       authorLink.innerText = `@${cachedHandle}`;
-      authorLink.after(`, ${blockStatus}`);
+      if (blockStatus) {
+        authorLink.after(`, ${blockStatus}`);
+      }
     } else {
       api.loadRawProfileRecord(did).then((author) => {
         this.post.author = author;
         authorLink.href = this.linkToAuthor;
         authorLink.innerText = `@${author.handle}`;
-        authorLink.after(`, ${blockStatus}`);
+        if (blockStatus) {
+          authorLink.after(`, ${blockStatus}`);
+        }
       });      
     }
 
