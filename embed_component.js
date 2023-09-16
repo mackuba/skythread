@@ -35,7 +35,7 @@ class EmbedComponent {
       div = document.createElement('div');
       div.className = 'quote-embed'
 
-      if (this.embed.post instanceof Post) {
+      if (this.embed.post instanceof Post || this.embed.post instanceof BlockedPost) {
         postView = new PostComponent(this.embed.post).buildElement();
         div.appendChild(postView);
       } else {
@@ -55,7 +55,7 @@ class EmbedComponent {
       div = document.createElement('div');
       div.className = 'quote-embed'
 
-      if (this.embed.post instanceof Post) {
+      if (this.embed.post instanceof Post || this.embed.post instanceof BlockedPost) {
         postView = new PostComponent(this.embed.post).buildElement();
         div.appendChild(postView);
       } else {

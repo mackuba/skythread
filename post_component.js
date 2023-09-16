@@ -244,13 +244,14 @@ class PostComponent {
     }
 
     let loadPost = document.createElement('p');
+    loadPost.className = 'load-post';
     let a = document.createElement('a');
     a.innerText = "Load post…";
     a.href = '#';
 
     a.addEventListener('click', (e) => {
       e.preventDefault();
-      loadPost.remove();
+      loadPost.innerHTML = '&nbsp;';
       this.loadBlockedPost(this.post.uri, div);
     });
 
@@ -263,6 +264,8 @@ class PostComponent {
   async loadBlockedPost(uri, div) {
     let record = await api.loadRawPostRecord(this.post.uri);
     this.post = new Post(record);
+
+    div.querySelector('p.load-post').remove();
 
     if (this.isRoot && this.post.parentReference) {
       let p = document.createElement('p');

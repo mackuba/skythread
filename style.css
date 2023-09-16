@@ -358,7 +358,7 @@ p.back i {
   color: #666;
 }
 
-.post.blocked p i {
+.post.blocked .blocked-header i {
   margin-right: 2px;
 }
 
