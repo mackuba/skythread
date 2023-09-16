@@ -222,6 +222,7 @@ class PostComponent {
 
   buildBlockedPostElement(div) {
     let p = document.createElement('p');
+    p.className = 'blocked-header';
     p.innerHTML = `<i class="fa-solid fa-ban"></i> Blocked post ` +
       `(<a href="${this.didLinkToAuthor}" target="_blank">see author</a>) `;
     div.appendChild(p);
@@ -249,34 +250,37 @@ class PostComponent {
     let a = document.createElement('a');
     a.innerText = "Load post…";
     a.href = '#';
+
     a.addEventListener('click', (e) => {
       e.preventDefault();
       loadPost.remove();
-
-      api.loadRawPostRecord(this.post.uri).then((record) => {
-        let post = new Post(record);
-
-        if (this.isRoot && post.parentReference) {
-          let p = document.createElement('p');
-          p.className = 'back';
-
-          let { repo, rkey } = atURI(post.parentReference.uri);
-          let url = linkToPostById(repo, rkey);
-
-          p.innerHTML = `<i class="fa-solid fa-reply"></i><a href="${url}">See parent post</a>`;
-          div.appendChild(p);
-        }
-
-        let p = document.createElement('p');
-        p.innerText = post.text;
-        div.appendChild(p);
-      });
+      this.loadBlockedPost(this.post.uri, div);
     });
 
     loadPost.appendChild(a);
     div.appendChild(loadPost);
     div.classList.add('blocked');
     return div;
+  }
+
+  async loadBlockedPost(uri, div) {
+    let record = await api.loadRawPostRecord(this.post.uri);
+    let post = new Post(record);
+
+    if (this.isRoot && post.parentReference) {
+      let p = document.createElement('p');
+      p.className = 'back';
+
+      let { repo, rkey } = atURI(post.parentReference.uri);
+      let url = linkToPostById(repo, rkey);
+
+      p.innerHTML = `<i class="fa-solid fa-reply"></i><a href="${url}">See parent post</a>`;
+      div.appendChild(p);
+    }
+
+    let p = document.createElement('p');
+    p.innerText = post.text;
+    div.appendChild(p);
   }
 
   toggleSectionFold(div) {
