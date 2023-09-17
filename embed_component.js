@@ -106,7 +106,7 @@ class EmbedComponent {
         a.href = image.fullsize;
       } else {
         let cid = image.image.ref['$link'];
-        a.href = `https://bsky.social/xrpc/com.atproto.sync.getBlob?did=${this.post.author.did}&cid=${cid}`;          
+        a.href = `https://av-cdn.bsky.app/img/feed_fullsize/plain/${this.post.author.did}/${cid}@jpeg`;
       }
 
       p.append(a);
