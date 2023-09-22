@@ -227,7 +227,7 @@ class PostComponent {
     let authorLink = p.querySelector('a');
     let did = atURI(this.post.uri).repo;
     let cachedHandle = api.findHandleByDid(did);
-    let blockStatus = this.post.blockedByUser ? 'has blocked you' : this.post.blocksUser ? 'blocked by you' : '';
+    let blockStatus = this.post.blockedByUser ? 'has blocked you' : this.post.blocksUser ? "you've blocked them" : '';
 
     if (cachedHandle) {
       this.post.author.handle = cachedHandle;
