@@ -46,10 +46,16 @@ class BlueskyAPI {
   #refreshToken;
   #userDID;
 
-  constructor() {
-    this.#accessToken = localStorage.getItem('accessToken');
-    this.#refreshToken = localStorage.getItem('refreshToken');
-    this.#userDID = localStorage.getItem('userDID');
+  constructor(host = 'bsky.social', useAuthentication = true) {
+    this.host = host;
+    this.useAuthentication = useAuthentication;
+
+    if (useAuthentication) {
+      this.#accessToken = localStorage.getItem('accessToken');
+      this.#refreshToken = localStorage.getItem('refreshToken');
+      this.#userDID = localStorage.getItem('userDID');      
+    }
+
     this.handleCache = new HandleCache();
     this.profiles = {};
   }
@@ -59,7 +65,7 @@ class BlueskyAPI {
   }
 
   async getRequest(method, params) {
-    let url = 'https://bsky.social/xrpc/' + method;
+    let url = `https://${this.host}/xrpc/${method}`;
 
     if (params) {
       url += '?' + Object.entries(params).map((x) => {
@@ -71,10 +77,11 @@ class BlueskyAPI {
       }).join('&');
     }
 
-    let response = await fetch(url, { headers: { 'Authorization': `Bearer ${this.#accessToken}` }});
+    let headers = this.useAuthentication ? { 'Authorization': `Bearer ${this.#accessToken}` } : {};
+    let response = await fetch(url, { headers: headers });
     let json = await this.parseResponse(response);
 
-    if (this.isInvalidToken(response, json)) {
+    if (this.useAuthentication && this.isInvalidToken(response, json)) {
       await this.refreshAccessToken();
       response = await fetch(url, { headers: { 'Authorization': `Bearer ${this.#accessToken}` }});
       json = await this.parseResponse(response);
@@ -88,7 +95,7 @@ class BlueskyAPI {
   }
 
   async postRequest(method, data, useRefreshToken, useAuthentication) {
-    let url = 'https://bsky.social/xrpc/' + method;
+    let url = `https://${this.host}/xrpc/${method}`;
     let request = { method: 'POST', headers: {}};
 
     if (!(useAuthentication === false)) {

@@ -302,6 +302,11 @@ class PostComponent {
   }
 
   onHeartClick(heart) {
+    if (window.unauthed) {
+      alert('This action in unavailable in unauthenticated mode.');
+      return;
+    }
+
     let count = heart.nextElementSibling;
 
     if (!heart.classList.contains('liked')) {

@@ -24,9 +24,15 @@ function init() {
     e.target.classList.remove('click');
   });
 
-  window.api = new BlueskyAPI();
+  let params = new URLSearchParams(location.search);
+  if (params.get('_u') == '1') {
+    window.unauthed = true;
+    window.api = new BlueskyAPI('api.bsky.app', false);
+  } else {
+    window.api = new BlueskyAPI();
+  }
 
-  if (api.isLoggedIn) {
+  if (api.isLoggedIn || window.unauthed) {
     parseQueryParams();
   } else {
     showLogin();
