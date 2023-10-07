@@ -237,7 +237,7 @@ class PostComponent {
         authorLink.after(`, ${blockStatus}`);
       }
     } else {
-      api.loadRawProfileRecord(did).then((author) => {
+      api.loadUserProfile(did).then((author) => {
         this.post.author = author;
         authorLink.href = this.linkToAuthor;
         authorLink.innerText = `@${author.handle}`;

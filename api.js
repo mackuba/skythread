@@ -126,7 +126,7 @@ class BlueskyAPI extends Minisky {
     return await this.getRequest('com.atproto.repo.getRecord', { repo, collection, rkey }, { auth: false });
   }
 
-  async loadRawProfileRecord(handle) {
+  async loadUserProfile(handle) {
     if (this.profiles[handle]) {
       return this.profiles[handle];
     } else {
@@ -139,7 +139,7 @@ class BlueskyAPI extends Minisky {
   async loadRawPostWithAuthor(postURI) {
     let handle = atURI(postURI).repo;
     let loadRecord = this.loadRawPostRecord(postURI);
-    let loadProfile = this.loadRawProfileRecord(handle);
+    let loadProfile = this.loadUserProfile(handle);
 
     let [post, author] = await Promise.all([loadRecord, loadProfile]);
     return { post, author };
