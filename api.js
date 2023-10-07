@@ -33,9 +33,24 @@ class HandleCache {
   }
 }
 
+class LocalStorageConfig {
+  constructor() {
+    this.user = {};
+    this.user.accessToken = localStorage.getItem('accessToken');
+    this.user.refreshToken = localStorage.getItem('refreshToken');
+    this.user.did = localStorage.getItem('userDID');
+  }
+
+  save() {
+    localStorage.setItem('accessToken', this.user.accessToken);
+    localStorage.setItem('refreshToken', this.user.refreshToken);
+    localStorage.setItem('userDID', this.user.did);
+  }
+}
+
 class BlueskyAPI extends Minisky {
-  constructor(host = 'bsky.social', useAuthentication = true) {
-    super(host, useAuthentication);
+  constructor(host, useAuthentication) {
+    super(host, useAuthentication ? new LocalStorageConfig() : undefined);
 
     this.handleCache = new HandleCache();
     this.profiles = {};
@@ -86,7 +101,7 @@ class BlueskyAPI extends Minisky {
     if (did) {
       return did;
     } else {
-      let json = await this.getRequest('com.atproto.identity.resolveHandle', { handle });
+      let json = await this.getRequest('com.atproto.identity.resolveHandle', { handle }, { auth: false });
       did = json['did'];
       this.handleCache.setHandleDid(handle, did);
       return did;
@@ -108,7 +123,7 @@ class BlueskyAPI extends Minisky {
   async loadRawPostRecord(uri) {
     let { repo, collection, rkey } = atURI(uri);
 
-    return await this.getRequest('com.atproto.repo.getRecord', { repo, collection, rkey });
+    return await this.getRequest('com.atproto.repo.getRecord', { repo, collection, rkey }, { auth: false });
   }
 
   async loadRawProfileRecord(handle) {
@@ -132,7 +147,7 @@ class BlueskyAPI extends Minisky {
 
   async likePost(post) {
     return await this.postRequest('com.atproto.repo.createRecord', {
-      repo: this.userDID,
+      repo: this.user.did,
       collection: 'app.bsky.feed.like',
       record: {
         subject: {
@@ -148,7 +163,7 @@ class BlueskyAPI extends Minisky {
     let { rkey } = atURI(uri);
 
     await this.postRequest('com.atproto.repo.deleteRecord', {
-      repo: this.userDID,
+      repo: this.user.did,
       collection: 'app.bsky.feed.like',
       rkey: rkey
     });

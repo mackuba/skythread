@@ -29,7 +29,7 @@ function init() {
     window.unauthed = true;
     window.api = new BlueskyAPI('api.bsky.app', false);
   } else {
-    window.api = new BlueskyAPI();
+    window.api = new BlueskyAPI('bsky.social', true);
   }
 
   if (api.isLoggedIn || window.unauthed) {

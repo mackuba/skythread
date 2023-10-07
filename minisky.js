@@ -6,50 +6,49 @@ class APIError extends Error {
   }
 }
 
+class AuthError extends Error {
+}
+
 class Minisky {
-  #accessToken;
-  #refreshToken;
-  #userDID;
-
-  constructor(host, useAuthentication = true) {
+  constructor(host, config, options) {
     this.host = host;
-    this.useAuthentication = useAuthentication;
+    this.config = config;
+    this.user = config?.user;
+    this.baseURL = `https://${host}/xrpc`;
 
-    if (useAuthentication) {
-      this.#accessToken = localStorage.getItem('accessToken');
-      this.#refreshToken = localStorage.getItem('refreshToken');
-      this.#userDID = localStorage.getItem('userDID');      
+    this.sendAuthHeaders = !!this.user;
+    this.autoManageTokens = !!this.user;
+
+    if (options) {
+      Object.assign(this, options);
     }
   }
 
   get isLoggedIn() {
-    return !!(this.#accessToken && this.#refreshToken && this.#userDID);
+    return !!(this.user.accessToken && this.user.refreshToken && this.user.did);
   }
 
-  get userDID() {
-    return this.#userDID;
-  }
-
-  async getRequest(method, params) {
-    let url = `https://${this.host}/xrpc/${method}`;
+  async getRequest(method, params, options) {
+    let url = new URL(`${this.baseURL}/${method}`);
+    let auth = options && ('auth' in options) ? options.auth : this.sendAuthHeaders;
+    let headers = this.authHeaders(auth);
 
     if (params) {
-      url += '?' + Object.entries(params).map((x) => {
-        if (x[1] instanceof Array) {
-          return x[1].map((i) => `${x[0]}=${encodeURIComponent(i)}`).join('&');
+      for (let p in params) {
+        if (params[p] instanceof Array) {
+          params[p].forEach(x => url.searchParams.append(p, x));
         } else {
-          return `${x[0]}=${encodeURIComponent(x[1])}`;
+          url.searchParams.append(p, params[p]);
         }
-      }).join('&');
+      }
     }
 
-    let headers = this.useAuthentication ? { 'Authorization': `Bearer ${this.#accessToken}` } : {};
     let response = await fetch(url, { headers: headers });
     let json = await this.parseResponse(response);
 
-    if (this.useAuthentication && this.isInvalidToken(response, json)) {
+    if (this.autoManageTokens && auth === true && this.isInvalidToken(response, json)) {
       await this.refreshAccessToken();
-      response = await fetch(url, { headers: { 'Authorization': `Bearer ${this.#accessToken}` }});
+      response = await fetch(url, { headers: this.authHeaders(auth) });
       json = await this.parseResponse(response);
     }
 
@@ -60,14 +59,10 @@ class Minisky {
     return json;
   }
 
-  async postRequest(method, data, useRefreshToken, useAuthentication) {
-    let url = `https://${this.host}/xrpc/${method}`;
-    let request = { method: 'POST', headers: {}};
-
-    if (!(useAuthentication === false)) {
-      let token = useRefreshToken ? this.#refreshToken : this.#accessToken;
-      request.headers['Authorization'] = `Bearer ${token}`;
-    }
+  async postRequest(method, data, options) {
+    let url = `${this.baseURL}/${method}`;
+    let auth = options && ('auth' in options) ? options.auth : this.sendAuthHeaders;
+    let request = { method: 'POST', headers: this.authHeaders(auth) };
 
     if (data) {
       request.body = JSON.stringify(data);
@@ -77,9 +72,9 @@ class Minisky {
     let response = await fetch(url, request);
     let json = await this.parseResponse(response);
 
-    if (!useRefreshToken && this.isInvalidToken(response, json)) {
+    if (this.autoManageTokens && auth === true && this.isInvalidToken(response, json)) {
       await this.refreshAccessToken();
-      request.headers['Authorization'] = `Bearer ${this.#accessToken}`;
+      request.headers['Authorization'] = `Bearer ${this.user.accessToken}`;
       response = await fetch(url, request);
       json = await this.parseResponse(response);
     }
@@ -89,6 +84,20 @@ class Minisky {
     }
 
     return json;
+  }
+
+  authHeaders(auth) {
+    if (typeof auth == 'string') {
+      return { 'Authorization': `Bearer ${auth}` };
+    } else if (auth) {
+      if (this.user.accessToken) {
+        return { 'Authorization': `Bearer ${this.user.accessToken}` };
+      } else {
+        throw new AuthError("Can't send auth headers, access token is missing");
+      }
+    } else {
+      return {};
+    }
   }
 
   isInvalidToken(response, json) {
@@ -106,27 +115,22 @@ class Minisky {
   }
 
   async logIn(handle, password) {
-    let json = await this.postRequest('com.atproto.server.createSession', {
-      identifier: handle,
-      password: password
-    }, false, false);
+    let params = { identifier: handle, password: password };
+    let json = await this.postRequest('com.atproto.server.createSession', params, { auth: false });
 
     this.saveTokens(json);
   }
 
   async refreshAccessToken() {
     console.log('Refreshing access token…');
-    let json = await this.postRequest('com.atproto.server.refreshSession', null, true);
+    let json = await this.postRequest('com.atproto.server.refreshSession', null, { auth: this.user.refreshToken });
     this.saveTokens(json);
   }
 
   saveTokens(json) {
-    this.#accessToken = json['accessJwt'];
-    this.#refreshToken = json['refreshJwt'];
-    this.#userDID = json['did'];
-
-    localStorage.setItem('accessToken', this.#accessToken);
-    localStorage.setItem('refreshToken', this.#refreshToken);
-    localStorage.setItem('userDID', this.#userDID);
+    this.user.accessToken = json['accessJwt'];
+    this.user.refreshToken = json['refreshJwt'];
+    this.user.did = json['did'];
+    this.config.save();
   }
 }
