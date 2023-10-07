@@ -43,20 +43,12 @@ class Minisky {
       }
     }
 
+    if (this.autoManageTokens && auth === true) {
+      await this.checkAccess();
+    }
+
     let response = await fetch(url, { headers: headers });
-    let json = await this.parseResponse(response);
-
-    if (this.autoManageTokens && auth === true && this.isInvalidToken(response, json)) {
-      await this.refreshAccessToken();
-      response = await fetch(url, { headers: this.authHeaders(auth) });
-      json = await this.parseResponse(response);
-    }
-
-    if (response.status != 200) {
-      throw new APIError(response.status, json);
-    }
-
-    return json;
+    return await this.parseResponse(response);
   }
 
   async postRequest(method, data, options) {
@@ -69,21 +61,12 @@ class Minisky {
       request.headers['Content-Type'] = 'application/json';
     }
 
+    if (this.autoManageTokens && auth === true) {
+      await this.checkAccess();
+    }
+
     let response = await fetch(url, request);
-    let json = await this.parseResponse(response);
-
-    if (this.autoManageTokens && auth === true && this.isInvalidToken(response, json)) {
-      await this.refreshAccessToken();
-      request.headers['Authorization'] = `Bearer ${this.user.accessToken}`;
-      response = await fetch(url, request);
-      json = await this.parseResponse(response);
-    }
-
-    if (response.status != 200) {
-      throw new APIError(response.status, json);
-    }
-
-    return json;
+    return await this.parseResponse(response);
   }
 
   authHeaders(auth) {
@@ -100,17 +83,46 @@ class Minisky {
     }
   }
 
+  tokenExpirationTimestamp(token) {
+    let parts = token.split('.');
+    if (parts.length != 3) {
+      throw new AuthError("Invalid access token format");
+    }
+
+    let payload = JSON.parse(atob(parts[1]));
+    let exp = payload.exp;
+
+    if (!(exp && typeof exp == 'number' && exp > 0)) {
+      throw new AuthError("Invalid token expiry data");
+    }
+
+    return exp * 1000;
+  }
+
   isInvalidToken(response, json) {
     return (response.status == 400) && json && ['InvalidToken', 'ExpiredToken'].includes(json.error);
   }
 
   async parseResponse(response) {
     let text = await response.text();
+    let json = text.trim().length > 0 ? JSON.parse(text) : undefined;
 
-    if (text.trim().length > 0) {
-      return JSON.parse(text);
+    if (response.status == 200) {
+      return json;
     } else {
-      return undefined;
+      throw new APIError(response.status, json);
+    }
+  }
+
+  async checkAccess() {
+    if (!this.isLoggedIn) {
+      throw new AuthError("Not logged in");
+    }
+
+    let expirationTimestamp = this.tokenExpirationTimestamp(this.user.accessToken);
+
+    if (expirationTimestamp < new Date().getTime() + 60 * 1000) {
+      await this.performTokenRefresh();
     }
   }
 
@@ -121,7 +133,7 @@ class Minisky {
     this.saveTokens(json);
   }
 
-  async refreshAccessToken() {
+  async performTokenRefresh() {
     console.log('Refreshing access token…');
     let json = await this.postRequest('com.atproto.server.refreshSession', null, { auth: this.user.refreshToken });
     this.saveTokens(json);
