@@ -126,8 +126,8 @@ class EmbedComponent {
   }
 
   async loadQuotedPost(uri, div) {
-    let results = await api.loadRawPostWithAuthor(uri);
-    let post = new Post(results.post, { author: results.author, isEmbed: true });
+    let result = await api.loadPost(uri);
+    let post = new Post(result, { isEmbed: true });
 
     let postView = new PostComponent(post).buildElement();
     div.innerHTML = '';

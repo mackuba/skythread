@@ -98,7 +98,7 @@ class Post extends Record {
   }
 
   get hasMoreReplies() {
-    return this.replyCount !== undefined && this.replyCount !== this.replies.length;
+    return this.replyCount !== undefined && this.replies.length > 0 && this.replyCount !== this.replies.length;
   }
 
   get repostCount() {

@@ -145,6 +145,11 @@ class BlueskyAPI extends Minisky {
     return { post, author };
   }
 
+  async loadPost(postURI) {
+    let response = await this.getRequest('app.bsky.feed.getPosts', { uris: [postURI] });
+    return response.posts[0];
+  }
+
   async likePost(post) {
     return await this.postRequest('com.atproto.repo.createRecord', {
       repo: this.user.did,
