@@ -120,12 +120,6 @@ class BlueskyAPI extends Minisky {
     return threadJSON;
   }
 
-  async loadRawPostRecord(uri) {
-    let { repo, collection, rkey } = atURI(uri);
-
-    return await this.getRequest('com.atproto.repo.getRecord', { repo, collection, rkey }, { auth: false });
-  }
-
   async loadUserProfile(handle) {
     if (this.profiles[handle]) {
       return this.profiles[handle];
@@ -134,15 +128,6 @@ class BlueskyAPI extends Minisky {
       this.cacheProfile(profile);
       return profile;
     }
-  }
-
-  async loadRawPostWithAuthor(postURI) {
-    let handle = atURI(postURI).repo;
-    let loadRecord = this.loadRawPostRecord(postURI);
-    let loadProfile = this.loadUserProfile(handle);
-
-    let [post, author] = await Promise.all([loadRecord, loadProfile]);
-    return { post, author };
   }
 
   async loadPost(postURI) {
