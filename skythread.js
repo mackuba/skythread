@@ -24,10 +24,12 @@ function init() {
     e.target.classList.remove('click');
   });
 
+  window.appView = new BlueskyAPI('api.bsky.app', false);
+
   let params = new URLSearchParams(location.search);
   if (params.get('_u') == '1') {
     window.unauthed = true;
-    window.api = new BlueskyAPI('api.bsky.app', false);
+    window.api = window.appView;
   } else {
     window.api = new BlueskyAPI('bsky.social', true);
   }

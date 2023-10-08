@@ -266,7 +266,7 @@ class PostComponent {
   }
 
   async loadBlockedPost(uri, div) {
-    let record = await api.loadRawPostRecord(this.post.uri);
+    let record = await appView.loadPost(this.post.uri);
     this.post = new Post(record);
 
     div.querySelector('p.load-post').remove();
