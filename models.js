@@ -74,6 +74,7 @@ class Post extends Record {
       this.embed = Embed.parse(this.record.embed);
     }
 
+    this.viewerData = data.viewer;
     this.viewerLike = data.viewer?.like;
 
     if (this.author) {
@@ -115,6 +116,10 @@ class Post extends Record {
 
   get muteList() {
     return this.author.viewer?.mutedByList?.name;
+  }
+
+  get hasViewerInfo() {
+    return (this.viewerData !== undefined);
   }
 
   get parentReference() {
