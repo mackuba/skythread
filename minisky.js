@@ -31,7 +31,10 @@ class Minisky {
   async getRequest(method, params, options) {
     let url = new URL(`${this.baseURL}/${method}`);
     let auth = options && ('auth' in options) ? options.auth : this.sendAuthHeaders;
-    let headers = this.authHeaders(auth);
+
+    if (this.autoManageTokens && auth === true) {
+      await this.checkAccess();
+    }
 
     if (params) {
       for (let p in params) {
@@ -43,10 +46,7 @@ class Minisky {
       }
     }
 
-    if (this.autoManageTokens && auth === true) {
-      await this.checkAccess();
-    }
-
+    let headers = this.authHeaders(auth);
     let response = await fetch(url, { headers: headers });
     return await this.parseResponse(response);
   }
@@ -54,15 +54,16 @@ class Minisky {
   async postRequest(method, data, options) {
     let url = `${this.baseURL}/${method}`;
     let auth = options && ('auth' in options) ? options.auth : this.sendAuthHeaders;
+
+    if (this.autoManageTokens && auth === true) {
+      await this.checkAccess();
+    }
+
     let request = { method: 'POST', headers: this.authHeaders(auth) };
 
     if (data) {
       request.body = JSON.stringify(data);
       request.headers['Content-Type'] = 'application/json';
-    }
-
-    if (this.autoManageTokens && auth === true) {
-      await this.checkAccess();
     }
 
     let response = await fetch(url, request);
