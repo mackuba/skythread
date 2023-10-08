@@ -42,6 +42,19 @@ class Post extends Record {
 
       return post;
 
+    case 'app.bsky.feed.defs#feedViewPost':
+      post = new Post(json.post);
+
+      if (json.reply) {
+        post.parent = new Post(json.reply.parent);
+      }
+
+      if (json.reason) {
+        post.reason = json.reason;
+      }
+
+      return post;
+
     case 'app.bsky.embed.record#viewRecord':
       return new Post(json, { isEmbed: true });
 
