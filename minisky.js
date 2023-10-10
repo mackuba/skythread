@@ -25,7 +25,7 @@ class Minisky {
   }
 
   get isLoggedIn() {
-    return !!(this.user.accessToken && this.user.refreshToken && this.user.did);
+    return !!(this.user && this.user.accessToken && this.user.refreshToken && this.user.did);
   }
 
   async getRequest(method, params, options) {
