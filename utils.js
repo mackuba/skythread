@@ -27,6 +27,10 @@ function $tag(tag, params) {
   return element;
 }
 
+function $id(name) {
+  return document.getElementById(name);
+}
+
 function atURI(uri) {
   return new AtURI(uri);
 }

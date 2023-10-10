@@ -77,38 +77,38 @@ function buildParentLink(post) {
 }
 
 function showLoader() {
-  document.getElementById('loader').style.display = 'block';
+  $id('loader').style.display = 'block';
 }
 
 function hideLoader() {
-  document.getElementById('loader').style.display = 'none';
+  $id('loader').style.display = 'none';
 }
 
 function showSearch() {
-  document.getElementById('search').style.visibility = 'visible';
+  $id('search').style.visibility = 'visible';
 }
 
 function hideSearch() {
-  document.getElementById('search').style.visibility = 'hidden';
+  $id('search').style.visibility = 'hidden';
 }
 
 function showLogin() {
-  document.getElementById('login').style.visibility = 'visible';
+  $id('login').style.visibility = 'visible';
 }
 
 function hideLogin() {
-  document.getElementById('login').style.visibility = 'hidden';
+  $id('login').style.visibility = 'hidden';
 }
 
 function toggleLoginInfo(event) {
-  document.getElementById('login').classList.toggle('expanded');
+  $id('login').classList.toggle('expanded');
 }
 
 function submitLogin() {
-  let handle = document.getElementById('login_handle');
-  let password = document.getElementById('login_password');
-  let submit = document.getElementById('login_submit');
-  let cloudy = document.getElementById('cloudy');
+  let handle = $id('login_handle');
+  let password = $id('login_password');
+  let submit = $id('login_submit');
+  let cloudy = $id('cloudy');
 
   if (submit.style.display == 'none') { return }
 
@@ -130,7 +130,7 @@ function submitLogin() {
 }
 
 function submitSearch() {
-  let url = document.getElementById('search').querySelector('input[name=q]').value.trim();
+  let url = $id('search').querySelector('input[name=q]').value.trim();
 
   if (!url) { return }
 
