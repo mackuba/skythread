@@ -59,8 +59,7 @@ function parseQueryParams() {
 }
 
 function buildParentLink(post) {
-  let p = document.createElement('p');
-  p.className = 'back';
+  let p = $tag('p.back');
 
   if (post.blocked) {
     let element = new PostComponent(post).buildElement();

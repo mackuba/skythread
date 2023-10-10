@@ -9,22 +9,22 @@ class EmbedComponent {
 
     switch (this.embed.constructor) {
     case RecordEmbed:
-      div = document.createElement('div');
-      div.className = 'quote-embed'
-      div.innerHTML = '<p class="post placeholder">Loading quoted post...</p>';
+      div = $tag('div.quote-embed', {
+        content: '<p class="post placeholder">Loading quoted post...</p>'
+      });
 
       this.loadQuotedPost(this.embed.record.uri, div);
       return div;
 
     case RecordWithMediaEmbed:
-      wrapper = document.createElement('div');
+      wrapper = $tag('div');
 
       mediaView = new EmbedComponent(this.post, this.embed.media).buildElement();
       wrapper.appendChild(mediaView);
 
-      div = document.createElement('div');
-      div.className = 'quote-embed'
-      div.innerHTML = '<p class="post placeholder">Loading quoted post...</p>';
+      div = $tag('div.quote-embed', {
+        content: '<p class="post placeholder">Loading quoted post...</p>'
+      });
       wrapper.appendChild(div);
 
       this.loadQuotedPost(this.embed.record.uri, div);
@@ -32,35 +32,31 @@ class EmbedComponent {
       return wrapper;
 
     case InlineRecordEmbed:
-      div = document.createElement('div');
-      div.className = 'quote-embed'
+      div = $tag('div.quote-embed');
 
       if (this.embed.post instanceof Post || this.embed.post instanceof BlockedPost) {
         postView = new PostComponent(this.embed.post).buildElement();
         div.appendChild(postView);
       } else {
-        p = document.createElement('p');
-        p.innerText = `[${this.embed.post.type}]`;
+        p = $tag('p', { text: `[${this.embed.post.type}]` });
         div.appendChild(p);
       }
 
       return div;
 
     case InlineRecordWithMediaEmbed:
-      wrapper = document.createElement('div');
+      wrapper = $tag('div');
 
       mediaView = new EmbedComponent(this.post, this.embed.media).buildElement();
       wrapper.appendChild(mediaView);
 
-      div = document.createElement('div');
-      div.className = 'quote-embed'
+      div = $tag('div.quote-embed');
 
       if (this.embed.post instanceof Post || this.embed.post instanceof BlockedPost) {
         postView = new PostComponent(this.embed.post).buildElement();
         div.appendChild(postView);
       } else {
-        p = document.createElement('p');
-        p.innerText = `[${this.embed.post.type}]`;
+        p = $tag('p', { text: `[${this.embed.post.type}]` });
         div.appendChild(p);
       }
 
@@ -69,38 +65,28 @@ class EmbedComponent {
 
     case ImageEmbed:
     case InlineImageEmbed:
-      wrapper = document.createElement('div');
+      wrapper = $tag('div');
       this.addImagesFromEmbed(wrapper);
       return wrapper;
 
     case LinkEmbed:
     case InlineLinkEmbed:
-      p = document.createElement('p');
-      p.append('[Link: ');
-
-      a = document.createElement('a');
-      a.innerText = this.embed.title || this.embed.url;
-      a.href = this.embed.url;
-      p.append(a);
-
-      p.append(']');
-      return p;
+      return $tag('p', {
+        content: `[Link: <a href="${this.embed.url}">${this.embed.title || this.embed.url}</a>]`
+      });
 
     default:
-      p = document.createElement('p');
-      p.innerText = `[${this.embed.type}]`;
-      return p;
+      return $tag('p', { text: `[${this.embed.type}]` });
     }
   }
 
   addImagesFromEmbed(wrapper) {
     for (let image of this.embed.images) {
-      let p = document.createElement('p');
+      let p = $tag('p');
       p.append('[');
 
       // TODO: load image
-      let a = document.createElement('a');
-      a.innerText = "Image";
+      let a = $tag('a', { text: "Image" });
 
       if (image.fullsize) {
         a.href = image.fullsize;
@@ -114,12 +100,11 @@ class EmbedComponent {
       wrapper.append(p);        
 
       if (image.alt) {
-        let details = document.createElement('details');
-        let summary = document.createElement('summary');
-        summary.innerText = 'Show alt';
-        details.appendChild(summary);
-        details.append(image.alt);
-        details.className = 'image-alt';
+        let details = $tag('details.image-alt');
+        details.append(
+          $tag('summary', { text: 'Show alt' }),
+          image.alt
+        );
         wrapper.appendChild(details);
       }
     }

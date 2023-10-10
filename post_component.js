@@ -44,8 +44,7 @@ class PostComponent {
   }
 
   buildElement() {
-    let div = document.createElement('div');
-    div.className = 'post';
+    let div = $tag('div.post');
 
     if (this.post.muted) {
       div.classList.add('muted');
@@ -59,52 +58,41 @@ class PostComponent {
     let header = this.buildPostHeader();
     div.appendChild(header);
 
-    let content = document.createElement('div');
-    content.className = 'content';
+    let content = $tag('div.content');
 
     if (!this.isRoot) {
-      let edge = document.createElement('div');
-      edge.className = 'edge';
+      let edge = $tag('div.edge');
+      let line = $tag('div.line');
+      edge.appendChild(line);
       div.appendChild(edge);
 
-      let line = document.createElement('div');
-      line.className = 'line';
-      edge.appendChild(line);
-
-      let plus = document.createElement('img');
-      plus.className = 'plus';
-      plus.src = 'icons/subtract-square.png';
+      let plus = $tag('img.plus', { src: 'icons/subtract-square.png' });
       div.appendChild(plus);
 
-      for (let element of [edge, plus]) {
-        element.addEventListener('click', (e) => {
+      [edge, plus].forEach(x => {
+        x.addEventListener('click', (e) => {
           e.preventDefault();
           this.toggleSectionFold(div);
         });
-      }
+      });
     }
 
     let wrapper;
 
     if (this.post.muted) {
-      let details = document.createElement('details');
-      let summary = document.createElement('summary');
+      let details = $tag('details');
 
-      if (this.post.muteList) {
-        summary.innerText = `Muted (${this.post.muteList})`;
-      } else {
-        summary.innerText = 'Muted - click to show';
-      }
-
+      let summary = $tag('summary');
+      summary.innerText = this.post.muteList ? `Muted (${this.post.muteList})` : 'Muted - click to show';
       details.appendChild(summary);
+
       content.appendChild(details);
       wrapper = details;
     } else {
       wrapper = content;
     }
 
-    let p = document.createElement('p');
-    p.innerText = this.post.text;
+    let p = $tag('p', { text: this.post.text });
     wrapper.appendChild(p);
 
     if (this.post.embed) {
@@ -144,7 +132,7 @@ class PostComponent {
     let formattedTime = this.post.createdAt.toLocaleString(window.dateLocale, timeFormat);
     let isoTime = this.post.createdAt.toISOString();
 
-    let h = document.createElement('h2');
+    let h = $tag('h2');
 
     h.innerHTML = `${this.authorName} ` +
       `<a class="handle" href="${this.linkToAuthor}" target="_blank">@${this.post.author.handle}</a> ` +
@@ -159,42 +147,28 @@ class PostComponent {
     }
 
     if (this.post.muted) {
-      let muted = document.createElement('i');
-      muted.className = 'missing fa-regular fa-circle-user fa-2x';
-      h.prepend(muted);
+      h.prepend($tag('i', 'missing fa-regular fa-circle-user fa-2x'));
     } else if (this.post.author.avatar) {
-      let avatar = document.createElement('img');
-      avatar.src = this.post.author.avatar;
-      avatar.className = 'avatar';
-      h.prepend(avatar);
+      h.prepend($tag('img.avatar', { src: this.post.author.avatar }));
     } else {
-      let missing = document.createElement('i');
-      missing.className = 'missing fa-regular fa-face-smile fa-2x';
-      h.prepend(missing);
+      h.prepend($tag('i', 'missing fa-regular fa-face-smile fa-2x'));
     }
 
     return h;
   }
 
   buildStatsFooter() {
-    let stats = document.createElement('p');
-    stats.className = 'stats';
+    let stats = $tag('p.stats');
 
-    let span = document.createElement('span');
-    let heart = document.createElement('i');
-    heart.className = 'fa-solid fa-heart ' + (this.post.liked ? 'liked' : '');
+    let span = $tag('span');
+    let heart = $tag('i', 'fa-solid fa-heart ' + (this.post.liked ? 'liked' : ''));
     heart.addEventListener('click', (e) => this.onHeartClick(heart));
-    span.append(heart);
-    span.append(' ');
 
-    let count = document.createElement('output');
-    count.innerText = this.post.likeCount;
-    span.append(count);
+    span.append(heart, ' ', $tag('output', { text: this.post.likeCount }));
     stats.append(span);
 
     if (this.post.repostCount > 0) {
-      let span = document.createElement('span');
-      span.innerHTML = `<i class="fa-solid fa-retweet"></i> ${this.post.repostCount}`;
+      let span = $tag('span', { content: `<i class="fa-solid fa-retweet"></i> ${this.post.repostCount}` });
       stats.append(span);
     }
 
@@ -202,10 +176,12 @@ class PostComponent {
   }
 
   buildLoadMoreLink() {
-    let loadMore = document.createElement('p');
-    let link = document.createElement('a');
-    link.innerText = "Load more replies…";
-    link.href = linkToPostThread(this.post);
+    let loadMore = $tag('p');
+
+    let link = $tag('a', {
+      href: linkToPostThread(this.post),
+      text: "Load more replies…"
+    });
 
     link.addEventListener('click', (e) => {
       e.preventDefault();
@@ -218,8 +194,7 @@ class PostComponent {
   }
 
   buildBlockedPostElement(div) {
-    let p = document.createElement('p');
-    p.className = 'blocked-header';
+    let p = $tag('p.blocked-header');
     p.innerHTML = `<i class="fa-solid fa-ban"></i> <span>Blocked post</span> ` +
       `(<a href="${this.didLinkToAuthor}" target="_blank">see author</a>) `;
     div.appendChild(p);
@@ -247,11 +222,8 @@ class PostComponent {
       });      
     }
 
-    let loadPost = document.createElement('p');
-    loadPost.className = 'load-post';
-    let a = document.createElement('a');
-    a.innerText = "Load post…";
-    a.href = '#';
+    let loadPost = $tag('p.load-post');
+    let a = $tag('a', { href: '#', text: "Load post…" });
 
     a.addEventListener('click', (e) => {
       e.preventDefault();
@@ -272,20 +244,17 @@ class PostComponent {
     div.querySelector('p.load-post').remove();
 
     if (this.isRoot && this.post.parentReference) {
-      let p = document.createElement('p');
-      p.className = 'back';
-
       let { repo, rkey } = atURI(this.post.parentReference.uri);
       let url = linkToPostById(repo, rkey);
 
       let handle = api.findHandleByDid(repo);
       let link = handle ? `See parent post (@${handle})` : "See parent post";
-      p.innerHTML = `<i class="fa-solid fa-reply"></i><a href="${url}">${link}</a>`;
+
+      let p = $tag('p.back', { content: `<i class="fa-solid fa-reply"></i><a href="${url}">${link}</a>` });
       div.appendChild(p);
     }
 
-    let p = document.createElement('p');
-    p.innerText = this.post.text;
+    let p = $tag('p', { text: this.post.text });
     div.appendChild(p);
   }
 

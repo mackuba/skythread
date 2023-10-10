@@ -1,3 +1,32 @@
+function $tag(tag, params) {
+  let element;
+
+  if (tag.includes('.')) {
+    let parts = tag.split('.');
+    let tagName = parts.shift();
+    element = document.createElement(tagName);
+    element.className = parts.join(' ');
+  } else {
+    element = document.createElement(tag);
+  }
+
+  if (typeof params === 'string') {
+    element.className = element.className + ' ' + params;
+  } else if (params) {
+    for (let key in params) {
+      if (key == 'text') {
+        element.innerText = params[key];
+      } else if (key == 'content') {
+        element.innerHTML = params[key];
+      } else {
+        element[key] = params[key];
+      }
+    }
+  }
+
+  return element;
+}
+
 function atURI(uri) {
   return new AtURI(uri);
 }
