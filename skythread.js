@@ -144,7 +144,6 @@ function submitLogin() {
   pds.logIn(handle.value, password.value).then(() => {
     hideLogin();
     showLoggedInStatus();
-    parseQueryParams();
     window.api = pds;
   }).catch((error) => {
     submit.style.display = 'inline';
