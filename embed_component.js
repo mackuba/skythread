@@ -69,9 +69,11 @@ class EmbedComponent {
   }
 
   buildLinkComponent() {
-    return $tag('p', {
-      content: `[Link: <a href="${this.embed.url}">${this.embed.title || this.embed.url}</a>]`
-    });
+    let a = $tag('a', { href: this.embed.url, text: this.embed.title || this.embed.url });
+
+    let p = $tag('p');
+    p.append('[Link: ', a, ']');
+    return p;
   }
 
   buildImagesComponent() {
