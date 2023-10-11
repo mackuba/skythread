@@ -23,24 +23,29 @@
     </a>
   </div>
 
+  <div id="account">
+    <i class="fa-regular fa-user-circle fa-lg"></i>
+  </div>
+
   <div id="login">
     <form method="get">
       <h2>🌤 Skythread</h2>
       <p><input type="text" id="login_handle" required placeholder="name.bsky.social"></p>
       <p><input type="password" id="login_password" required
            placeholder="&#x2731;&#x2731;&#x2731;&#x2731;&#x2731;&#x2731;&#x2731;&#x2731;"></p>
-      <p class="info"><a href="#"><i class="fa-regular fa-circle-question"></i>
-        Why do I need to log in?</a></p>
+      <p class="info"><a href="#"><i class="fa-regular fa-circle-question"></i> Use an "app password" here</a></p>
       <div class="info-box">
-        <p>Bluesky API currently requires authentication to the app.<wbr>bsky.<wbr>feed.<wbr>getPostThread endpoint, which is used to load complete threads.</p>
-        <p>At the moment there is no way to log in using OAuth, only with a password. The password is only passed to the Bluesky API and isn't saved anywhere. The returned access token is stored in local storage. You can create an "app password" in the Bluesky app settings that you will only use to log in here.</p>
-        <p>You can see the complete source code of this page <a href="http://github.com/mackuba/skythread" target="_blank">on GitHub</a> (and in your browser's web inspector!).</p>
+        <p>Bluesky API currently doesn't allow apps to request fine-grained permissions, only access to the whole account. However, you can generate an "app password" in the Bluesky app settings for this specific app that you can later revoke at any time.</p>
+        <p>The password you enter here is only passed to the Bluesky API and isn't saved anywhere. The returned access token is only stored in your browser's local storage. You can see the complete source code of this app <a href="http://github.com/mackuba/skythread" target="_blank">on GitHub</a>.</p>
       </div>
       <p class="submit">
         <input id="login_submit" type="submit" value="Log in">
         <i id="cloudy" class="fa-solid fa-cloud fa-beat fa-xl"></i>
       </p>
     </form>
+  </div>
+
+  <div id="thread">
   </div>
 
   <script src="minisky.js"></script>

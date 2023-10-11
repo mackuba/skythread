@@ -76,6 +76,24 @@ a:visited {
   outline: none;
 }
 
+#account {
+  position: fixed;
+  top: 12px;
+  left: 12px;
+  z-index: 20;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+#account i {
+  opacity: 0.4;
+}
+
+#account i:hover {
+  cursor: pointer;
+  opacity: 0.6;
+}
+
 #login {
   visibility: hidden;
   position: fixed;
@@ -87,6 +105,8 @@ a:visited {
   align-items: center;
   justify-content: center;
   padding-bottom: 5%;
+  z-index: 10;
+  background-color: rgba(240, 240, 240, 0.4);
 }
 
 #login.expanded {
@@ -121,7 +141,7 @@ a:visited {
 }
 
 #login p.info a {
-  color: #888;
+  color: #666;
 }
 
 #login input[type="text"], #login input[type="password"] {
@@ -186,6 +206,10 @@ a:visited {
 #loader img {
   width: 36px;
   animation: rotation 3s infinite linear;
+}
+
+#thread.overlay {
+  filter: blur(8px);
 }
 
 .back, .back a {

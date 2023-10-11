@@ -1,6 +1,14 @@
 function init() {
   window.dateLocale = localStorage.getItem('locale') || undefined;
 
+  document.querySelector('#login').addEventListener('click', (e) => {
+    if (e.target === e.currentTarget) {
+      hideLogin();
+    } else {
+      e.stopPropagation();
+    } 
+  });
+
   document.querySelector('#login .info a').addEventListener('click', (e) => {
     e.preventDefault();
     toggleLoginInfo();
@@ -24,21 +32,22 @@ function init() {
     e.target.classList.remove('click');
   });
 
+  document.querySelector('#account i').addEventListener('click', (e) => {
+    if (!api.isLoggedIn) {
+      toggleLogin();
+    }
+  });
+
   window.appView = new BlueskyAPI('api.bsky.app', false);
+  window.api = new BlueskyAPI('bsky.social', true);
 
-  let params = new URLSearchParams(location.search);
-  if (params.get('_u') == '1') {
-    window.unauthed = true;
+  if (api.isLoggedIn) {
+    showLoggedInStatus();
+  } else {
     window.api = window.appView;
-  } else {
-    window.api = new BlueskyAPI('bsky.social', true);
   }
 
-  if (api.isLoggedIn || window.unauthed) {
-    parseQueryParams();
-  } else {
-    showLogin();
-  }
+  parseQueryParams();
 }
 
 function parseQueryParams() {
@@ -94,14 +103,33 @@ function hideSearch() {
 
 function showLogin() {
   $id('login').style.visibility = 'visible';
+  $id('thread').classList.add('overlay');
 }
 
 function hideLogin() {
   $id('login').style.visibility = 'hidden';
+  $id('login').classList.remove('expanded');
+  $id('thread').classList.remove('overlay');
+}
+
+function toggleLogin() {
+  if ($id('login').style.visibility == 'visible') {
+    hideLogin();
+  } else {
+    showLogin();
+  }
 }
 
 function toggleLoginInfo(event) {
   $id('login').classList.toggle('expanded');
+}
+
+function showLoggedInStatus() {
+  $id('account').innerHTML = `<i class="fa-solid fa-user-circle fa-lg"></i>`;
+}
+
+function showLoggedOutStatus() {
+  $id('account').innerHTML = `<i class="fa-regular fa-user-circle fa-lg"></i>`;
 }
 
 function submitLogin() {
@@ -112,15 +140,19 @@ function submitLogin() {
 
   if (submit.style.display == 'none') { return }
 
+  let pds = new BlueskyAPI('bsky.social', true);
+
   handle.blur();
   password.blur();
 
   submit.style.display = 'none';
   cloudy.style.display = 'inline-block';
 
-  api.logIn(handle.value, password.value).then(() => {
+  pds.logIn(handle.value, password.value).then(() => {
     hideLogin();
+    showLoggedInStatus();
     parseQueryParams();
+    window.api = pds;
   }).catch((error) => {
     submit.style.display = 'inline';
     cloudy.style.display = 'none';
@@ -154,7 +186,7 @@ function loadThread(url, postId, nodeToUpdate) {
 
     if (root.parent && !nodeToUpdate) {
       let p = buildParentLink(root.parent);
-      document.body.appendChild(p);
+      $id('thread').appendChild(p);
     }
 
     let list = new PostComponent(root).buildElement();
@@ -163,7 +195,7 @@ function loadThread(url, postId, nodeToUpdate) {
     if (nodeToUpdate) {
       nodeToUpdate.querySelector('.content').replaceWith(list.querySelector('.content'));
     } else {
-      document.body.appendChild(list);      
+      $id('thread').appendChild(list);
     }
   }).catch(error => {
     hideLoader();

@@ -272,7 +272,7 @@ class PostComponent {
 
   onHeartClick(heart) {
     if (!this.post.hasViewerInfo) {
-      alert('This action in unavailable in unauthenticated mode.');
+      showLogin();
       return;
     }
 
