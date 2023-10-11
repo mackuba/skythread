@@ -146,7 +146,7 @@ class PostComponent {
 
     let h = document.createElement('h2');
 
-    h.innerHTML = `${this.authorName} ` +
+    h.innerHTML = `${escapeHTML(this.authorName)} ` +
       `<a class="handle" href="${this.linkToAuthor}" target="_blank">@${this.post.author.handle}</a> ` +
       `<span class="separator">&bull;</span> ` +
       `<a class="time" href="${this.linkToPost}" target="_blank" title="${isoTime}">${formattedTime}</a> `;

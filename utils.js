@@ -20,6 +20,12 @@ class AtURI {
   }
 }
 
+function escapeHTML(html) {
+  return html.replace(/&/g, '&amp;')
+             .replace(/</g, '&lt;')
+             .replace(/>/g,'&gt;');
+}
+
 function getLocation() {
   return location.origin + location.pathname;
 }
