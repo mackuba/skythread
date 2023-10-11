@@ -24,14 +24,6 @@ function init() {
     submitSearch();
   });
 
-  document.querySelector('#search input').addEventListener('mousedown', (e) => {
-    e.target.classList.add('click');
-  });
-
-  document.querySelector('#search input').addEventListener('blur', (e) => {
-    e.target.classList.remove('click');
-  });
-
   document.querySelector('#account i').addEventListener('click', (e) => {
     if (!api.isLoggedIn) {
       toggleLogin();
@@ -95,6 +87,7 @@ function hideLoader() {
 
 function showSearch() {
   $id('search').style.visibility = 'visible';
+  $id('search').querySelector('input[type=text]').focus();
 }
 
 function hideSearch() {
