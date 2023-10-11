@@ -5,82 +5,78 @@ class EmbedComponent {
   }
 
   buildElement() {
-    let div, p, a, wrapper, postView, mediaView;
+    let wrapper, quoteView, mediaView;
 
     switch (this.embed.constructor) {
     case RecordEmbed:
-      div = $tag('div.quote-embed', {
-        content: '<p class="post placeholder">Loading quoted post...</p>'
-      });
-
-      this.loadQuotedPost(this.embed.record.uri, div);
-      return div;
+      quoteView = this.quotedPostPlaceholder();
+      this.loadQuotedPost(this.embed.record.uri, quoteView);
+      return quoteView;
 
     case RecordWithMediaEmbed:
       wrapper = $tag('div');
 
       mediaView = new EmbedComponent(this.post, this.embed.media).buildElement();
-      wrapper.appendChild(mediaView);
+      quoteView = this.quotedPostPlaceholder();
+      this.loadQuotedPost(this.embed.record.uri, quoteView);
 
-      div = $tag('div.quote-embed', {
-        content: '<p class="post placeholder">Loading quoted post...</p>'
-      });
-      wrapper.appendChild(div);
-
-      this.loadQuotedPost(this.embed.record.uri, div);
-
+      wrapper.append(mediaView, quoteView);
       return wrapper;
 
     case InlineRecordEmbed:
-      div = $tag('div.quote-embed');
-
-      if (this.embed.post instanceof Post || this.embed.post instanceof BlockedPost) {
-        postView = new PostComponent(this.embed.post).buildElement();
-        div.appendChild(postView);
-      } else {
-        p = $tag('p', { text: `[${this.embed.post.type}]` });
-        div.appendChild(p);
-      }
-
-      return div;
+      return this.buildQuotedPostElement();
 
     case InlineRecordWithMediaEmbed:
       wrapper = $tag('div');
 
       mediaView = new EmbedComponent(this.post, this.embed.media).buildElement();
-      wrapper.appendChild(mediaView);
+      quoteView = this.buildQuotedPostElement();
 
-      div = $tag('div.quote-embed');
-
-      if (this.embed.post instanceof Post || this.embed.post instanceof BlockedPost) {
-        postView = new PostComponent(this.embed.post).buildElement();
-        div.appendChild(postView);
-      } else {
-        p = $tag('p', { text: `[${this.embed.post.type}]` });
-        div.appendChild(p);
-      }
-
-      wrapper.appendChild(div);
+      wrapper.append(mediaView, quoteView);
       return wrapper;
 
     case ImageEmbed:
     case InlineImageEmbed:
-      wrapper = $tag('div');
-      this.addImagesFromEmbed(wrapper);
-      return wrapper;
+      return this.buildImagesComponent();
 
     case LinkEmbed:
     case InlineLinkEmbed:
-      return $tag('p', {
-        content: `[Link: <a href="${this.embed.url}">${this.embed.title || this.embed.url}</a>]`
-      });
+      return this.buildLinkComponent();
 
     default:
       return $tag('p', { text: `[${this.embed.type}]` });
     }
   }
 
-  addImagesFromEmbed(wrapper) {
+  quotedPostPlaceholder() {
+    return $tag('div.quote-embed', {
+      content: '<p class="post placeholder">Loading quoted post...</p>'
+    });
+  }
+
+  buildQuotedPostElement() {
+    let div = $tag('div.quote-embed');
+
+    if (this.embed.post instanceof Post || this.embed.post instanceof BlockedPost) {
+      let postView = new PostComponent(this.embed.post).buildElement();
+      div.appendChild(postView);
+    } else {
+      let p = $tag('p', { text: `[${this.embed.post.type}]` });
+      div.appendChild(p);
+    }
+
+    return div;
+  }
+
+  buildLinkComponent() {
+    return $tag('p', {
+      content: `[Link: <a href="${this.embed.url}">${this.embed.title || this.embed.url}</a>]`
+    });
+  }
+
+  buildImagesComponent() {
+    let wrapper = $tag('div');
+
     for (let image of this.embed.images) {
       let p = $tag('p');
       p.append('[');
@@ -108,6 +104,8 @@ class EmbedComponent {
         wrapper.appendChild(details);
       }
     }
+
+    return wrapper;
   }
 
   async loadQuotedPost(uri, div) {
