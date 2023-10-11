@@ -132,12 +132,14 @@ class Minisky {
     let json = await this.postRequest('com.atproto.server.createSession', params, { auth: false });
 
     this.saveTokens(json);
+    return json;
   }
 
   async performTokenRefresh() {
     console.log('Refreshing access token…');
     let json = await this.postRequest('com.atproto.server.refreshSession', null, { auth: this.user.refreshToken });
     this.saveTokens(json);
+    return json;
   }
 
   saveTokens(json) {
