@@ -104,6 +104,8 @@ function hideLogin() {
   $id('login').style.visibility = 'hidden';
   $id('login').classList.remove('expanded');
   $id('thread').classList.remove('overlay');
+  $id('login_handle').value = '';
+  $id('login_password').value = '';
 }
 
 function toggleLogin() {
