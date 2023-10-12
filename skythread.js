@@ -97,6 +97,7 @@ function hideSearch() {
 function showLogin() {
   $id('login').style.visibility = 'visible';
   $id('thread').classList.add('overlay');
+  $id('login_handle').focus();
 }
 
 function hideLogin() {
