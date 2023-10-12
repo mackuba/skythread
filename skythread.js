@@ -34,7 +34,7 @@ function init() {
   window.api = new BlueskyAPI('bsky.social', true);
 
   if (api.isLoggedIn) {
-    showLoggedInStatus();
+    showLoggedInStatus(api.user.avatar);
   } else {
     window.api = window.appView;
   }
@@ -120,12 +120,30 @@ function toggleLoginInfo(event) {
   $id('login').classList.toggle('expanded');
 }
 
-function showLoggedInStatus() {
-  $id('account').innerHTML = `<i class="fa-solid fa-user-circle fa-lg"></i>`;
+function showLoggedInStatus(avatar) {
+  let account = $id('account');
+
+  if (avatar) {
+    let button = account.querySelector('i');
+
+    let img = $tag('img.avatar', { src: avatar });
+    img.style.display = 'none';
+    img.addEventListener('load', () => {
+      button.remove();
+      img.style.display = 'inline';
+    });
+    img.addEventListener('error', () => {
+      showLoggedInStatus();
+    })
+
+    account.append(img);
+  } else {
+    account.innerHTML = `<i class="fa-solid fa-user-circle fa-xl"></i>`;
+  }
 }
 
 function showLoggedOutStatus() {
-  $id('account').innerHTML = `<i class="fa-regular fa-user-circle fa-lg"></i>`;
+  $id('account').innerHTML = `<i class="fa-regular fa-user-circle fa-xl"></i>`;
 }
 
 function submitLogin() {
@@ -145,15 +163,32 @@ function submitLogin() {
   cloudy.style.display = 'inline-block';
 
   pds.logIn(handle.value, password.value).then(() => {
-    hideLogin();
-    showLoggedInStatus();
     window.api = pds;
-  }).catch((error) => {
+    hideLogin();
+    loadCurrentUserAvatar();
+  })
+  .catch((error) => {
     submit.style.display = 'inline';
     cloudy.style.display = 'none';
     console.log(error);
 
     window.setTimeout(() => alert(error), 10);
+  });
+}
+
+function loadCurrentUserAvatar() {
+  api.loadCurrentUserAvatar().then(data => {
+    if (data) {
+      let url = `https://av-cdn.bsky.app/img/avatar/plain/${api.user.did}/${data.ref.$link}@jpeg`;
+      api.config.user.avatar = url;
+      api.config.save();
+      showLoggedInStatus(url);
+    } else {
+      showLoggedInStatus();
+    }
+  }).catch((error) => {
+    console.log(error);
+    showLoggedInStatus();
   });
 }
 

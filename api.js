@@ -39,12 +39,14 @@ class LocalStorageConfig {
     this.user.accessToken = localStorage.getItem('accessToken');
     this.user.refreshToken = localStorage.getItem('refreshToken');
     this.user.did = localStorage.getItem('userDID');
+    this.user.avatar = localStorage.getItem('avatar');
   }
 
   save() {
     localStorage.setItem('accessToken', this.user.accessToken);
     localStorage.setItem('refreshToken', this.user.refreshToken);
     localStorage.setItem('userDID', this.user.did);
+    localStorage.setItem('avatar', this.user.avatar);
   }
 }
 
@@ -128,6 +130,16 @@ class BlueskyAPI extends Minisky {
       this.cacheProfile(profile);
       return profile;
     }
+  }
+
+  async loadCurrentUserAvatar() {
+    let json = await this.getRequest('com.atproto.repo.getRecord', {
+      repo: this.user.did,
+      collection: 'app.bsky.actor.profile',
+      rkey: 'self'
+    });
+
+    return json.value.avatar;
   }
 
   async loadPost(postURI) {

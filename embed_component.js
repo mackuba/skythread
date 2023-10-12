@@ -115,7 +115,6 @@ class EmbedComponent {
     let post = new Post(result, { isEmbed: true });
 
     let postView = new PostComponent(post).buildElement();
-    div.innerHTML = '';
-    div.appendChild(postView);
+    div.replaceChildren(postView);
   }
 }
