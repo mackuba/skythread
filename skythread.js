@@ -152,7 +152,8 @@ function submitLogin() {
     submit.style.display = 'inline';
     cloudy.style.display = 'none';
     console.log(error);
-    alert(error);
+
+    window.setTimeout(() => alert(error), 10);
   });
 }
 
