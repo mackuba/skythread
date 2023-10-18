@@ -1,3 +1,8 @@
+:root {
+  color-scheme: light dark;
+  supported-color-schemes: light dark;
+}
+
 @keyframes rotation {
   from {
     transform: rotate(0deg);
@@ -501,4 +506,72 @@ p.back i {
   width: 24px;
   animation: rotation 3s infinite linear;
   margin-top: 5px;
+}
+
+@media (prefers-color-scheme: dark) {
+  body {
+    background-color: rgb(39, 39, 37);
+    color: #eee;
+  }
+
+  a {
+    color: rgb(0, 133, 255);
+  }
+
+  a:visited {
+    color: rgb(0, 133, 255);
+  }
+
+  .post h2 .handle {
+    color: #888;
+  }
+
+  .post h2 .separator {
+    color: #888;
+  }
+
+  .post h2 .time {
+    color: #aaa;
+  }
+
+  .post h2 .action {
+    color: #888;
+  }
+
+  .post .quote-embed {
+    background-color: #303030;
+    border-color: #606060;
+  }
+
+  .post .image-alt, .post .image-alt summary {
+    color: #999;
+  }
+
+  .post.blocked p, .post.blocked a {
+    color: #aaa;
+  }
+
+  .post .stats {
+    color: #aaa;
+  }
+
+  .post .stats i {
+    color: #888;
+  }
+
+  .post .stats i.fa-heart {
+    color: #aaa;
+  }
+
+  .post .stats i.fa-heart.liked {
+    color: #f04040;
+  }
+
+  .post .stats i.fa-heart:hover {
+    color: #eee;
+  }
+
+  .post .stats i.fa-heart.liked:hover {
+    color: #ff7070;
+  }
 }
