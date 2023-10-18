@@ -264,6 +264,10 @@ a:visited {
   animation: rotation 3s infinite linear;
 }
 
+#thread {
+  padding-top: 1px;
+}
+
 #thread.overlay {
   filter: blur(8px);
 }
