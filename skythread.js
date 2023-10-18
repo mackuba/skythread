@@ -214,9 +214,7 @@ function loadCurrentUserAvatar() {
 
 function logOut() {
   api.resetTokens();
-  window.api = appView;
-  showLoggedOutStatus();
-  $id('account_menu').style.visibility = 'hidden';
+  location.reload();
 }
 
 function submitSearch() {
