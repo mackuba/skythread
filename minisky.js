@@ -148,4 +148,11 @@ class Minisky {
     this.user.did = json['did'];
     this.config.save();
   }
+
+  resetTokens() {
+    delete this.user.accessToken;
+    delete this.user.refreshToken;
+    delete this.user.did;
+    this.config.save();
+  }
 }

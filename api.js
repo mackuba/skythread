@@ -43,10 +43,18 @@ class LocalStorageConfig {
   }
 
   save() {
-    localStorage.setItem('accessToken', this.user.accessToken);
-    localStorage.setItem('refreshToken', this.user.refreshToken);
-    localStorage.setItem('userDID', this.user.did);
-    localStorage.setItem('avatar', this.user.avatar);
+    this.saveItem('accessToken', this.user.accessToken);
+    this.saveItem('refreshToken', this.user.refreshToken);
+    this.saveItem('userDID', this.user.did);
+    this.saveItem('avatar', this.user.avatar);
+  }
+
+  saveItem(key, value) {
+    if (value !== undefined) {
+      localStorage.setItem(key, value);
+    } else {
+      localStorage.removeItem(key);
+    }
   }
 }
 
@@ -169,5 +177,10 @@ class BlueskyAPI extends Minisky {
       collection: 'app.bsky.feed.like',
       rkey: rkey
     });
+  }
+
+  resetTokens() {
+    delete this.user.avatar;
+    super.resetTokens();
   }
 }

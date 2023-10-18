@@ -1,12 +1,20 @@
 function init() {
   window.dateLocale = localStorage.getItem('locale') || undefined;
 
+  document.body.parentNode.addEventListener('click', (e) => {
+    $id('account_menu').style.visibility = 'hidden';
+  });
+
   document.querySelector('#login').addEventListener('click', (e) => {
     if (e.target === e.currentTarget) {
       hideLogin();
     } else {
       e.stopPropagation();
     } 
+  });
+
+  document.querySelector('#account_menu').addEventListener('click', (e) => {
+    e.stopPropagation();
   });
 
   document.querySelector('#login .info a').addEventListener('click', (e) => {
@@ -24,10 +32,13 @@ function init() {
     submitSearch();
   });
 
-  document.querySelector('#account i').addEventListener('click', (e) => {
-    if (!api.isLoggedIn) {
+  document.querySelector('#account').addEventListener('click', (e) => {
+    if (api.isLoggedIn) {
+      toggleAccount();
+    } else {
       toggleLogin();
     }
+    e.stopPropagation();
   });
 
   window.appView = new BlueskyAPI('api.bsky.app', false);
@@ -120,6 +131,11 @@ function toggleLoginInfo(event) {
   $id('login').classList.toggle('expanded');
 }
 
+function toggleAccount() {
+  let menu = $id('account_menu');
+  menu.style.visibility = (menu.style.visibility == 'visible') ? 'hidden' : 'visible';
+}
+
 function showLoggedInStatus(avatar) {
   let account = $id('account');
 
@@ -164,7 +180,11 @@ function submitLogin() {
 
   pds.logIn(handle.value, password.value).then(() => {
     window.api = pds;
+
     hideLogin();
+    submit.style.display = 'inline';
+    cloudy.style.display = 'none';
+
     loadCurrentUserAvatar();
   })
   .catch((error) => {
@@ -190,6 +210,13 @@ function loadCurrentUserAvatar() {
     console.log(error);
     showLoggedInStatus();
   });
+}
+
+function logOut() {
+  api.resetTokens();
+  window.api = appView;
+  showLoggedOutStatus();
+  $id('account_menu').style.visibility = 'hidden';
 }
 
 function submitSearch() {
