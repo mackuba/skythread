@@ -5,16 +5,17 @@ function init() {
     $id('account_menu').style.visibility = 'hidden';
   });
 
+  document.querySelector('#search form').addEventListener('submit', (e) => {
+    e.preventDefault();
+    submitSearch();
+  });
+
   document.querySelector('#login').addEventListener('click', (e) => {
     if (e.target === e.currentTarget) {
       hideLogin();
     } else {
       e.stopPropagation();
     } 
-  });
-
-  document.querySelector('#account_menu').addEventListener('click', (e) => {
-    e.stopPropagation();
   });
 
   document.querySelector('#login .info a').addEventListener('click', (e) => {
@@ -27,9 +28,8 @@ function init() {
     submitLogin();
   });
 
-  document.querySelector('#search form').addEventListener('submit', (e) => {
-    e.preventDefault();
-    submitSearch();
+  document.querySelector('#login .close').addEventListener('click', (e) => {
+    hideLogin();
   });
 
   document.querySelector('#account').addEventListener('click', (e) => {
@@ -38,6 +38,10 @@ function init() {
     } else {
       toggleLogin();
     }
+    e.stopPropagation();
+  });
+
+  document.querySelector('#account_menu').addEventListener('click', (e) => {
     e.stopPropagation();
   });
 
