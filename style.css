@@ -522,6 +522,95 @@ p.back i {
     color: rgb(0, 133, 255);
   }
 
+  #loader {
+    filter: invert();
+  }
+
+  #search form {
+    border-color: hsl(210, 40%, 60%);
+  }
+
+  #search form input {
+    background-color: transparent;
+  }
+
+  #account_menu {
+    background: hsl(210, 33.33%, 94.0%);
+    border-color: #ccc;
+  }
+
+  #account_menu li a {
+    color: #333;
+    border-color: #bbb;
+    background-color: hsla(210, 100%, 4%, 0.12);
+  }
+
+  #account_menu li a:hover {
+    background-color: hsla(210, 100%, 4%, 0.2);
+  }
+
+  #login {
+    background-color: rgba(240, 240, 240, 0.15);
+  }
+
+  #login form {
+    border-color: hsl(210, 20%, 40%);
+    background-color: hsl(210, 12%, 25%);
+  }
+
+  #login .close {
+    color: hsl(210, 20%, 50%);
+    opacity: 0.6;
+  }
+
+  #login .close:hover {
+    color: hsl(210, 20%, 50%);
+    opacity: 1.0;
+  }
+
+  #login p.info a {
+    color: #888;
+  }
+
+  #login input[type="text"], #login input[type="password"] {
+    border-color: #666;
+  }
+
+  #login input[type="submit"] {
+    border-color: hsl(210, 15%, 40%);
+    background-color: hsl(210, 12%, 35%);
+  }
+
+  #login input[type="submit"]:active {
+    border-color: hsl(210, 15%, 35%);
+    background-color: hsl(210, 12%, 30%);
+  }
+
+  #login #cloudy {
+    color: hsl(210, 60%, 75%);
+  }
+
+  #login .info-box {
+    border-color: hsl(45, 100%, 45%);
+    background-color: hsl(50, 40%, 30%);
+  }
+
+  #login .info-box a {
+    color: hsl(45, 100%, 50%);
+  }
+
+  #github {
+    filter: invert();
+  }
+
+  .back, .back a {
+    color: #888;
+  }
+
+  p.back i {
+    color: #888;
+  }
+
   .post h2 .handle {
     color: #888;
   }
@@ -549,6 +638,18 @@ p.back i {
 
   .post.blocked p, .post.blocked a {
     color: #aaa;
+  }
+
+  .post .edge .line {
+    border-left-color: #666;
+  }
+
+  .post .edge:hover .line {
+    border-left-color: #888;
+  }
+
+  .post .plus {
+    filter: invert();
   }
 
   .post .stats {
