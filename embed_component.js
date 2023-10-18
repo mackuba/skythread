@@ -50,7 +50,7 @@ class EmbedComponent {
 
   quotedPostPlaceholder() {
     return $tag('div.quote-embed', {
-      content: '<p class="post placeholder">Loading quoted post...</p>'
+      html: '<p class="post placeholder">Loading quoted post...</p>'
     });
   }
 

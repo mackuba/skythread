@@ -168,7 +168,7 @@ class PostComponent {
     stats.append(span);
 
     if (this.post.repostCount > 0) {
-      let span = $tag('span', { content: `<i class="fa-solid fa-retweet"></i> ${this.post.repostCount}` });
+      let span = $tag('span', { html: `<i class="fa-solid fa-retweet"></i> ${this.post.repostCount}` });
       stats.append(span);
     }
 
@@ -250,7 +250,7 @@ class PostComponent {
       let handle = api.findHandleByDid(repo);
       let link = handle ? `See parent post (@${handle})` : "See parent post";
 
-      let p = $tag('p.back', { content: `<i class="fa-solid fa-reply"></i><a href="${url}">${link}</a>` });
+      let p = $tag('p.back', { html: `<i class="fa-solid fa-reply"></i><a href="${url}">${link}</a>` });
       div.appendChild(p);
     }
 

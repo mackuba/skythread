@@ -16,7 +16,7 @@ function $tag(tag, params) {
     for (let key in params) {
       if (key == 'text') {
         element.innerText = params[key];
-      } else if (key == 'content') {
+      } else if (key == 'html') {
         element.innerHTML = params[key];
       } else {
         element[key] = params[key];
