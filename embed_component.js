@@ -90,7 +90,7 @@ class EmbedComponent {
         a.href = image.fullsize;
       } else {
         let cid = image.image.ref['$link'];
-        a.href = `https://av-cdn.bsky.app/img/feed_fullsize/plain/${this.post.author.did}/${cid}@jpeg`;
+        a.href = `https://cdn.bsky.app/img/feed_fullsize/plain/${this.post.author.did}/${cid}@jpeg`;
       }
 
       p.append(a);

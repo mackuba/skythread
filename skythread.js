@@ -203,7 +203,7 @@ function submitLogin() {
 function loadCurrentUserAvatar() {
   api.loadCurrentUserAvatar().then(data => {
     if (data) {
-      let url = `https://av-cdn.bsky.app/img/avatar/plain/${api.user.did}/${data.ref.$link}@jpeg`;
+      let url = `https://cdn.bsky.app/img/avatar/plain/${api.user.did}/${data.ref.$link}@jpeg`;
       api.config.user.avatar = url;
       api.config.save();
       showLoggedInStatus(url);
