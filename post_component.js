@@ -149,12 +149,29 @@ class PostComponent {
     if (this.post.muted) {
       h.prepend($tag('i', 'missing fa-regular fa-circle-user fa-2x'));
     } else if (this.post.author.avatar) {
-      h.prepend($tag('img.avatar', { src: this.post.author.avatar }));
+      h.prepend(this.buildUserAvatar(this.post.author.avatar));
     } else {
       h.prepend($tag('i', 'missing fa-regular fa-face-smile fa-2x'));
     }
 
     return h;
+  }
+
+  buildUserAvatar(url) {
+    let avatar = $tag('img.avatar', { src: url });
+    let tries = 0;
+
+    let errorHandler = function(e) {
+      if (tries < 3) {
+        tries++;
+        setTimeout(() => { avatar.src = url }, Math.random() * 5 * tries);
+      } else {
+        avatar.removeEventListener('error', errorHandler);
+      }
+    };
+
+    avatar.addEventListener('error', errorHandler);
+    return avatar;
   }
 
   buildStatsFooter() {
