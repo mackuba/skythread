@@ -43,7 +43,7 @@ class PostComponent {
     }
   }
 
-  buildElement() {
+  buildElement(context) {
     let div = $tag('div.post');
 
     if (this.post.muted) {
@@ -107,17 +107,17 @@ class PostComponent {
 
     if (this.post.replies.length == 1 && this.post.replies[0].author?.did == this.post.author.did) {
       let component = new PostComponent(this.post.replies[0], this.root);
-      let element = component.buildElement();
+      let element = component.buildElement('thread');
       element.classList.add('flat');
       content.appendChild(element);
     } else {
       for (let reply of this.post.replies) {
         let component = new PostComponent(reply, this.root);
-        content.appendChild(component.buildElement());
+        content.appendChild(component.buildElement('thread'));
       }
     }
 
-    if (this.post.hasMoreReplies) {
+    if (context == 'thread' && this.post.hasMoreReplies) {
       let loadMore = this.buildLoadMoreLink()
       content.appendChild(loadMore);
     }

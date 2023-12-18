@@ -58,7 +58,7 @@ class EmbedComponent {
     let div = $tag('div.quote-embed');
 
     if (this.embed.post instanceof Post || this.embed.post instanceof BlockedPost) {
-      let postView = new PostComponent(this.embed.post).buildElement();
+      let postView = new PostComponent(this.embed.post).buildElement('quote');
       div.appendChild(postView);
     } else {
       let p = $tag('p', { text: `[${this.embed.post.type}]` });
@@ -114,7 +114,7 @@ class EmbedComponent {
     let result = await api.loadPost(uri);
     let post = new Post(result, { isEmbed: true });
 
-    let postView = new PostComponent(post).buildElement();
+    let postView = new PostComponent(post).buildElement('quote');
     div.replaceChildren(postView);
   }
 }

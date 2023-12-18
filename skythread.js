@@ -78,7 +78,7 @@ function buildParentLink(post) {
   let p = $tag('p.back');
 
   if (post.blocked) {
-    let element = new PostComponent(post).buildElement();
+    let element = new PostComponent(post).buildElement('parent');
     element.className = 'back';
     element.querySelector('p.blocked-header span').innerText = 'Parent post blocked';
     return element;
@@ -249,7 +249,7 @@ function loadThread(url, postId, nodeToUpdate) {
       $id('thread').appendChild(p);
     }
 
-    let list = new PostComponent(root).buildElement();
+    let list = new PostComponent(root).buildElement('thread');
     hideLoader();
 
     if (nodeToUpdate) {
