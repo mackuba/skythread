@@ -237,12 +237,18 @@ function submitSearch() {
   }
 }
 
+function setPageTitle(post) {
+  document.title = `${post.author.displayName}: "${post.text}" - Skythread`;
+}
+
 function loadThread(url, postId, nodeToUpdate) {
   let load = postId ? api.loadThreadById(url, postId) : api.loadThreadByURL(url);
 
   load.then(json => {
     let root = Post.parse(json.thread);
     window.root = root;
+
+    setPageTitle(root);
 
     if (root.parent && !nodeToUpdate) {
       let p = buildParentLink(root.parent);
