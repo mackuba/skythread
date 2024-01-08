@@ -14,7 +14,7 @@ class Minisky {
     this.host = host;
     this.config = config;
     this.user = config?.user;
-    this.baseURL = `https://${host}/xrpc`;
+    this.baseURL = (host.includes('://') ? host : `https://${host}`) + '/xrpc';
 
     this.sendAuthHeaders = !!this.user;
     this.autoManageTokens = !!this.user;
