@@ -301,7 +301,9 @@ function loadThread(url, postId, nodeToUpdate) {
     let root = Post.parse(json.thread);
     window.root = root;
 
-    setPageTitle(root);
+    if (!nodeToUpdate) {
+      setPageTitle(root);      
+    }
 
     if (root.parent && !nodeToUpdate) {
       let p = buildParentLink(root.parent);
