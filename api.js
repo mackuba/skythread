@@ -157,7 +157,7 @@ class BlueskyAPI extends Minisky {
 
   async getQuotes(url) {
     let [handle, postId] = BlueskyAPI.parsePostURL(url);
-    let did = handle.startsWith('did:') ? handle : await this.resolveHandle(handle);
+    let did = handle.startsWith('did:') ? handle : await appView.resolveHandle(handle);
     let postURI = `at://${did}/app.bsky.feed.post/${postId}`;
 
     let json = await this.getRequest('eu.mackuba.private.getPostQuotes', { uri: postURI });
