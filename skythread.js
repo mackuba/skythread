@@ -266,6 +266,7 @@ function loadHashtagPage(hashtag) {
         let header = $tag('header');
         header.append($tag('h2', { text: 'Posts tagged: #' + hashtag }));
         $id('thread').appendChild(header);
+        $id('thread').classList.add('hashtag');
       }
 
       for (let post of posts) {
@@ -297,6 +298,7 @@ function loadQuotesPage(url) {
         let header = $tag('header');
         header.append($tag('h2', { text: data.quoteCount > 1 ? `${data.quoteCount} quotes:` : '1 quote:' }));
         $id('thread').appendChild(header);
+        $id('thread').classList.add('quotes');
       }
 
       for (let post of posts) {
