@@ -82,7 +82,7 @@ class BlueskyAPI extends Minisky {
     try {
       url = new URL(string);
     } catch (error) {
-      throw new URLError("This is not a valid URL");
+      throw new URLError();
     }
 
     if (url.protocol != 'https:') {

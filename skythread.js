@@ -235,6 +235,13 @@ function submitSearch() {
 
   if (!url) { return }
 
+  if (url.match(/^#?((\p{Letter}|\p{Number})+)$/u)) {
+    let target = new URL(getLocation());
+    target.searchParams.set('hash', encodeURIComponent(url.replace(/^#/, '')));
+    location.assign(target.toString());
+    return;
+  }
+
   try {
     let [handle, postId] = BlueskyAPI.parsePostURL(url);
 
@@ -242,7 +249,7 @@ function submitSearch() {
     location.assign(newURL);
   } catch (error) {
     console.log(error);
-    alert(error);
+    alert(error.message || "This is not a valid URL or hashtag");
   }
 }
 
