@@ -159,6 +159,11 @@ class BlueskyAPI extends Minisky {
     return json.posts;
   }
 
+  async getHashtagFeed(hashtag) {
+    let json = await this.getRequest('eu.mackuba.private.getHashtagFeed', { tag: hashtag });
+    return json.feed;
+  }
+
   async loadPost(postURI) {
     let posts = await this.loadPosts([postURI]);
     return posts[0];

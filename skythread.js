@@ -64,10 +64,14 @@ function parseQueryParams() {
   let author = params.get('author');
   let post = params.get('post');
   let quotes = params.get('quotes');
+  let hash = params.get('hash');
 
   if (quotes) {
     showLoader();
     loadQuotesPage(decodeURIComponent(quotes));
+  } else if (hash) {
+    showLoader();
+    loadHashtagPage(decodeURIComponent(hash));
   } else if (query) {
     showLoader();
     loadThread(decodeURIComponent(query));
@@ -244,6 +248,29 @@ function submitSearch() {
 
 function setPageTitle(post) {
   document.title = `${post.author.displayName}: "${post.text}" - Skythread`;
+}
+
+function loadHashtagPage(hashtag) {
+  hashtag = hashtag.replace(/^\#/, '');
+
+  blue.getHashtagFeed(hashtag).then(uris => {
+    api.loadPosts(uris.slice(0, 25)).then(jsons => {
+      let posts = jsons.map(j => new Post(j));
+
+      hideLoader();
+    
+      for (let post of posts) {
+        let postView = new PostComponent(post).buildElement('feed');
+        document.body.appendChild(postView);
+      }
+    }).catch(error => {
+      hideLoader();
+      console.log(error);
+    })
+  }).catch(error => {
+    hideLoader();
+    console.log(error);
+  });
 }
 
 function loadQuotesPage(url) {
