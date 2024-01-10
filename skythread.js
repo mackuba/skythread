@@ -46,6 +46,7 @@ function init() {
   });
 
   window.appView = new BlueskyAPI('api.bsky.app', false);
+  window.blue = new BlueskyAPI('blue.mackuba.eu', false);
   window.api = new BlueskyAPI('bsky.social', true);
 
   if (api.isLoggedIn) {
@@ -62,8 +63,12 @@ function parseQueryParams() {
   let query = params.get('q');
   let author = params.get('author');
   let post = params.get('post');
+  let quotes = params.get('quotes');
 
-  if (query) {
+  if (quotes) {
+    showLoader();
+    loadQuotesPage(decodeURIComponent(quotes));
+  } else if (query) {
     showLoader();
     loadThread(decodeURIComponent(query));
   } else if (author && post) {
@@ -239,6 +244,27 @@ function submitSearch() {
 
 function setPageTitle(post) {
   document.title = `${post.author.displayName}: "${post.text}" - Skythread`;
+}
+
+function loadQuotesPage(url) {
+  blue.getQuotes(url).then(uris => {
+    api.loadPosts(uris.slice(0, 25)).then(jsons => {
+      let posts = jsons.map(j => new Post(j));
+
+      hideLoader();
+    
+      for (let post of posts) {
+        let postView = new PostComponent(post).buildElement('quotes');
+        document.body.appendChild(postView);
+      }
+    }).catch(error => {
+      hideLoader();
+      console.log(error);
+    })
+  }).catch(error => {
+    hideLoader();
+    console.log(error);
+  });
 }
 
 function loadThread(url, postId, nodeToUpdate) {
