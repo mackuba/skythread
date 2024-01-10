@@ -150,9 +150,33 @@ class BlueskyAPI extends Minisky {
     return json.value.avatar;
   }
 
+  async getQuoteCount(uri) {
+    let json = await this.getRequest('eu.mackuba.private.getQuoteCount', { uri });
+    return json.quoteCount;
+  }
+
+  async getQuotes(url) {
+    let [handle, postId] = BlueskyAPI.parsePostURL(url);
+    let did = handle.startsWith('did:') ? handle : await this.resolveHandle(handle);
+    let postURI = `at://${did}/app.bsky.feed.post/${postId}`;
+
+    let json = await this.getRequest('eu.mackuba.private.getPostQuotes', { uri: postURI });
+    return json;
+  }
+
+  async getHashtagFeed(hashtag) {
+    let json = await this.getRequest('eu.mackuba.private.getHashtagFeed', { tag: hashtag });
+    return json.feed;
+  }
+
   async loadPost(postURI) {
-    let response = await this.getRequest('app.bsky.feed.getPosts', { uris: [postURI] });
-    return response.posts[0];
+    let posts = await this.loadPosts([postURI]);
+    return posts[0];
+  }
+
+  async loadPosts(uris) {
+    let response = await this.getRequest('app.bsky.feed.getPosts', { uris });
+    return response.posts;
   }
 
   async likePost(post) {

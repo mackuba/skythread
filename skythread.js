@@ -46,6 +46,7 @@ function init() {
   });
 
   window.appView = new BlueskyAPI('api.bsky.app', false);
+  window.blue = new BlueskyAPI('blue.mackuba.eu', false);
   window.api = new BlueskyAPI('bsky.social', true);
 
   if (api.isLoggedIn) {
@@ -62,8 +63,16 @@ function parseQueryParams() {
   let query = params.get('q');
   let author = params.get('author');
   let post = params.get('post');
+  let quotes = params.get('quotes');
+  let hash = params.get('hash');
 
-  if (query) {
+  if (quotes) {
+    showLoader();
+    loadQuotesPage(decodeURIComponent(quotes));
+  } else if (hash) {
+    showLoader();
+    loadHashtagPage(decodeURIComponent(hash));
+  } else if (query) {
     showLoader();
     loadThread(decodeURIComponent(query));
   } else if (author && post) {
@@ -241,6 +250,78 @@ function setPageTitle(post) {
   document.title = `${post.author.displayName}: "${post.text}" - Skythread`;
 }
 
+function loadHashtagPage(hashtag) {
+  hashtag = hashtag.replace(/^\#/, '');
+
+  blue.getHashtagFeed(hashtag).then(uris => {
+    let loading = true;
+
+    loadPostsInBatches(uris, jsons => {
+      let posts = jsons.map(j => new Post(j));
+
+      if (loading) {
+        loading = false;
+        hideLoader();
+
+        let header = $tag('header');
+        header.append($tag('h2', { text: 'Posts tagged: #' + hashtag }));
+        $id('thread').appendChild(header);
+        $id('thread').classList.add('hashtag');
+      }
+
+      for (let post of posts) {
+        let postView = new PostComponent(post).buildElement('feed');
+        $id('thread').appendChild(postView);
+      }
+    }).catch(error => {
+      hideLoader();
+      console.log(error);
+    })
+  }).catch(error => {
+    hideLoader();
+    console.log(error);
+  });
+}
+
+function loadQuotesPage(url) {
+  blue.getQuotes(url).then(data => {
+    let uris = data.posts;
+    let loading = true;
+
+    loadPostsInBatches(uris, jsons => {
+      let posts = jsons.map(j => new Post(j));
+
+      if (loading) {
+        loading = false;
+        hideLoader();
+
+        let header = $tag('header');
+        header.append($tag('h2', { text: data.quoteCount > 1 ? `${data.quoteCount} quotes:` : '1 quote:' }));
+        $id('thread').appendChild(header);
+        $id('thread').classList.add('quotes');
+      }
+
+      for (let post of posts) {
+        let postView = new PostComponent(post).buildElement('quotes');
+        $id('thread').appendChild(postView);
+      }
+    }).catch(error => {
+      hideLoader();
+      console.log(error);
+    })
+  }).catch(error => {
+    hideLoader();
+    console.log(error);
+  });
+}
+
+async function loadPostsInBatches(uris, callback) {
+  for (let i = 0; i < uris.length; i += 25) {
+    let batch = await api.loadPosts(uris.slice(i, i + 25));
+    callback(batch);
+  }
+}
+
 function loadThread(url, postId, nodeToUpdate) {
   let load = postId ? api.loadThreadById(url, postId) : api.loadThreadByURL(url);
 
@@ -248,14 +329,19 @@ function loadThread(url, postId, nodeToUpdate) {
     let root = Post.parse(json.thread);
     window.root = root;
 
-    setPageTitle(root);
+    let loadQuoteCount = blue.getQuoteCount(root.uri);
+
+    if (!nodeToUpdate) {
+      setPageTitle(root);      
+    }
 
     if (root.parent && !nodeToUpdate) {
       let p = buildParentLink(root.parent);
       $id('thread').appendChild(p);
     }
 
-    let list = new PostComponent(root).buildElement('thread');
+    let component = new PostComponent(root);
+    let list = component.buildElement('thread');
     hideLoader();
 
     if (nodeToUpdate) {
@@ -263,6 +349,21 @@ function loadThread(url, postId, nodeToUpdate) {
     } else {
       $id('thread').appendChild(list);
     }
+
+    loadQuoteCount.then(count => {
+      if (count > 0) {
+        let stats = list.querySelector(':scope > .content > p.stats');
+        let q = new URL(getLocation());
+        q.searchParams.set('quotes', component.linkToPost);
+        stats.append($tag('i', { className: count > 1 ? 'fa-regular fa-comments' : 'fa-regular fa-comment' }));
+        stats.append(" ");
+        let quotes = $tag('a', {
+          html: count > 1 ? `${count} quotes` : '1 quote',
+          href: q.toString()
+        });
+        stats.append(quotes);
+      }
+    });
   }).catch(error => {
     hideLoader();
     console.log(error);
