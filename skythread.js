@@ -316,9 +316,13 @@ function loadQuotesPage(url) {
 }
 
 async function loadPostsInBatches(uris, callback) {
-  for (let i = 0; i < uris.length; i += 25) {
-    let batch = await api.loadPosts(uris.slice(i, i + 25));
-    callback(batch);
+  if (uris.length > 0) {
+    for (let i = 0; i < uris.length; i += 25) {
+      let batch = await api.loadPosts(uris.slice(i, i + 25));
+      callback(batch);
+    }
+  } else {
+    callback([]);
   }
 }
 
