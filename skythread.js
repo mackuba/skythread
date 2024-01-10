@@ -259,6 +259,7 @@ function setPageTitle(post) {
 
 function loadHashtagPage(hashtag) {
   hashtag = hashtag.replace(/^\#/, '');
+  document.title = `#${hashtag} - Skythread`;
 
   blue.getHashtagFeed(hashtag).then(uris => {
     let loading = true;
