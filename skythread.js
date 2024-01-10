@@ -255,6 +255,7 @@ function loadHashtagPage(hashtag) {
 
   blue.getHashtagFeed(hashtag).then(uris => {
     let loading = true;
+    let footerAdded = false;
 
     loadPostsInBatches(uris, jsons => {
       let posts = jsons.map(j => new Post(j));
@@ -273,6 +274,15 @@ function loadHashtagPage(hashtag) {
         let postView = new PostComponent(post).buildElement('feed');
         $id('thread').appendChild(postView);
       }
+
+      if (!footerAdded) {
+        let footer = $tag('p.note', {
+          text: "Note: at the moment, Skythread can show at most 100 recent posts and only from the last 30 days."
+        });
+
+        $id('thread').after(footer);
+        footerAdded = true;
+      }
     }).catch(error => {
       hideLoader();
       console.log(error);
@@ -287,6 +297,7 @@ function loadQuotesPage(url) {
   blue.getQuotes(url).then(data => {
     let uris = data.posts;
     let loading = true;
+    let footerAdded = false;
 
     loadPostsInBatches(uris, jsons => {
       let posts = jsons.map(j => new Post(j));
@@ -314,6 +325,20 @@ function loadQuotesPage(url) {
       for (let post of posts) {
         let postView = new PostComponent(post).buildElement('quotes');
         $id('thread').appendChild(postView);
+      }
+
+      if (!footerAdded) {
+        let text;
+
+        if (data.quoteCount >= 100) {
+          text = "Note: at the moment, Skythread can show at most 100 recent quotes and only from the last 30 days.";
+        } else {
+          text = "Note: at the moment, Skythread can only show quotes from the last 30 days.";
+        }
+
+        let footer = $tag('p.note', { text });
+        $id('thread').after(footer);
+        footerAdded = true;
       }
     }).catch(error => {
       hideLoader();

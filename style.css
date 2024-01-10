@@ -293,6 +293,13 @@ a:visited {
   border-bottom: 1px solid #ddd;
 }
 
+#thread + p.note {
+  margin-top: 30px;
+  margin-left: 15px;
+  font-size: 11pt;
+  color: #666;
+}
+
 .back, .back a {
   font-size: 11pt;
   color: #666;
