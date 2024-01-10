@@ -161,7 +161,7 @@ class BlueskyAPI extends Minisky {
     let postURI = `at://${did}/app.bsky.feed.post/${postId}`;
 
     let json = await this.getRequest('eu.mackuba.private.getPostQuotes', { uri: postURI });
-    return json.posts;
+    return json;
   }
 
   async getHashtagFeed(hashtag) {

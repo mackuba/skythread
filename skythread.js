@@ -254,14 +254,23 @@ function loadHashtagPage(hashtag) {
   hashtag = hashtag.replace(/^\#/, '');
 
   blue.getHashtagFeed(hashtag).then(uris => {
+    let loading = true;
+
     loadPostsInBatches(uris, jsons => {
       let posts = jsons.map(j => new Post(j));
 
-      hideLoader();
-    
+      if (loading) {
+        loading = false;
+        hideLoader();
+
+        let header = $tag('header');
+        header.append($tag('h2', { text: 'Posts tagged: #' + hashtag }));
+        $id('thread').appendChild(header);
+      }
+
       for (let post of posts) {
         let postView = new PostComponent(post).buildElement('feed');
-        document.body.appendChild(postView);
+        $id('thread').appendChild(postView);
       }
     }).catch(error => {
       hideLoader();
@@ -274,15 +283,25 @@ function loadHashtagPage(hashtag) {
 }
 
 function loadQuotesPage(url) {
-  blue.getQuotes(url).then(uris => {
+  blue.getQuotes(url).then(data => {
+    let uris = data.posts;
+    let loading = true;
+
     loadPostsInBatches(uris, jsons => {
       let posts = jsons.map(j => new Post(j));
 
-      hideLoader();
-    
+      if (loading) {
+        loading = false;
+        hideLoader();
+
+        let header = $tag('header');
+        header.append($tag('h2', { text: data.quoteCount > 1 ? `${data.quoteCount} quotes:` : '1 quote:' }));
+        $id('thread').appendChild(header);
+      }
+
       for (let post of posts) {
         let postView = new PostComponent(post).buildElement('quotes');
-        document.body.appendChild(postView);
+        $id('thread').appendChild(postView);
       }
     }).catch(error => {
       hideLoader();
