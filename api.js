@@ -150,6 +150,11 @@ class BlueskyAPI extends Minisky {
     return json.value.avatar;
   }
 
+  async getQuoteCount(uri) {
+    let json = await this.getRequest('eu.mackuba.private.getQuoteCount', { uri });
+    return json.quoteCount;
+  }
+
   async getQuotes(url) {
     let [handle, postId] = BlueskyAPI.parsePostURL(url);
     let did = handle.startsWith('did:') ? handle : await this.resolveHandle(handle);

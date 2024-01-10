@@ -301,6 +301,8 @@ function loadThread(url, postId, nodeToUpdate) {
     let root = Post.parse(json.thread);
     window.root = root;
 
+    let loadQuoteCount = blue.getQuoteCount(root.uri);
+
     if (!nodeToUpdate) {
       setPageTitle(root);      
     }
@@ -310,7 +312,8 @@ function loadThread(url, postId, nodeToUpdate) {
       $id('thread').appendChild(p);
     }
 
-    let list = new PostComponent(root).buildElement('thread');
+    let component = new PostComponent(root);
+    let list = component.buildElement('thread');
     hideLoader();
 
     if (nodeToUpdate) {
@@ -318,6 +321,21 @@ function loadThread(url, postId, nodeToUpdate) {
     } else {
       $id('thread').appendChild(list);
     }
+
+    loadQuoteCount.then(count => {
+      if (count > 0) {
+        let stats = list.querySelector(':scope > .content > p.stats');
+        let q = new URL(getLocation());
+        q.searchParams.set('quotes', component.linkToPost);
+        stats.append($tag('i', { className: count > 1 ? 'fa-regular fa-comments' : 'fa-regular fa-comment' }));
+        stats.append(" ");
+        let quotes = $tag('a', {
+          html: count > 1 ? `${count} quotes` : '1 quote',
+          href: q.toString()
+        });
+        stats.append(quotes);
+      }
+    });
   }).catch(error => {
     hideLoader();
     console.log(error);
