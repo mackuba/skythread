@@ -296,7 +296,17 @@ function loadQuotesPage(url) {
         hideLoader();
 
         let header = $tag('header');
-        header.append($tag('h2', { text: data.quoteCount > 1 ? `${data.quoteCount} quotes:` : '1 quote:' }));
+        let h2;
+
+        if (data.quoteCount > 1) {
+          h2 = $tag('h2', { text: `${data.quoteCount} quotes:` });
+        } else if (data.quoteCount == 1) {
+          h2 = $tag('h2', { text: '1 quote:' });
+        } else {
+          h2 = $tag('h2', { text: 'No quotes found' });
+        }
+
+        header.append(h2);
         $id('thread').appendChild(header);
         $id('thread').classList.add('quotes');
       }
