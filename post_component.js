@@ -101,6 +101,7 @@ class PostComponent {
     }
 
     let p = $tag('p', { text: this.post.text });
+    this.linkifyPostBody(p);
     wrapper.appendChild(p);
 
     if (this.post.embed) {
@@ -133,6 +134,18 @@ class PostComponent {
     div.appendChild(content);
 
     return div;
+  }
+
+  linkifyPostBody(p) {
+    let html = p.innerHTML;
+
+    html = html.replace(/#((\p{Letter}|\p{Number})+)/gu, (match, tag) => {
+      let url = new URL(getLocation());
+      url.searchParams.set('hash', tag);
+      return `<a href="${url.toString()}">${match}</a>`;
+    });
+
+    p.innerHTML = html;
   }
 
   buildPostHeader(context) {
