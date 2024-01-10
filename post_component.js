@@ -100,7 +100,7 @@ class PostComponent {
       wrapper = content;
     }
 
-    let p = $tag('p', { text: this.post.text });
+    let p = $tag('p.body', { text: this.post.text });
     this.linkifyPostBody(p);
     wrapper.appendChild(p);
 
