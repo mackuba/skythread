@@ -254,7 +254,7 @@ function loadHashtagPage(hashtag) {
   hashtag = hashtag.replace(/^\#/, '');
 
   blue.getHashtagFeed(hashtag).then(uris => {
-    api.loadPosts(uris.slice(0, 25)).then(jsons => {
+    loadPostsInBatches(uris, jsons => {
       let posts = jsons.map(j => new Post(j));
 
       hideLoader();
@@ -275,7 +275,7 @@ function loadHashtagPage(hashtag) {
 
 function loadQuotesPage(url) {
   blue.getQuotes(url).then(uris => {
-    api.loadPosts(uris.slice(0, 25)).then(jsons => {
+    loadPostsInBatches(uris, jsons => {
       let posts = jsons.map(j => new Post(j));
 
       hideLoader();
@@ -292,6 +292,13 @@ function loadQuotesPage(url) {
     hideLoader();
     console.log(error);
   });
+}
+
+async function loadPostsInBatches(uris, callback) {
+  for (let i = 0; i < uris.length; i += 25) {
+    let batch = await api.loadPosts(uris.slice(i, i + 25));
+    callback(batch);
+  }
 }
 
 function loadThread(url, postId, nodeToUpdate) {
