@@ -43,6 +43,14 @@ class PostComponent {
     }
   }
 
+  /**
+    Contexts:
+    - thread - a post in the thread tree
+    - parent - parent reference above the thread root
+    - quote - a quote embed
+    - quotes - a post on the quotes page
+    - feed - a post on the hashtag feed page
+  */
   buildElement(context) {
     let div = $tag('div.post');
 
@@ -55,7 +63,7 @@ class PostComponent {
       return div;
     }
 
-    let header = this.buildPostHeader();
+    let header = this.buildPostHeader(context);
     div.appendChild(header);
 
     let content = $tag('div.content');
@@ -127,7 +135,7 @@ class PostComponent {
     return div;
   }
 
-  buildPostHeader() {
+  buildPostHeader(context) {
     let timeFormat = this.timeFormatForTimestamp;
     let formattedTime = this.post.createdAt.toLocaleString(window.dateLocale, timeFormat);
     let isoTime = this.post.createdAt.toISOString();
@@ -139,7 +147,7 @@ class PostComponent {
       `<span class="separator">&bull;</span> ` +
       `<a class="time" href="${this.linkToPost}" target="_blank" title="${isoTime}">${formattedTime}</a> `;
 
-    if (this.post.replyCount > 0 && !this.isRoot || this.post.isEmbed) {
+    if (this.post.replyCount > 0 && !this.isRoot || ['quote', 'quotes', 'feed'].includes(context)) {
       h.innerHTML +=
         `<span class="separator">&bull;</span> ` +
         `<a href="${linkToPostThread(this.post)}" class="action" title="Load this subtree">` +
