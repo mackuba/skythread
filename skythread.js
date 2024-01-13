@@ -45,6 +45,11 @@ function init() {
     e.stopPropagation();
   });
 
+  document.querySelector('#account_menu a[data-action=logout]').addEventListener('click', (e) => {
+    e.preventDefault();
+    logOut();
+  });
+
   window.appView = new BlueskyAPI('api.bsky.app', false);
   window.blue = new BlueskyAPI('blue.mackuba.eu', false);
   window.api = new BlueskyAPI('bsky.social', true);
