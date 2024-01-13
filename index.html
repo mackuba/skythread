@@ -2,6 +2,18 @@
 <html>
 <head>
   <meta charset="UTF-8">
+  <meta http-equiv="Content-Security-Policy" content="
+    default-src 'none';
+    script-src 'self' 'sha256-C5RUxaoIkpRux1/UhIgLL5RalHWo6EOGHzWOhCMr8Fs=';
+    style-src 'self';
+    img-src 'self' https:;
+    font-src 'self';
+    script-src-attr 'none';
+    style-src-attr 'none';
+    connect-src https:;
+    base-uri 'none';
+    form-action 'none';">
+
   <title>Skythread</title>
   <link href="./fontawesome/fontawesome.min.css" rel="stylesheet">
   <link href="./fontawesome/solid.min.css" rel="stylesheet">
