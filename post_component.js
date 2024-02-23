@@ -121,6 +121,8 @@ class PostComponent {
       content.appendChild(element);
     } else {
       for (let reply of this.post.replies) {
+        if (reply.missing && !reply.blocked) { continue }
+
         let component = new PostComponent(reply, this.root);
         content.appendChild(component.buildElement('thread'));
       }
