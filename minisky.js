@@ -47,6 +47,11 @@ class Minisky {
     }
 
     let headers = this.authHeaders(auth);
+
+    if (options && options.headers) {
+      Object.assign(headers, options.headers);
+    }
+
     let response = await fetch(url, { headers: headers });
     return await this.parseResponse(response);
   }
@@ -64,6 +69,10 @@ class Minisky {
     if (data) {
       request.body = JSON.stringify(data);
       request.headers['Content-Type'] = 'application/json';
+    }
+
+    if (options && options.headers) {
+      Object.assign(request.headers, options.headers);
     }
 
     let response = await fetch(url, request);
