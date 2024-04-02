@@ -99,6 +99,10 @@ class Post extends Record {
     return this.record.text;
   }
 
+  get facets() {
+    return this.record.facets;
+  }
+
   get createdAt() {
     return new Date(this.record.createdAt);
   }

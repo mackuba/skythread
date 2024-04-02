@@ -100,8 +100,7 @@ class PostComponent {
       wrapper = content;
     }
 
-    let p = $tag('p.body', { text: this.post.text });
-    this.linkifyPostBody(p);
+    let p = this.buildPostBody();
     wrapper.appendChild(p);
 
     if (this.post.embed) {
@@ -136,18 +135,6 @@ class PostComponent {
     div.appendChild(content);
 
     return div;
-  }
-
-  linkifyPostBody(p) {
-    let html = p.innerHTML;
-
-    html = html.replace(/#((\p{Letter}|\p{Number})+)/gu, (match, tag) => {
-      let url = new URL(getLocation());
-      url.searchParams.set('hash', tag);
-      return `<a href="${url.toString()}">${match}</a>`;
-    });
-
-    p.innerHTML = html;
   }
 
   buildPostHeader(context) {
@@ -195,6 +182,27 @@ class PostComponent {
 
     avatar.addEventListener('error', errorHandler);
     return avatar;
+  }
+
+  buildPostBody() {
+    let p = $tag('p.body');
+    let richText = new RichText({ text: this.post.text, facets: this.post.facets });
+
+    for (let seg of richText.segments()) {
+      if (seg.mention) {
+        p.append($tag('a', { href: `https://bsky.app/profile/${seg.mention.did}`, text: seg.text }));
+      } else if (seg.link) {
+        p.append($tag('a', { href: seg.link.uri, text: seg.text }));
+      } else if (seg.tag) {
+        let url = new URL(getLocation());
+        url.searchParams.set('hash', seg.tag.tag);
+        p.append($tag('a', { href: url.toString(), text: seg.text }));
+      } else {
+        p.append(seg.text);
+      }
+    }
+
+    return p;
   }
 
   buildStatsFooter() {
