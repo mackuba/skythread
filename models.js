@@ -1,4 +1,4 @@
-class Record {
+class ATProtoRecord {
   constructor(data, extra) {
     this.data = data;
 
@@ -24,7 +24,7 @@ class Record {
   }
 }
 
-class Post extends Record {
+class Post extends ATProtoRecord {
   static parse(json) {
     let post;
 
@@ -60,7 +60,7 @@ class Post extends Record {
 
     case 'app.bsky.feed.defs#notFoundPost':
     case 'app.bsky.embed.record#viewNotFound':
-      return new Record(json, { missing: true });
+      return new ATProtoRecord(json, { missing: true });
 
     case 'app.bsky.feed.defs#blockedPost':
     case 'app.bsky.embed.record#viewBlocked':
@@ -68,7 +68,7 @@ class Post extends Record {
 
     default:
       console.warn('Unknown record type:', json.$type);
-      return new Record(json);
+      return new ATProtoRecord(json);
     }
   }
 
@@ -140,15 +140,15 @@ class Post extends Record {
   }
 
   get parentReference() {
-    return this.record.reply?.parent && new Record(this.record.reply?.parent);
+    return this.record.reply?.parent && new ATProtoRecord(this.record.reply?.parent);
   }
 
   get rootReference() {
-    return this.record.reply?.root && new Record(this.record.reply?.root);
+    return this.record.reply?.root && new ATProtoRecord(this.record.reply?.root);
   }
 }
 
-class BlockedPost extends Record {
+class BlockedPost extends ATProtoRecord {
   constructor(data) {
     super(data);
 
@@ -226,14 +226,14 @@ class LinkEmbed extends Embed {
 class RecordEmbed extends Embed {
   constructor(json) {
     super(json);
-    this.record = new Record(json.record);
+    this.record = new ATProtoRecord(json.record);
   }
 }
 
 class RecordWithMediaEmbed extends Embed {
   constructor(json) {
     super(json);
-    this.record = new Record(json.record.record);
+    this.record = new ATProtoRecord(json.record.record);
     this.media = Embed.parse(json.media);
   }
 }
