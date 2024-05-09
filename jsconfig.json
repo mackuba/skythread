@@ -1,0 +1,7 @@
+{
+  "compilerOptions": {
+    "target": "es2022",
+    "checkJs": true
+  },
+  "include": ["*.js", "*.d.ts"]
+}
