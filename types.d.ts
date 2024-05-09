@@ -1,7 +1,7 @@
 interface Window {
   unauthed: boolean;
   root: object;
-  dateLocale: string;
+  dateLocale?: string;
 }
 
 declare var api: BlueskyAPI;

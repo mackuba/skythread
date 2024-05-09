@@ -27,6 +27,10 @@ function $tag(tag, params) {
   return element;
 }
 
+/**
+  * @param {string} name
+  * @returns {any}
+  */
 function $id(name) {
   return document.getElementById(name);
 }
@@ -81,7 +85,7 @@ function linkToPostById(handle, postId) {
   url.searchParams.set('post', postId);
 
   if (window.unauthed) {
-    url.searchParams.set('_u', 1);    
+    url.searchParams.set('_u', '1');
   }
 
   return url.toString();

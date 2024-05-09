@@ -25,6 +25,9 @@ class ATProtoRecord {
 }
 
 class Post extends ATProtoRecord {
+  parent;
+  reason;
+
   static parse(json) {
     let post;
 

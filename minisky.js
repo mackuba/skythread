@@ -79,6 +79,10 @@ class Minisky {
     return await this.parseResponse(response);
   }
 
+  /**
+   * @param {string | boolean} auth
+   * @returns {Record<string, string>}
+   */
   authHeaders(auth) {
     if (typeof auth == 'string') {
       return { 'Authorization': `Bearer ${auth}` };
