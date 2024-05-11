@@ -111,7 +111,7 @@ class EmbedComponent {
 
       p.append(a);
       p.append('] ');
-      wrapper.append(p);        
+      wrapper.append(p);
 
       if (image.alt) {
         let details = $tag('details.image-alt');

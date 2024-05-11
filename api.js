@@ -38,7 +38,7 @@ class HandleCache {
   setHandleDid(handle, did) {
     this.prepareCache();
     this.cache[handle] = did;
-    this.saveCache();    
+    this.saveCache();
   }
 
   /** @param {string} did, @returns {string | undefined}  */

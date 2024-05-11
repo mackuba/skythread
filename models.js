@@ -114,7 +114,7 @@ class Post extends ATProtoRecord {
     this.viewerLike = data.viewer?.like;
 
     if (this.author) {
-      api.cacheProfile(this.author);      
+      api.cacheProfile(this.author);
     }
   }
 
@@ -307,7 +307,7 @@ class InlineRecordEmbed extends Embed {
   constructor(json) {
     super(json);
     this.post = Post.parse(json.record);
-  }  
+  }
 }
 
 class InlineRecordWithMediaEmbed extends Embed {
@@ -317,7 +317,7 @@ class InlineRecordWithMediaEmbed extends Embed {
     super(json);
     this.post = Post.parse(json.record.record);
     this.media = Embed.parse(json.media);
-  }  
+  }
 }
 
 class InlineLinkEmbed extends Embed {

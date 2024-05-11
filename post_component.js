@@ -126,7 +126,7 @@ class PostComponent {
 
     if (this.post.likeCount !== undefined && this.post.repostCount !== undefined) {
       let stats = this.buildStatsFooter();
-      wrapper.appendChild(stats);      
+      wrapper.appendChild(stats);
     }
 
     if (this.post.replies.length == 1 && this.post.replies[0].author?.did == this.post.author.did) {
@@ -295,7 +295,7 @@ class PostComponent {
         if (blockStatus) {
           authorLink.after(`, ${blockStatus}`);
         }
-      });      
+      });
     }
 
     let loadPost = $tag('p.load-post');

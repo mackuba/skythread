@@ -19,7 +19,7 @@ function init() {
       hideLogin();
     } else {
       e.stopPropagation();
-    } 
+    }
   });
 
   body.querySelector('#login .info a').addEventListener('click', (e) => {
@@ -402,7 +402,7 @@ function loadThread(url, postId, nodeToUpdate) {
     let loadQuoteCount = blue.getQuoteCount(root.uri);
 
     if (!nodeToUpdate) {
-      setPageTitle(root);      
+      setPageTitle(root);
     }
 
     if (root.parent && !nodeToUpdate) {
