@@ -364,7 +364,7 @@ class PostComponent {
       api.likePost(this.post).then((like) => {
         this.post.viewerLike = like.uri;
         heart.classList.add('liked');
-        count.innerText = parseInt(count.innerText, 10) + 1;
+        count.innerText = String(parseInt(count.innerText, 10) + 1);
       }).catch((error) => {
         console.log(error);
         alert(error);
@@ -373,7 +373,7 @@ class PostComponent {
       api.removeLike(this.post.viewerLike).then(() => {
         this.post.viewerLike = undefined;
         heart.classList.remove('liked');
-        count.innerText = parseInt(count.innerText, 10) - 1;
+        count.innerText = String(parseInt(count.innerText, 10) - 1);
       }).catch((error) => {
         console.log(error);
         alert(error);

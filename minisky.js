@@ -155,7 +155,7 @@ class Minisky {
   /** @param {Response} response, @param {object} json, @returns {boolean} */
 
   isInvalidToken(response, json) {
-    return (response.status == 400) && json && ['InvalidToken', 'ExpiredToken'].includes(json.error);
+    return (response.status == 400) && !!json && ['InvalidToken', 'ExpiredToken'].includes(json.error);
   }
 
   /** @param {Response} response, @returns {Promise<object>} */

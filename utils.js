@@ -21,12 +21,12 @@ class AtURI {
 
 function $tag(tag, params) {
   let element;
+  let parts = tag.split('.');
 
-  if (tag.includes('.')) {
-    let parts = tag.split('.');
-    let tagName = parts.shift();
+  if (parts.length > 1) {
+    let tagName = parts[0];
     element = document.createElement(tagName);
-    element.className = parts.join(' ');
+    element.className = parts.slice(1).join(' ');
   } else {
     element = document.createElement(tag);
   }
