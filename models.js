@@ -1,4 +1,10 @@
+/**
+ * Generic record type, base class for all records.
+ */
+
 class ATProtoRecord {
+
+  /** @param {object} data, @param {object} [extra] */
   constructor(data, extra) {
     this.data = data;
 
@@ -7,27 +13,40 @@ class ATProtoRecord {
     }
   }
 
+  /** @returns {string} */
   get uri() {
     return this.data.uri;
   }
 
+  /** @returns {string} */
   get cid() {
     return this.data.cid;
   }
 
+  /** @returns {string} */
   get rkey() {
     return atURI(this.uri).rkey;
   }
 
+  /** @returns {string} */
   get type() {
     return this.data.$type;
   }
 }
 
+
+/**
+ * Standard Bluesky post record.
+ */
+
 class Post extends ATProtoRecord {
+  /** @type {ATProtoRecord | undefined} */
   parent;
+
+  /** @type {object | undefined} */
   reason;
 
+  /** @param {object} json, @returns {ATProtoRecord} */
   static parse(json) {
     let post;
 
@@ -75,6 +94,7 @@ class Post extends ATProtoRecord {
     }
   }
 
+  /** @param {object} data, @param {object} [extra] */
   constructor(data, extra) {
     super(data, extra);
 
@@ -98,60 +118,81 @@ class Post extends ATProtoRecord {
     }
   }
 
+  /** @returns {string} */
   get text() {
     return this.record.text;
   }
 
+  /** @returns {object} */
   get facets() {
     return this.record.facets;
   }
 
+  /** @returns {Date} */
   get createdAt() {
     return new Date(this.record.createdAt);
   }
 
+  /** @returns {number} */
   get likeCount() {
     return this.data.likeCount;
   }
 
+  /** @returns {number} */
   get replyCount() {
     return this.data.replyCount;
   }
 
+  /** @returns {boolean} */
   get hasMoreReplies() {
     return this.replyCount !== undefined && this.replyCount !== this.replies.length;
   }
 
+  /** @returns {number} */
   get repostCount() {
     return this.data.repostCount;
   }
 
+  /** @returns {boolean} */
   get liked() {
     return (this.viewerLike !== undefined);
   }
 
+  /** @returns {boolean | undefined} */
   get muted() {
     return this.author.viewer?.muted;
   }
 
+  /** @returns {string | undefined} */
   get muteList() {
     return this.author.viewer?.mutedByList?.name;
   }
 
+  /** @returns {boolean} */
   get hasViewerInfo() {
     return (this.viewerData !== undefined);
   }
 
+  /** @returns {ATProtoRecord | undefined} */
   get parentReference() {
     return this.record.reply?.parent && new ATProtoRecord(this.record.reply?.parent);
   }
 
+  /** @returns {ATProtoRecord | undefined} */
   get rootReference() {
     return this.record.reply?.root && new ATProtoRecord(this.record.reply?.root);
   }
 }
 
+
+/**
+ * Post which is blocked for some reason (the author is blocked, the author has blocked you, or there is a block
+ * between the post author and the parent author). It only includes a reference, but no post content.
+ */
+
 class BlockedPost extends ATProtoRecord {
+
+  /** @param {object} data */
   constructor(data) {
     super(data);
 
@@ -160,16 +201,25 @@ class BlockedPost extends ATProtoRecord {
     this.author = data.author;
   }
 
+  /** @returns {boolean} */
   get blocksUser() {
     return !!this.author.viewer?.blocking;
   }
 
+  /** @returns {boolean} */
   get blockedByUser() {
     return this.author.viewer?.blockedBy;
   }
 }
 
+
+/**
+ * Base class for embed objects.
+ */
+
 class Embed {
+
+  /** @param {object} json, @returns {Embed} */
   static parse(json) {
     switch (json.$type) {
     case 'app.bsky.embed.record':
@@ -201,16 +251,20 @@ class Embed {
     }
   }
 
+  /** @param {object} json */
   constructor(json) {
     this.json = json;
   }
 
+  /** @returns {string} */
   get type() {
     return this.json.$type;
   }
 }
 
 class ImageEmbed extends Embed {
+
+  /** @param {object} json */
   constructor(json) {
     super(json);
     this.images = json.images;
@@ -218,6 +272,8 @@ class ImageEmbed extends Embed {
 }
 
 class LinkEmbed extends Embed {
+
+  /** @param {object} json */
   constructor(json) {
     super(json);
 
@@ -227,6 +283,8 @@ class LinkEmbed extends Embed {
 }
 
 class RecordEmbed extends Embed {
+
+  /** @param {object} json */
   constructor(json) {
     super(json);
     this.record = new ATProtoRecord(json.record);
@@ -234,6 +292,8 @@ class RecordEmbed extends Embed {
 }
 
 class RecordWithMediaEmbed extends Embed {
+
+  /** @param {object} json */
   constructor(json) {
     super(json);
     this.record = new ATProtoRecord(json.record.record);
@@ -242,6 +302,8 @@ class RecordWithMediaEmbed extends Embed {
 }
 
 class InlineRecordEmbed extends Embed {
+
+  /** @param {object} json */
   constructor(json) {
     super(json);
     this.post = Post.parse(json.record);
@@ -249,6 +311,8 @@ class InlineRecordEmbed extends Embed {
 }
 
 class InlineRecordWithMediaEmbed extends Embed {
+
+  /** @param {object} json */
   constructor(json) {
     super(json);
     this.post = Post.parse(json.record.record);
@@ -257,6 +321,8 @@ class InlineRecordWithMediaEmbed extends Embed {
 }
 
 class InlineLinkEmbed extends Embed {
+
+  /** @param {object} json */
   constructor(json) {
     super(json);
 
@@ -266,11 +332,16 @@ class InlineLinkEmbed extends Embed {
 }
 
 class InlineImageEmbed extends Embed {
+
+  /** @param {object} json */
   constructor(json) {
     super(json);
     this.images = json.images;
   }
 }
+
+// TODO
+/** @param {object} a, @param {object} b, @param {Post} parent, @returns {-1 | 0 | 1} */
 
 function sortReplies(a, b, parent) {
   if (a.missing && b.missing) {

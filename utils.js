@@ -1,3 +1,24 @@
+class AtURI {
+  /** @param {string} uri */
+  constructor(uri) {
+    if (!uri.startsWith('at://')) {
+      throw new URLError(`Not an at:// URI: ${uri}`);
+    }
+
+    let parts = uri.split('/');
+
+    if (parts.length != 5) {
+      throw new URLError(`Invalid at:// URI: ${uri}`);
+    }
+
+    this.repo = parts[2];
+    this.collection = parts[3];
+    this.rkey = parts[4];
+  }
+}
+
+/** @param {string} tag, @param {string | object} [params], @returns {any} */
+
 function $tag(tag, params) {
   let element;
 
@@ -27,35 +48,19 @@ function $tag(tag, params) {
   return element;
 }
 
-/**
-  * @param {string} name
-  * @returns {any}
-  */
+/** @param {string} name, @returns {any} */
+
 function $id(name) {
   return document.getElementById(name);
 }
+
+/** @param {string} uri, @returns {AtURI} */
 
 function atURI(uri) {
   return new AtURI(uri);
 }
 
-class AtURI {
-  constructor(uri) {
-    if (!uri.startsWith('at://')) {
-      throw new URLError(`Not an at:// URI: ${uri}`);
-    }
-
-    let parts = uri.split('/');
-
-    if (parts.length != 5) {
-      throw new URLError(`Invalid at:// URI: ${uri}`);
-    }
-
-    this.repo = parts[2];
-    this.collection = parts[3];
-    this.rkey = parts[4];
-  }
-}
+/** @param {string} html, @returns {string} */
 
 function escapeHTML(html) {
   return html.replace(/&/g, '&amp;')
@@ -63,9 +68,13 @@ function escapeHTML(html) {
              .replace(/>/g,'&gt;');
 }
 
+/** @returns {string} */
+
 function getLocation() {
   return location.origin + location.pathname;
 }
+
+/** @param {Date} date1, @param {Date} date2, @returns {boolean} */
 
 function sameDay(date1, date2) {
   return (
@@ -75,9 +84,13 @@ function sameDay(date1, date2) {
   );
 }
 
+/** @param {Post} post, @returns {string} */
+
 function linkToPostThread(post) {
   return linkToPostById(post.author.handle, post.rkey);
 }
+
+/** @param {string} handle, @param {string} postId, @returns {string} */
 
 function linkToPostById(handle, postId) {
   let url = new URL(getLocation());

@@ -88,6 +88,8 @@ function parseQueryParams() {
   }
 }
 
+/** @param {Post} post, @returns {AnyElement} */
+
 function buildParentLink(post) {
   let p = $tag('p.back');
 
@@ -153,6 +155,8 @@ function toggleAccount() {
   let menu = $id('account_menu');
   menu.style.visibility = (menu.style.visibility == 'visible') ? 'hidden' : 'visible';
 }
+
+/** @param {string} [avatar] */
 
 function showLoggedInStatus(avatar) {
   let account = $id('account');
@@ -258,9 +262,13 @@ function submitSearch() {
   }
 }
 
+/** @param {Post} post */
+
 function setPageTitle(post) {
   document.title = `${post.author.displayName}: "${post.text}" - Skythread`;
 }
+
+/** @param {string} hashtag */
 
 function loadHashtagPage(hashtag) {
   hashtag = hashtag.replace(/^\#/, '');
@@ -305,6 +313,8 @@ function loadHashtagPage(hashtag) {
     console.log(error);
   });
 }
+
+/** @param {string} url */
 
 function loadQuotesPage(url) {
   blue.getQuotes(url).then(data => {
@@ -363,6 +373,8 @@ function loadQuotesPage(url) {
   });
 }
 
+/** @param {string[]} uris, @param {(p: object[]) => void} callback, @returns Promise<void> */
+
 async function loadPostsInBatches(uris, callback) {
   if (uris.length > 0) {
     for (let i = 0; i < uris.length; i += 25) {
@@ -373,6 +385,8 @@ async function loadPostsInBatches(uris, callback) {
     callback([]);
   }
 }
+
+/** @param {string} url, @param {string} [postId], @param {AnyElement} [nodeToUpdate] */
 
 function loadThread(url, postId, nodeToUpdate) {
   let load = postId ? api.loadThreadById(url, postId) : api.loadThreadByURL(url);

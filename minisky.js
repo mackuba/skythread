@@ -1,4 +1,10 @@
+/**
+ * Thrown when status code of an API response is not "success".
+ */
+
 class APIError extends Error {
+
+  /** @param {number} code, @param {object} json */
   constructor(code, json) {
     super("APIError status " + code + "\n\n" + JSON.stringify(json));
     this.code = code;
@@ -6,10 +12,27 @@ class APIError extends Error {
   }
 }
 
-class AuthError extends Error {
-}
+
+/**
+ * Thrown when authentication is needed, but access token is invalid or missing.
+ */
+
+class AuthError extends Error {}
+
+
+/**
+ * Base API client for connecting to an ATProto XRPC API.
+ */
 
 class Minisky {
+
+  /**
+   * @typedef {object} MiniskyOptions
+   * @prop {boolean} [sendAuthHeaders]
+   * @prop {boolean} [autoManageTokens]
+   *
+   * @param {string} host, @param {object} config, @param {MiniskyOptions} [options]
+   */
   constructor(host, config, options) {
     this.host = host;
     this.config = config;
@@ -24,9 +47,20 @@ class Minisky {
     }
   }
 
+  /** @returns {boolean} */
+
   get isLoggedIn() {
     return !!(this.user && this.user.accessToken && this.user.refreshToken && this.user.did);
   }
+
+  /**
+   * @typedef {object} MiniskyRequestOptions
+   * @prop {string | boolean} [auth]
+   * @prop {Record<string, string>} [headers]
+   *
+   * @param {string} method, @param {object} params, @param {MiniskyRequestOptions} [options]
+   * @returns {Promise<object>}
+   */
 
   async getRequest(method, params, options) {
     let url = new URL(`${this.baseURL}/${method}`);
@@ -56,6 +90,11 @@ class Minisky {
     return await this.parseResponse(response);
   }
 
+  /**
+   * @param {string} method, @param {object} [data], @param {MiniskyRequestOptions} [options]
+   * @returns Promise<object>
+   */
+
   async postRequest(method, data, options) {
     let url = `${this.baseURL}/${method}`;
     let auth = options && ('auth' in options) ? options.auth : this.sendAuthHeaders;
@@ -79,10 +118,8 @@ class Minisky {
     return await this.parseResponse(response);
   }
 
-  /**
-   * @param {string | boolean} auth
-   * @returns {Record<string, string>}
-   */
+  /** @param {string | boolean} auth, @returns {Record<string, string>} */
+
   authHeaders(auth) {
     if (typeof auth == 'string') {
       return { 'Authorization': `Bearer ${auth}` };
@@ -96,6 +133,8 @@ class Minisky {
       return {};
     }
   }
+
+  /** @param {string} token, @returns {number} */
 
   tokenExpirationTimestamp(token) {
     let parts = token.split('.');
@@ -113,9 +152,13 @@ class Minisky {
     return exp * 1000;
   }
 
+  /** @param {Response} response, @param {object} json, @returns {boolean} */
+
   isInvalidToken(response, json) {
     return (response.status == 400) && json && ['InvalidToken', 'ExpiredToken'].includes(json.error);
   }
+
+  /** @param {Response} response, @returns {Promise<object>} */
 
   async parseResponse(response) {
     let text = await response.text();
@@ -127,6 +170,8 @@ class Minisky {
       throw new APIError(response.status, json);
     }
   }
+
+  /** @returns {Promise<void>} */
 
   async checkAccess() {
     if (!this.isLoggedIn) {
@@ -140,6 +185,8 @@ class Minisky {
     }
   }
 
+  /** @param {string} handle, @param {string} password, @returns {Promise<object>} */
+
   async logIn(handle, password) {
     let params = { identifier: handle, password: password };
     let json = await this.postRequest('com.atproto.server.createSession', params, { auth: false });
@@ -148,12 +195,16 @@ class Minisky {
     return json;
   }
 
+  /** @returns {Promise<object>} */
+
   async performTokenRefresh() {
     console.log('Refreshing access token…');
     let json = await this.postRequest('com.atproto.server.refreshSession', null, { auth: this.user.refreshToken });
     this.saveTokens(json);
     return json;
   }
+
+  /** @param {object} json */
 
   saveTokens(json) {
     this.user.accessToken = json['accessJwt'];

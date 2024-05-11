@@ -1,8 +1,16 @@
+/**
+ * Renders an embed (e.g. image or quoted post) inside the post view.
+ */
+
 class EmbedComponent {
+
+  /** @param {Post} post, @param {object} embed */
   constructor(post, embed) {
     this.post = post;
     this.embed = embed;
   }
+
+  /** @returns {AnyElement} */
 
   buildElement() {
     let wrapper, quoteView, mediaView;
@@ -48,11 +56,15 @@ class EmbedComponent {
     }
   }
 
+  /** @returns {AnyElement} */
+
   quotedPostPlaceholder() {
     return $tag('div.quote-embed', {
       html: '<p class="post placeholder">Loading quoted post...</p>'
     });
   }
+
+  /** @returns {AnyElement} */
 
   buildQuotedPostElement() {
     let div = $tag('div.quote-embed');
@@ -68,6 +80,8 @@ class EmbedComponent {
     return div;
   }
 
+  /** @returns {AnyElement} */
+
   buildLinkComponent() {
     let a = $tag('a', { href: this.embed.url, text: this.embed.title || this.embed.url });
 
@@ -75,6 +89,8 @@ class EmbedComponent {
     p.append('[Link: ', a, ']');
     return p;
   }
+
+  /** @returns {AnyElement} */
 
   buildImagesComponent() {
     let wrapper = $tag('div');
@@ -109,6 +125,8 @@ class EmbedComponent {
 
     return wrapper;
   }
+
+  /** @param {string} uri, @param {AnyElement} div, @returns Promise<void> */
 
   async loadQuotedPost(uri, div) {
     let result = await api.loadPost(uri);

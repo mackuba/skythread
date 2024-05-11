@@ -1,28 +1,38 @@
+/**
+ * Renders a post/thread view and its subviews.
+ */
+
 class PostComponent {
+  /** @param {Post} post, @param {Post} [root] */
   constructor(post, root) {
     this.post = post;
     this.root = root ?? post;
     this.isRoot = (this.post === this.root);
   }
 
+  /** @returns {string} */
   get linkToAuthor() {
     return 'https://bsky.app/profile/' + this.post.author.handle;
   }
 
+  /** @returns {string} */
   get linkToPost() {
     return this.linkToAuthor + '/post/' + this.post.rkey;
   }
 
+  /** @returns {string} */
   get didLinkToAuthor() {
     let { repo } = atURI(this.post.uri);
     return `https://bsky.app/profile/${repo}`;
   }
 
+  /** @returns {string} */
   get didLinkToPost() {
     let { repo, rkey } = atURI(this.post.uri);
     return `https://bsky.app/profile/${repo}/post/${rkey}`;
   }
 
+  /** @returns {string} */
   get authorName() {
     if (this.post.author.displayName) {
       return this.post.author.displayName;
@@ -33,6 +43,7 @@ class PostComponent {
     }
   }
 
+  /** @returns {object} */
   get timeFormatForTimestamp() {
     if (this.isRoot) {
       return { day: 'numeric', month: 'short', year: 'numeric', hour: 'numeric', minute: 'numeric' };
@@ -50,7 +61,12 @@ class PostComponent {
     - quote - a quote embed
     - quotes - a post on the quotes page
     - feed - a post on the hashtag feed page
+
+    @typedef {'thread' | 'parent' | 'quote' | 'quotes' | 'feed'} PostContext
+    @param {PostContext} context
+    @returns {AnyElement}
   */
+
   buildElement(context) {
     let div = $tag('div.post');
 
@@ -137,6 +153,8 @@ class PostComponent {
     return div;
   }
 
+  /** @param {PostContext} context, @returns {AnyElement} */
+
   buildPostHeader(context) {
     let timeFormat = this.timeFormatForTimestamp;
     let formattedTime = this.post.createdAt.toLocaleString(window.dateLocale, timeFormat);
@@ -167,6 +185,8 @@ class PostComponent {
     return h;
   }
 
+  /** @param {string} url, @returns {HTMLImageElement} */
+
   buildUserAvatar(url) {
     let avatar = $tag('img.avatar', { src: url });
     let tries = 0;
@@ -183,6 +203,8 @@ class PostComponent {
     avatar.addEventListener('error', errorHandler);
     return avatar;
   }
+
+  /** @returns {AnyElement} */
 
   buildPostBody() {
     let p = $tag('p.body');
@@ -205,6 +227,8 @@ class PostComponent {
     return p;
   }
 
+  /** @returns {AnyElement} */
+
   buildStatsFooter() {
     let stats = $tag('p.stats');
 
@@ -223,6 +247,8 @@ class PostComponent {
     return stats;
   }
 
+  /** @returns {AnyElement} */
+
   buildLoadMoreLink() {
     let loadMore = $tag('p');
 
@@ -240,6 +266,8 @@ class PostComponent {
     loadMore.appendChild(link);
     return loadMore;
   }
+
+  /** @param {AnyElement} div, @returns {AnyElement} */
 
   buildBlockedPostElement(div) {
     let p = $tag('p.blocked-header');
@@ -285,6 +313,8 @@ class PostComponent {
     return div;
   }
 
+  /** @param {string} uri, @param {AnyElement} div, @returns Promise<void> */
+
   async loadBlockedPost(uri, div) {
     let record = await appView.loadPost(this.post.uri);
     this.post = new Post(record);
@@ -306,6 +336,8 @@ class PostComponent {
     div.appendChild(p);
   }
 
+  /** @param {AnyElement} div */
+
   toggleSectionFold(div) {
     let plus = div.querySelector('.plus');
 
@@ -317,6 +349,8 @@ class PostComponent {
       plus.src = 'icons/add-square.png'
     }
   }
+
+  /** @param {AnyElement} heart */
 
   onHeartClick(heart) {
     if (!this.post.hasViewerInfo) {

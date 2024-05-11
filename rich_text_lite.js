@@ -26,25 +26,30 @@
 // packages/api/src/rich-text/rich-text.ts
 
 class RichTextSegment {
+  /** @param {string} text, @param {object} [facet] */
   constructor(text, facet) {
     this.text = text;
     this.facet = facet;
   }
 
+  /** @returns {object | undefined} */
   get link() {
     return this.facet?.features?.find(v => v.$type === 'app.bsky.richtext.facet#link');
   }
 
+  /** @returns {object | undefined} */
   get mention() {
     return this.facet?.features?.find(v => v.$type === 'app.bsky.richtext.facet#mention');
   }
 
+  /** @returns {object | undefined} */
   get tag() {
     return this.facet?.features?.find(v => v.$type === 'app.bsky.richtext.facet#tag');
   }
 }
 
 class RichText {
+  /** @params {object} props */
   constructor(props) {
     this.unicodeText = new UnicodeString(props.text);
     this.facets = props.facets;
@@ -54,14 +59,17 @@ class RichText {
     }
   }
 
+  /** @returns {string} */
   get text() {
     return this.unicodeText.toString();
   }
 
+  /** @returns {number} */
   get length() {
     return this.unicodeText.length;
   }
 
+  /** @returns {number} */
   get graphemeLength() {
     return this.unicodeText.graphemeLength;
   }
@@ -125,23 +133,28 @@ class UnicodeString {
   static decoder = new TextDecoder();
   static segmenter = window.Intl && Intl.Segmenter && new Intl.Segmenter();
 
+  /** @param {string} utf16 */
   constructor(utf16) {
     this.utf16 = utf16;
     this.utf8 = UnicodeString.encoder.encode(utf16);
   }
 
+  /** @returns number */
   get length() {
     return this.utf8.byteLength;
   }
 
+  /** @returns number */
   get graphemeLength() {
     return Array.from(UnicodeString.segmenter.segment(this.utf16)).length;
   }
 
+  /** @param {number} start, @param {number} end, @returns string */
   slice(start, end) {
     return UnicodeString.decoder.decode(this.utf8.slice(start, end));
   }
 
+  /** @returns string */
   toString() {
     return this.utf16;
   }
