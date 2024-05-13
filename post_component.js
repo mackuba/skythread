@@ -74,9 +74,12 @@ class PostComponent {
       div.classList.add('muted');
     }
 
-    if (this.post.missing) {
+    if (this.post instanceof BlockedPost) {
       this.buildBlockedPostElement(div);
       return div;
+    } else if (this.post instanceof MissingPost) {
+      this.buildMissingPostElement(div);
+      return div;      
     }
 
     let header = this.buildPostHeader(context);
@@ -136,7 +139,7 @@ class PostComponent {
       content.appendChild(element);
     } else {
       for (let reply of this.post.replies) {
-        if (reply.missing && !reply.blocked) { continue }
+        if (reply instanceof MissingPost) { continue }
 
         let component = new PostComponent(reply, this.root);
         content.appendChild(component.buildElement('thread'));
@@ -309,6 +312,16 @@ class PostComponent {
 
     loadPost.appendChild(a);
     div.appendChild(loadPost);
+    div.classList.add('blocked');
+    return div;
+  }
+
+  /** @param {AnyElement} div, @returns {AnyElement} */
+
+  buildMissingPostElement(div) {
+    let p = $tag('p.blocked-header');
+    p.innerHTML = `<i class="fa-solid fa-ban"></i> <span>Missing post</span>`;
+    div.appendChild(p);
     div.classList.add('blocked');
     return div;
   }

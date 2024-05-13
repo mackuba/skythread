@@ -1,6 +1,6 @@
 interface Window {
   unauthed: boolean;
-  root: object;
+  root: AnyPost;
   dateLocale?: string;
 }
 

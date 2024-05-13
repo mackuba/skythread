@@ -92,17 +92,17 @@ function parseQueryParams() {
   }
 }
 
-/** @param {Post} post, @returns {AnyElement} */
+/** @param {AnyPost} post, @returns {AnyElement} */
 
 function buildParentLink(post) {
   let p = $tag('p.back');
 
-  if (post.blocked) {
+  if (post instanceof BlockedPost) {
     let element = new PostComponent(post).buildElement('parent');
     element.className = 'back';
     element.querySelector('p.blocked-header span').innerText = 'Parent post blocked';
     return element;
-  } else if (post.missing) {
+  } else if (post instanceof MissingPost) {
     p.innerHTML = `<i class="fa-solid fa-ban"></i> parent post has been deleted`;
   } else {
     let url = linkToPostThread(post);
@@ -396,7 +396,7 @@ function loadThread(url, postId, nodeToUpdate) {
   let load = postId ? api.loadThreadById(url, postId) : api.loadThreadByURL(url);
 
   load.then(json => {
-    let root = Post.parse(json.thread);
+    let root = Post.parseThreadPost(json.thread);
     window.root = root;
 
     let loadQuoteCount = blue.getQuoteCount(root.uri);

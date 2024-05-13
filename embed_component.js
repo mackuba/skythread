@@ -16,12 +16,12 @@ class EmbedComponent {
     let wrapper, quoteView, mediaView;
 
     switch (this.embed.constructor) {
-    case RecordEmbed:
+    case RawRecordEmbed:
       quoteView = this.quotedPostPlaceholder();
       this.loadQuotedPost(this.embed.record.uri, quoteView);
       return quoteView;
 
-    case RecordWithMediaEmbed:
+    case RawRecordWithMediaEmbed:
       wrapper = $tag('div');
 
       mediaView = new EmbedComponent(this.post, this.embed.media).buildElement();
@@ -43,11 +43,11 @@ class EmbedComponent {
       wrapper.append(mediaView, quoteView);
       return wrapper;
 
-    case ImageEmbed:
+    case RawImageEmbed:
     case InlineImageEmbed:
       return this.buildImagesComponent();
 
-    case LinkEmbed:
+    case RawLinkEmbed:
     case InlineLinkEmbed:
       return this.buildLinkComponent();
 
@@ -130,7 +130,7 @@ class EmbedComponent {
 
   async loadQuotedPost(uri, div) {
     let result = await api.loadPost(uri);
-    let post = new Post(result, { isEmbed: true });
+    let post = new Post(result);
 
     let postView = new PostComponent(post).buildElement('quote');
     div.replaceChildren(postView);

@@ -1,5 +1,18 @@
 /**
- * Generic record type, base class for all records.
+ * Thrown when parsing post JSON fails.
+ */
+
+class PostDataError extends Error {
+
+  /** @param {string} message */
+  constructor(message) {
+    super(message);
+  }
+}
+
+
+/**
+ * Generic record type, base class for all records or record view objects.
  */
 
 class ATProtoRecord {
@@ -7,10 +20,7 @@ class ATProtoRecord {
   /** @param {object} data, @param {object} [extra] */
   constructor(data, extra) {
     this.data = data;
-
-    if (extra) {
-      Object.assign(this, extra);
-    }
+    Object.assign(this, extra ?? {});
   }
 
   /** @returns {string} */
@@ -37,6 +47,8 @@ class ATProtoRecord {
 
 /**
  * Standard Bluesky post record.
+ *
+ * @typedef {Post | BlockedPost | MissingPost} AnyPost
  */
 
 class Post extends ATProtoRecord {
@@ -46,26 +58,77 @@ class Post extends ATProtoRecord {
   /** @type {object | undefined} */
   reason;
 
-  /** @param {object} json, @returns {ATProtoRecord} */
-  static parse(json) {
-    let post;
+  /** @type {boolean | undefined} */
+  isEmbed;
 
+  /**
+   * View of a post as part of a thread, as returned from getPostThread.
+   * Expected to be #threadViewPost, but may be blocked or missing.
+   *
+   * @param {object} json, @returns {AnyPost}
+   */
+
+  static parseThreadPost(json) {
     switch (json.$type) {
     case 'app.bsky.feed.defs#threadViewPost':
-      post = new Post(json.post);
+      let post = new Post(json.post);
 
       if (json.replies) {
-        post.replies = json.replies.map(x => Post.parse(x)).sort((a, b) => sortReplies(a, b, post));
+        post.setReplies(json.replies.map(x => Post.parseThreadPost(x)));
       }
 
       if (json.parent) {
-        post.parent = Post.parse(json.parent);
+        post.parent = Post.parseThreadPost(json.parent);
       }
 
       return post;
 
-    case 'app.bsky.feed.defs#feedViewPost':
-      post = new Post(json.post);
+    case 'app.bsky.feed.defs#notFoundPost':
+      return new MissingPost(json);
+
+    case 'app.bsky.feed.defs#blockedPost':
+      return new BlockedPost(json);
+
+    default:
+      throw new PostDataError(`Unexpected record type: ${json.$type}`);
+    }
+  }
+
+  /**
+   * View of a post embedded as a quote.
+   * Expected to be app.bsky.embed.record#viewRecord, but may be blocked, missing or a different type of record
+   * (e.g. a list or a feed generator). For unknown record embeds, we fall back to generic ATProtoRecord.
+   *
+   * @param {object} json, @returns {ATProtoRecord}
+   */
+
+  static parseViewRecord(json) {
+    switch (json.$type) {
+    case 'app.bsky.embed.record#viewRecord':
+      return new Post(json, { isEmbed: true });
+
+    case 'app.bsky.embed.record#viewNotFound':
+      return new MissingPost(json);
+
+    case 'app.bsky.embed.record#viewBlocked':
+      return new BlockedPost(json);
+
+    default:
+      console.warn('Unknown record type:', json.$type);
+      return new ATProtoRecord(json);
+    }
+  }
+
+  /**
+   * View of a post as part of a feed (e.g. a profile feed, home timeline or a custom feed).
+   * Should be a #feedViewPost - blocked or missing posts don't appear here, they just aren't included.
+   *
+   * @param {object} json, @returns {Post}
+   */
+
+  static parseFeedPost(json) {
+    if (json.$type == 'app.bsky.feed.defs#feedViewPost') {
+      let post = new Post(json.post);
 
       if (json.reply) {
         post.parent = new Post(json.reply.parent);
@@ -76,39 +139,29 @@ class Post extends ATProtoRecord {
       }
 
       return post;
-
-    case 'app.bsky.embed.record#viewRecord':
-      return new Post(json, { isEmbed: true });
-
-    case 'app.bsky.feed.defs#notFoundPost':
-    case 'app.bsky.embed.record#viewNotFound':
-      return new ATProtoRecord(json, { missing: true });
-
-    case 'app.bsky.feed.defs#blockedPost':
-    case 'app.bsky.embed.record#viewBlocked':
-      return new BlockedPost(json);
-
-    default:
-      console.warn('Unknown record type:', json.$type);
-      return new ATProtoRecord(json);
+    } else {
+      throw new PostDataError(`Unexpected record type: ${json.$type}`);
     }
   }
 
   /** @param {object} data, @param {object} [extra] */
+
   constructor(data, extra) {
-    super(data, extra);
+    super(data);
+    Object.assign(this, extra ?? {});
+
+    this.record = this.isPostView ? data.record : data.value;
+
+    if (this.isPostView && data.embed) {
+      this.embed = Embed.parseInlineEmbed(data.embed);
+    } else if (this.isEmbed && data.embeds && data.embeds[0]) {
+      this.embed = Embed.parseInlineEmbed(data.embeds[0]);
+    } else if (this.record.embed) {
+      this.embed = Embed.parseRawEmbed(this.record.embed);
+    }
 
     this.author = this.author ?? data.author;
-    this.record = data.value ?? data.record;
     this.replies = [];
-
-    if (data.embed) {
-      this.embed = Embed.parse(data.embed);
-    } else if (data.embeds && data.embeds.length > 0) {
-      this.embed = Embed.parse(data.embeds[0]);
-    } else if (this.record.embed) {
-      this.embed = Embed.parse(this.record.embed);
-    }
 
     this.viewerData = data.viewer;
     this.viewerLike = data.viewer?.like;
@@ -116,6 +169,42 @@ class Post extends ATProtoRecord {
     if (this.author) {
       api.cacheProfile(this.author);
     }
+  }
+
+  /** @param {AnyPost[]} replies */
+
+  setReplies(replies) {
+    this.replies = replies;
+    this.replies.sort(this.sortReplies.bind(this));
+  }
+
+  /** @param {AnyPost} a, @param {AnyPost} b, @returns {-1 | 0 | 1} */
+
+  sortReplies(a, b) {
+    if (a instanceof Post && b instanceof Post) {
+      if (a.author.did == this.author.did && b.author.did != this.author.did) {
+        return -1;
+      } else if (a.author.did != this.author.did && b.author.did == this.author.did) {
+        return 1;
+      } else if (a.createdAt.getTime() < b.createdAt.getTime()) {
+        return -1;
+      } else if (a.createdAt.getTime() > b.createdAt.getTime()) {
+        return 1;
+      } else {
+        return 0;
+      }
+    } else if (a instanceof Post) {
+      return -1;
+    } else if (b instanceof Post) {
+      return 1;
+    } else {
+      return 0;
+    }
+  }
+
+  /** @returns {boolean} */
+  get isPostView() {
+    return !this.isEmbed;
   }
 
   /** @returns {string} */
@@ -195,9 +284,6 @@ class BlockedPost extends ATProtoRecord {
   /** @param {object} data */
   constructor(data) {
     super(data);
-
-    this.blocked = true;
-    this.missing = true;
     this.author = data.author;
   }
 
@@ -214,26 +300,26 @@ class BlockedPost extends ATProtoRecord {
 
 
 /**
+ * Stub of a post which was deleted or hidden.
+ */
+
+class MissingPost extends ATProtoRecord {}
+
+
+/**
  * Base class for embed objects.
  */
 
 class Embed {
 
-  /** @param {object} json, @returns {Embed} */
-  static parse(json) {
+  /**
+   * More hydrated view of an embed, taken from a full post view (#postView).
+   *
+   * @param {object} json, @returns {Embed}
+   */
+
+  static parseInlineEmbed(json) {
     switch (json.$type) {
-    case 'app.bsky.embed.record':
-      return new RecordEmbed(json);
-
-    case 'app.bsky.embed.recordWithMedia':
-      return new RecordWithMediaEmbed(json);
-
-    case 'app.bsky.embed.images':
-      return new ImageEmbed(json);
-
-    case 'app.bsky.embed.external':
-      return new LinkEmbed(json);
-
     case 'app.bsky.embed.record#view':
       return new InlineRecordEmbed(json);
 
@@ -247,7 +333,42 @@ class Embed {
       return new InlineLinkEmbed(json);
 
     default:
-      return new Embed(json);
+      if (location.protocol == 'file:') {
+        throw new PostDataError(`Unexpected embed type: ${json.$type}`);
+      } else {
+        console.warn('Unexpected embed type:', json.$type);
+        return new Embed(json);
+      }
+    }
+  }
+
+  /**
+    * Raw embed extracted from raw record data of a post. Does not include quoted post contents.
+    *
+    * @param {object} json, @returns {Embed}
+    */
+
+  static parseRawEmbed(json) {
+    switch (json.$type) {
+    case 'app.bsky.embed.record':
+      return new RawRecordEmbed(json);
+
+    case 'app.bsky.embed.recordWithMedia':
+      return new RawRecordWithMediaEmbed(json);
+
+    case 'app.bsky.embed.images':
+      return new RawImageEmbed(json);
+
+    case 'app.bsky.embed.external':
+      return new RawLinkEmbed(json);
+
+    default:
+      if (location.protocol == 'file:') {
+        throw new PostDataError(`Unexpected embed type: ${json.$type}`);
+      } else {
+        console.warn('Unexpected embed type:', json.$type);
+        return new Embed(json);
+      }
     }
   }
 
@@ -262,7 +383,7 @@ class Embed {
   }
 }
 
-class ImageEmbed extends Embed {
+class RawImageEmbed extends Embed {
 
   /** @param {object} json */
   constructor(json) {
@@ -271,7 +392,7 @@ class ImageEmbed extends Embed {
   }
 }
 
-class LinkEmbed extends Embed {
+class RawLinkEmbed extends Embed {
 
   /** @param {object} json */
   constructor(json) {
@@ -282,7 +403,7 @@ class LinkEmbed extends Embed {
   }
 }
 
-class RecordEmbed extends Embed {
+class RawRecordEmbed extends Embed {
 
   /** @param {object} json */
   constructor(json) {
@@ -291,38 +412,47 @@ class RecordEmbed extends Embed {
   }
 }
 
-class RecordWithMediaEmbed extends Embed {
+class RawRecordWithMediaEmbed extends Embed {
 
   /** @param {object} json */
   constructor(json) {
     super(json);
     this.record = new ATProtoRecord(json.record.record);
-    this.media = Embed.parse(json.media);
+    this.media = Embed.parseRawEmbed(json.media);
   }
 }
 
 class InlineRecordEmbed extends Embed {
 
-  /** @param {object} json */
+  /**
+   * app.bsky.embed.record#view
+   * @param {object} json
+   */
   constructor(json) {
     super(json);
-    this.post = Post.parse(json.record);
+    this.post = Post.parseViewRecord(json.record);
   }
 }
 
 class InlineRecordWithMediaEmbed extends Embed {
 
-  /** @param {object} json */
+  /**
+   * app.bsky.embed.recordWithMedia#view
+   * @param {object} json
+   */
   constructor(json) {
     super(json);
-    this.post = Post.parse(json.record.record);
-    this.media = Embed.parse(json.media);
+    this.post = Post.parseViewRecord(json.record.record);
+    this.media = Embed.parseInlineEmbed(json.media);
   }
 }
 
 class InlineLinkEmbed extends Embed {
 
-  /** @param {object} json */
+  /**
+   * app.bsky.embed.external#view
+   * @param {object} json
+   */
   constructor(json) {
     super(json);
 
@@ -333,32 +463,12 @@ class InlineLinkEmbed extends Embed {
 
 class InlineImageEmbed extends Embed {
 
-  /** @param {object} json */
+  /**
+   * app.bsky.embed.images#view
+   * @param {object} json
+   */
   constructor(json) {
     super(json);
     this.images = json.images;
-  }
-}
-
-// TODO
-/** @param {object} a, @param {object} b, @param {Post} parent, @returns {-1 | 0 | 1} */
-
-function sortReplies(a, b, parent) {
-  if (a.missing && b.missing) {
-    return 0;
-  } else if (a.missing && !b.missing) {
-    return 1;
-  } else if (b.missing && !a.missing) {
-    return -1;
-  } else if (a.author.did == parent.author.did && b.author.did != parent.author.did) {
-    return -1;
-  } else if (a.author.did != parent.author.did && b.author.did == parent.author.did) {
-    return 1;
-  } else if (a.createdAt.getTime() < b.createdAt.getTime()) {
-    return -1;
-  } else if (a.createdAt.getTime() > b.createdAt.getTime()) {
-    return 1;
-  } else {
-    return 0;
   }
 }
