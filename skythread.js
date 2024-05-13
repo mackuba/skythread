@@ -434,6 +434,8 @@ function loadThread(url, postId, nodeToUpdate) {
         });
         stats.append(quotes);
       }
+    }).catch(error => {
+      console.warn("Couldn't load quote count: " + error);
     });
   }).catch(error => {
     hideLoader();
