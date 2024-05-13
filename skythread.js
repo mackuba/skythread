@@ -399,10 +399,11 @@ function loadThread(url, postId, nodeToUpdate) {
     let root = Post.parseThreadPost(json.thread);
     window.root = root;
 
-    let loadQuoteCount = blue.getQuoteCount(root.uri);
+    let loadQuoteCount;
 
     if (!nodeToUpdate) {
       setPageTitle(root);
+      loadQuoteCount = blue.getQuoteCount(root.uri);
     }
 
     if (root.parent && !nodeToUpdate) {
@@ -420,7 +421,7 @@ function loadThread(url, postId, nodeToUpdate) {
       $id('thread').appendChild(list);
     }
 
-    loadQuoteCount.then(count => {
+    loadQuoteCount?.then(count => {
       if (count > 0) {
         let stats = list.querySelector(':scope > .content > p.stats');
         let q = new URL(getLocation());
