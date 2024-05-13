@@ -17,14 +17,16 @@ interface AnyElement {
   nextElementSibling: AnyElement;
   parentNode: AnyElement;
   src: string;
+  style: CSSStyleDeclaration;
 
   addEventListener<K extends keyof DocumentEventMap>(
     type: K, listener: EventListenerOrEventListenerObject
   ): void;
 
-  append(e: string | SomeElement): void;
+  append(...e: Array<string | SomeElement>): void;
   appendChild(e: SomeElement): void;
   querySelector(q: string): AnyElement;
+  prepend(...e: Array<string | SomeElement>): void;
   remove(): void;
   replaceChildren(e: SomeElement): void;
   replaceWith(e: SomeElement): void;
