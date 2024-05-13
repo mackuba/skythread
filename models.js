@@ -120,28 +120,24 @@ class Post extends ATProtoRecord {
   }
 
   /**
-   * View of a post as part of a feed (e.g. a profile feed, home timeline or a custom feed).
-   * Should be a #feedViewPost - blocked or missing posts don't appear here, they just aren't included.
+   * View of a post as part of a feed (e.g. a profile feed, home timeline or a custom feed). It should be an
+   * app.bsky.feed.defs#feedViewPost - blocked or missing posts don't appear here, they just aren't included.
    *
    * @param {object} json, @returns {Post}
    */
 
   static parseFeedPost(json) {
-    if (json.$type == 'app.bsky.feed.defs#feedViewPost') {
-      let post = new Post(json.post);
+    let post = new Post(json.post);
 
-      if (json.reply) {
-        post.parent = new Post(json.reply.parent);
-      }
-
-      if (json.reason) {
-        post.reason = json.reason;
-      }
-
-      return post;
-    } else {
-      throw new PostDataError(`Unexpected record type: ${json.$type}`);
+    if (json.reply) {
+      post.parent = new Post(json.reply.parent);
     }
+
+    if (json.reason) {
+      post.reason = json.reason;
+    }
+
+    return post;
   }
 
   /** @param {object} data, @param {object} [extra] */
