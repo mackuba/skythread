@@ -113,6 +113,12 @@ class Post extends ATProtoRecord {
     case 'app.bsky.embed.record#viewBlocked':
       return new BlockedPost(json);
 
+    case 'app.bsky.feed.defs#generatorView':
+      return new FeedGeneratorRecord(json);
+
+    case 'app.bsky.graph.defs#listView':
+      return new UserListRecord(json);
+
     default:
       console.warn('Unknown record type:', json.$type);
       return new ATProtoRecord(json);
@@ -300,6 +306,74 @@ class BlockedPost extends ATProtoRecord {
  */
 
 class MissingPost extends ATProtoRecord {}
+
+
+/**
+ * Record representing a feed generator.
+ */
+
+class FeedGeneratorRecord extends ATProtoRecord {
+
+  /** @param {object} data */
+  constructor(data) {
+    super(data);
+    this.author = data.creator;
+  }
+
+  /** @returns {string | undefined} */
+  get title() {
+    return this.data.displayName;
+  }
+
+  /** @returns {string | undefined} */
+  get description() {
+    return this.data.description;
+  }
+
+  /** @returns {number} */
+  get likeCount() {
+    return this.data.likeCount;
+  }
+
+  /** @returns {string | undefined} */
+  get avatar() {
+    return this.data.avatar;
+  }
+}
+
+
+/**
+ * Record representing a user list or moderation list.
+ */
+
+class UserListRecord extends ATProtoRecord {
+
+  /** @param {object} data */
+  constructor(data) {
+    super(data);
+    this.author = data.creator;
+  }
+
+  /** @returns {string | undefined} */
+  get title() {
+    return this.data.name;
+  }
+
+  /** @returns {string | undefined} */
+  get purpose() {
+    return this.data.purpose;
+  }
+
+  /** @returns {string | undefined} */
+  get description() {
+    return this.data.description;
+  }
+
+  /** @returns {string | undefined} */
+  get avatar() {
+    return this.data.avatar;
+  }
+}
 
 
 /**

@@ -72,6 +72,10 @@ class EmbedComponent {
     if (this.embed.post instanceof Post || this.embed.post instanceof BlockedPost) {
       let postView = new PostComponent(this.embed.post).buildElement('quote');
       div.appendChild(postView);
+    } else if (this.embed.post instanceof FeedGeneratorRecord) {
+      return this.buildFeedGeneratorView(this.embed.post);
+    } else if (this.embed.post instanceof UserListRecord) {
+      return this.buildUserListView(this.embed.post);
     } else {
       let p = $tag('p', { text: `[${this.embed.post.type}]` });
       div.appendChild(p);
@@ -83,7 +87,7 @@ class EmbedComponent {
   /** @returns {AnyElement} */
 
   buildLinkComponent() {
-    let a = $tag('a.link-card', { href: this.embed.url });
+    let a = $tag('a.link-card', { href: this.embed.url, target: '_blank' });
     let box = $tag('div');
 
     let domain = $tag('p.domain', { text: new URL(this.embed.url).hostname });
@@ -93,6 +97,92 @@ class EmbedComponent {
     a.append(box);
 
     return a;
+  }
+
+  /** @param {FeedGeneratorRecord} feedgen, @returns {AnyElement} */
+
+  buildFeedGeneratorView(feedgen) {
+    let link = this.linkToFeedGenerator(feedgen);
+
+    let a = $tag('a.link-card.record', { href: link, target: '_blank' });
+    let box = $tag('div');
+
+    if (feedgen.avatar) {
+      let avatar = $tag('img.avatar');
+      avatar.src = feedgen.avatar;
+      box.append(avatar);
+    }
+
+    let title = $tag('h2', { text: feedgen.title });
+    title.append($tag('span.handle', { text: `• Feed by @${feedgen.author.handle}` }));
+    box.append(title);
+
+    if (feedgen.description) {
+      let description = $tag('p.description', { text: feedgen.description });
+      box.append(description);
+    }
+
+    let stats = $tag('p.stats');
+    stats.append($tag('i', 'fa-solid fa-heart'), ' ');
+    stats.append($tag('output', { text: feedgen.likeCount }));
+    box.append(stats);
+
+    a.append(box);
+    return a;
+  }
+
+  /** @param {FeedGeneratorRecord} feedgen, @returns {string} */
+
+  linkToFeedGenerator(feedgen) {
+    let { repo, rkey } = atURI(feedgen.uri);
+    return `https://bsky.app/profile/${repo}/feed/${rkey}`;
+  }
+
+  /** @param {UserListRecord} list, @returns {AnyElement} */
+
+  buildUserListView(list) {
+    let link = this.linkToUserList(list);
+
+    let a = $tag('a.link-card.record', { href: link, target: '_blank' });
+    let box = $tag('div');
+
+    if (list.avatar) {
+      let avatar = $tag('img.avatar');
+      avatar.src = list.avatar;
+      box.append(avatar);
+    }
+
+    let listType;
+
+    switch (list.purpose) {
+    case 'app.bsky.graph.defs#curatelist':
+      listType = "User list";
+      break;
+    case 'app.bsky.graph.defs#modlist':
+      listType = "Mute list";
+      break;
+    default:
+      listType = "List";
+    }
+
+    let title = $tag('h2', { text: list.title });
+    title.append($tag('span.handle', { text: `• ${listType} by @${list.author.handle}` }));
+    box.append(title);
+
+    if (list.description) {
+      let description = $tag('p.description', { text: list.description });
+      box.append(description);
+    }
+
+    a.append(box);
+    return a;
+  }
+
+  /** @param {UserListRecord} list, @returns {string} */
+
+  linkToUserList(list) {
+    let { repo, rkey } = atURI(list.uri);
+    return `https://bsky.app/profile/${repo}/lists/${rkey}`;
   }
 
   /** @returns {AnyElement} */

@@ -496,6 +496,7 @@ p.back i {
 
 .post a.link-card {
   display: block;
+  position: relative;
   max-width: 500px;
   margin-bottom: 12px;
 }
@@ -534,6 +535,38 @@ p.back i {
   margin-top: 8px;
   margin-bottom: 4px;
   line-height: 135%;
+}
+
+.post a.link-card.record > div:has(.avatar) {
+  padding-left: 65px;
+}
+
+.post a.link-card.record h2 {
+  margin-top: 3px;
+}
+
+.post a.link-card.record .handle {
+  color: #666;
+  margin-left: 5px;
+}
+
+.post a.link-card.record .avatar {
+  width: 36px;
+  height: 36px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  position: absolute;
+  top: 15px;
+  left: 15px;
+}
+
+.post a.link-card.record .stats {
+  margin-top: 9px;
+  margin-bottom: 1px;
+}
+
+.post a.link-card.record .stats i.fa-heart:hover {
+  color: #aaa;
 }
 
 .post .stats {
