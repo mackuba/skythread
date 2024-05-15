@@ -83,11 +83,16 @@ class EmbedComponent {
   /** @returns {AnyElement} */
 
   buildLinkComponent() {
-    let a = $tag('a', { href: this.embed.url, text: this.embed.title || this.embed.url });
+    let a = $tag('a.link-card', { href: this.embed.url });
+    let box = $tag('div');
 
-    let p = $tag('p');
-    p.append('[Link: ', a, ']');
-    return p;
+    let domain = $tag('p.domain', { text: new URL(this.embed.url).hostname });
+    let title = $tag('h2', { text: this.embed.title });
+    let description = this.embed.description ? $tag('p.description', { text: this.embed.description }) : '';
+    box.append(domain, title, description);
+    a.append(box);
+
+    return a;
   }
 
   /** @returns {AnyElement} */

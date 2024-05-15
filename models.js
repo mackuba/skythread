@@ -454,6 +454,7 @@ class InlineLinkEmbed extends Embed {
 
     this.url = json.external.uri;
     this.title = json.external.title;
+    this.description = json.external.description;
   }
 }
 

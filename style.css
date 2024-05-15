@@ -494,6 +494,48 @@ p.back i {
   cursor: default;
 }
 
+.post a.link-card {
+  display: block;
+  max-width: 500px;
+  margin-bottom: 12px;
+}
+
+.post a.link-card:hover {
+  text-decoration: none;
+}
+
+.post a.link-card > div {
+  background-color: #fcfcfd;
+  border: 1px solid #d8d8d8;
+  border-radius: 8px;
+  padding: 11px 15px;
+}
+
+.post a.link-card:hover > div {
+  background-color: #f6f7f8;
+  border: 1px solid #c8c8c8;
+}
+
+.post a.link-card p.domain {
+  color: #888;
+  font-size: 10pt;
+  margin-top: 1px;
+  margin-bottom: 5px;
+}
+
+.post a.link-card h2 {
+  color: #333;
+  margin-top: 8px;
+}
+
+.post a.link-card p.description {
+  color: #666;
+  font-size: 11pt;
+  margin-top: 8px;
+  margin-bottom: 4px;
+  line-height: 135%;
+}
+
 .post .stats {
   font-size: 10pt;
   color: #666;
