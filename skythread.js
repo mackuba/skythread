@@ -1,20 +1,20 @@
 function init() {
   /** @type {AnyElement} */
-  let body = window.document.body;
-  let html = body.parentNode;
+  let document = window.document;
+  let html = document.body.parentNode;
 
   window.dateLocale = localStorage.getItem('locale') || undefined;
 
-  html.addEventListener('click', (e) => {
+  document.addEventListener('click', (e) => {
     $id('account_menu').style.visibility = 'hidden';
   });
 
-  body.querySelector('#search form').addEventListener('submit', (e) => {
+  document.querySelector('#search form').addEventListener('submit', (e) => {
     e.preventDefault();
     submitSearch();
   });
 
-  body.querySelector('#login').addEventListener('click', (e) => {
+  document.querySelector('#login').addEventListener('click', (e) => {
     if (e.target === e.currentTarget) {
       hideLogin();
     } else {
@@ -22,21 +22,21 @@ function init() {
     }
   });
 
-  body.querySelector('#login .info a').addEventListener('click', (e) => {
+  document.querySelector('#login .info a').addEventListener('click', (e) => {
     e.preventDefault();
     toggleLoginInfo();
   });
 
-  body.querySelector('#login form').addEventListener('submit', (e) => {
+  document.querySelector('#login form').addEventListener('submit', (e) => {
     e.preventDefault();
     submitLogin();
   });
 
-  body.querySelector('#login .close').addEventListener('click', (e) => {
+  document.querySelector('#login .close').addEventListener('click', (e) => {
     hideLogin();
   });
 
-  body.querySelector('#account').addEventListener('click', (e) => {
+  document.querySelector('#account').addEventListener('click', (e) => {
     if (api.isLoggedIn) {
       toggleAccount();
     } else {
@@ -45,11 +45,11 @@ function init() {
     e.stopPropagation();
   });
 
-  body.querySelector('#account_menu').addEventListener('click', (e) => {
+  document.querySelector('#account_menu').addEventListener('click', (e) => {
     e.stopPropagation();
   });
 
-  body.querySelector('#account_menu a[data-action=logout]').addEventListener('click', (e) => {
+  document.querySelector('#account_menu a[data-action=logout]').addEventListener('click', (e) => {
     e.preventDefault();
     logOut();
   });
