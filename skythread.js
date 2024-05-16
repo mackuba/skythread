@@ -278,116 +278,111 @@ function loadHashtagPage(hashtag) {
   hashtag = hashtag.replace(/^\#/, '');
   document.title = `#${hashtag} - Skythread`;
 
-  blue.getHashtagFeed(hashtag).then(uris => {
-    let loading = true;
-    let footerAdded = false;
+  let isLoading = false;
+  let firstPageLoaded = false;
+  let cursor;
 
-    loadPostsInBatches(uris, jsons => {
-      let posts = jsons.map(j => new Post(j));
+  loadInPages(() => {
+    if (isLoading) { return; }
+    isLoading = true;
 
-      if (loading) {
-        loading = false;
+    blue.getHashtagFeed(hashtag, cursor).then(data => {
+      api.loadPosts(data.feed).then(jsons => {
+        let posts = jsons.map(j => new Post(j));
+
+        if (!firstPageLoaded) {
+          hideLoader();
+
+          let header = $tag('header');
+          header.append($tag('h2', { text: 'Posts tagged: #' + hashtag }));
+          $id('thread').appendChild(header);
+          $id('thread').classList.add('hashtag');
+        }
+
+        for (let post of posts) {
+          let postView = new PostComponent(post).buildElement('feed');
+          $id('thread').appendChild(postView);
+        }
+
+        isLoading = false;
+        firstPageLoaded = true;
+        cursor = data.cursor;
+      }).catch(error => {
         hideLoader();
-
-        let header = $tag('header');
-        header.append($tag('h2', { text: 'Posts tagged: #' + hashtag }));
-        $id('thread').appendChild(header);
-        $id('thread').classList.add('hashtag');
-      }
-
-      for (let post of posts) {
-        let postView = new PostComponent(post).buildElement('feed');
-        $id('thread').appendChild(postView);
-      }
-
-      if (!footerAdded) {
-        let footer = $tag('p.note', {
-          text: "Note: at the moment, Skythread can show at most 100 recent posts and only from the last 30 days."
-        });
-
-        $id('thread').after(footer);
-        footerAdded = true;
-      }
+        console.log(error);
+        isLoading = false;
+      });
     }).catch(error => {
       hideLoader();
       console.log(error);
-    })
-  }).catch(error => {
-    hideLoader();
-    console.log(error);
+      isLoading = false;
+    });
   });
 }
 
 /** @param {string} url */
 
 function loadQuotesPage(url) {
-  blue.getQuotes(url).then(data => {
-    let uris = data.posts;
-    let loading = true;
-    let footerAdded = false;
+  let isLoading = false;
+  let firstPageLoaded = false;
+  let cursor;
 
-    loadPostsInBatches(uris, jsons => {
-      let posts = jsons.map(j => new Post(j));
+  loadInPages(() => {
+    if (isLoading) { return; }
+    isLoading = true;
 
-      if (loading) {
-        loading = false;
+    blue.getQuotes(url, cursor).then(data => {
+      api.loadPosts(data.posts).then(jsons => {
+        let posts = jsons.map(j => new Post(j));
+
+        if (!firstPageLoaded) {
+          hideLoader();
+
+          let header = $tag('header');
+          let h2;
+
+          if (data.quoteCount > 1) {
+            h2 = $tag('h2', { text: `${data.quoteCount} quotes:` });
+          } else if (data.quoteCount == 1) {
+            h2 = $tag('h2', { text: '1 quote:' });
+          } else {
+            h2 = $tag('h2', { text: 'No quotes found' });
+          }
+
+          header.append(h2);
+          $id('thread').appendChild(header);
+          $id('thread').classList.add('quotes');
+        }
+
+        for (let post of posts) {
+          let postView = new PostComponent(post).buildElement('quotes');
+          $id('thread').appendChild(postView);
+        }
+
+        isLoading = false;
+        firstPageLoaded = true;
+        cursor = data.cursor;
+      }).catch(error => {
         hideLoader();
-
-        let header = $tag('header');
-        let h2;
-
-        if (data.quoteCount > 1) {
-          h2 = $tag('h2', { text: `${data.quoteCount} quotes:` });
-        } else if (data.quoteCount == 1) {
-          h2 = $tag('h2', { text: '1 quote:' });
-        } else {
-          h2 = $tag('h2', { text: 'No quotes found' });
-        }
-
-        header.append(h2);
-        $id('thread').appendChild(header);
-        $id('thread').classList.add('quotes');
-      }
-
-      for (let post of posts) {
-        let postView = new PostComponent(post).buildElement('quotes');
-        $id('thread').appendChild(postView);
-      }
-
-      if (!footerAdded) {
-        let text;
-
-        if (data.quoteCount >= 100) {
-          text = "Note: at the moment, Skythread can show at most 100 recent quotes and only from the last 30 days.";
-        } else {
-          text = "Note: at the moment, Skythread can only show quotes from the last 30 days.";
-        }
-
-        let footer = $tag('p.note', { text });
-        $id('thread').after(footer);
-        footerAdded = true;
-      }
+        console.log(error);
+        isLoading = false;
+      })
     }).catch(error => {
       hideLoader();
       console.log(error);
-    })
-  }).catch(error => {
-    hideLoader();
-    console.log(error);
+      isLoading = false;
+    });
   });
 }
 
-/** @param {string[]} uris, @param {(p: object[]) => void} callback, @returns Promise<void> */
+function loadInPages(callback) {
+  callback();
 
-async function loadPostsInBatches(uris, callback) {
-  if (uris.length > 0) {
-    for (let i = 0; i < uris.length; i += 25) {
-      let batch = await api.loadPosts(uris.slice(i, i + 25));
-      callback(batch);
+  document.addEventListener('scroll', (e) => {
+    if (window.pageYOffset + window.innerHeight > document.body.offsetHeight - 200) {
+      callback();
     }
-  } else {
-    callback([]);
-  }
+  });
 }
 
 /** @param {string} url, @param {string} [postId], @param {AnyElement} [nodeToUpdate] */

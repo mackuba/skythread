@@ -204,22 +204,32 @@ class BlueskyAPI extends Minisky {
     return json.quoteCount;
   }
 
-  /** @param {string} url, @returns {Promise<object>} */
+  /** @param {string} url, @param {string | undefined} cursor, @returns {Promise<object>} */
 
-  async getQuotes(url) {
+  async getQuotes(url, cursor = undefined) {
     let [handle, postId] = BlueskyAPI.parsePostURL(url);
     let did = handle.startsWith('did:') ? handle : await appView.resolveHandle(handle);
     let postURI = `at://${did}/app.bsky.feed.post/${postId}`;
 
-    let json = await this.getRequest('eu.mackuba.private.getPostQuotes', { uri: postURI });
-    return json;
+    let params = { uri: postURI };
+
+    if (cursor) {
+      params['cursor'] = cursor;
+    }
+
+    return await this.getRequest('eu.mackuba.private.getPostQuotes', params);
   }
 
-  /** @param {string} hashtag, @returns {Promise<object[]>} */
+  /** @param {string} hashtag, @param {string | undefined} cursor, @returns {Promise<object>} */
 
-  async getHashtagFeed(hashtag) {
-    let json = await this.getRequest('eu.mackuba.private.getHashtagFeed', { tag: hashtag });
-    return json.feed;
+  async getHashtagFeed(hashtag, cursor = undefined) {
+    let params = { tag: hashtag };
+
+    if (cursor) {
+      params['cursor'] = cursor;
+    }
+
+    return await this.getRequest('eu.mackuba.private.getHashtagFeed', params);
   }
 
   /** @param {string} postURI, @returns {Promise<object>} */
