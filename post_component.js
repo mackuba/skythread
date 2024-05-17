@@ -222,6 +222,10 @@ class PostComponent {
         let url = new URL(getLocation());
         url.searchParams.set('hash', seg.tag.tag);
         p.append($tag('a', { href: url.toString(), text: seg.text }));
+      } else if (seg.text.includes("\n")) {
+        let span = $tag('span', { text: seg.text });
+        span.innerHTML = span.innerHTML.replaceAll("\n", "<br>");
+        p.append(span);
       } else {
         p.append(seg.text);
       }
