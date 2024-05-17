@@ -136,7 +136,7 @@ class Post extends ATProtoRecord {
     let post = new Post(json.post);
 
     if (json.reply) {
-      post.parent = new Post(json.reply.parent);
+      post.parent = Post.parsePostView(json.reply.parent);
     }
 
     if (json.reason) {
@@ -144,6 +144,30 @@ class Post extends ATProtoRecord {
     }
 
     return post;
+  }
+
+ /**
+  * Parses a #postView - the inner post object that includes the actual post - but still checks if it's not
+  * a blocked or missing post. The #postView must include a $type.
+  * (This is used for e.g. parent/root of a #feedViewPost.)
+  *
+  * @param {object} json, @returns {AnyPost}
+  */
+
+  static parsePostView(json) {
+    switch (json.$type) {
+    case 'app.bsky.feed.defs#postView':
+      return new Post(json);
+
+    case 'app.bsky.feed.defs#notFoundPost':
+      return new MissingPost(json);
+
+    case 'app.bsky.feed.defs#blockedPost':
+      return new BlockedPost(json);
+
+    default:
+      throw new PostDataError(`Unexpected record type: ${json.$type}`);
+    }
   }
 
   /** @param {object} data, @param {object} [extra] */
