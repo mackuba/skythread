@@ -324,7 +324,7 @@ class PostComponent {
 
   buildMissingPostElement(div) {
     let p = $tag('p.blocked-header');
-    p.innerHTML = `<i class="fa-solid fa-ban"></i> <span>Missing post</span>`;
+    p.innerHTML = `<i class="fa-solid fa-ban"></i> <span>Deleted post</span>`;
     div.appendChild(p);
     div.classList.add('blocked');
     return div;

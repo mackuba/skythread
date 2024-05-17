@@ -72,6 +72,9 @@ class EmbedComponent {
     if (this.embed.post instanceof Post || this.embed.post instanceof BlockedPost) {
       let postView = new PostComponent(this.embed.post).buildElement('quote');
       div.appendChild(postView);
+    } else if (this.embed.post instanceof MissingPost) {
+      let postView = new PostComponent(this.embed.post).buildElement('quote');
+      div.appendChild(postView);
     } else if (this.embed.post instanceof FeedGeneratorRecord) {
       return this.buildFeedGeneratorView(this.embed.post);
     } else if (this.embed.post instanceof UserListRecord) {
