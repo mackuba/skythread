@@ -90,10 +90,23 @@ class EmbedComponent {
   /** @returns {AnyElement} */
 
   buildLinkComponent() {
+    let hostname;
+
+    try {
+      hostname = new URL(this.embed.url).hostname;
+    } catch (error) {
+      console.log("Invalid URL:" + error);
+
+      let a = $tag('a', { href: this.embed.url, text: this.embed.title || this.embed.url });
+      let p = $tag('p');
+      p.append('[Link: ', a, ']');
+      return p;
+    }
+
     let a = $tag('a.link-card', { href: this.embed.url, target: '_blank' });
     let box = $tag('div');
 
-    let domain = $tag('p.domain', { text: new URL(this.embed.url).hostname });
+    let domain = $tag('p.domain', { text: hostname });
     let title = $tag('h2', { text: this.embed.title });
     box.append(domain, title);
 
