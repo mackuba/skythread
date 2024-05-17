@@ -349,8 +349,13 @@ class PostComponent {
       div.appendChild(p);
     }
 
-    let p = $tag('p', { text: this.post.text });
+    let p = this.buildPostBody();
     div.appendChild(p);
+
+    if (this.post.embed) {
+      let embed = new EmbedComponent(this.post, this.post.embed).buildElement();
+      div.appendChild(embed);
+    }
   }
 
   /** @param {AnyElement} div */
