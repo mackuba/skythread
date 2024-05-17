@@ -294,7 +294,11 @@ function loadHashtagPage(hashtag) {
         hideLoader();
 
         let header = $tag('header');
-        header.append($tag('h2', { text: 'Posts tagged: #' + hashtag }));
+        let h2 = $tag('h2', {
+          text: (posts.length > 0) ? `Posts tagged: #${hashtag}` : `No posts tagged #${hashtag}.`
+        });
+        header.append(h2);
+
         $id('thread').appendChild(header);
         $id('thread').classList.add('hashtag');
       }
@@ -346,7 +350,7 @@ function loadQuotesPage(url) {
           } else if (data.quoteCount == 1) {
             h2 = $tag('h2', { text: '1 quote:' });
           } else {
-            h2 = $tag('h2', { text: 'No quotes found' });
+            h2 = $tag('h2', { text: 'No quotes found.' });
           }
 
           header.append(h2);

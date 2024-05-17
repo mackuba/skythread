@@ -242,8 +242,12 @@ class BlueskyAPI extends Minisky {
   /** @param {string[]} uris, @returns {Promise<object[]>} */
 
   async loadPosts(uris) {
-    let response = await this.getRequest('app.bsky.feed.getPosts', { uris });
-    return response.posts;
+    if (uris.length > 0) {
+      let response = await this.getRequest('app.bsky.feed.getPosts', { uris });
+      return response.posts;
+    } else {
+      return [];
+    }
   }
 
   /** @param {object} post, @returns {Promise<object>} */
