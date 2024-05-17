@@ -280,10 +280,11 @@ function loadHashtagPage(hashtag) {
 
   let isLoading = false;
   let firstPageLoaded = false;
+  let finished = false;
   let cursor;
 
   loadInPages(() => {
-    if (isLoading) { return; }
+    if (isLoading || finished) { return; }
     isLoading = true;
 
     api.getHashtagFeed(hashtag, cursor).then(data => {
@@ -306,6 +307,10 @@ function loadHashtagPage(hashtag) {
       isLoading = false;
       firstPageLoaded = true;
       cursor = data.cursor;
+
+      if (!cursor || posts.length == 0) {
+        finished = true;
+      }
     }).catch(error => {
       hideLoader();
       console.log(error);
@@ -320,9 +325,10 @@ function loadQuotesPage(url) {
   let isLoading = false;
   let firstPageLoaded = false;
   let cursor;
+  let finished = false;
 
   loadInPages(() => {
-    if (isLoading) { return; }
+    if (isLoading || finished) { return; }
     isLoading = true;
 
     blue.getQuotes(url, cursor).then(data => {
@@ -356,6 +362,10 @@ function loadQuotesPage(url) {
         isLoading = false;
         firstPageLoaded = true;
         cursor = data.cursor;
+
+        if (!cursor || posts.length == 0) {
+          finished = true;
+        }
       }).catch(error => {
         hideLoader();
         console.log(error);
