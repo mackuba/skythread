@@ -92,8 +92,20 @@ class EmbedComponent {
 
     let domain = $tag('p.domain', { text: new URL(this.embed.url).hostname });
     let title = $tag('h2', { text: this.embed.title });
-    let description = this.embed.description ? $tag('p.description', { text: this.embed.description }) : '';
-    box.append(domain, title, description);
+    box.append(domain, title);
+
+    if (this.embed.description) {
+      let text;
+
+      if (this.embed.description.length <= 300) {
+        text = this.embed.description;
+      } else {
+        text = this.embed.description.slice(0, 300) + '…';
+      }
+
+      box.append($tag('p.description', { text: text }));      
+    }
+
     a.append(box);
 
     return a;

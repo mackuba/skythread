@@ -517,6 +517,10 @@ p.back i {
   border: 1px solid #c8c8c8;
 }
 
+.post a.link-card > div:not(:has(p.description)) {
+  padding-bottom: 14px;
+}
+
 .post a.link-card p.domain {
   color: #888;
   font-size: 10pt;
