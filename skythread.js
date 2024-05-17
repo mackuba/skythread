@@ -286,32 +286,26 @@ function loadHashtagPage(hashtag) {
     if (isLoading) { return; }
     isLoading = true;
 
-    blue.getHashtagFeed(hashtag, cursor).then(data => {
-      api.loadPosts(data.feed).then(jsons => {
-        let posts = jsons.map(j => new Post(j));
+    api.getHashtagFeed(hashtag, cursor).then(data => {
+      let posts = data.posts.map(j => new Post(j));
 
-        if (!firstPageLoaded) {
-          hideLoader();
-
-          let header = $tag('header');
-          header.append($tag('h2', { text: 'Posts tagged: #' + hashtag }));
-          $id('thread').appendChild(header);
-          $id('thread').classList.add('hashtag');
-        }
-
-        for (let post of posts) {
-          let postView = new PostComponent(post).buildElement('feed');
-          $id('thread').appendChild(postView);
-        }
-
-        isLoading = false;
-        firstPageLoaded = true;
-        cursor = data.cursor;
-      }).catch(error => {
+      if (!firstPageLoaded) {
         hideLoader();
-        console.log(error);
-        isLoading = false;
-      });
+
+        let header = $tag('header');
+        header.append($tag('h2', { text: 'Posts tagged: #' + hashtag }));
+        $id('thread').appendChild(header);
+        $id('thread').classList.add('hashtag');
+      }
+
+      for (let post of posts) {
+        let postView = new PostComponent(post).buildElement('feed');
+        $id('thread').appendChild(postView);
+      }
+
+      isLoading = false;
+      firstPageLoaded = true;
+      cursor = data.cursor;
     }).catch(error => {
       hideLoader();
       console.log(error);
@@ -374,6 +368,8 @@ function loadQuotesPage(url) {
     });
   });
 }
+
+/** @param {Function} callback */
 
 function loadInPages(callback) {
   callback();

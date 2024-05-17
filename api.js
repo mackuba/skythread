@@ -223,13 +223,13 @@ class BlueskyAPI extends Minisky {
   /** @param {string} hashtag, @param {string | undefined} cursor, @returns {Promise<object>} */
 
   async getHashtagFeed(hashtag, cursor = undefined) {
-    let params = { tag: hashtag };
+    let params = { q: '#' + hashtag, limit: 50, sort: 'latest' };
 
     if (cursor) {
       params['cursor'] = cursor;
     }
 
-    return await this.getRequest('eu.mackuba.private.getHashtagFeed', params);
+    return await this.getRequest('app.bsky.feed.searchPosts', params);
   }
 
   /** @param {string} postURI, @returns {Promise<object>} */
