@@ -68,13 +68,15 @@ function init() {
 
   window.appView = new BlueskyAPI('api.bsky.app', false);
   window.blueAPI = new BlueskyAPI('blue.mackuba.eu', false);
-  window.accountAPI = new BlueskyAPI('bsky.social', true);
+  window.accountAPI = new BlueskyAPI(undefined, true);
 
   if (accountAPI.isLoggedIn && !isIncognito) {
     window.api = accountAPI;
+    accountAPI.host = accountAPI.user.pdsEndpoint;
     showLoggedInStatus(true, api.user.avatar);
   } else if (accountAPI.isLoggedIn && isIncognito) {
     window.api = appView;
+    accountAPI.host = accountAPI.user.pdsEndpoint;
     showLoggedInStatus('incognito');
     document.querySelector('#account_menu a[data-action=incognito]').innerText = '✓ Incognito mode';
   } else {
@@ -213,15 +215,13 @@ function submitLogin() {
 
   if (submit.style.display == 'none') { return }
 
-  let pds = new BlueskyAPI('bsky.social', true);
-
   handle.blur();
   password.blur();
 
   submit.style.display = 'none';
   cloudy.style.display = 'inline-block';
 
-  pds.logIn(handle.value, password.value).then(() => {
+  logIn(handle.value, password.value).then((pds) => {
     window.api = pds;
 
     hideLogin();
@@ -237,6 +237,27 @@ function submitLogin() {
 
     window.setTimeout(() => alert(error), 10);
   });
+}
+
+/** @param {string} identifier, @param {string} password, @returns {Promise<BlueskyAPI>} */
+
+async function logIn(identifier, password) {
+  let pdsEndpoint;
+
+  if (identifier.match(/^did:/)) {
+    pdsEndpoint = await Minisky.pdsEndpointForDid(identifier);
+  } else if (identifier.match(/^[^@]+@[^@]+$/)) {
+    pdsEndpoint = 'bsky.social';
+  } else if (identifier.match(/^[\w\-]+(\.[\w\-]+)+$/)) {
+    let did = await appView.resolveHandle(identifier);
+    pdsEndpoint = await Minisky.pdsEndpointForDid(did);
+  } else {
+    throw 'Please enter your handle or DID';
+  }
+
+  let pds = new BlueskyAPI(pdsEndpoint, true);
+  await pds.logIn(identifier, password);
+  return pds;
 }
 
 function loadCurrentUserAvatar() {

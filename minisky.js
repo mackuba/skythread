@@ -21,23 +21,60 @@ class AuthError extends Error {}
 
 
 /**
+ * Thrown when DID or DID document is invalid.
+ */
+
+class DIDError extends Error {}
+
+
+/**
  * Base API client for connecting to an ATProto XRPC API.
  */
 
 class Minisky {
+
+  /** @param {string} did, @returns {Promise<string>} */
+
+  static async pdsEndpointForDid(did) {
+    let url;
+
+    if (did.startsWith('did:plc:')) {
+      url = new URL(`https://plc.directory/${did}`);
+    } else if (did.startsWith('did:web:')) {
+      let host = did.replace(/^did:web:/, '');
+      url = new URL(`https://${host}/.well-known/did.json`);
+    } else {
+      throw new DIDError("Unknown DID type: " + did);
+    }
+
+    let response = await fetch(url);
+    let text = await response.text();
+    let json = text.trim().length > 0 ? JSON.parse(text) : undefined;
+
+    if (response.status == 200) {
+      let service = (json.service || []).find(s => s.id == '#atproto_pds');
+      if (service) {
+        return service.serviceEndpoint;
+      } else {
+        throw new DIDError("Missing #atproto_pds service definition");
+      }
+    } else {
+      throw new APIError(response.status, json);
+    }
+  }
 
   /**
    * @typedef {object} MiniskyOptions
    * @prop {boolean} [sendAuthHeaders]
    * @prop {boolean} [autoManageTokens]
    *
-   * @param {string} host, @param {object} config, @param {MiniskyOptions} [options]
+   * @param {string | undefined} host, @param {object} config, @param {MiniskyOptions} [options]
    */
+
   constructor(host, config, options) {
     this.host = host;
     this.config = config;
     this.user = config?.user;
-    this.baseURL = (host.includes('://') ? host : `https://${host}`) + '/xrpc';
 
     this.sendAuthHeaders = !!this.user;
     this.autoManageTokens = !!this.user;
@@ -47,10 +84,21 @@ class Minisky {
     }
   }
 
+  /** @returns {string} */
+
+  get baseURL() {
+    if (this.host) {
+      let host = (this.host.includes('://')) ? this.host : `https://${this.host}`;
+      return host + '/xrpc';
+    } else {
+      throw new AuthError('Hostname not set');
+    }
+  }
+
   /** @returns {boolean} */
 
   get isLoggedIn() {
-    return !!(this.user && this.user.accessToken && this.user.refreshToken && this.user.did);
+    return !!(this.user && this.user.accessToken && this.user.refreshToken && this.user.did && this.user.pdsEndpoint);
   }
 
   /**
@@ -210,6 +258,7 @@ class Minisky {
     this.user.accessToken = json['accessJwt'];
     this.user.refreshToken = json['refreshJwt'];
     this.user.did = json['did'];
+    this.user.pdsEndpoint = json['didDoc']['service'].find(s => s.id == '#atproto_pds')['serviceEndpoint'];
     this.config.save();
   }
 
@@ -217,6 +266,7 @@ class Minisky {
     delete this.user.accessToken;
     delete this.user.refreshToken;
     delete this.user.did;
+    delete this.user.pdsEndpoint;
     this.config.save();
   }
 }

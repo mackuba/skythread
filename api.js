@@ -84,7 +84,7 @@ class LocalStorageConfig {
 
 class BlueskyAPI extends Minisky {
 
-  /** @param {string} host, @param {boolean} useAuthentication */
+  /** @param {string | undefined} host, @param {boolean} useAuthentication */
   constructor(host, useAuthentication) {
     super(host, useAuthentication ? new LocalStorageConfig() : undefined);
 
