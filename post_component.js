@@ -376,14 +376,29 @@ class PostComponent {
 
   onHeartClick(heart) {
     if (!this.post.hasViewerInfo) {
-      showLogin();
+      if (isIncognito) {
+        accountAPI.loadPost(this.post.uri).then(data => {
+          this.post = new Post(data);
+
+          if (this.post.liked) {
+            heart.classList.add('liked');
+          } else {
+            this.onHeartClick(heart);
+          }
+        }).catch(error => {
+          console.log(error);
+          alert("Sorry, this post is blocked.");
+        });
+      } else {
+        showLogin();        
+      }
       return;
     }
 
     let count = heart.nextElementSibling;
 
     if (!heart.classList.contains('liked')) {
-      api.likePost(this.post).then((like) => {
+      accountAPI.likePost(this.post).then((like) => {
         this.post.viewerLike = like.uri;
         heart.classList.add('liked');
         count.innerText = String(parseInt(count.innerText, 10) + 1);
@@ -392,7 +407,7 @@ class PostComponent {
         alert(error);
       });
     } else {
-      api.removeLike(this.post.viewerLike).then(() => {
+      accountAPI.removeLike(this.post.viewerLike).then(() => {
         this.post.viewerLike = undefined;
         heart.classList.remove('liked');
         count.innerText = String(parseInt(count.innerText, 10) - 1);
