@@ -3,7 +3,9 @@
     "target": "es2022",
     "checkJs": true,
     "strict": true,
-    "noImplicitAny": false
+    "noImplicitAny": false,
+    "exactOptionalPropertyTypes": true,
+    "useUnknownInCatchVariables": false
   },
   "include": ["*.js", "*.d.ts"]
 }

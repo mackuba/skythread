@@ -1,7 +1,6 @@
 function init() {
-  /** @type {AnyElement} */
-  let document = window.document;
-  let html = document.body.parentNode;
+  let document = /** @type {AnyElement} */ (/** @type {unknown} */ (window.document));
+  let html = /** @type {AnyElement} */ (/** @type {unknown} */ (window.document.body.parentNode));
 
   window.dateLocale = localStorage.getItem('locale') || undefined;
 

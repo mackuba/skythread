@@ -1,7 +1,7 @@
 interface Window {
   unauthed: boolean;
   root: AnyPost;
-  dateLocale?: string;
+  dateLocale: string | undefined;
 }
 
 declare var api: BlueskyAPI;

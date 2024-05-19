@@ -1,4 +1,11 @@
 /**
+ * Thrown when the response is technically a "success" one, but the returned data is not what it should be.
+ */
+
+class ResponseDataError extends Error {}
+
+
+/**
  * Thrown when the passed URL is not a supported post URL on bsky.app.
  */
 
@@ -145,15 +152,20 @@ class BlueskyAPI extends Minisky {
   /** @param {string} handle, @returns {Promise<string>} */
 
   async resolveHandle(handle) {
-    let did = this.handleCache.getHandleDid(handle);
+    let cachedDid = this.handleCache.getHandleDid(handle);
 
-    if (did) {
-      return did;
+    if (cachedDid) {
+      return cachedDid;
     } else {
       let json = await this.getRequest('com.atproto.identity.resolveHandle', { handle }, { auth: false });
-      did = json['did'];
-      this.handleCache.setHandleDid(handle, did);
-      return did;
+      let did = json['did'];
+
+      if (did) {
+        this.handleCache.setHandleDid(handle, did);
+        return did;        
+      } else {
+        throw new ResponseDataError('Missing DID in response: ' + JSON.stringify(json));
+      }
     }
   }
 
