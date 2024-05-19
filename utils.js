@@ -96,10 +96,5 @@ function linkToPostById(handle, postId) {
   let url = new URL(getLocation());
   url.searchParams.set('author', handle);
   url.searchParams.set('post', postId);
-
-  if (window.unauthed) {
-    url.searchParams.set('_u', '1');
-  }
-
   return url.toString();
 }

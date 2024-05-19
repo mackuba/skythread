@@ -123,15 +123,17 @@ a:visited {
 
 #account_menu ul {
   list-style-type: none;
-  margin: 10px 0px;
+  margin: 0px 0px 10px;
   padding: 6px 11px;
 }
 
 #account_menu li a {
+  display: inline-block;
   color: #333;
   font-size: 11pt;
   border: 1px solid #bbb;
   padding: 3px 5px;
+  margin-top: 8px;
   border-radius: 5px;
   background-color: hsla(210, 100%, 4%, 0.12);
 }

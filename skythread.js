@@ -3,6 +3,7 @@ function init() {
   let html = /** @type {AnyElement} */ (/** @type {unknown} */ (window.document.body.parentNode));
 
   window.dateLocale = localStorage.getItem('locale') || undefined;
+  window.isIncognito = !!localStorage.getItem('incognito');
 
   document.addEventListener('click', (e) => {
     $id('account_menu').style.visibility = 'hidden';
@@ -36,7 +37,7 @@ function init() {
   });
 
   document.querySelector('#account').addEventListener('click', (e) => {
-    if (api.isLoggedIn) {
+    if (accountAPI.isLoggedIn) {
       toggleAccount();
     } else {
       toggleLogin();
@@ -48,19 +49,36 @@ function init() {
     e.stopPropagation();
   });
 
+  document.querySelector('#account_menu a[data-action=incognito]').addEventListener('click', (e) => {
+    e.preventDefault();
+
+    if (isIncognito) {
+      localStorage.removeItem('incognito');      
+    } else {
+      localStorage.setItem('incognito', '1');
+    }
+
+    location.reload();
+  });
+
   document.querySelector('#account_menu a[data-action=logout]').addEventListener('click', (e) => {
     e.preventDefault();
     logOut();
   });
 
   window.appView = new BlueskyAPI('api.bsky.app', false);
-  window.blue = new BlueskyAPI('blue.mackuba.eu', false);
-  window.api = new BlueskyAPI('bsky.social', true);
+  window.blueAPI = new BlueskyAPI('blue.mackuba.eu', false);
+  window.accountAPI = new BlueskyAPI('bsky.social', true);
 
-  if (api.isLoggedIn) {
-    showLoggedInStatus(api.user.avatar);
+  if (accountAPI.isLoggedIn && !isIncognito) {
+    window.api = accountAPI;
+    showLoggedInStatus(true, api.user.avatar);
+  } else if (accountAPI.isLoggedIn && isIncognito) {
+    window.api = appView;
+    showLoggedInStatus('incognito');
+    document.querySelector('#account_menu a[data-action=incognito]').innerText = '✓ Incognito mode';
   } else {
-    window.api = window.appView;
+    window.api = appView;
   }
 
   parseQueryParams();
@@ -159,12 +177,12 @@ function toggleAccount() {
   menu.style.visibility = (menu.style.visibility == 'visible') ? 'hidden' : 'visible';
 }
 
-/** @param {string} [avatar] */
+/** @param {boolean | 'incognito'} loggedIn, @param {string | undefined | null} [avatar] */
 
-function showLoggedInStatus(avatar) {
+function showLoggedInStatus(loggedIn, avatar) {
   let account = $id('account');
 
-  if (avatar) {
+  if (loggedIn === true && avatar) {
     let button = account.querySelector('i');
 
     let img = $tag('img.avatar', { src: avatar });
@@ -174,17 +192,17 @@ function showLoggedInStatus(avatar) {
       img.style.display = 'inline';
     });
     img.addEventListener('error', () => {
-      showLoggedInStatus();
+      showLoggedInStatus(true, null);
     })
 
     account.append(img);
+  } else if (loggedIn === false) {
+    $id('account').innerHTML = `<i class="fa-regular fa-user-circle fa-xl"></i>`;
+  } else if (loggedIn === 'incognito') {
+    $id('account').innerHTML = `<i class="fa-solid fa-user-secret fa-lg"></i>`;
   } else {
     account.innerHTML = `<i class="fa-solid fa-user-circle fa-xl"></i>`;
   }
-}
-
-function showLoggedOutStatus() {
-  $id('account').innerHTML = `<i class="fa-regular fa-user-circle fa-xl"></i>`;
 }
 
 function submitLogin() {
@@ -227,18 +245,18 @@ function loadCurrentUserAvatar() {
       let url = `https://cdn.bsky.app/img/avatar/plain/${api.user.did}/${data.ref.$link}@jpeg`;
       api.config.user.avatar = url;
       api.config.save();
-      showLoggedInStatus(url);
+      showLoggedInStatus(true, url);
     } else {
-      showLoggedInStatus();
+      showLoggedInStatus(true, null);
     }
   }).catch((error) => {
     console.log(error);
-    showLoggedInStatus();
+    showLoggedInStatus(true, null);
   });
 }
 
 function logOut() {
-  api.resetTokens();
+  accountAPI.resetTokens();
   location.reload();
 }
 
@@ -334,7 +352,7 @@ function loadQuotesPage(url) {
     if (isLoading || finished) { return; }
     isLoading = true;
 
-    blue.getQuotes(url, cursor).then(data => {
+    blueAPI.getQuotes(url, cursor).then(data => {
       api.loadPosts(data.posts).then(jsons => {
         let posts = jsons.map(j => new Post(j));
 
@@ -407,7 +425,7 @@ function loadThread(url, postId, nodeToUpdate) {
 
     if (!nodeToUpdate) {
       setPageTitle(root);
-      loadQuoteCount = blue.getQuoteCount(root.uri);
+      loadQuoteCount = blueAPI.getQuoteCount(root.uri);
     }
 
     if (root.parent && !nodeToUpdate) {

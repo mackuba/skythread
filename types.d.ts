@@ -1,12 +1,13 @@
 interface Window {
-  unauthed: boolean;
-  root: AnyPost;
   dateLocale: string | undefined;
+  root: AnyPost;
 }
 
-declare var api: BlueskyAPI;
-declare var blue: BlueskyAPI;
+declare var accountAPI: BlueskyAPI;
+declare var blueAPI: BlueskyAPI;
 declare var appView: BlueskyAPI;
+declare var api: BlueskyAPI;
+declare var isIncognito: boolean;
 
 type SomeElement = Element | HTMLElement | AnyElement;
 
