@@ -64,27 +64,15 @@ class HandleCache {
 
 class LocalStorageConfig {
   constructor() {
-    this.user = {};
-    this.user.accessToken = localStorage.getItem('accessToken');
-    this.user.refreshToken = localStorage.getItem('refreshToken');
-    this.user.did = localStorage.getItem('userDID');
-    this.user.avatar = localStorage.getItem('avatar');
+    let data = localStorage.getItem('userData');
+    this.user = data ? JSON.parse(data) : {};
   }
 
   save() {
-    this.saveItem('accessToken', this.user.accessToken);
-    this.saveItem('refreshToken', this.user.refreshToken);
-    this.saveItem('userDID', this.user.did);
-    this.saveItem('avatar', this.user.avatar);
-  }
-
-  /** @param {string} key, @param {string | undefined} value */
-
-  saveItem(key, value) {
-    if (value !== undefined) {
-      localStorage.setItem(key, value);
+    if (this.user) {
+      localStorage.setItem('userData', JSON.stringify(this.user));
     } else {
-      localStorage.removeItem(key);
+      localStorage.removeItem('userData');
     }
   }
 }
