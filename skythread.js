@@ -223,6 +223,7 @@ function submitLogin() {
 
   logIn(handle.value, password.value).then((pds) => {
     window.api = pds;
+    window.accountAPI = pds;
 
     hideLogin();
     submit.style.display = 'inline';
