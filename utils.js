@@ -60,6 +60,14 @@ function atURI(uri) {
   return new AtURI(uri);
 }
 
+function castToInt(value) {
+  if (value === undefined || value === null || typeof value == "number") {
+    return value;
+  } else {
+    return parseInt(value, 10);
+  }
+}
+
 /** @param {string} html, @returns {string} */
 
 function escapeHTML(html) {

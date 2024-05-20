@@ -250,12 +250,12 @@ class Post extends ATProtoRecord {
 
   /** @returns {number} */
   get likeCount() {
-    return this.data.likeCount;
+    return castToInt(this.data.likeCount);
   }
 
   /** @returns {number} */
   get replyCount() {
-    return this.data.replyCount;
+    return castToInt(this.data.replyCount);
   }
 
   /** @returns {boolean} */
@@ -265,7 +265,7 @@ class Post extends ATProtoRecord {
 
   /** @returns {number} */
   get repostCount() {
-    return this.data.repostCount;
+    return castToInt(this.data.repostCount);
   }
 
   /** @returns {boolean} */
@@ -356,7 +356,7 @@ class FeedGeneratorRecord extends ATProtoRecord {
 
   /** @returns {number} */
   get likeCount() {
-    return this.data.likeCount;
+    return castToInt(this.data.likeCount);
   }
 
   /** @returns {string | undefined} */
