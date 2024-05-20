@@ -4,7 +4,7 @@
 
 class EmbedComponent {
 
-  /** @param {Post} post, @param {object} embed */
+  /** @param {Post} post, @param {Embed} embed */
   constructor(post, embed) {
     this.post = post;
     this.embed = embed;
@@ -13,45 +13,40 @@ class EmbedComponent {
   /** @returns {AnyElement} */
 
   buildElement() {
-    let wrapper, quoteView, mediaView;
-
-    switch (this.embed.constructor) {
-    case RawRecordEmbed:
-      quoteView = this.quotedPostPlaceholder();
+    if (this.embed instanceof RawRecordEmbed) {
+      let quoteView = this.quotedPostPlaceholder();
       this.loadQuotedPost(this.embed.record.uri, quoteView);
       return quoteView;
 
-    case RawRecordWithMediaEmbed:
-      wrapper = $tag('div');
+    } else if (this.embed instanceof RawRecordWithMediaEmbed) {
+      let wrapper = $tag('div');
 
-      mediaView = new EmbedComponent(this.post, this.embed.media).buildElement();
-      quoteView = this.quotedPostPlaceholder();
+      let mediaView = new EmbedComponent(this.post, this.embed.media).buildElement();
+      let quoteView = this.quotedPostPlaceholder();
       this.loadQuotedPost(this.embed.record.uri, quoteView);
 
       wrapper.append(mediaView, quoteView);
       return wrapper;
 
-    case InlineRecordEmbed:
-      return this.buildQuotedPostElement();
+    } else if (this.embed instanceof InlineRecordEmbed) {
+      return this.buildQuotedPostElement(this.embed);
 
-    case InlineRecordWithMediaEmbed:
-      wrapper = $tag('div');
+    } else if (this.embed instanceof InlineRecordWithMediaEmbed) {
+      let wrapper = $tag('div');
 
-      mediaView = new EmbedComponent(this.post, this.embed.media).buildElement();
-      quoteView = this.buildQuotedPostElement();
+      let mediaView = new EmbedComponent(this.post, this.embed.media).buildElement();
+      let quoteView = this.buildQuotedPostElement(this.embed);
 
       wrapper.append(mediaView, quoteView);
       return wrapper;
 
-    case RawImageEmbed:
-    case InlineImageEmbed:
-      return this.buildImagesComponent();
+    } else if (this.embed instanceof RawImageEmbed || this.embed instanceof InlineImageEmbed) {
+      return this.buildImagesComponent(this.embed);
 
-    case RawLinkEmbed:
-    case InlineLinkEmbed:
-      return this.buildLinkComponent();
+    } else if (this.embed instanceof RawLinkEmbed || this.embed instanceof InlineLinkEmbed) {
+      return this.buildLinkComponent(this.embed);
 
-    default:
+    } else {
       return $tag('p', { text: `[${this.embed.type}]` });
     }
   }
@@ -64,59 +59,63 @@ class EmbedComponent {
     });
   }
 
-  /** @returns {AnyElement} */
+  /** @param {InlineRecordEmbed | InlineRecordWithMediaEmbed} embed, @returns {AnyElement} */
 
-  buildQuotedPostElement() {
+  buildQuotedPostElement(embed) {
     let div = $tag('div.quote-embed');
 
-    if (this.embed.post instanceof Post || this.embed.post instanceof BlockedPost) {
-      let postView = new PostComponent(this.embed.post).buildElement('quote');
+    if (embed.post instanceof Post || embed.post instanceof BlockedPost) {
+      let postView = new PostComponent(embed.post).buildElement('quote');
       div.appendChild(postView);
-    } else if (this.embed.post instanceof MissingPost) {
-      let postView = new PostComponent(this.embed.post).buildElement('quote');
+
+    } else if (embed.post instanceof MissingPost) {
+      let postView = new PostComponent(embed.post).buildElement('quote');
       div.appendChild(postView);
-    } else if (this.embed.post instanceof FeedGeneratorRecord) {
-      return this.buildFeedGeneratorView(this.embed.post);
-    } else if (this.embed.post instanceof UserListRecord) {
-      return this.buildUserListView(this.embed.post);
+
+    } else if (embed.post instanceof FeedGeneratorRecord) {
+      return this.buildFeedGeneratorView(embed.post);
+
+    } else if (embed.post instanceof UserListRecord) {
+      return this.buildUserListView(embed.post);
+
     } else {
-      let p = $tag('p', { text: `[${this.embed.post.type}]` });
+      let p = $tag('p', { text: `[${embed.post.type}]` });
       div.appendChild(p);
     }
 
     return div;
   }
 
-  /** @returns {AnyElement} */
+  /** @params {RawLinkEmbed | InlineLinkEmbed} embed, @returns {AnyElement} */
 
-  buildLinkComponent() {
+  buildLinkComponent(embed) {
     let hostname;
 
     try {
-      hostname = new URL(this.embed.url).hostname;
+      hostname = new URL(embed.url).hostname;
     } catch (error) {
       console.log("Invalid URL:" + error);
 
-      let a = $tag('a', { href: this.embed.url, text: this.embed.title || this.embed.url });
+      let a = $tag('a', { href: embed.url, text: embed.title || embed.url });
       let p = $tag('p');
       p.append('[Link: ', a, ']');
       return p;
     }
 
-    let a = $tag('a.link-card', { href: this.embed.url, target: '_blank' });
+    let a = $tag('a.link-card', { href: embed.url, target: '_blank' });
     let box = $tag('div');
 
     let domain = $tag('p.domain', { text: hostname });
-    let title = $tag('h2', { text: this.embed.title });
+    let title = $tag('h2', { text: embed.title });
     box.append(domain, title);
 
-    if (this.embed.description) {
+    if (embed.description) {
       let text;
 
-      if (this.embed.description.length <= 300) {
-        text = this.embed.description;
+      if (embed.description.length <= 300) {
+        text = embed.description;
       } else {
-        text = this.embed.description.slice(0, 300) + '…';
+        text = embed.description.slice(0, 300) + '…';
       }
 
       box.append($tag('p.description', { text: text }));      
@@ -213,12 +212,12 @@ class EmbedComponent {
     return `https://bsky.app/profile/${repo}/lists/${rkey}`;
   }
 
-  /** @returns {AnyElement} */
+  /** @params {RawImageEmbed | InlineImageEmbed} embed, @returns {AnyElement} */
 
-  buildImagesComponent() {
+  buildImagesComponent(embed) {
     let wrapper = $tag('div');
 
-    for (let image of this.embed.images) {
+    for (let image of embed.images) {
       let p = $tag('p');
       p.append('[');
 
