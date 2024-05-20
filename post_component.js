@@ -376,7 +376,7 @@ class PostComponent {
 
   onHeartClick(heart) {
     if (!this.post.hasViewerInfo) {
-      if (isIncognito) {
+      if (accountAPI.isLoggedIn) {
         accountAPI.loadPost(this.post.uri).then(data => {
           this.post = new Post(data);
 
