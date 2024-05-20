@@ -10,6 +10,7 @@ declare var api: BlueskyAPI;
 declare var isIncognito: boolean;
 
 type SomeElement = Element | HTMLElement | AnyElement;
+type json = Record<string, any>;
 
 interface AnyElement {
   classList: CSSClassList;

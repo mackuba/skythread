@@ -43,7 +43,7 @@ class PostComponent {
     }
   }
 
-  /** @returns {object} */
+  /** @returns {json} */
   get timeFormatForTimestamp() {
     if (this.isRoot) {
       return { day: 'numeric', month: 'short', year: 'numeric', hour: 'numeric', minute: 'numeric' };

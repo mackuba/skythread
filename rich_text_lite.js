@@ -26,7 +26,7 @@
 // packages/api/src/rich-text/rich-text.ts
 
 class RichTextSegment {
-  /** @param {string} text, @param {object} [facet] */
+  /** @param {string} text, @param {json} [facet] */
   constructor(text, facet) {
     this.text = text;
     this.facet = facet;
@@ -49,7 +49,7 @@ class RichTextSegment {
 }
 
 class RichText {
-  /** @params {object} props */
+  /** @params {json} props */
   constructor(props) {
     this.unicodeText = new UnicodeString(props.text);
     this.facets = props.facets;

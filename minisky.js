@@ -4,7 +4,7 @@
 
 class APIError extends Error {
 
-  /** @param {number} code, @param {object} json */
+  /** @param {number} code, @param {json} json */
   constructor(code, json) {
     super("APIError status " + code + "\n\n" + JSON.stringify(json));
     this.code = code;
@@ -106,8 +106,8 @@ class Minisky {
    * @prop {string | boolean} [auth]
    * @prop {Record<string, string>} [headers]
    *
-   * @param {string} method, @param {object} params, @param {MiniskyRequestOptions} [options]
-   * @returns {Promise<object>}
+   * @param {string} method, @param {json | null} [params], @param {MiniskyRequestOptions} [options]
+   * @returns {Promise<json>}
    */
 
   async getRequest(method, params, options) {
@@ -139,8 +139,8 @@ class Minisky {
   }
 
   /**
-   * @param {string} method, @param {object} [data], @param {MiniskyRequestOptions} [options]
-   * @returns Promise<object>
+   * @param {string} method, @param {json | null} [data], @param {MiniskyRequestOptions} [options]
+   * @returns Promise<json>
    */
 
   async postRequest(method, data, options) {
@@ -200,13 +200,13 @@ class Minisky {
     return exp * 1000;
   }
 
-  /** @param {Response} response, @param {object} json, @returns {boolean} */
+  /** @param {Response} response, @param {json} json, @returns {boolean} */
 
   isInvalidToken(response, json) {
     return (response.status == 400) && !!json && ['InvalidToken', 'ExpiredToken'].includes(json.error);
   }
 
-  /** @param {Response} response, @returns {Promise<object>} */
+  /** @param {Response} response, @returns {Promise<json>} */
 
   async parseResponse(response) {
     let text = await response.text();
@@ -233,7 +233,7 @@ class Minisky {
     }
   }
 
-  /** @param {string} handle, @param {string} password, @returns {Promise<object>} */
+  /** @param {string} handle, @param {string} password, @returns {Promise<json>} */
 
   async logIn(handle, password) {
     let params = { identifier: handle, password: password };
@@ -243,7 +243,7 @@ class Minisky {
     return json;
   }
 
-  /** @returns {Promise<object>} */
+  /** @returns {Promise<json>} */
 
   async performTokenRefresh() {
     console.log('Refreshing access token…');
@@ -252,7 +252,7 @@ class Minisky {
     return json;
   }
 
-  /** @param {object} json */
+  /** @param {json} json */
 
   saveTokens(json) {
     this.user.accessToken = json['accessJwt'];

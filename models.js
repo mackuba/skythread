@@ -17,7 +17,7 @@ class PostDataError extends Error {
 
 class ATProtoRecord {
 
-  /** @param {object} data, @param {object} [extra] */
+  /** @param {json} data, @param {json} [extra] */
   constructor(data, extra) {
     this.data = data;
     Object.assign(this, extra ?? {});
@@ -65,7 +65,7 @@ class Post extends ATProtoRecord {
    * View of a post as part of a thread, as returned from getPostThread.
    * Expected to be #threadViewPost, but may be blocked or missing.
    *
-   * @param {object} json, @returns {AnyPost}
+   * @param {json} json, @returns {AnyPost}
    */
 
   static parseThreadPost(json) {
@@ -99,7 +99,7 @@ class Post extends ATProtoRecord {
    * Expected to be app.bsky.embed.record#viewRecord, but may be blocked, missing or a different type of record
    * (e.g. a list or a feed generator). For unknown record embeds, we fall back to generic ATProtoRecord.
    *
-   * @param {object} json, @returns {ATProtoRecord}
+   * @param {json} json, @returns {ATProtoRecord}
    */
 
   static parseViewRecord(json) {
@@ -129,7 +129,7 @@ class Post extends ATProtoRecord {
    * View of a post as part of a feed (e.g. a profile feed, home timeline or a custom feed). It should be an
    * app.bsky.feed.defs#feedViewPost - blocked or missing posts don't appear here, they just aren't included.
    *
-   * @param {object} json, @returns {Post}
+   * @param {json} json, @returns {Post}
    */
 
   static parseFeedPost(json) {
@@ -151,7 +151,7 @@ class Post extends ATProtoRecord {
   * a blocked or missing post. The #postView must include a $type.
   * (This is used for e.g. parent/root of a #feedViewPost.)
   *
-  * @param {object} json, @returns {AnyPost}
+  * @param {json} json, @returns {AnyPost}
   */
 
   static parsePostView(json) {
@@ -170,7 +170,7 @@ class Post extends ATProtoRecord {
     }
   }
 
-  /** @param {object} data, @param {object} [extra] */
+  /** @param {json} data, @param {json} [extra] */
 
   constructor(data, extra) {
     super(data);
@@ -238,7 +238,7 @@ class Post extends ATProtoRecord {
     return this.record.text;
   }
 
-  /** @returns {object} */
+  /** @returns {json} */
   get facets() {
     return this.record.facets;
   }
@@ -307,7 +307,7 @@ class Post extends ATProtoRecord {
 
 class BlockedPost extends ATProtoRecord {
 
-  /** @param {object} data */
+  /** @param {json} data */
   constructor(data) {
     super(data);
     this.author = data.author;
@@ -338,7 +338,7 @@ class MissingPost extends ATProtoRecord {}
 
 class FeedGeneratorRecord extends ATProtoRecord {
 
-  /** @param {object} data */
+  /** @param {json} data */
   constructor(data) {
     super(data);
     this.author = data.creator;
@@ -372,7 +372,7 @@ class FeedGeneratorRecord extends ATProtoRecord {
 
 class UserListRecord extends ATProtoRecord {
 
-  /** @param {object} data */
+  /** @param {json} data */
   constructor(data) {
     super(data);
     this.author = data.creator;
@@ -409,7 +409,7 @@ class Embed {
   /**
    * More hydrated view of an embed, taken from a full post view (#postView).
    *
-   * @param {object} json, @returns {Embed}
+   * @param {json} json, @returns {Embed}
    */
 
   static parseInlineEmbed(json) {
@@ -439,7 +439,7 @@ class Embed {
   /**
     * Raw embed extracted from raw record data of a post. Does not include quoted post contents.
     *
-    * @param {object} json, @returns {Embed}
+    * @param {json} json, @returns {Embed}
     */
 
   static parseRawEmbed(json) {
@@ -466,7 +466,7 @@ class Embed {
     }
   }
 
-  /** @param {object} json */
+  /** @param {json} json */
   constructor(json) {
     this.json = json;
   }
@@ -479,7 +479,7 @@ class Embed {
 
 class RawImageEmbed extends Embed {
 
-  /** @param {object} json */
+  /** @param {json} json */
   constructor(json) {
     super(json);
     this.images = json.images;
@@ -488,7 +488,7 @@ class RawImageEmbed extends Embed {
 
 class RawLinkEmbed extends Embed {
 
-  /** @param {object} json */
+  /** @param {json} json */
   constructor(json) {
     super(json);
 
@@ -499,7 +499,7 @@ class RawLinkEmbed extends Embed {
 
 class RawRecordEmbed extends Embed {
 
-  /** @param {object} json */
+  /** @param {json} json */
   constructor(json) {
     super(json);
     this.record = new ATProtoRecord(json.record);
@@ -508,7 +508,7 @@ class RawRecordEmbed extends Embed {
 
 class RawRecordWithMediaEmbed extends Embed {
 
-  /** @param {object} json */
+  /** @param {json} json */
   constructor(json) {
     super(json);
     this.record = new ATProtoRecord(json.record.record);
@@ -520,7 +520,7 @@ class InlineRecordEmbed extends Embed {
 
   /**
    * app.bsky.embed.record#view
-   * @param {object} json
+   * @param {json} json
    */
   constructor(json) {
     super(json);
@@ -532,7 +532,7 @@ class InlineRecordWithMediaEmbed extends Embed {
 
   /**
    * app.bsky.embed.recordWithMedia#view
-   * @param {object} json
+   * @param {json} json
    */
   constructor(json) {
     super(json);
@@ -545,7 +545,7 @@ class InlineLinkEmbed extends Embed {
 
   /**
    * app.bsky.embed.external#view
-   * @param {object} json
+   * @param {json} json
    */
   constructor(json) {
     super(json);
@@ -560,7 +560,7 @@ class InlineImageEmbed extends Embed {
 
   /**
    * app.bsky.embed.images#view
-   * @param {object} json
+   * @param {json} json
    */
   constructor(json) {
     super(json);

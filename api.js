@@ -92,7 +92,7 @@ class BlueskyAPI extends Minisky {
     this.profiles = {};
   }
 
-  /** @param {object} author */
+  /** @param {json} author */
 
   cacheProfile(author) {
     this.profiles[author.did] = author;
@@ -157,14 +157,14 @@ class BlueskyAPI extends Minisky {
     }
   }
 
-  /** @param {string} url, @returns {Promise<object>} */
+  /** @param {string} url, @returns {Promise<json>} */
 
   async loadThreadByURL(url) {
     let [handle, postId] = BlueskyAPI.parsePostURL(url);
     return await this.loadThreadById(handle, postId);
   }
 
-  /** @param {string} author, @param {string} postId, @returns {Promise<object>} */
+  /** @param {string} author, @param {string} postId, @returns {Promise<json>} */
 
   async loadThreadById(author, postId) {
     let did = author.startsWith('did:') ? author : await this.resolveHandle(author);
@@ -173,7 +173,7 @@ class BlueskyAPI extends Minisky {
     return threadJSON;
   }
 
-  /** @param {string} handle, @returns {Promise<object>} */
+  /** @param {string} handle, @returns {Promise<json>} */
 
   async loadUserProfile(handle) {
     if (this.profiles[handle]) {
@@ -204,7 +204,7 @@ class BlueskyAPI extends Minisky {
     return json.quoteCount;
   }
 
-  /** @param {string} url, @param {string | undefined} cursor, @returns {Promise<object>} */
+  /** @param {string} url, @param {string | undefined} cursor, @returns {Promise<json>} */
 
   async getQuotes(url, cursor = undefined) {
     let [handle, postId] = BlueskyAPI.parsePostURL(url);
@@ -220,7 +220,7 @@ class BlueskyAPI extends Minisky {
     return await this.getRequest('eu.mackuba.private.getPostQuotes', params);
   }
 
-  /** @param {string} hashtag, @param {string | undefined} cursor, @returns {Promise<object>} */
+  /** @param {string} hashtag, @param {string | undefined} cursor, @returns {Promise<json>} */
 
   async getHashtagFeed(hashtag, cursor = undefined) {
     let params = { q: '#' + hashtag, limit: 50, sort: 'latest' };
@@ -232,7 +232,7 @@ class BlueskyAPI extends Minisky {
     return await this.getRequest('app.bsky.feed.searchPosts', params);
   }
 
-  /** @param {string} postURI, @returns {Promise<object>} */
+  /** @param {string} postURI, @returns {Promise<json>} */
 
   async loadPost(postURI) {
     let posts = await this.loadPosts([postURI]);
@@ -250,7 +250,7 @@ class BlueskyAPI extends Minisky {
     }
   }
 
-  /** @param {object} post, @returns {Promise<object>} */
+  /** @param {Post} post, @returns {Promise<json>} */
 
   async likePost(post) {
     return await this.postRequest('com.atproto.repo.createRecord', {
@@ -266,7 +266,7 @@ class BlueskyAPI extends Minisky {
     });
   }
 
-  /** @param {string} uri, @returns {Promise<object>} */
+  /** @param {string} uri, @returns {Promise<void>} */
 
   async removeLike(uri) {
     let { rkey } = atURI(uri);
