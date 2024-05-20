@@ -185,9 +185,9 @@ class BlueskyAPI extends Minisky {
     }
   }
 
-  /** @returns {Promise<object>} */
+  /** @returns {Promise<json | undefined>} */
 
-  async loadCurrentUserAvatar() {
+  async getCurrentUserAvatar() {
     let json = await this.getRequest('com.atproto.repo.getRecord', {
       repo: this.user.did,
       collection: 'app.bsky.actor.profile',
@@ -195,6 +195,21 @@ class BlueskyAPI extends Minisky {
     });
 
     return json.value.avatar;
+  }
+
+  /** @returns {Promise<string?>} */
+
+  async loadCurrentUserAvatar() {
+    let avatar = await this.getCurrentUserAvatar();
+
+    if (avatar) {
+      let url = `https://cdn.bsky.app/img/avatar/plain/${this.user.did}/${avatar.ref.$link}@jpeg`;
+      this.config.user.avatar = url;
+      this.config.save();
+      return url;
+    } else {
+      return null;
+    }
   }
 
   /** @param {string} uri, @returns {Promise<number>} */

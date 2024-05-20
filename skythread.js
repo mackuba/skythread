@@ -263,15 +263,8 @@ async function logIn(identifier, password) {
 }
 
 function loadCurrentUserAvatar() {
-  api.loadCurrentUserAvatar().then(data => {
-    if (data) {
-      let url = `https://cdn.bsky.app/img/avatar/plain/${api.user.did}/${data.ref.$link}@jpeg`;
-      api.config.user.avatar = url;
-      api.config.save();
-      showLoggedInStatus(true, url);
-    } else {
-      showLoggedInStatus(true, null);
-    }
+  api.loadCurrentUserAvatar().then((url) => {
+    showLoggedInStatus(true, url);
   }).catch((error) => {
     console.log(error);
     showLoggedInStatus(true, null);
