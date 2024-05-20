@@ -446,14 +446,14 @@ function loadThread(url, postId, nodeToUpdate) {
 
     let loadQuoteCount;
 
-    if (!nodeToUpdate) {
+    if (!nodeToUpdate && root instanceof Post) {
       setPageTitle(root);
-      loadQuoteCount = blueAPI.getQuoteCount(root.uri);
-    }
+      loadQuoteCount = blueAPI.getQuoteCount(root.uri);        
 
-    if (root.parent && !nodeToUpdate) {
-      let p = buildParentLink(root.parent);
-      $id('thread').appendChild(p);
+      if (root.parent) {
+        let p = buildParentLink(root.parent);
+        $id('thread').appendChild(p);
+      }
     }
 
     let component = new PostComponent(root);
