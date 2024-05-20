@@ -249,11 +249,12 @@ async function logIn(identifier, password) {
     pdsEndpoint = await Minisky.pdsEndpointForDid(identifier);
   } else if (identifier.match(/^[^@]+@[^@]+$/)) {
     pdsEndpoint = 'bsky.social';
-  } else if (identifier.match(/^[\w\-]+(\.[\w\-]+)+$/)) {
+  } else if (identifier.match(/^@?[\w\-]+(\.[\w\-]+)+$/)) {
+    identifier = identifier.replace(/^@/, '');
     let did = await appView.resolveHandle(identifier);
     pdsEndpoint = await Minisky.pdsEndpointForDid(did);
   } else {
-    throw 'Please enter your handle or DID';
+    throw 'Please enter your handle or DID.';
   }
 
   let pds = new BlueskyAPI(pdsEndpoint, true);
