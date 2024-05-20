@@ -200,6 +200,10 @@ class BlueskyAPI extends Minisky {
   /** @returns {Promise<string?>} */
 
   async loadCurrentUserAvatar() {
+    if (!this.config || !this.config.user) {
+      throw new AuthError("User isn't logged in");
+    }
+
     let avatar = await this.getCurrentUserAvatar();
 
     if (avatar) {

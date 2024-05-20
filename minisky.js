@@ -68,13 +68,19 @@ class Minisky {
    * @prop {boolean} [sendAuthHeaders]
    * @prop {boolean} [autoManageTokens]
    *
-   * @param {string | undefined} host, @param {object} config, @param {MiniskyOptions} [options]
+   * @typedef {object} MiniskyConfig
+   * @prop {json | null | undefined} user
+   * @prop {() => void} save
+   *
+   * @param {string | undefined} host
+   * @param {MiniskyConfig | null | undefined} [config]
+   * @param {MiniskyOptions} [options]
    */
 
   constructor(host, config, options) {
     this.host = host;
     this.config = config;
-    this.user = config?.user;
+    this.user = /** @type {json} */ (config?.user);
 
     this.sendAuthHeaders = !!this.user;
     this.autoManageTokens = !!this.user;
@@ -172,7 +178,7 @@ class Minisky {
     if (typeof auth == 'string') {
       return { 'Authorization': `Bearer ${auth}` };
     } else if (auth) {
-      if (this.user.accessToken) {
+      if (this.user?.accessToken) {
         return { 'Authorization': `Bearer ${this.user.accessToken}` };
       } else {
         throw new AuthError("Can't send auth headers, access token is missing");
@@ -236,6 +242,10 @@ class Minisky {
   /** @param {string} handle, @param {string} password, @returns {Promise<json>} */
 
   async logIn(handle, password) {
+    if (!this.config || !this.config.user) {
+      throw new AuthError("Missing user configuration object");
+    }
+
     let params = { identifier: handle, password: password };
     let json = await this.postRequest('com.atproto.server.createSession', params, { auth: false });
 
@@ -246,6 +256,10 @@ class Minisky {
   /** @returns {Promise<json>} */
 
   async performTokenRefresh() {
+    if (!this.isLoggedIn) {
+      throw new AuthError("Not logged in");
+    }
+
     console.log('Refreshing access token…');
     let json = await this.postRequest('com.atproto.server.refreshSession', null, { auth: this.user.refreshToken });
     this.saveTokens(json);
@@ -255,6 +269,10 @@ class Minisky {
   /** @param {json} json */
 
   saveTokens(json) {
+    if (!this.config || !this.config.user) {
+      throw new AuthError("Missing user configuration object");
+    }
+
     this.user.accessToken = json['accessJwt'];
     this.user.refreshToken = json['refreshJwt'];
     this.user.did = json['did'];
@@ -263,6 +281,10 @@ class Minisky {
   }
 
   resetTokens() {
+    if (!this.config || !this.config.user) {
+      throw new AuthError("Missing user configuration object");
+    }
+
     delete this.user.accessToken;
     delete this.user.refreshToken;
     delete this.user.did;
