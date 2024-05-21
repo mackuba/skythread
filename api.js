@@ -121,8 +121,8 @@ class BlueskyAPI extends Minisky {
       throw new URLError('URL must start with https://');
     }
 
-    if (!(url.host == 'staging.bsky.app' || url.host == 'bsky.app')) {
-      throw new URLError('Only bsky.app and staging.bsky.app URLs are supported');
+    if (!(url.host == 'staging.bsky.app' || url.host == 'bsky.app' || url.host == 'main.bsky.dev')) {
+      throw new URLError('Only bsky.app URLs are supported');
     }
 
     let parts = url.pathname.split('/');
