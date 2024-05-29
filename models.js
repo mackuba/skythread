@@ -233,6 +233,13 @@ class Post extends ATProtoRecord {
     return !this.isEmbed;
   }
 
+  /** @returns {boolean} */
+  get isTruncatedFediPost() {
+    let handle = this.author?.handle;
+
+    return handle.endsWith('.ap.brid.gy') && (this.text.endsWith('…') || this.text.endsWith('(…)'));
+  }
+
   /** @returns {string} */
   get text() {
     return this.record.text;
