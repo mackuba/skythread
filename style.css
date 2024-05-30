@@ -429,6 +429,10 @@ p.back i {
   margin-top: 10px;
 }
 
+.post div.body p + p {
+  margin-top: 18px;
+}
+
 .post .quote-embed {
   border: 1px solid #ddd;
   border-radius: 8px;
