@@ -425,6 +425,13 @@ p.back i {
   vertical-align: text-top;
 }
 
+.post h2 img.mastodon {
+  width: 15px;
+  position: relative;
+  top: 2px;
+  margin-left: 3px;
+}
+
 .post p {
   margin-top: 10px;
 }

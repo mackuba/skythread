@@ -165,9 +165,17 @@ class PostComponent {
 
     let h = $tag('h2');
 
-    h.innerHTML = `${escapeHTML(this.authorName)} ` +
-      `<a class="handle" href="${this.linkToAuthor}" target="_blank">@${this.post.author.handle}</a> ` +
-      `<span class="separator">&bull;</span> ` +
+    h.innerHTML = `${escapeHTML(this.authorName)} `;
+
+    if (this.post.isFediPost) {
+      let handle = this.post.authorFediHandle;
+      h.innerHTML += `<a class="handle" href="${this.linkToAuthor}" target="_blank">@${handle}</a> ` +
+        `<img src="icons/mastodon.svg" class="mastodon"> `;
+    } else {
+      h.innerHTML += `<a class="handle" href="${this.linkToAuthor}" target="_blank">@${this.post.author.handle}</a> `;
+    }
+
+    h.innerHTML += `<span class="separator">&bull;</span> ` +
       `<a class="time" href="${this.linkToPost}" target="_blank" title="${isoTime}">${formattedTime}</a> `;
 
     if (this.post.replyCount > 0 && !this.isRoot || ['quote', 'quotes', 'feed'].includes(context)) {

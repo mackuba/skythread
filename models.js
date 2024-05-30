@@ -234,10 +234,22 @@ class Post extends ATProtoRecord {
   }
 
   /** @returns {boolean} */
-  get isTruncatedFediPost() {
-    let handle = this.author?.handle;
+  get isFediPost() {
+    return this.author?.handle.endsWith('.ap.brid.gy');
+  }
 
-    return handle.endsWith('.ap.brid.gy') && (this.text.endsWith('…') || this.text.endsWith('(…)'));
+  /** @returns {boolean} */
+  get isTruncatedFediPost() {
+    return this.isFediPost && (this.text.endsWith('…') || this.text.endsWith('(…)'));
+  }
+
+  /** @returns {string} */
+  get authorFediHandle() {
+    if (this.isFediPost) {
+      return this.author.handle.replace(/\.ap\.brid\.gy$/, '').replace('.', '@');
+    } else {
+      throw "Not a Fedi post";
+    }
   }
 
   /** @returns {string} */
