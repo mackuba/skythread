@@ -402,8 +402,7 @@ class PostComponent {
     let json = await response.json();
 
     if (json.content) {
-      // TODO: sanitize the HTML? 😈
-      let div = $tag('div.body', { html: json.content });
+      let div = $tag('div.body', { html: sanitizeHTML(json.content) });
       p.replaceWith(div);
     }
   }

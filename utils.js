@@ -76,6 +76,21 @@ function escapeHTML(html) {
              .replace(/>/g,'&gt;');
 }
 
+/** @param {string} html, @returns {string} */
+
+function sanitizeHTML(html) {
+  return DOMPurify.sanitize(html, {
+    ALLOWED_TAGS: [
+      'a', 'b', 'blockquote', 'br', 'code', 'dd', 'del', 'div', 'dl', 'dt', 'em', 'font',
+      'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'hr', 'i', 'li', 'ol', 'p', 'q', 'pre', 's', 'span', 'strong',
+      'sub', 'sup', 'u', 'wbr', '#text'
+    ],
+    ALLOWED_ATTR: [
+      'align', 'alt', 'class', 'clear', 'color', 'dir', 'href', 'lang', 'rel', 'title', 'translate'
+    ]
+  });
+}
+
 /** @returns {string} */
 
 function getLocation() {

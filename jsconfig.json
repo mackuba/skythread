@@ -7,5 +7,5 @@
     "exactOptionalPropertyTypes": true,
     "useUnknownInCatchVariables": false
   },
-  "include": ["*.js", "*.d.ts"]
+  "include": ["*.js", "*.d.ts", "lib/**/*.d.ts"]
 }
