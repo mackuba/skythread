@@ -55,6 +55,9 @@ class Post extends ATProtoRecord {
   /** @type {ATProtoRecord | undefined} */
   parent;
 
+  /** @type {ATProtoRecord | undefined} */
+  root;
+
   /** @type {object | undefined} */
   reason;
 
@@ -137,6 +140,7 @@ class Post extends ATProtoRecord {
 
     if (json.reply) {
       post.parent = Post.parsePostView(json.reply.parent);
+      post.root = Post.parsePostView(json.reply.root);
     }
 
     if (json.reason) {
