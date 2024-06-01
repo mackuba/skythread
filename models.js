@@ -337,20 +337,16 @@ class Post extends ATProtoRecord {
 
   /** @returns {boolean} */
   get hasMoreReplies() {
-    let replyCount = this.replyCount;
-    let loadedReplies = this.replies.length;
-    let level = this.level;
+    let shouldHaveMoreReplies = (this.replyCount !== undefined && this.replyCount > this.replies.length);
 
-    return !!replyCount && (replyCount > loadedReplies) && (loadedReplies === 0 && !!level && level > 2);
+    return shouldHaveMoreReplies && (this.replies.length === 0) && (this.level !== undefined && this.level > 2);
   }
 
   /** @returns {boolean} */
   get hasHiddenReplies() {
-    let replyCount = this.replyCount;
-    let loadedReplies = this.replies.length;
-    let level = this.level;
+    let shouldHaveMoreReplies = (this.replyCount !== undefined && this.replyCount > this.replies.length);
 
-    return !!replyCount && (replyCount > loadedReplies) && (loadedReplies > 0 || !!level && level <= 2);
+    return shouldHaveMoreReplies && (this.replies.length > 0 || (this.level !== undefined && this.level <= 2));
   }
 
   /** @returns {number} */
