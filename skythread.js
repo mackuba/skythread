@@ -482,7 +482,7 @@ function loadThread(url, postId) {
 
 function loadSubtree(post, nodeToUpdate) {
   api.loadThreadByURL(post.uri).then(json => {
-    let root = Post.parseThreadPost(json.thread);
+    let root = Post.parseThreadPost(json.thread, 0, post.absoluteLevel);
     post.updateDataFromPost(root);
     window.subtreeRoot = post;
 

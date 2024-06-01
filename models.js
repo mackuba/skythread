@@ -58,6 +58,12 @@ class Post extends ATProtoRecord {
   /** @type {ATProtoRecord | undefined} */
   root;
 
+  /** @type {number | undefined} */
+  level;
+
+  /** @type {number | undefined} */
+  absoluteLevel;
+
   /** @type {object | undefined} */
   reason;
 
@@ -68,20 +74,20 @@ class Post extends ATProtoRecord {
    * View of a post as part of a thread, as returned from getPostThread.
    * Expected to be #threadViewPost, but may be blocked or missing.
    *
-   * @param {json} json, @returns {AnyPost}
+   * @param {json} json, @param {number} [level], @param {number} [absoluteLevel], @returns {AnyPost}
    */
 
-  static parseThreadPost(json) {
+  static parseThreadPost(json, level = 0, absoluteLevel = 0) {
     switch (json.$type) {
     case 'app.bsky.feed.defs#threadViewPost':
-      let post = new Post(json.post);
+      let post = new Post(json.post, { level: level, absoluteLevel: absoluteLevel });
 
       if (json.replies) {
-        post.setReplies(json.replies.map(x => Post.parseThreadPost(x)));
+        post.setReplies(json.replies.map(x => Post.parseThreadPost(x, level + 1, absoluteLevel + 1)));
       }
 
-      if (json.parent) {
-        post.parent = Post.parseThreadPost(json.parent);
+      if (absoluteLevel <= 0 && json.parent) {
+        post.parent = Post.parseThreadPost(json.parent, level - 1, absoluteLevel - 1);
       }
 
       return post;
@@ -210,6 +216,8 @@ class Post extends ATProtoRecord {
     this.replies = post.replies;
     this.viewerData = post.viewerData;
     this.viewerLike = post.viewerLike;
+    this.level = post.level;
+    this.absoluteLevel = post.absoluteLevel;
   }
 
   /** @param {AnyPost[]} replies */
