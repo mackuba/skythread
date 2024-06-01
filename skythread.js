@@ -436,6 +436,7 @@ function loadThread(url, postId) {
   load.then(json => {
     let root = Post.parseThreadPost(json.thread);
     window.root = root;
+    window.subtreeRoot = root;
 
     let loadQuoteCount;
 
@@ -482,6 +483,8 @@ function loadThread(url, postId) {
 function loadSubtree(post, nodeToUpdate) {
   api.loadThreadByURL(post.uri).then(json => {
     let root = Post.parseThreadPost(json.thread);
+    window.subtreeRoot = root;
+
     let component = new PostComponent(root);
     let view = component.buildElement('thread');
 

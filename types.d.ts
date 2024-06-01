@@ -1,6 +1,7 @@
 interface Window {
   dateLocale: string | undefined;
   root: AnyPost;
+  subtreeRoot: AnyPost;
 }
 
 declare var accountAPI: BlueskyAPI;
