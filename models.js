@@ -201,6 +201,17 @@ class Post extends ATProtoRecord {
     }
   }
 
+  /** @param {Post} post */
+
+  updateDataFromPost(post) {
+    this.record = post.record;
+    this.embed = post.embed;
+    this.author = post.author;
+    this.replies = post.replies;
+    this.viewerData = post.viewerData;
+    this.viewerLike = post.viewerLike;
+  }
+
   /** @param {AnyPost[]} replies */
 
   setReplies(replies) {

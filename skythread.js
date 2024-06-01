@@ -483,9 +483,10 @@ function loadThread(url, postId) {
 function loadSubtree(post, nodeToUpdate) {
   api.loadThreadByURL(post.uri).then(json => {
     let root = Post.parseThreadPost(json.thread);
-    window.subtreeRoot = root;
+    post.updateDataFromPost(root);
+    window.subtreeRoot = post;
 
-    let component = new PostComponent(root);
+    let component = new PostComponent(post);
     let view = component.buildElement('thread');
 
     nodeToUpdate.querySelector('.content').replaceWith(view.querySelector('.content'));
