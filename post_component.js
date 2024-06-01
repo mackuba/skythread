@@ -300,7 +300,7 @@ class PostComponent {
     link.addEventListener('click', (e) => {
       e.preventDefault();
       link.innerHTML = `<img class="loader" src="icons/sunny.png">`;
-      loadThread(this.post.author.handle, this.post.rkey, loadMore.parentNode.parentNode);
+      loadSubtree(this.post, loadMore.parentNode.parentNode);
     });
 
     loadMore.appendChild(link);

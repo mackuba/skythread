@@ -428,9 +428,9 @@ function loadInPages(callback) {
   });
 }
 
-/** @param {string} url, @param {string} [postId], @param {AnyElement} [nodeToUpdate] */
+/** @param {string} url, @param {string} [postId] */
 
-function loadThread(url, postId, nodeToUpdate) {
+function loadThread(url, postId) {
   let load = postId ? api.loadThreadById(url, postId) : api.loadThreadByURL(url);
 
   load.then(json => {
@@ -439,7 +439,7 @@ function loadThread(url, postId, nodeToUpdate) {
 
     let loadQuoteCount;
 
-    if (!nodeToUpdate && root instanceof Post) {
+    if (root instanceof Post) {
       setPageTitle(root);
       loadQuoteCount = blueAPI.getQuoteCount(root.uri);        
 
@@ -450,18 +450,13 @@ function loadThread(url, postId, nodeToUpdate) {
     }
 
     let component = new PostComponent(root);
-    let list = component.buildElement('thread');
+    let view = component.buildElement('thread');
     hideLoader();
-
-    if (nodeToUpdate) {
-      nodeToUpdate.querySelector('.content').replaceWith(list.querySelector('.content'));
-    } else {
-      $id('thread').appendChild(list);
-    }
+    $id('thread').appendChild(view);
 
     loadQuoteCount?.then(count => {
       if (count > 0) {
-        let stats = list.querySelector(':scope > .content > p.stats');
+        let stats = view.querySelector(':scope > .content > p.stats');
         let q = new URL(getLocation());
         q.searchParams.set('quotes', component.linkToPost);
         stats.append($tag('i', { className: count > 1 ? 'fa-regular fa-comments' : 'fa-regular fa-comment' }));
@@ -477,6 +472,21 @@ function loadThread(url, postId, nodeToUpdate) {
     });
   }).catch(error => {
     hideLoader();
+    console.log(error);
+    alert(error);
+  });
+}
+
+/** @param {Post} post, @param {AnyElement} nodeToUpdate */
+
+function loadSubtree(post, nodeToUpdate) {
+  api.loadThreadByURL(post.uri).then(json => {
+    let root = Post.parseThreadPost(json.thread);
+    let component = new PostComponent(root);
+    let view = component.buildElement('thread');
+
+    nodeToUpdate.querySelector('.content').replaceWith(view.querySelector('.content'));
+  }).catch(error => {
     console.log(error);
     alert(error);
   });
