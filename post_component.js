@@ -150,7 +150,10 @@ class PostComponent {
     }
 
     if (context == 'thread' && this.post.hasMoreReplies) {
-      let loadMore = this.buildLoadMoreLink()
+      let loadMore = this.buildLoadMoreLink();
+      content.appendChild(loadMore);
+    } else if (context == 'thread' && this.post.hasHiddenReplies) {
+      let loadMore = this.buildHiddenRepliesLink();
       content.appendChild(loadMore);
     }
 
@@ -302,11 +305,31 @@ class PostComponent {
 
     link.addEventListener('click', (e) => {
       e.preventDefault();
-      link.innerHTML = `<img class="loader" src="icons/sunny.png">`;
-      loadSubtree(this.post, loadMore.parentNode.parentNode);
+      loadMore.innerHTML = `<img class="loader" src="icons/sunny.png">`;
+      loadSubtree(this.post, loadMore.closest('.post'));
     });
 
     loadMore.appendChild(link);
+    return loadMore;
+  }
+
+  /** @returns {AnyElement} */
+
+  buildHiddenRepliesLink() {
+    let loadMore = $tag('p.hidden-replies');
+
+    let link = $tag('a', {
+      href: linkToPostThread(this.post),
+      text: "Load hidden replies…"
+    });
+
+    link.addEventListener('click', (e) => {
+      e.preventDefault();
+      loadMore.innerHTML = `<img class="loader" src="icons/sunny.png">`;
+      loadHiddenSubtree(this.post, loadMore.closest('.post'));
+    });
+
+    loadMore.append("☣️ ", link);
     return loadMore;
   }
 

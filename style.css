@@ -632,6 +632,16 @@ p.back i {
   margin-top: 5px;
 }
 
+.post p.hidden-replies {
+  margin-top: 20px;
+  font-size: 11pt;
+}
+
+.post p.hidden-replies a {
+  font-size: 12pt;
+  color: saddlebrown;
+}
+
 @media (prefers-color-scheme: dark) {
   body {
     background-color: rgb(39, 39, 37);

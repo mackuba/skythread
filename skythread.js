@@ -495,3 +495,31 @@ function loadSubtree(post, nodeToUpdate) {
     alert(error);
   });
 }
+
+/** @param {Post} post, @param {AnyElement} nodeToUpdate */
+
+function loadHiddenSubtree(post, nodeToUpdate) {
+  blueAPI.getRequest('eu.mackuba.private.getReplies', { uri: post.uri }).then(result => {
+    let missingReplies = result.replies.filter(r => !post.replies.some(x => x.uri === r));
+
+    Promise.all(missingReplies.map(uri => api.loadThreadByURL(uri))).then(responses => {
+      let replies = responses.map(json => Post.parseThreadPost(json.thread, 1, post.absoluteLevel + 1));
+      post.setReplies(replies);
+
+      let content = nodeToUpdate.querySelector('.content');
+      content.querySelector(':scope > .hidden-replies').remove();
+
+      for (let reply of post.replies) {
+        let component = new PostComponent(reply);
+        let view = component.buildElement('thread');
+        content.append(view);
+      }
+    }).catch(error => {
+      console.log(error);
+      alert(error);
+    });
+  }).catch(error => {
+    console.log(error);
+    alert(error);
+  });
+}
