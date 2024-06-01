@@ -62,7 +62,13 @@ class Post extends ATProtoRecord {
    * Post object which is the root of the whole thread (as specified in the post record).
    * @type {ATProtoRecord | undefined}
    */
-  root;
+  threadRoot;
+
+  /**
+   * Post which is at the top of the (sub)thread currently loaded on the page (might not be the same as threadRoot).
+   * @type {Post | undefined}
+   */
+  pageRoot;
 
   /**
    * Depth of the post in the getPostThread response it was loaded from, starting from 0. May be negative.
@@ -164,7 +170,7 @@ class Post extends ATProtoRecord {
 
     if (json.reply) {
       post.parent = Post.parsePostView(json.reply.parent);
-      post.root = Post.parsePostView(json.reply.root);
+      post.threadRoot = Post.parsePostView(json.reply.root);
     }
 
     if (json.reason) {
@@ -203,6 +209,10 @@ class Post extends ATProtoRecord {
   constructor(data, extra) {
     super(data);
     Object.assign(this, extra ?? {});
+
+    if (this.absoluteLevel === 0) {
+      this.pageRoot = this;
+    }
 
     this.record = this.isPostView ? data.record : data.value;
 
@@ -243,6 +253,7 @@ class Post extends ATProtoRecord {
   setReplies(replies) {
     this.replies = replies;
     this.replies.sort(this.sortReplies.bind(this));
+    this.replies.forEach(x => { x.pageRoot = this.pageRoot });
   }
 
   /** @param {AnyPost} a, @param {AnyPost} b, @returns {-1 | 0 | 1} */
@@ -282,6 +293,12 @@ class Post extends ATProtoRecord {
   /** @returns {boolean} */
   get isTruncatedFediPost() {
     return this.isFediPost && (this.text.endsWith('…') || this.text.endsWith('(…)'));
+  }
+
+  /** @returns {boolean} */
+  get isRoot() {
+    // I AM ROOOT
+    return (this.pageRoot === this);
   }
 
   /** @returns {string} */

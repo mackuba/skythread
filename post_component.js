@@ -3,11 +3,14 @@
  */
 
 class PostComponent {
-  /** @param {Post} post, @param {Post} [root] */
-  constructor(post, root) {
+  /** @param {Post} post */
+  constructor(post) {
     this.post = post;
-    this.root = root ?? post;
-    this.isRoot = (this.post === this.root);
+  }
+
+  /** @returns {boolean} */
+  get isRoot() {
+    return this.post.isRoot;
   }
 
   /** @returns {string} */
@@ -47,7 +50,7 @@ class PostComponent {
   get timeFormatForTimestamp() {
     if (this.isRoot) {
       return { day: 'numeric', month: 'short', year: 'numeric', hour: 'numeric', minute: 'numeric' };
-    } else if (!sameDay(this.post.createdAt, this.root.createdAt)) {
+    } else if (this.post.pageRoot && !sameDay(this.post.createdAt, this.post.pageRoot.createdAt)) {
       return { day: 'numeric', month: 'short', hour: 'numeric', minute: 'numeric' };
     } else {
       return { hour: 'numeric', minute: 'numeric' };
@@ -87,7 +90,7 @@ class PostComponent {
 
     let content = $tag('div.content');
 
-    if (!this.isRoot) {
+    if (context == 'thread' && !this.isRoot) {
       let edge = $tag('div.edge');
       let line = $tag('div.line');
       edge.appendChild(line);
@@ -133,7 +136,7 @@ class PostComponent {
     }
 
     if (this.post.replies.length == 1 && this.post.replies[0].author?.did == this.post.author.did) {
-      let component = new PostComponent(this.post.replies[0], this.root);
+      let component = new PostComponent(this.post.replies[0]);
       let element = component.buildElement('thread');
       element.classList.add('flat');
       content.appendChild(element);
@@ -141,7 +144,7 @@ class PostComponent {
       for (let reply of this.post.replies) {
         if (reply instanceof MissingPost) { continue }
 
-        let component = new PostComponent(reply, this.root);
+        let component = new PostComponent(reply);
         content.appendChild(component.buildElement('thread'));
       }
     }
