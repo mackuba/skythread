@@ -52,22 +52,40 @@ class ATProtoRecord {
  */
 
 class Post extends ATProtoRecord {
-  /** @type {ATProtoRecord | undefined} */
+  /**
+   * Post object which is the direct parent of this post.
+   * @type {ATProtoRecord | undefined}
+   */
   parent;
 
-  /** @type {ATProtoRecord | undefined} */
+  /**
+   * Post object which is the root of the whole thread (as specified in the post record).
+   * @type {ATProtoRecord | undefined}
+   */
   root;
 
-  /** @type {number | undefined} */
+  /**
+   * Depth of the post in the getPostThread response it was loaded from, starting from 0. May be negative.
+   * @type {number | undefined}
+   */
   level;
 
-  /** @type {number | undefined} */
+  /**
+   * Depth of the post in the whole tree visible on the page (pageRoot's absoluteLevel is 0). May be negative.
+   * @type {number | undefined}
+   */
   absoluteLevel;
 
-  /** @type {object | undefined} */
+  /**
+   * For posts in feeds and timelines - specifies e.g. that a post was reposted by someone.
+   * @type {object | undefined}
+   */
   reason;
 
-  /** @type {boolean | undefined} */
+  /**
+   * True if the post was extracted from inner embed of a quote, not from a #postView.
+   * @type {boolean | undefined}
+   */
   isEmbed;
 
   /**
