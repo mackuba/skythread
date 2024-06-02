@@ -502,8 +502,12 @@ function loadHiddenSubtree(post, nodeToUpdate) {
   blueAPI.getRequest('eu.mackuba.private.getReplies', { uri: post.uri }).then(result => {
     let missingReplies = result.replies.filter(r => !post.replies.some(x => x.uri === r));
 
-    Promise.all(missingReplies.map(uri => api.loadThreadByURL(uri))).then(responses => {
-      let replies = responses.map(json => Post.parseThreadPost(json.thread, 1, post.absoluteLevel + 1));
+    Promise.allSettled(missingReplies.map(uri => api.loadThreadByURL(uri))).then(responses => {
+      let replies = responses
+        .map(r => r.status == 'fulfilled' ? r.value : undefined)
+        .filter(v => v)
+        .map(json => Post.parseThreadPost(json.thread, 1, post.absoluteLevel + 1));
+
       post.setReplies(replies);
 
       let content = nodeToUpdate.querySelector('.content');
