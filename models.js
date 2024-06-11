@@ -244,7 +244,7 @@ class Post extends ATProtoRecord {
 
   /** @returns {boolean} */
   get isTruncatedFediPost() {
-    return this.isFediPost && (this.text.endsWith('…') || this.text.endsWith('(…)'));
+    return this.isFediPost && (this.text.endsWith('…') || this.text.endsWith('[…]'));
   }
 
   /** @returns {string} */
