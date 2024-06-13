@@ -218,6 +218,10 @@ class PostComponent {
   /** @returns {AnyElement} */
 
   buildPostBody() {
+    if (this.post.originalFediContent) {
+      return $tag('div.body', { html: sanitizeHTML(this.post.originalFediContent) });
+    }
+
     let p = $tag('p.body');
     let richText = new RichText({ text: this.post.text, facets: this.post.facets });
 

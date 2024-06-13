@@ -247,6 +247,11 @@ class Post extends ATProtoRecord {
     return this.isFediPost && (this.text.endsWith('…') || this.text.endsWith('[…]'));
   }
 
+  /** @returns {string | undefined} */
+  get originalFediContent() {
+    return this.record.bridgyOriginalText;
+  }
+
   /** @returns {string} */
   get authorFediHandle() {
     if (this.isFediPost) {
