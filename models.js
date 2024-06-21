@@ -174,6 +174,55 @@ class Post extends ATProtoRecord {
     }
   }
 
+  static parseMastodonThread(post, context) {
+    let idMap = {};
+    idMap[post.id] = post;
+    post.replies = [];
+
+    for (let p of context.descendants) {
+      p.replies = [];
+      idMap[p.id] = p;
+
+      if (idMap[p.in_reply_to_id]) {
+        idMap[p.in_reply_to_id].replies.push(p);
+      }
+    }
+
+    let root = Post.parseMastodonPost(post);
+
+    if (context.ancestors && context.ancestors[0]) {
+      post.parent = Post.parseMastodonPost(context.ancestors[0]);
+    }
+
+    return root;
+  }
+
+  static parseMastodonPost(post) {
+    let model = new Post({
+      uri: `at://${post.account.id}/app.bsky.feed.post/${post.id}`,
+      author: {
+        handle: post.account.acct,
+        avatar: post.account.avatar_static,
+        displayName: post.account.display_name,
+        did: post.account.id
+      },
+      record: {
+        mastodonContent: post.content,
+        createdAt: post.created_at
+      },
+      likeCount: post.favourites_count,
+      repostCount: post.reblogs_count,
+      replyCount: post.replies_count
+    });
+
+    if (post.replies) {
+      model.setReplies(post.replies.map(r => Post.parseMastodonPost(r)));
+    }
+
+    return model;
+  }
+
+
   /** @param {json} data, @param {json} [extra] */
 
   constructor(data, extra) {
@@ -249,7 +298,7 @@ class Post extends ATProtoRecord {
 
   /** @returns {string | undefined} */
   get originalFediContent() {
-    return this.record.bridgyOriginalText;
+    return this.record.bridgyOriginalText || this.record.mastodonContent;
   }
 
   /** @returns {string} */

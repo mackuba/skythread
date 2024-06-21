@@ -93,6 +93,7 @@ function parseQueryParams() {
   let post = params.get('post');
   let quotes = params.get('quotes');
   let hash = params.get('hash');
+  let mastodon = params.get('masto');
 
   if (quotes) {
     showLoader();
@@ -106,6 +107,9 @@ function parseQueryParams() {
   } else if (author && post) {
     showLoader();
     loadThread(decodeURIComponent(author), decodeURIComponent(post));
+  } else if (mastodon) {
+    showLoader();
+    loadMastodonThread(decodeURIComponent(mastodon));
   } else {
     showSearch();
   }
@@ -475,6 +479,45 @@ function loadThread(url, postId, nodeToUpdate) {
     }).catch(error => {
       console.warn("Couldn't load quote count: " + error);
     });
+  }).catch(error => {
+    hideLoader();
+    console.log(error);
+    alert(error);
+  });
+}
+
+function loadMastodonThread(url) {
+  let host = new URL(url).host;
+  let postId = url.replace(/\/$/, '').split('/').reverse()[0];
+  let statusURL = `https://${host}/api/v1/statuses/${postId}`;
+  let contextURL = `https://${host}/api/v1/statuses/${postId}/context`;
+
+  let load = async function() {
+    let post = await fetch(statusURL).then(x => x.json());
+    let context = await fetch(contextURL).then(x => x.json());
+    return [post, context];
+  }
+
+  load().then(json => {
+    console.log(json);
+
+    let root = Post.parseMastodonThread(json[0], json[1]);
+    window.root = root;
+
+    if (root instanceof Post) {
+      setPageTitle(root);
+
+      if (root.parent) {
+        let p = buildParentLink(root.parent);
+        $id('thread').appendChild(p);
+      }
+    }
+
+    let component = new PostComponent(root);
+    let list = component.buildElement('thread');
+    hideLoader();
+
+    $id('thread').appendChild(list);
   }).catch(error => {
     hideLoader();
     console.log(error);
