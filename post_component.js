@@ -304,7 +304,12 @@ class PostComponent {
     link.addEventListener('click', (e) => {
       e.preventDefault();
       link.innerHTML = `<img class="loader" src="icons/sunny.png">`;
-      loadThread(this.post.author.handle, this.post.rkey, loadMore.parentNode.parentNode);
+
+      if (this.post.mastodonURL) {
+        loadMastodonThread(this.post.mastodonURL, loadMore.parentNode.parentNode);
+      } else {
+        loadThread(this.post.author.handle, this.post.rkey, loadMore.parentNode.parentNode);  
+      }        
     });
 
     loadMore.appendChild(link);

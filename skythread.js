@@ -486,7 +486,7 @@ function loadThread(url, postId, nodeToUpdate) {
   });
 }
 
-function loadMastodonThread(url) {
+function loadMastodonThread(url, nodeToUpdate) {
   let host = new URL(url).host;
   let postId = url.replace(/\/$/, '').split('/').reverse()[0];
   let statusURL = `https://${host}/api/v1/statuses/${postId}`;
@@ -504,7 +504,7 @@ function loadMastodonThread(url) {
     let root = Post.parseMastodonThread(json[0], json[1]);
     window.root = root;
 
-    if (root instanceof Post) {
+    if (!nodeToUpdate && root instanceof Post) {
       setPageTitle(root);
 
       if (root.parent) {
@@ -517,7 +517,11 @@ function loadMastodonThread(url) {
     let list = component.buildElement('thread');
     hideLoader();
 
-    $id('thread').appendChild(list);
+    if (nodeToUpdate) {
+      nodeToUpdate.querySelector('.content').replaceWith(list.querySelector('.content'));
+    } else {
+      $id('thread').appendChild(list);
+    }
   }).catch(error => {
     hideLoader();
     console.log(error);

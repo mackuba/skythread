@@ -213,6 +213,8 @@ class Post extends ATProtoRecord {
       likeCount: post.favourites_count,
       repostCount: post.reblogs_count,
       replyCount: post.replies_count
+    }, {
+      mastodonURL: post.url
     });
 
     if (post.replies) {
