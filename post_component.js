@@ -3,9 +3,20 @@
  */
 
 class PostComponent {
-  /** @param {Post} post */
-  constructor(post) {
+  /**
+    Contexts:
+    - thread - a post in the thread tree
+    - parent - parent reference above the thread root
+    - quote - a quote embed
+    - quotes - a post on the quotes page
+    - feed - a post on the hashtag feed page
+
+    @typedef {'thread' | 'parent' | 'quote' | 'quotes' | 'feed'} PostContext
+    @param {Post} post, @param {PostContext} context
+  */
+  constructor(post, context) {
     this.post = post;
+    this.context = context;
   }
 
   /** @returns {boolean} */
@@ -57,20 +68,8 @@ class PostComponent {
     }
   }
 
-  /**
-    Contexts:
-    - thread - a post in the thread tree
-    - parent - parent reference above the thread root
-    - quote - a quote embed
-    - quotes - a post on the quotes page
-    - feed - a post on the hashtag feed page
-
-    @typedef {'thread' | 'parent' | 'quote' | 'quotes' | 'feed'} PostContext
-    @param {PostContext} context
-    @returns {AnyElement}
-  */
-
-  buildElement(context) {
+  /** @returns {AnyElement} */
+  buildElement() {
     let div = $tag('div.post');
 
     if (this.post.muted) {
@@ -85,12 +84,12 @@ class PostComponent {
       return div;      
     }
 
-    let header = this.buildPostHeader(context);
+    let header = this.buildPostHeader();
     div.appendChild(header);
 
     let content = $tag('div.content');
 
-    if (context == 'thread' && !this.isRoot) {
+    if (this.context == 'thread' && !this.isRoot) {
       let edge = $tag('div.edge');
       let line = $tag('div.line');
       edge.appendChild(line);
@@ -136,23 +135,23 @@ class PostComponent {
     }
 
     if (this.post.replies.length == 1 && this.post.replies[0].author?.did == this.post.author.did) {
-      let component = new PostComponent(this.post.replies[0]);
-      let element = component.buildElement('thread');
+      let component = new PostComponent(this.post.replies[0], 'thread');
+      let element = component.buildElement();
       element.classList.add('flat');
       content.appendChild(element);
     } else {
       for (let reply of this.post.replies) {
         if (reply instanceof MissingPost) { continue }
 
-        let component = new PostComponent(reply);
-        content.appendChild(component.buildElement('thread'));
+        let component = new PostComponent(reply, 'thread');
+        content.appendChild(component.buildElement());
       }
     }
 
-    if (context == 'thread' && this.post.hasMoreReplies) {
+    if (this.context == 'thread' && this.post.hasMoreReplies) {
       let loadMore = this.buildLoadMoreLink();
       content.appendChild(loadMore);
-    } else if (context == 'thread' && this.post.hasHiddenReplies) {
+    } else if (this.context == 'thread' && this.post.hasHiddenReplies) {
       let loadMore = this.buildHiddenRepliesLink();
       content.appendChild(loadMore);
     }
@@ -162,9 +161,9 @@ class PostComponent {
     return div;
   }
 
-  /** @param {PostContext} context, @returns {AnyElement} */
+  /** @returns {AnyElement} */
 
-  buildPostHeader(context) {
+  buildPostHeader() {
     let timeFormat = this.timeFormatForTimestamp;
     let formattedTime = this.post.createdAt.toLocaleString(window.dateLocale, timeFormat);
     let isoTime = this.post.createdAt.toISOString();
@@ -184,7 +183,7 @@ class PostComponent {
     h.innerHTML += `<span class="separator">&bull;</span> ` +
       `<a class="time" href="${this.linkToPost}" target="_blank" title="${isoTime}">${formattedTime}</a> `;
 
-    if (this.post.replyCount > 0 && !this.isRoot || ['quote', 'quotes', 'feed'].includes(context)) {
+    if (this.post.replyCount > 0 && !this.isRoot || ['quote', 'quotes', 'feed'].includes(this.context)) {
       h.innerHTML +=
         `<span class="separator">&bull;</span> ` +
         `<a href="${linkToPostThread(this.post)}" class="action" title="Load this subtree">` +

@@ -117,7 +117,7 @@ function buildParentLink(post) {
   let p = $tag('p.back');
 
   if (post instanceof BlockedPost) {
-    let element = new PostComponent(post).buildElement('parent');
+    let element = new PostComponent(post, 'parent').buildElement();
     element.className = 'back';
     element.querySelector('p.blocked-header span').innerText = 'Parent post blocked';
     return element;
@@ -337,7 +337,7 @@ function loadHashtagPage(hashtag) {
       }
 
       for (let post of posts) {
-        let postView = new PostComponent(post).buildElement('feed');
+        let postView = new PostComponent(post, 'feed').buildElement();
         $id('thread').appendChild(postView);
       }
 
@@ -392,7 +392,7 @@ function loadQuotesPage(url) {
         }
 
         for (let post of posts) {
-          let postView = new PostComponent(post).buildElement('quotes');
+          let postView = new PostComponent(post, 'quotes').buildElement();
           $id('thread').appendChild(postView);
         }
 
@@ -450,8 +450,8 @@ function loadThread(url, postId) {
       }
     }
 
-    let component = new PostComponent(root);
-    let view = component.buildElement('thread');
+    let component = new PostComponent(root, 'thread');
+    let view = component.buildElement();
     hideLoader();
     $id('thread').appendChild(view);
 
@@ -486,8 +486,8 @@ function loadSubtree(post, nodeToUpdate) {
     post.updateDataFromPost(root);
     window.subtreeRoot = post;
 
-    let component = new PostComponent(post);
-    let view = component.buildElement('thread');
+    let component = new PostComponent(post, 'thread');
+    let view = component.buildElement();
 
     nodeToUpdate.querySelector('.content').replaceWith(view.querySelector('.content'));
   }).catch(error => {
@@ -514,8 +514,8 @@ function loadHiddenSubtree(post, nodeToUpdate) {
       content.querySelector(':scope > .hidden-replies').remove();
 
       for (let reply of post.replies) {
-        let component = new PostComponent(reply);
-        let view = component.buildElement('thread');
+        let component = new PostComponent(reply, 'thread');
+        let view = component.buildElement();
         content.append(view);
       }
     }).catch(error => {
