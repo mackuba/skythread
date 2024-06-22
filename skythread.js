@@ -482,7 +482,7 @@ function loadThread(url, postId) {
 
 function loadSubtree(post, nodeToUpdate) {
   api.loadThreadByURL(post.uri).then(json => {
-    let root = Post.parseThreadPost(json.thread, 0, post.absoluteLevel);
+    let root = Post.parseThreadPost(json.thread, post.pageRoot, 0, post.absoluteLevel);
     post.updateDataFromPost(root);
     window.subtreeRoot = post;
 
@@ -506,7 +506,7 @@ function loadHiddenSubtree(post, nodeToUpdate) {
       let replies = responses
         .map(r => r.status == 'fulfilled' ? r.value : undefined)
         .filter(v => v)
-        .map(json => Post.parseThreadPost(json.thread, 1, post.absoluteLevel + 1));
+        .map(json => Post.parseThreadPost(json.thread, post.pageRoot, 1, post.absoluteLevel + 1));
 
       post.setReplies(replies);
 

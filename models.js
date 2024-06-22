@@ -98,20 +98,27 @@ class Post extends ATProtoRecord {
    * View of a post as part of a thread, as returned from getPostThread.
    * Expected to be #threadViewPost, but may be blocked or missing.
    *
-   * @param {json} json, @param {number} [level], @param {number} [absoluteLevel], @returns {AnyPost}
+   * @param {json} json
+   * @param {Post?} [pageRoot]
+   * @param {number} [level]
+   * @param {number} [absoluteLevel]
+   * @returns {AnyPost}
    */
 
-  static parseThreadPost(json, level = 0, absoluteLevel = 0) {
+  static parseThreadPost(json, pageRoot = null, level = 0, absoluteLevel = 0) {
     switch (json.$type) {
     case 'app.bsky.feed.defs#threadViewPost':
       let post = new Post(json.post, { level: level, absoluteLevel: absoluteLevel });
 
+      post.pageRoot = pageRoot ?? post; 
+
       if (json.replies) {
-        post.setReplies(json.replies.map(x => Post.parseThreadPost(x, level + 1, absoluteLevel + 1)));
+        let replies = json.replies.map(x => Post.parseThreadPost(x, post.pageRoot, level + 1, absoluteLevel + 1));
+        post.setReplies(replies);
       }
 
       if (absoluteLevel <= 0 && json.parent) {
-        post.parent = Post.parseThreadPost(json.parent, level - 1, absoluteLevel - 1);
+        post.parent = Post.parseThreadPost(json.parent, post.pageRoot, level - 1, absoluteLevel - 1);
       }
 
       return post;
@@ -253,7 +260,6 @@ class Post extends ATProtoRecord {
   setReplies(replies) {
     this.replies = replies;
     this.replies.sort(this.sortReplies.bind(this));
-    this.replies.forEach(x => { x.pageRoot = this.pageRoot });
   }
 
   /** @param {AnyPost} a, @param {AnyPost} b, @returns {-1 | 0 | 1} */
