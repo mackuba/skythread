@@ -394,6 +394,23 @@ class PostComponent {
     let record = await appView.loadPost(this.post.uri);
     this.post = new Post(record);
 
+    let userView = await api.getRequest('app.bsky.actor.getProfile', { actor: this.post.author.did });
+
+    if (!userView.viewer || !(userView.viewer.blockedBy || userView.viewer.blocking)) {
+      let { repo, rkey } = atURI(this.post.uri);
+
+      let a = $tag('a', {
+        href: linkToPostById(repo, rkey),
+        className: 'action',
+        title: "Load thread",
+        html: `<i class="fa-solid fa-arrows-split-up-and-left fa-rotate-180"></i>`
+      });
+
+      let header = div.querySelector('p.blocked-header');
+      let separator = $tag('span.separator', { html: '&bull;' });
+      header.append(separator, ' ', a);
+    }
+
     div.querySelector('p.load-post').remove();
 
     if (this.isRoot && this.post.parentReference) {
