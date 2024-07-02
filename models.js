@@ -178,6 +178,10 @@ class Post extends ATProtoRecord {
     if (json.reply) {
       post.parent = Post.parsePostView(json.reply.parent);
       post.threadRoot = Post.parsePostView(json.reply.root);
+
+      if (json.reply.grandparentAuthor) {
+        post.grandparentAuthor = json.reply.grandparentAuthor;
+      }
     }
 
     if (json.reason) {
