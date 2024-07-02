@@ -430,6 +430,9 @@ class PostComponent {
     if (this.post.embed) {
       let embed = new EmbedComponent(this.post, this.post.embed).buildElement();
       div.appendChild(embed);
+
+      // TODO
+      Array.from(div.querySelectorAll('a.link-card')).forEach(x => x.remove());
     }
   }
 
