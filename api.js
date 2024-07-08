@@ -255,6 +255,18 @@ class BlueskyAPI extends Minisky {
 
   async loadPost(postURI) {
     let posts = await this.loadPosts([postURI]);
+
+    if (posts.length == 1) {
+      return posts[0];
+    } else {
+      throw new ResponseDataError('Post not found');
+    }
+  }
+
+  /** @param {string} postURI, @returns {Promise<json | undefined>} */
+
+  async loadPostIfExists(postURI) {
+    let posts = await this.loadPosts([postURI]);
     return posts[0];
   }
 
