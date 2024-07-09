@@ -12,10 +12,10 @@ class PostComponent {
     - feed - a post on the hashtag feed page
 
     @typedef {'thread' | 'parent' | 'quote' | 'quotes' | 'feed'} PostContext
-    @param {Post} post, @param {PostContext} context
+    @param {AnyPost} post, @param {PostContext} context
   */
   constructor(post, context) {
-    this.post = post;
+    this.post = /** @type {Post}, TODO */ (post);
     this.context = context;
   }
 
