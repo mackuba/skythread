@@ -106,6 +106,19 @@ class BlueskyAPI extends Minisky {
     return this.handleCache.findHandleByDid(did);
   }
 
+  /** @param {string} did, @returns {Promise<string>} */
+
+  async fetchHandleForDid(did) {
+    let cachedHandle = this.handleCache.findHandleByDid(did);
+
+    if (cachedHandle) {
+      return cachedHandle;
+    } else {
+      let author = await this.loadUserProfile(did);
+      return author.handle;
+    }
+  }
+
   /** @param {string} string, @returns {[string, string]} */
 
   static parsePostURL(string) {

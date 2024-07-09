@@ -336,32 +336,22 @@ class PostComponent {
 
   buildBlockedPostElement(div) {
     let p = $tag('p.blocked-header');
-    p.innerHTML = `<i class="fa-solid fa-ban"></i> <span>Blocked post</span> ` +
-      `(<a href="${this.didLinkToAuthor}" target="_blank">see author</a>) `;
+    p.innerHTML = `<i class="fa-solid fa-ban"></i> <span>Blocked post</span>`;
+
+    let blockStatus = this.post.blockedByUser ? 'has blocked you' : this.post.blocksUser ? "you've blocked them" : '';
+    blockStatus = blockStatus ? `, ${blockStatus}` : '';
+
+    let authorLink = $tag('a', { href: this.didLinkToAuthor, target: '_blank', text: 'see author' });
+    p.append(' (', authorLink, blockStatus, ') ');
     div.appendChild(p);
 
-    let authorLink = p.querySelector('a');
     let did = atURI(this.post.uri).repo;
-    let cachedHandle = api.findHandleByDid(did);
-    let blockStatus = this.post.blockedByUser ? 'has blocked you' : this.post.blocksUser ? "you've blocked them" : '';
-
-    if (cachedHandle) {
-      this.post.author.handle = cachedHandle;
+    
+    api.fetchHandleForDid(did).then(handle => {
+      this.post.author.handle = handle;
       authorLink.href = this.linkToAuthor;
-      authorLink.innerText = `@${cachedHandle}`;
-      if (blockStatus) {
-        authorLink.after(`, ${blockStatus}`);
-      }
-    } else {
-      api.loadUserProfile(did).then((author) => {
-        this.post.author = author;
-        authorLink.href = this.linkToAuthor;
-        authorLink.innerText = `@${author.handle}`;
-        if (blockStatus) {
-          authorLink.after(`, ${blockStatus}`);
-        }
-      });
-    }
+      authorLink.innerText = `@${handle}`;
+    });
 
     let loadPost = $tag('p.load-post');
     let a = $tag('a', { href: '#', text: "Load post…" });
