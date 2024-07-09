@@ -391,7 +391,15 @@ class PostComponent {
   /** @param {string} uri, @param {AnyElement} div, @returns Promise<void> */
 
   async loadBlockedPost(uri, div) {
-    let record = await appView.loadPost(this.post.uri);
+    let record = await appView.loadPostIfExists(this.post.uri);
+
+    if (!record) {
+      let post = new MissingPost({ uri: this.post.uri });
+      let postView = new PostComponent(post, 'quote').buildElement();
+      div.replaceWith(postView);
+      return;
+    }
+
     this.post = new Post(record);
 
     let userView = await api.getRequest('app.bsky.actor.getProfile', { actor: this.post.author.did });
