@@ -251,10 +251,16 @@ class EmbedComponent {
   /** @param {string} uri, @param {AnyElement} div, @returns Promise<void> */
 
   async loadQuotedPost(uri, div) {
-    let result = await api.loadPost(uri);
-    let post = new Post(result);
+    let record = await api.loadPostIfExists(uri);
 
-    let postView = new PostComponent(post, 'quote').buildElement();
-    div.replaceChildren(postView);
+    if (record) {
+      let post = new Post(record);
+      let postView = new PostComponent(post, 'quote').buildElement();
+      div.replaceChildren(postView);
+    } else {
+      let post = new MissingPost(this.embed.record);
+      let postView = new PostComponent(post, 'quote').buildElement();
+      div.replaceChildren(postView);
+    }
   }
 }
