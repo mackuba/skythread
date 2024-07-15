@@ -97,6 +97,13 @@ function getLocation() {
   return location.origin + location.pathname;
 }
 
+/** @param {object} error */
+
+function showError(error) {
+  console.log(error);
+  alert(error);  
+}
+
 /** @param {Date} date1, @param {Date} date2, @returns {boolean} */
 
 function sameDay(date1, date2) {

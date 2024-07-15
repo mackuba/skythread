@@ -527,19 +527,13 @@ class PostComponent {
         this.post.viewerLike = like.uri;
         heart.classList.add('liked');
         count.innerText = String(parseInt(count.innerText, 10) + 1);
-      }).catch((error) => {
-        console.log(error);
-        alert(error);
-      });
+      }).catch(showError);
     } else {
       accountAPI.removeLike(this.post.viewerLike).then(() => {
         this.post.viewerLike = undefined;
         heart.classList.remove('liked');
         count.innerText = String(parseInt(count.innerText, 10) - 1);
-      }).catch((error) => {
-        console.log(error);
-        alert(error);
-      });
+      }).catch(showError);
     }
   }
 }

@@ -558,8 +558,7 @@ function loadThread(url, postId) {
     });
   }).catch(error => {
     hideLoader();
-    console.log(error);
-    alert(error);
+    showError(error);
   });
 }
 
@@ -575,10 +574,7 @@ function loadSubtree(post, nodeToUpdate) {
     let view = component.buildElement();
 
     nodeToUpdate.querySelector('.content').replaceWith(view.querySelector('.content'));
-  }).catch(error => {
-    console.log(error);
-    alert(error);
-  });
+  }).catch(showError);
 }
 
 /** @param {Post} post, @param {AnyElement} nodeToUpdate */
@@ -603,12 +599,6 @@ function loadHiddenSubtree(post, nodeToUpdate) {
         let view = component.buildElement();
         content.append(view);
       }
-    }).catch(error => {
-      console.log(error);
-      alert(error);
-    });
-  }).catch(error => {
-    console.log(error);
-    alert(error);
-  });
+    }).catch(showError);
+  }).catch(showError);
 }
