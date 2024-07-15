@@ -142,6 +142,7 @@ class PostComponent {
     } else {
       for (let reply of this.post.replies) {
         if (reply instanceof MissingPost) { continue }
+        if (reply instanceof BlockedPost && window.biohazardEnabled === false) { continue }
 
         let component = new PostComponent(reply, 'thread');
         content.appendChild(component.buildElement());
