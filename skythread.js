@@ -89,8 +89,6 @@ function init() {
       toggleMenuButton('biohazard', false);
       Array.from(hazards).forEach(p => { p.style.display = 'none' });
     }
-
-    hideDialog(e.target.closest('.dialog'));
   });
 
   document.querySelector('#account_menu a[data-action=incognito]').addEventListener('click', (e) => {
