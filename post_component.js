@@ -148,12 +148,14 @@ class PostComponent {
       }
     }
 
-    if (this.context == 'thread' && this.post.hasMoreReplies) {
-      let loadMore = this.buildLoadMoreLink();
-      content.appendChild(loadMore);
-    } else if (this.context == 'thread' && this.post.hasHiddenReplies) {
-      let loadMore = this.buildHiddenRepliesLink();
-      content.appendChild(loadMore);
+    if (this.context == 'thread') {
+      if (this.post.hasMoreReplies) {
+        let loadMore = this.buildLoadMoreLink();
+        content.appendChild(loadMore);
+      } else if (this.post.hasHiddenReplies && window.biohazardEnabled !== false) {
+        let loadMore = this.buildHiddenRepliesLink();
+        content.appendChild(loadMore);
+      }
     }
 
     div.appendChild(content);
@@ -324,12 +326,24 @@ class PostComponent {
 
     link.addEventListener('click', (e) => {
       e.preventDefault();
-      loadMore.innerHTML = `<img class="loader" src="icons/sunny.png">`;
-      loadHiddenSubtree(this.post, loadMore.closest('.post'));
+
+      if (window.biohazardEnabled === true) {
+        this.loadHiddenReplies(loadMore);
+      } else {
+        window.loadInfohazard = () => this.loadHiddenReplies(loadMore);
+        showDialog($id('biohazard_dialog'));
+      }
     });
 
     loadMore.append("☣️ ", link);
     return loadMore;
+  }
+
+  /** @param {HTMLLinkElement} loadMoreButton */
+
+  loadHiddenReplies(loadMoreButton) {
+    loadMoreButton.innerHTML = `<img class="loader" src="icons/sunny.png">`;
+    loadHiddenSubtree(this.post, loadMoreButton.closest('.post'));
   }
 
   /** @param {AnyElement} div, @returns {AnyElement} */
@@ -494,7 +508,7 @@ class PostComponent {
           alert("Sorry, this post is blocked.");
         });
       } else {
-        showLogin();        
+        showDialog(loginDialog);        
       }
       return;
     }

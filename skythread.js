@@ -4,8 +4,11 @@ function init() {
 
   window.dateLocale = localStorage.getItem('locale') || undefined;
   window.isIncognito = !!localStorage.getItem('incognito');
+  window.biohazardEnabled = JSON.parse(localStorage.getItem('biohazard') ?? 'null');
 
-  document.addEventListener('click', (e) => {
+  window.loginDialog = document.querySelector('#login');
+
+  html.addEventListener('click', (e) => {
     $id('account_menu').style.visibility = 'hidden';
   });
 
@@ -14,13 +17,19 @@ function init() {
     submitSearch();
   });
 
-  document.querySelector('#login').addEventListener('click', (e) => {
-    if (e.target === e.currentTarget) {
-      hideLogin();
-    } else {
-      e.stopPropagation();
-    }
-  });
+  for (let dialog of document.querySelectorAll('.dialog')) {
+    dialog.addEventListener('click', (e) => {
+      if (e.target === e.currentTarget) {
+        hideDialog(dialog);
+      } else {
+        e.stopPropagation();
+      }
+    });    
+
+    dialog.querySelector('.close')?.addEventListener('click', (e) => {
+      hideDialog(dialog);
+    });
+  }
 
   document.querySelector('#login .info a').addEventListener('click', (e) => {
     e.preventDefault();
@@ -32,15 +41,30 @@ function init() {
     submitLogin();
   });
 
-  document.querySelector('#login .close').addEventListener('click', (e) => {
-    hideLogin();
+  document.querySelector('#biohazard_show').addEventListener('click', (e) => {
+    hideDialog(e.target.closest('.dialog'));
+    window.biohazardEnabled = true;
+    localStorage.setItem('biohazard', 'true');
+
+    if (window.loadInfohazard) {
+      window.loadInfohazard();
+      window.loadInfohazard = undefined;
+    }
+  });
+
+  document.querySelector('#biohazard_hide').addEventListener('click', (e) => {
+    hideDialog(e.target.closest('.dialog'));
+    window.biohazardEnabled = false;
+    localStorage.setItem('biohazard', 'false');
+
+    Array.from(document.querySelectorAll('p.hidden-replies')).forEach(p => p.remove());
   });
 
   document.querySelector('#account').addEventListener('click', (e) => {
     if (accountAPI.isLoggedIn) {
       toggleAccount();
     } else {
-      toggleLogin();
+      toggleDialog(loginDialog);
     }
     e.stopPropagation();
   });
@@ -148,25 +172,28 @@ function hideSearch() {
   $id('search').style.visibility = 'hidden';
 }
 
-function showLogin() {
-  $id('login').style.visibility = 'visible';
+function showDialog(dialog) {
+  dialog.style.visibility = 'visible';
   $id('thread').classList.add('overlay');
-  $id('login_handle').focus();
+
+  dialog.querySelector('input[type=text]')?.focus();
 }
 
-function hideLogin() {
-  $id('login').style.visibility = 'hidden';
-  $id('login').classList.remove('expanded');
+function hideDialog(dialog) {
+  dialog.style.visibility = 'hidden';
+  dialog.classList.remove('expanded');
   $id('thread').classList.remove('overlay');
-  $id('login_handle').value = '';
-  $id('login_password').value = '';
+
+  for (let field of dialog.querySelectorAll('input[type=text]')) {
+    field.value = '';
+  }
 }
 
-function toggleLogin() {
-  if ($id('login').style.visibility == 'visible') {
-    hideLogin();
+function toggleDialog(dialog) {
+  if (dialog.style.visibility == 'visible') {
+    hideDialog(dialog);
   } else {
-    showLogin();
+    showDialog(dialog);
   }
 }
 
@@ -225,7 +252,7 @@ function submitLogin() {
     window.api = pds;
     window.accountAPI = pds;
 
-    hideLogin();
+    hideDialog(loginDialog);
     submit.style.display = 'inline';
     cloudy.style.display = 'none';
 

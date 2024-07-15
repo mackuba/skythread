@@ -46,7 +46,10 @@
     </ul>
   </div>
 
-  <div id="login">
+  <div id="thread">
+  </div>
+
+  <div id="login" class="dialog">
     <form method="get">
       <i class="close fa-circle-xmark fa-regular"></i>
       <h2>🌤 Skythread</h2>
@@ -65,7 +68,18 @@
     </form>
   </div>
 
-  <div id="thread">
+  <div id="biohazard_dialog" class="dialog">
+    <form method="get">
+      <i class="close fa-circle-xmark fa-regular"></i>
+      <h2>☣️ Infohazard Warning</h2>
+      <p>&ldquo;<em>This thread is not a place of honor... no highly esteemed post is commemorated here... nothing valued is here.</em>&rdquo;</p>
+      <p>This feature allows access to comments in a thread which were hidden because one of the commenters has blocked another. Bluesky currently hides such comments to avoid escalating conflicts.</p>
+      <p>Are you sure you want to enter?<br>(You can toggle this in the menu in top-left corner.)</p>
+      <p class="submit">
+        <input type="submit" id="biohazard_show" value="Show me the drama 😈">
+        <input type="submit" id="biohazard_hide" value="Nope, I'd rather not 🙈">
+      </p>
+    </form>
   </div>
 
   <script src="lib/purify.min.js"></script>

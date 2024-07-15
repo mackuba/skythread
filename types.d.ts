@@ -2,6 +2,7 @@ interface Window {
   dateLocale: string | undefined;
   root: AnyPost;
   subtreeRoot: AnyPost;
+  loadInfohazard: (() => void) | undefined;
 }
 
 declare var accountAPI: BlueskyAPI;
@@ -9,6 +10,8 @@ declare var blueAPI: BlueskyAPI;
 declare var appView: BlueskyAPI;
 declare var api: BlueskyAPI;
 declare var isIncognito: boolean;
+declare var biohazardEnabled: boolean;
+declare var loginDialog: AnyElement;
 
 type SomeElement = Element | HTMLElement | AnyElement;
 type json = Record<string, any>;
