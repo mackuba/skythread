@@ -65,11 +65,7 @@ function init() {
   });
 
   document.querySelector('#account').addEventListener('click', (e) => {
-    if (accountAPI.isLoggedIn) {
-      toggleAccount();
-    } else {
-      toggleDialog(loginDialog);
-    }
+    toggleAccountMenu();
     e.stopPropagation();
   });
 
@@ -101,12 +97,18 @@ function init() {
     e.preventDefault();
 
     if (isIncognito) {
-      localStorage.removeItem('incognito');      
+      localStorage.removeItem('incognito');
     } else {
       localStorage.setItem('incognito', '1');
     }
 
     location.reload();
+  });
+
+  document.querySelector('#account_menu a[data-action=login]').addEventListener('click', (e) => {
+    e.preventDefault();
+    toggleDialog(loginDialog);
+    $id('account_menu').style.visibility = 'hidden';
   });
 
   document.querySelector('#account_menu a[data-action=logout]').addEventListener('click', (e) => {
@@ -118,17 +120,22 @@ function init() {
   window.blueAPI = new BlueskyAPI('blue.mackuba.eu', false);
   window.accountAPI = new BlueskyAPI(undefined, true);
 
-  if (accountAPI.isLoggedIn && !isIncognito) {
-    window.api = accountAPI;
+  if (accountAPI.isLoggedIn) {
     accountAPI.host = accountAPI.user.pdsEndpoint;
-    showLoggedInStatus(true, api.user.avatar);
-  } else if (accountAPI.isLoggedIn && isIncognito) {
-    window.api = appView;
-    accountAPI.host = accountAPI.user.pdsEndpoint;
-    showLoggedInStatus('incognito');
-    toggleMenuButton('incognito', true);
+    hideMenuButton('login');
+
+    if (!isIncognito) {
+      window.api = accountAPI;
+      showLoggedInStatus(true, api.user.avatar);
+    } else {
+      window.api = appView;
+      showLoggedInStatus('incognito');
+      toggleMenuButton('incognito', true);
+    }
   } else {
     window.api = appView;
+    hideMenuButton('logout');
+    hideMenuButton('incognito');
   }
 
   toggleMenuButton('biohazard', window.biohazardEnabled !== false);
@@ -227,9 +234,23 @@ function toggleLoginInfo(event) {
   $id('login').classList.toggle('expanded');
 }
 
-function toggleAccount() {
+function toggleAccountMenu() {
   let menu = $id('account_menu');
   menu.style.visibility = (menu.style.visibility == 'visible') ? 'hidden' : 'visible';
+}
+
+/** @param {string} buttonName */
+
+function showMenuButton(buttonName) {
+  let button = document.querySelector(`#account_menu a[data-action=${buttonName}]`);
+  button.parentNode.style.display = 'list-item';
+}
+
+/** @param {string} buttonName */
+
+function hideMenuButton(buttonName) {
+  let button = document.querySelector(`#account_menu a[data-action=${buttonName}]`);
+  button.parentNode.style.display = 'none';
 }
 
 /** @param {string} buttonName, @param {boolean} state */
@@ -290,6 +311,9 @@ function submitLogin() {
     cloudy.style.display = 'none';
 
     loadCurrentUserAvatar();
+    showMenuButton('logout');
+    showMenuButton('incognito');
+    hideMenuButton('login');
   })
   .catch((error) => {
     submit.style.display = 'inline';
@@ -333,6 +357,7 @@ function loadCurrentUserAvatar() {
 
 function logOut() {
   accountAPI.resetTokens();
+  localStorage.removeItem('incognito');
   location.reload();
 }
 
