@@ -353,6 +353,12 @@ class PostComponent {
     let p = $tag('p.blocked-header');
     p.innerHTML = `<i class="fa-solid fa-ban"></i> <span>Blocked post</span>`;
 
+    if (window.biohazardEnabled === false) {
+      div.appendChild(p);
+      div.classList.add('blocked');
+      return p;
+    }
+
     let blockStatus = this.post.blockedByUser ? 'has blocked you' : this.post.blocksUser ? "you've blocked them" : '';
     blockStatus = blockStatus ? `, ${blockStatus}` : '';
 
