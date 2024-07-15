@@ -159,10 +159,10 @@ function parseQueryParams() {
     loadHashtagPage(decodeURIComponent(hash));
   } else if (query) {
     showLoader();
-    loadThread(decodeURIComponent(query));
+    loadThreadByURL(decodeURIComponent(query));
   } else if (author && post) {
     showLoader();
-    loadThread(decodeURIComponent(author), decodeURIComponent(post));
+    loadThreadById(decodeURIComponent(author), decodeURIComponent(post));
   } else {
     showSearch();
   }
@@ -366,6 +366,13 @@ function submitSearch() {
 
   if (!url) { return }
 
+  if (url.startsWith('at://')) {
+    let target = new URL(getLocation());
+    target.searchParams.set('q', url);
+    location.assign(target.toString());
+    return;
+  }
+
   if (url.match(/^#?((\p{Letter}|\p{Number})+)$/u)) {
     let target = new URL(getLocation());
     target.searchParams.set('hash', encodeURIComponent(url.replace(/^#/, '')));
@@ -513,59 +520,76 @@ function loadInPages(callback) {
   });
 }
 
-/** @param {string} url, @param {string} [postId] */
+/** @param {string} url */
 
-function loadThread(url, postId) {
-  let load = postId ? api.loadThreadById(url, postId) : api.loadThreadByURL(url);
+function loadThreadByURL(url) {
+  let loadThread = url.startsWith('at://') ? api.loadThreadByAtURI(url) : api.loadThreadByURL(url);
 
-  load.then(json => {
-    let root = Post.parseThreadPost(json.thread);
-    window.root = root;
-    window.subtreeRoot = root;
-
-    let loadQuoteCount;
-
-    if (root instanceof Post) {
-      setPageTitle(root);
-      loadQuoteCount = blueAPI.getQuoteCount(root.uri);        
-
-      if (root.parent) {
-        let p = buildParentLink(root.parent);
-        $id('thread').appendChild(p);
-      }
-    }
-
-    let component = new PostComponent(root, 'thread');
-    let view = component.buildElement();
-    hideLoader();
-    $id('thread').appendChild(view);
-
-    loadQuoteCount?.then(count => {
-      if (count > 0) {
-        let stats = view.querySelector(':scope > .content > p.stats');
-        let q = new URL(getLocation());
-        q.searchParams.set('quotes', component.linkToPost);
-        stats.append($tag('i', { className: count > 1 ? 'fa-regular fa-comments' : 'fa-regular fa-comment' }));
-        stats.append(" ");
-        let quotes = $tag('a', {
-          html: count > 1 ? `${count} quotes` : '1 quote',
-          href: q.toString()
-        });
-        stats.append(quotes);
-      }
-    }).catch(error => {
-      console.warn("Couldn't load quote count: " + error);
-    });
+  loadThread.then(json => {
+    displayThread(json);
   }).catch(error => {
     hideLoader();
     showError(error);
   });
 }
 
+/** @param {string} author, @param {string} rkey */
+
+function loadThreadById(author, rkey) {
+  api.loadThreadById(author, rkey).then(json => {
+    displayThread(json);
+  }).catch(error => {
+    hideLoader();
+    showError(error);
+  });
+}
+
+/** @param {json} json */
+
+function displayThread(json) {
+  let root = Post.parseThreadPost(json.thread);
+  window.root = root;
+  window.subtreeRoot = root;
+
+  let loadQuoteCount;
+
+  if (root instanceof Post) {
+    setPageTitle(root);
+    loadQuoteCount = blueAPI.getQuoteCount(root.uri);        
+
+    if (root.parent) {
+      let p = buildParentLink(root.parent);
+      $id('thread').appendChild(p);
+    }
+  }
+
+  let component = new PostComponent(root, 'thread');
+  let view = component.buildElement();
+  hideLoader();
+  $id('thread').appendChild(view);
+
+  loadQuoteCount?.then(count => {
+    if (count > 0) {
+      let stats = view.querySelector(':scope > .content > p.stats');
+      let q = new URL(getLocation());
+      q.searchParams.set('quotes', component.linkToPost);
+      stats.append($tag('i', { className: count > 1 ? 'fa-regular fa-comments' : 'fa-regular fa-comment' }));
+      stats.append(" ");
+      let quotes = $tag('a', {
+        text: count > 1 ? `${count} quotes` : '1 quote',
+        href: q.toString()
+      });
+      stats.append(quotes);
+    }
+  }).catch(error => {
+    console.warn("Couldn't load quote count: " + error);
+  });
+}
+
 /** @param {Post} post, @param {AnyElement} nodeToUpdate */
 
 function loadSubtree(post, nodeToUpdate) {
-  api.loadThreadByURL(post.uri).then(json => {
+  api.loadThreadByAtURI(post.uri).then(json => {
     let root = Post.parseThreadPost(json.thread, post.pageRoot, 0, post.absoluteLevel);
     post.updateDataFromPost(root);
     window.subtreeRoot = post;
@@ -583,7 +607,7 @@ function loadHiddenSubtree(post, nodeToUpdate) {
   blueAPI.getRequest('eu.mackuba.private.getReplies', { uri: post.uri }).then(result => {
     let missingReplies = result.replies.filter(r => !post.replies.some(x => x.uri === r));
 
-    Promise.allSettled(missingReplies.map(uri => api.loadThreadByURL(uri))).then(responses => {
+    Promise.allSettled(missingReplies.map(uri => api.loadThreadByAtURI(uri))).then(responses => {
       let replies = responses
         .map(r => r.status == 'fulfilled' ? r.value : undefined)
         .filter(v => v)

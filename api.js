@@ -182,8 +182,13 @@ class BlueskyAPI extends Minisky {
   async loadThreadById(author, postId) {
     let did = author.startsWith('did:') ? author : await this.resolveHandle(author);
     let postURI = `at://${did}/app.bsky.feed.post/${postId}`;
-    let threadJSON = await this.getRequest('app.bsky.feed.getPostThread', { uri: postURI, depth: 10 });
-    return threadJSON;
+    return await this.loadThreadByAtURI(postURI);
+  }
+
+  /** @param {string} uri, @returns {Promise<json>} */
+
+  async loadThreadByAtURI(uri) {
+    return await this.getRequest('app.bsky.feed.getPostThread', { uri: uri, depth: 10 });
   }
 
   /** @param {string} handle, @returns {Promise<json>} */
