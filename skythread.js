@@ -53,11 +53,15 @@ function init() {
   });
 
   document.querySelector('#biohazard_hide').addEventListener('click', (e) => {
-    hideDialog(e.target.closest('.dialog'));
     window.biohazardEnabled = false;
     localStorage.setItem('biohazard', 'false');
+    toggleMenuButton('biohazard', false);
 
-    Array.from(document.querySelectorAll('p.hidden-replies')).forEach(p => p.remove());
+    for (let p of document.querySelectorAll('p.hidden-replies, .content > .post.blocked, .blocked > .load-post')) {
+      p.style.display = 'none';
+    }
+
+    hideDialog(e.target.closest('.dialog'));
   });
 
   document.querySelector('#account').addEventListener('click', (e) => {
@@ -71,6 +75,26 @@ function init() {
 
   document.querySelector('#account_menu').addEventListener('click', (e) => {
     e.stopPropagation();
+  });
+
+  document.querySelector('#account_menu a[data-action=biohazard]').addEventListener('click', (e) => {
+    e.preventDefault();
+
+    let hazards = document.querySelectorAll('p.hidden-replies, .content > .post.blocked, .blocked > .load-post');
+
+    if (window.biohazardEnabled === false) {
+      window.biohazardEnabled = true;
+      localStorage.setItem('biohazard', 'true');
+      toggleMenuButton('biohazard', true);
+      Array.from(hazards).forEach(p => { p.style.display = 'block' });
+    } else {
+      window.biohazardEnabled = false;
+      localStorage.setItem('biohazard', 'false');
+      toggleMenuButton('biohazard', false);
+      Array.from(hazards).forEach(p => { p.style.display = 'none' });
+    }
+
+    hideDialog(e.target.closest('.dialog'));
   });
 
   document.querySelector('#account_menu a[data-action=incognito]').addEventListener('click', (e) => {
@@ -102,10 +126,12 @@ function init() {
     window.api = appView;
     accountAPI.host = accountAPI.user.pdsEndpoint;
     showLoggedInStatus('incognito');
-    document.querySelector('#account_menu a[data-action=incognito]').innerText = '✓ Incognito mode';
+    toggleMenuButton('incognito', true);
   } else {
     window.api = appView;
   }
+
+  toggleMenuButton('biohazard', window.biohazardEnabled !== false);
 
   parseQueryParams();
 }
@@ -204,6 +230,13 @@ function toggleLoginInfo(event) {
 function toggleAccount() {
   let menu = $id('account_menu');
   menu.style.visibility = (menu.style.visibility == 'visible') ? 'hidden' : 'visible';
+}
+
+/** @param {string} buttonName, @param {boolean} state */
+
+function toggleMenuButton(buttonName, state) {
+  let button = document.querySelector(`#account_menu a[data-action=${buttonName}]`);
+  button.querySelector('.check').style.display = (state) ? 'inline' : 'none';
 }
 
 /** @param {boolean | 'incognito'} loggedIn, @param {string | undefined | null} [avatar] */

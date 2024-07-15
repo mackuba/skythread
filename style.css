@@ -143,6 +143,10 @@ a:visited {
   text-decoration: none;
 }
 
+#account_menu li .check {
+  display: none;
+}
+
 .dialog {
   visibility: hidden;
   position: fixed;
