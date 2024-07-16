@@ -42,7 +42,8 @@ function init() {
   });
 
   document.querySelector('#biohazard_show').addEventListener('click', (e) => {
-    hideDialog(e.target.closest('.dialog'));
+    e.preventDefault();
+
     window.biohazardEnabled = true;
     localStorage.setItem('biohazard', 'true');
 
@@ -50,9 +51,13 @@ function init() {
       window.loadInfohazard();
       window.loadInfohazard = undefined;
     }
+
+    hideDialog(e.target.closest('.dialog'));
   });
 
   document.querySelector('#biohazard_hide').addEventListener('click', (e) => {
+    e.preventDefault();
+
     window.biohazardEnabled = false;
     localStorage.setItem('biohazard', 'false');
     toggleMenuButton('biohazard', false);
