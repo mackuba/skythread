@@ -602,8 +602,8 @@ function loadSubtree(post, nodeToUpdate) {
 /** @param {Post} post, @param {AnyElement} nodeToUpdate */
 
 function loadHiddenSubtree(post, nodeToUpdate) {
-  blueAPI.getRequest('blue.feeds.post.getReplies', { uri: post.uri }).then(result => {
-    let missingReplies = result.replies.filter(r => !post.replies.some(x => x.uri === r));
+  blueAPI.getReplies(post.uri).then(replies => {
+    let missingReplies = replies.filter(r => !post.replies.some(x => x.uri === r));
 
     Promise.allSettled(missingReplies.map(uri => api.loadThreadByAtURI(uri))).then(responses => {
       let replies = responses

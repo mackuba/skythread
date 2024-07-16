@@ -234,6 +234,13 @@ class BlueskyAPI extends Minisky {
     }
   }
 
+  /** @param {string} uri, @returns {Promise<json[]>} */
+
+  async getReplies(uri) {
+    let json = await this.getRequest('blue.feeds.post.getReplies', { uri });
+    return json.replies;
+  }
+  
   /** @param {string} uri, @returns {Promise<number>} */
 
   async getQuoteCount(uri) {
