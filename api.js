@@ -237,7 +237,7 @@ class BlueskyAPI extends Minisky {
   /** @param {string} uri, @returns {Promise<number>} */
 
   async getQuoteCount(uri) {
-    let json = await this.getRequest('eu.mackuba.private.getQuoteCount', { uri });
+    let json = await this.getRequest('blue.feeds.post.getQuoteCount', { uri });
     return json.quoteCount;
   }
 
@@ -254,7 +254,7 @@ class BlueskyAPI extends Minisky {
       params['cursor'] = cursor;
     }
 
-    return await this.getRequest('eu.mackuba.private.getPostQuotes', params);
+    return await this.getRequest('blue.feeds.post.getQuotes', params);
   }
 
   /** @param {string} hashtag, @param {string | undefined} cursor, @returns {Promise<json>} */

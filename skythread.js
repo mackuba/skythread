@@ -602,7 +602,7 @@ function loadSubtree(post, nodeToUpdate) {
 /** @param {Post} post, @param {AnyElement} nodeToUpdate */
 
 function loadHiddenSubtree(post, nodeToUpdate) {
-  blueAPI.getRequest('eu.mackuba.private.getReplies', { uri: post.uri }).then(result => {
+  blueAPI.getRequest('blue.feeds.post.getReplies', { uri: post.uri }).then(result => {
     let missingReplies = result.replies.filter(r => !post.replies.some(x => x.uri === r));
 
     Promise.allSettled(missingReplies.map(uri => api.loadThreadByAtURI(uri))).then(responses => {
