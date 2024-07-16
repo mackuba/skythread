@@ -4,8 +4,11 @@ function init() {
 
   window.dateLocale = localStorage.getItem('locale') || undefined;
   window.isIncognito = !!localStorage.getItem('incognito');
+  window.biohazardEnabled = JSON.parse(localStorage.getItem('biohazard') ?? 'null');
 
-  document.addEventListener('click', (e) => {
+  window.loginDialog = document.querySelector('#login');
+
+  html.addEventListener('click', (e) => {
     $id('account_menu').style.visibility = 'hidden';
   });
 
@@ -14,13 +17,19 @@ function init() {
     submitSearch();
   });
 
-  document.querySelector('#login').addEventListener('click', (e) => {
-    if (e.target === e.currentTarget) {
-      hideLogin();
-    } else {
-      e.stopPropagation();
-    }
-  });
+  for (let dialog of document.querySelectorAll('.dialog')) {
+    dialog.addEventListener('click', (e) => {
+      if (e.target === e.currentTarget) {
+        hideDialog(dialog);
+      } else {
+        e.stopPropagation();
+      }
+    });    
+
+    dialog.querySelector('.close')?.addEventListener('click', (e) => {
+      hideDialog(dialog);
+    });
+  }
 
   document.querySelector('#login .info a').addEventListener('click', (e) => {
     e.preventDefault();
@@ -32,16 +41,31 @@ function init() {
     submitLogin();
   });
 
-  document.querySelector('#login .close').addEventListener('click', (e) => {
-    hideLogin();
+  document.querySelector('#biohazard_show').addEventListener('click', (e) => {
+    hideDialog(e.target.closest('.dialog'));
+    window.biohazardEnabled = true;
+    localStorage.setItem('biohazard', 'true');
+
+    if (window.loadInfohazard) {
+      window.loadInfohazard();
+      window.loadInfohazard = undefined;
+    }
+  });
+
+  document.querySelector('#biohazard_hide').addEventListener('click', (e) => {
+    window.biohazardEnabled = false;
+    localStorage.setItem('biohazard', 'false');
+    toggleMenuButton('biohazard', false);
+
+    for (let p of document.querySelectorAll('p.hidden-replies, .content > .post.blocked, .blocked > .load-post')) {
+      p.style.display = 'none';
+    }
+
+    hideDialog(e.target.closest('.dialog'));
   });
 
   document.querySelector('#account').addEventListener('click', (e) => {
-    if (accountAPI.isLoggedIn) {
-      toggleAccount();
-    } else {
-      toggleLogin();
-    }
+    toggleAccountMenu();
     e.stopPropagation();
   });
 
@@ -49,16 +73,40 @@ function init() {
     e.stopPropagation();
   });
 
+  document.querySelector('#account_menu a[data-action=biohazard]').addEventListener('click', (e) => {
+    e.preventDefault();
+
+    let hazards = document.querySelectorAll('p.hidden-replies, .content > .post.blocked, .blocked > .load-post');
+
+    if (window.biohazardEnabled === false) {
+      window.biohazardEnabled = true;
+      localStorage.setItem('biohazard', 'true');
+      toggleMenuButton('biohazard', true);
+      Array.from(hazards).forEach(p => { p.style.display = 'block' });
+    } else {
+      window.biohazardEnabled = false;
+      localStorage.setItem('biohazard', 'false');
+      toggleMenuButton('biohazard', false);
+      Array.from(hazards).forEach(p => { p.style.display = 'none' });
+    }
+  });
+
   document.querySelector('#account_menu a[data-action=incognito]').addEventListener('click', (e) => {
     e.preventDefault();
 
     if (isIncognito) {
-      localStorage.removeItem('incognito');      
+      localStorage.removeItem('incognito');
     } else {
       localStorage.setItem('incognito', '1');
     }
 
     location.reload();
+  });
+
+  document.querySelector('#account_menu a[data-action=login]').addEventListener('click', (e) => {
+    e.preventDefault();
+    toggleDialog(loginDialog);
+    $id('account_menu').style.visibility = 'hidden';
   });
 
   document.querySelector('#account_menu a[data-action=logout]').addEventListener('click', (e) => {
@@ -70,18 +118,25 @@ function init() {
   window.blueAPI = new BlueskyAPI('blue.mackuba.eu', false);
   window.accountAPI = new BlueskyAPI(undefined, true);
 
-  if (accountAPI.isLoggedIn && !isIncognito) {
-    window.api = accountAPI;
+  if (accountAPI.isLoggedIn) {
     accountAPI.host = accountAPI.user.pdsEndpoint;
-    showLoggedInStatus(true, api.user.avatar);
-  } else if (accountAPI.isLoggedIn && isIncognito) {
-    window.api = appView;
-    accountAPI.host = accountAPI.user.pdsEndpoint;
-    showLoggedInStatus('incognito');
-    document.querySelector('#account_menu a[data-action=incognito]').innerText = '✓ Incognito mode';
+    hideMenuButton('login');
+
+    if (!isIncognito) {
+      window.api = accountAPI;
+      showLoggedInStatus(true, api.user.avatar);
+    } else {
+      window.api = appView;
+      showLoggedInStatus('incognito');
+      toggleMenuButton('incognito', true);
+    }
   } else {
     window.api = appView;
+    hideMenuButton('logout');
+    hideMenuButton('incognito');
   }
+
+  toggleMenuButton('biohazard', window.biohazardEnabled !== false);
 
   parseQueryParams();
 }
@@ -102,10 +157,10 @@ function parseQueryParams() {
     loadHashtagPage(decodeURIComponent(hash));
   } else if (query) {
     showLoader();
-    loadThread(decodeURIComponent(query));
+    loadThreadByURL(decodeURIComponent(query));
   } else if (author && post) {
     showLoader();
-    loadThread(decodeURIComponent(author), decodeURIComponent(post));
+    loadThreadById(decodeURIComponent(author), decodeURIComponent(post));
   } else {
     showSearch();
   }
@@ -117,7 +172,7 @@ function buildParentLink(post) {
   let p = $tag('p.back');
 
   if (post instanceof BlockedPost) {
-    let element = new PostComponent(post).buildElement('parent');
+    let element = new PostComponent(post, 'parent').buildElement();
     element.className = 'back';
     element.querySelector('p.blocked-header span').innerText = 'Parent post blocked';
     return element;
@@ -148,25 +203,28 @@ function hideSearch() {
   $id('search').style.visibility = 'hidden';
 }
 
-function showLogin() {
-  $id('login').style.visibility = 'visible';
+function showDialog(dialog) {
+  dialog.style.visibility = 'visible';
   $id('thread').classList.add('overlay');
-  $id('login_handle').focus();
+
+  dialog.querySelector('input[type=text]')?.focus();
 }
 
-function hideLogin() {
-  $id('login').style.visibility = 'hidden';
-  $id('login').classList.remove('expanded');
+function hideDialog(dialog) {
+  dialog.style.visibility = 'hidden';
+  dialog.classList.remove('expanded');
   $id('thread').classList.remove('overlay');
-  $id('login_handle').value = '';
-  $id('login_password').value = '';
+
+  for (let field of dialog.querySelectorAll('input[type=text]')) {
+    field.value = '';
+  }
 }
 
-function toggleLogin() {
-  if ($id('login').style.visibility == 'visible') {
-    hideLogin();
+function toggleDialog(dialog) {
+  if (dialog.style.visibility == 'visible') {
+    hideDialog(dialog);
   } else {
-    showLogin();
+    showDialog(dialog);
   }
 }
 
@@ -174,9 +232,30 @@ function toggleLoginInfo(event) {
   $id('login').classList.toggle('expanded');
 }
 
-function toggleAccount() {
+function toggleAccountMenu() {
   let menu = $id('account_menu');
   menu.style.visibility = (menu.style.visibility == 'visible') ? 'hidden' : 'visible';
+}
+
+/** @param {string} buttonName */
+
+function showMenuButton(buttonName) {
+  let button = document.querySelector(`#account_menu a[data-action=${buttonName}]`);
+  button.parentNode.style.display = 'list-item';
+}
+
+/** @param {string} buttonName */
+
+function hideMenuButton(buttonName) {
+  let button = document.querySelector(`#account_menu a[data-action=${buttonName}]`);
+  button.parentNode.style.display = 'none';
+}
+
+/** @param {string} buttonName, @param {boolean} state */
+
+function toggleMenuButton(buttonName, state) {
+  let button = document.querySelector(`#account_menu a[data-action=${buttonName}]`);
+  button.querySelector('.check').style.display = (state) ? 'inline' : 'none';
 }
 
 /** @param {boolean | 'incognito'} loggedIn, @param {string | undefined | null} [avatar] */
@@ -225,11 +304,14 @@ function submitLogin() {
     window.api = pds;
     window.accountAPI = pds;
 
-    hideLogin();
+    hideDialog(loginDialog);
     submit.style.display = 'inline';
     cloudy.style.display = 'none';
 
     loadCurrentUserAvatar();
+    showMenuButton('logout');
+    showMenuButton('incognito');
+    hideMenuButton('login');
   })
   .catch((error) => {
     submit.style.display = 'inline';
@@ -273,6 +355,7 @@ function loadCurrentUserAvatar() {
 
 function logOut() {
   accountAPI.resetTokens();
+  localStorage.removeItem('incognito');
   location.reload();
 }
 
@@ -280,6 +363,13 @@ function submitSearch() {
   let url = $id('search').querySelector('input[name=q]').value.trim();
 
   if (!url) { return }
+
+  if (url.startsWith('at://')) {
+    let target = new URL(getLocation());
+    target.searchParams.set('q', url);
+    location.assign(target.toString());
+    return;
+  }
 
   if (url.match(/^#?((\p{Letter}|\p{Number})+)$/u)) {
     let target = new URL(getLocation());
@@ -337,7 +427,7 @@ function loadHashtagPage(hashtag) {
       }
 
       for (let post of posts) {
-        let postView = new PostComponent(post).buildElement('feed');
+        let postView = new PostComponent(post, 'feed').buildElement();
         $id('thread').appendChild(postView);
       }
 
@@ -392,7 +482,7 @@ function loadQuotesPage(url) {
         }
 
         for (let post of posts) {
-          let postView = new PostComponent(post).buildElement('quotes');
+          let postView = new PostComponent(post, 'quotes').buildElement();
           $id('thread').appendChild(postView);
         }
 
@@ -428,56 +518,109 @@ function loadInPages(callback) {
   });
 }
 
-/** @param {string} url, @param {string} [postId], @param {AnyElement} [nodeToUpdate] */
+/** @param {string} url */
 
-function loadThread(url, postId, nodeToUpdate) {
-  let load = postId ? api.loadThreadById(url, postId) : api.loadThreadByURL(url);
+function loadThreadByURL(url) {
+  let loadThread = url.startsWith('at://') ? api.loadThreadByAtURI(url) : api.loadThreadByURL(url);
 
-  load.then(json => {
-    let root = Post.parseThreadPost(json.thread);
-    window.root = root;
-
-    let loadQuoteCount;
-
-    if (!nodeToUpdate && root instanceof Post) {
-      setPageTitle(root);
-      loadQuoteCount = blueAPI.getQuoteCount(root.uri);        
-
-      if (root.parent) {
-        let p = buildParentLink(root.parent);
-        $id('thread').appendChild(p);
-      }
-    }
-
-    let component = new PostComponent(root);
-    let list = component.buildElement('thread');
-    hideLoader();
-
-    if (nodeToUpdate) {
-      nodeToUpdate.querySelector('.content').replaceWith(list.querySelector('.content'));
-    } else {
-      $id('thread').appendChild(list);
-    }
-
-    loadQuoteCount?.then(count => {
-      if (count > 0) {
-        let stats = list.querySelector(':scope > .content > p.stats');
-        let q = new URL(getLocation());
-        q.searchParams.set('quotes', component.linkToPost);
-        stats.append($tag('i', { className: count > 1 ? 'fa-regular fa-comments' : 'fa-regular fa-comment' }));
-        stats.append(" ");
-        let quotes = $tag('a', {
-          html: count > 1 ? `${count} quotes` : '1 quote',
-          href: q.toString()
-        });
-        stats.append(quotes);
-      }
-    }).catch(error => {
-      console.warn("Couldn't load quote count: " + error);
-    });
+  loadThread.then(json => {
+    displayThread(json);
   }).catch(error => {
     hideLoader();
-    console.log(error);
-    alert(error);
+    showError(error);
   });
+}
+
+/** @param {string} author, @param {string} rkey */
+
+function loadThreadById(author, rkey) {
+  api.loadThreadById(author, rkey).then(json => {
+    displayThread(json);
+  }).catch(error => {
+    hideLoader();
+    showError(error);
+  });
+}
+
+/** @param {json} json */
+
+function displayThread(json) {
+  let root = Post.parseThreadPost(json.thread);
+  window.root = root;
+  window.subtreeRoot = root;
+
+  let loadQuoteCount;
+
+  if (root instanceof Post) {
+    setPageTitle(root);
+    loadQuoteCount = blueAPI.getQuoteCount(root.uri);        
+
+    if (root.parent) {
+      let p = buildParentLink(root.parent);
+      $id('thread').appendChild(p);
+    }
+  }
+
+  let component = new PostComponent(root, 'thread');
+  let view = component.buildElement();
+  hideLoader();
+  $id('thread').appendChild(view);
+
+  loadQuoteCount?.then(count => {
+    if (count > 0) {
+      let stats = view.querySelector(':scope > .content > p.stats');
+      let q = new URL(getLocation());
+      q.searchParams.set('quotes', component.linkToPost);
+      stats.append($tag('i', { className: count > 1 ? 'fa-regular fa-comments' : 'fa-regular fa-comment' }));
+      stats.append(" ");
+      let quotes = $tag('a', {
+        text: count > 1 ? `${count} quotes` : '1 quote',
+        href: q.toString()
+      });
+      stats.append(quotes);
+    }
+  }).catch(error => {
+    console.warn("Couldn't load quote count: " + error);
+  });
+}
+
+/** @param {Post} post, @param {AnyElement} nodeToUpdate */
+
+function loadSubtree(post, nodeToUpdate) {
+  api.loadThreadByAtURI(post.uri).then(json => {
+    let root = Post.parseThreadPost(json.thread, post.pageRoot, 0, post.absoluteLevel);
+    post.updateDataFromPost(root);
+    window.subtreeRoot = post;
+
+    let component = new PostComponent(post, 'thread');
+    let view = component.buildElement();
+
+    nodeToUpdate.querySelector('.content').replaceWith(view.querySelector('.content'));
+  }).catch(showError);
+}
+
+/** @param {Post} post, @param {AnyElement} nodeToUpdate */
+
+function loadHiddenSubtree(post, nodeToUpdate) {
+  blueAPI.getReplies(post.uri).then(replies => {
+    let missingReplies = replies.filter(r => !post.replies.some(x => x.uri === r));
+
+    Promise.allSettled(missingReplies.map(uri => api.loadThreadByAtURI(uri))).then(responses => {
+      let replies = responses
+        .map(r => r.status == 'fulfilled' ? r.value : undefined)
+        .filter(v => v)
+        .map(json => Post.parseThreadPost(json.thread, post.pageRoot, 1, post.absoluteLevel + 1));
+
+      post.setReplies(replies);
+
+      let content = nodeToUpdate.querySelector('.content');
+      content.querySelector(':scope > .hidden-replies').remove();
+
+      for (let reply of post.replies) {
+        let component = new PostComponent(reply, 'thread');
+        let view = component.buildElement();
+        content.append(view);
+      }
+    }).catch(showError);
+  }).catch(showError);
 }

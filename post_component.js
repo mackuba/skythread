@@ -3,11 +3,25 @@
  */
 
 class PostComponent {
-  /** @param {Post} post, @param {Post} [root] */
-  constructor(post, root) {
-    this.post = post;
-    this.root = root ?? post;
-    this.isRoot = (this.post === this.root);
+  /**
+    Contexts:
+    - thread - a post in the thread tree
+    - parent - parent reference above the thread root
+    - quote - a quote embed
+    - quotes - a post on the quotes page
+    - feed - a post on the hashtag feed page
+
+    @typedef {'thread' | 'parent' | 'quote' | 'quotes' | 'feed'} PostContext
+    @param {AnyPost} post, @param {PostContext} context
+  */
+  constructor(post, context) {
+    this.post = /** @type {Post}, TODO */ (post);
+    this.context = context;
+  }
+
+  /** @returns {boolean} */
+  get isRoot() {
+    return this.post.isRoot;
   }
 
   /** @returns {string} */
@@ -45,29 +59,17 @@ class PostComponent {
 
   /** @returns {json} */
   get timeFormatForTimestamp() {
-    if (this.isRoot) {
+    if (this.isRoot || this.context != 'thread') {
       return { day: 'numeric', month: 'short', year: 'numeric', hour: 'numeric', minute: 'numeric' };
-    } else if (!sameDay(this.post.createdAt, this.root.createdAt)) {
+    } else if (this.post.pageRoot && !sameDay(this.post.createdAt, this.post.pageRoot.createdAt)) {
       return { day: 'numeric', month: 'short', hour: 'numeric', minute: 'numeric' };
     } else {
       return { hour: 'numeric', minute: 'numeric' };
     }
   }
 
-  /**
-    Contexts:
-    - thread - a post in the thread tree
-    - parent - parent reference above the thread root
-    - quote - a quote embed
-    - quotes - a post on the quotes page
-    - feed - a post on the hashtag feed page
-
-    @typedef {'thread' | 'parent' | 'quote' | 'quotes' | 'feed'} PostContext
-    @param {PostContext} context
-    @returns {AnyElement}
-  */
-
-  buildElement(context) {
+  /** @returns {AnyElement} */
+  buildElement() {
     let div = $tag('div.post');
 
     if (this.post.muted) {
@@ -82,12 +84,12 @@ class PostComponent {
       return div;      
     }
 
-    let header = this.buildPostHeader(context);
+    let header = this.buildPostHeader();
     div.appendChild(header);
 
     let content = $tag('div.content');
 
-    if (!this.isRoot) {
+    if (this.context == 'thread' && !this.isRoot) {
       let edge = $tag('div.edge');
       let line = $tag('div.line');
       edge.appendChild(line);
@@ -133,22 +135,28 @@ class PostComponent {
     }
 
     if (this.post.replies.length == 1 && this.post.replies[0].author?.did == this.post.author.did) {
-      let component = new PostComponent(this.post.replies[0], this.root);
-      let element = component.buildElement('thread');
+      let component = new PostComponent(this.post.replies[0], 'thread');
+      let element = component.buildElement();
       element.classList.add('flat');
       content.appendChild(element);
     } else {
       for (let reply of this.post.replies) {
         if (reply instanceof MissingPost) { continue }
+        if (reply instanceof BlockedPost && window.biohazardEnabled === false) { continue }
 
-        let component = new PostComponent(reply, this.root);
-        content.appendChild(component.buildElement('thread'));
+        let component = new PostComponent(reply, 'thread');
+        content.appendChild(component.buildElement());
       }
     }
 
-    if (context == 'thread' && this.post.hasMoreReplies) {
-      let loadMore = this.buildLoadMoreLink()
-      content.appendChild(loadMore);
+    if (this.context == 'thread') {
+      if (this.post.hasMoreReplies) {
+        let loadMore = this.buildLoadMoreLink();
+        content.appendChild(loadMore);
+      } else if (this.post.hasHiddenReplies && window.biohazardEnabled !== false) {
+        let loadMore = this.buildHiddenRepliesLink();
+        content.appendChild(loadMore);
+      }
     }
 
     div.appendChild(content);
@@ -156,9 +164,9 @@ class PostComponent {
     return div;
   }
 
-  /** @param {PostContext} context, @returns {AnyElement} */
+  /** @returns {AnyElement} */
 
-  buildPostHeader(context) {
+  buildPostHeader() {
     let timeFormat = this.timeFormatForTimestamp;
     let formattedTime = this.post.createdAt.toLocaleString(window.dateLocale, timeFormat);
     let isoTime = this.post.createdAt.toISOString();
@@ -178,7 +186,7 @@ class PostComponent {
     h.innerHTML += `<span class="separator">&bull;</span> ` +
       `<a class="time" href="${this.linkToPost}" target="_blank" title="${isoTime}">${formattedTime}</a> `;
 
-    if (this.post.replyCount > 0 && !this.isRoot || ['quote', 'quotes', 'feed'].includes(context)) {
+    if (this.post.replyCount > 0 && !this.isRoot || ['quote', 'quotes', 'feed'].includes(this.context)) {
       h.innerHTML +=
         `<span class="separator">&bull;</span> ` +
         `<a href="${linkToPostThread(this.post)}" class="action" title="Load this subtree">` +
@@ -303,44 +311,72 @@ class PostComponent {
 
     link.addEventListener('click', (e) => {
       e.preventDefault();
-      link.innerHTML = `<img class="loader" src="icons/sunny.png">`;
-      loadThread(this.post.author.handle, this.post.rkey, loadMore.parentNode.parentNode);
+      loadMore.innerHTML = `<img class="loader" src="icons/sunny.png">`;
+      loadSubtree(this.post, loadMore.closest('.post'));
     });
 
     loadMore.appendChild(link);
     return loadMore;
   }
 
+  /** @returns {AnyElement} */
+
+  buildHiddenRepliesLink() {
+    let loadMore = $tag('p.hidden-replies');
+
+    let link = $tag('a', {
+      href: linkToPostThread(this.post),
+      text: "Load hidden replies…"
+    });
+
+    link.addEventListener('click', (e) => {
+      e.preventDefault();
+
+      if (window.biohazardEnabled === true) {
+        this.loadHiddenReplies(loadMore);
+      } else {
+        window.loadInfohazard = () => this.loadHiddenReplies(loadMore);
+        showDialog($id('biohazard_dialog'));
+      }
+    });
+
+    loadMore.append("☣️ ", link);
+    return loadMore;
+  }
+
+  /** @param {HTMLLinkElement} loadMoreButton */
+
+  loadHiddenReplies(loadMoreButton) {
+    loadMoreButton.innerHTML = `<img class="loader" src="icons/sunny.png">`;
+    loadHiddenSubtree(this.post, loadMoreButton.closest('.post'));
+  }
+
   /** @param {AnyElement} div, @returns {AnyElement} */
 
   buildBlockedPostElement(div) {
     let p = $tag('p.blocked-header');
-    p.innerHTML = `<i class="fa-solid fa-ban"></i> <span>Blocked post</span> ` +
-      `(<a href="${this.didLinkToAuthor}" target="_blank">see author</a>) `;
+    p.innerHTML = `<i class="fa-solid fa-ban"></i> <span>Blocked post</span>`;
+
+    if (window.biohazardEnabled === false) {
+      div.appendChild(p);
+      div.classList.add('blocked');
+      return p;
+    }
+
+    let blockStatus = this.post.blockedByUser ? 'has blocked you' : this.post.blocksUser ? "you've blocked them" : '';
+    blockStatus = blockStatus ? `, ${blockStatus}` : '';
+
+    let authorLink = $tag('a', { href: this.didLinkToAuthor, target: '_blank', text: 'see author' });
+    p.append(' (', authorLink, blockStatus, ') ');
     div.appendChild(p);
 
-    let authorLink = p.querySelector('a');
     let did = atURI(this.post.uri).repo;
-    let cachedHandle = api.findHandleByDid(did);
-    let blockStatus = this.post.blockedByUser ? 'has blocked you' : this.post.blocksUser ? "you've blocked them" : '';
-
-    if (cachedHandle) {
-      this.post.author.handle = cachedHandle;
+    
+    api.fetchHandleForDid(did).then(handle => {
+      this.post.author.handle = handle;
       authorLink.href = this.linkToAuthor;
-      authorLink.innerText = `@${cachedHandle}`;
-      if (blockStatus) {
-        authorLink.after(`, ${blockStatus}`);
-      }
-    } else {
-      api.loadUserProfile(did).then((author) => {
-        this.post.author = author;
-        authorLink.href = this.linkToAuthor;
-        authorLink.innerText = `@${author.handle}`;
-        if (blockStatus) {
-          authorLink.after(`, ${blockStatus}`);
-        }
-      });
-    }
+      authorLink.innerText = `@${handle}`;
+    });
 
     let loadPost = $tag('p.load-post');
     let a = $tag('a', { href: '#', text: "Load post…" });
@@ -362,6 +398,18 @@ class PostComponent {
   buildMissingPostElement(div) {
     let p = $tag('p.blocked-header');
     p.innerHTML = `<i class="fa-solid fa-ban"></i> <span>Deleted post</span>`;
+
+    let authorLink = $tag('a', { href: this.didLinkToAuthor, target: '_blank', text: 'see author' });
+    p.append(' (', authorLink, ') ');
+
+    let did = atURI(this.post.uri).repo;
+    
+    api.fetchHandleForDid(did).then(handle => {
+      this.post.author = { did, handle };
+      authorLink.href = this.linkToAuthor;
+      authorLink.innerText = `@${handle}`;
+    });
+
     div.appendChild(p);
     div.classList.add('blocked');
     return div;
@@ -370,8 +418,33 @@ class PostComponent {
   /** @param {string} uri, @param {AnyElement} div, @returns Promise<void> */
 
   async loadBlockedPost(uri, div) {
-    let record = await appView.loadPost(this.post.uri);
+    let record = await appView.loadPostIfExists(this.post.uri);
+
+    if (!record) {
+      let post = new MissingPost({ uri: this.post.uri });
+      let postView = new PostComponent(post, 'quote').buildElement();
+      div.replaceWith(postView);
+      return;
+    }
+
     this.post = new Post(record);
+
+    let userView = await api.getRequest('app.bsky.actor.getProfile', { actor: this.post.author.did });
+
+    if (!userView.viewer || !(userView.viewer.blockedBy || userView.viewer.blocking)) {
+      let { repo, rkey } = atURI(this.post.uri);
+
+      let a = $tag('a', {
+        href: linkToPostById(repo, rkey),
+        className: 'action',
+        title: "Load thread",
+        html: `<i class="fa-solid fa-arrows-split-up-and-left fa-rotate-180"></i>`
+      });
+
+      let header = div.querySelector('p.blocked-header');
+      let separator = $tag('span.separator', { html: '&bull;' });
+      header.append(separator, ' ', a);
+    }
 
     div.querySelector('p.load-post').remove();
 
@@ -392,6 +465,9 @@ class PostComponent {
     if (this.post.embed) {
       let embed = new EmbedComponent(this.post, this.post.embed).buildElement();
       div.appendChild(embed);
+
+      // TODO
+      Array.from(div.querySelectorAll('a.link-card')).forEach(x => x.remove());
     }
   }
 
@@ -443,7 +519,7 @@ class PostComponent {
           alert("Sorry, this post is blocked.");
         });
       } else {
-        showLogin();        
+        showDialog(loginDialog);        
       }
       return;
     }
@@ -455,19 +531,13 @@ class PostComponent {
         this.post.viewerLike = like.uri;
         heart.classList.add('liked');
         count.innerText = String(parseInt(count.innerText, 10) + 1);
-      }).catch((error) => {
-        console.log(error);
-        alert(error);
-      });
+      }).catch(showError);
     } else {
       accountAPI.removeLike(this.post.viewerLike).then(() => {
         this.post.viewerLike = undefined;
         heart.classList.remove('liked');
         count.innerText = String(parseInt(count.innerText, 10) - 1);
-      }).catch((error) => {
-        console.log(error);
-        alert(error);
-      });
+      }).catch(showError);
     }
   }
 }

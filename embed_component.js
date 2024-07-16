@@ -65,11 +65,11 @@ class EmbedComponent {
     let div = $tag('div.quote-embed');
 
     if (embed.post instanceof Post || embed.post instanceof BlockedPost) {
-      let postView = new PostComponent(embed.post).buildElement('quote');
+      let postView = new PostComponent(embed.post, 'quote').buildElement();
       div.appendChild(postView);
 
     } else if (embed.post instanceof MissingPost) {
-      let postView = new PostComponent(embed.post).buildElement('quote');
+      let postView = new PostComponent(embed.post, 'quote').buildElement();
       div.appendChild(postView);
 
     } else if (embed.post instanceof FeedGeneratorRecord) {
@@ -251,10 +251,16 @@ class EmbedComponent {
   /** @param {string} uri, @param {AnyElement} div, @returns Promise<void> */
 
   async loadQuotedPost(uri, div) {
-    let result = await api.loadPost(uri);
-    let post = new Post(result);
+    let record = await api.loadPostIfExists(uri);
 
-    let postView = new PostComponent(post).buildElement('quote');
-    div.replaceChildren(postView);
+    if (record) {
+      let post = new Post(record);
+      let postView = new PostComponent(post, 'quote').buildElement();
+      div.replaceChildren(postView);
+    } else {
+      let post = new MissingPost(this.embed.record);
+      let postView = new PostComponent(post, 'quote').buildElement();
+      div.replaceChildren(postView);
+    }
   }
 }

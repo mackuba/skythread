@@ -52,36 +52,73 @@ class ATProtoRecord {
  */
 
 class Post extends ATProtoRecord {
-  /** @type {ATProtoRecord | undefined} */
+  /**
+   * Post object which is the direct parent of this post.
+   * @type {ATProtoRecord | undefined}
+   */
   parent;
 
-  /** @type {ATProtoRecord | undefined} */
-  root;
+  /**
+   * Post object which is the root of the whole thread (as specified in the post record).
+   * @type {ATProtoRecord | undefined}
+   */
+  threadRoot;
 
-  /** @type {object | undefined} */
+  /**
+   * Post which is at the top of the (sub)thread currently loaded on the page (might not be the same as threadRoot).
+   * @type {Post | undefined}
+   */
+  pageRoot;
+
+  /**
+   * Depth of the post in the getPostThread response it was loaded from, starting from 0. May be negative.
+   * @type {number | undefined}
+   */
+  level;
+
+  /**
+   * Depth of the post in the whole tree visible on the page (pageRoot's absoluteLevel is 0). May be negative.
+   * @type {number | undefined}
+   */
+  absoluteLevel;
+
+  /**
+   * For posts in feeds and timelines - specifies e.g. that a post was reposted by someone.
+   * @type {object | undefined}
+   */
   reason;
 
-  /** @type {boolean | undefined} */
+  /**
+   * True if the post was extracted from inner embed of a quote, not from a #postView.
+   * @type {boolean | undefined}
+   */
   isEmbed;
 
   /**
    * View of a post as part of a thread, as returned from getPostThread.
    * Expected to be #threadViewPost, but may be blocked or missing.
    *
-   * @param {json} json, @returns {AnyPost}
+   * @param {json} json
+   * @param {Post?} [pageRoot]
+   * @param {number} [level]
+   * @param {number} [absoluteLevel]
+   * @returns {AnyPost}
    */
 
-  static parseThreadPost(json) {
+  static parseThreadPost(json, pageRoot = null, level = 0, absoluteLevel = 0) {
     switch (json.$type) {
     case 'app.bsky.feed.defs#threadViewPost':
-      let post = new Post(json.post);
+      let post = new Post(json.post, { level: level, absoluteLevel: absoluteLevel });
+
+      post.pageRoot = pageRoot ?? post; 
 
       if (json.replies) {
-        post.setReplies(json.replies.map(x => Post.parseThreadPost(x)));
+        let replies = json.replies.map(x => Post.parseThreadPost(x, post.pageRoot, level + 1, absoluteLevel + 1));
+        post.setReplies(replies);
       }
 
-      if (json.parent) {
-        post.parent = Post.parseThreadPost(json.parent);
+      if (absoluteLevel <= 0 && json.parent) {
+        post.parent = Post.parseThreadPost(json.parent, post.pageRoot, level - 1, absoluteLevel - 1);
       }
 
       return post;
@@ -140,7 +177,11 @@ class Post extends ATProtoRecord {
 
     if (json.reply) {
       post.parent = Post.parsePostView(json.reply.parent);
-      post.root = Post.parsePostView(json.reply.root);
+      post.threadRoot = Post.parsePostView(json.reply.root);
+
+      if (json.reply.grandparentAuthor) {
+        post.grandparentAuthor = json.reply.grandparentAuthor;
+      }
     }
 
     if (json.reason) {
@@ -180,6 +221,10 @@ class Post extends ATProtoRecord {
     super(data);
     Object.assign(this, extra ?? {});
 
+    if (this.absoluteLevel === 0) {
+      this.pageRoot = this;
+    }
+
     this.record = this.isPostView ? data.record : data.value;
 
     if (this.isPostView && data.embed) {
@@ -199,6 +244,19 @@ class Post extends ATProtoRecord {
     if (this.author) {
       api.cacheProfile(this.author);
     }
+  }
+
+  /** @param {Post} post */
+
+  updateDataFromPost(post) {
+    this.record = post.record;
+    this.embed = post.embed;
+    this.author = post.author;
+    this.replies = post.replies;
+    this.viewerData = post.viewerData;
+    this.viewerLike = post.viewerLike;
+    this.level = post.level;
+    this.absoluteLevel = post.absoluteLevel;
   }
 
   /** @param {AnyPost[]} replies */
@@ -252,6 +310,12 @@ class Post extends ATProtoRecord {
     return this.record.bridgyOriginalText;
   }
 
+  /** @returns {boolean} */
+  get isRoot() {
+    // I AM ROOOT
+    return (this.pageRoot === this);
+  }
+
   /** @returns {string} */
   get authorFediHandle() {
     if (this.isFediPost) {
@@ -288,7 +352,16 @@ class Post extends ATProtoRecord {
 
   /** @returns {boolean} */
   get hasMoreReplies() {
-    return this.replyCount !== undefined && this.replyCount !== this.replies.length;
+    let shouldHaveMoreReplies = (this.replyCount !== undefined && this.replyCount > this.replies.length);
+
+    return shouldHaveMoreReplies && (this.replies.length === 0) && (this.level !== undefined && this.level > 4);
+  }
+
+  /** @returns {boolean} */
+  get hasHiddenReplies() {
+    let shouldHaveMoreReplies = (this.replyCount !== undefined && this.replyCount > this.replies.length);
+
+    return shouldHaveMoreReplies && (this.replies.length > 0 || (this.level !== undefined && this.level <= 4));
   }
 
   /** @returns {number} */
