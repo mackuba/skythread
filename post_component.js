@@ -158,7 +158,7 @@ class PostComponent {
       wrapper.appendChild(stats);
     }
 
-    if (this.post.replies.length == 1 && this.post.replies[0].author?.did == this.post.author.did) {
+    if (this.post.replyCount == 1 && this.post.replies[0]?.author?.did == this.post.author.did) {
       let component = new PostComponent(this.post.replies[0], 'thread');
       let element = component.buildElement();
       element.classList.add('flat');
