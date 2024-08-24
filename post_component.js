@@ -79,6 +79,9 @@ class PostComponent {
     if (this.post instanceof BlockedPost) {
       this.buildBlockedPostElement(div);
       return div;
+    } else if (this.post instanceof DetachedQuotePost) {
+      this.buildDetachedQuoteElement(div);
+      return div;      
     } else if (this.post instanceof MissingPost) {
       this.buildMissingPostElement(div);
       return div;      
@@ -374,6 +377,45 @@ class PostComponent {
     
     api.fetchHandleForDid(did).then(handle => {
       this.post.author.handle = handle;
+      authorLink.href = this.linkToAuthor;
+      authorLink.innerText = `@${handle}`;
+    });
+
+    let loadPost = $tag('p.load-post');
+    let a = $tag('a', { href: '#', text: "Load post…" });
+
+    a.addEventListener('click', (e) => {
+      e.preventDefault();
+      loadPost.innerHTML = '&nbsp;';
+      this.loadBlockedPost(this.post.uri, div);
+    });
+
+    loadPost.appendChild(a);
+    div.appendChild(loadPost);
+    div.classList.add('blocked');
+    return div;
+  }
+
+  /** @param {AnyElement} div, @returns {AnyElement} */
+
+  buildDetachedQuoteElement(div) {
+    let p = $tag('p.blocked-header');
+    p.innerHTML = `<i class="fa-solid fa-ban"></i> <span>Hidden quote</span>`;
+
+    if (window.biohazardEnabled === false) {
+      div.appendChild(p);
+      div.classList.add('blocked');
+      return p;
+    }
+
+    let authorLink = $tag('a', { href: this.didLinkToAuthor, target: '_blank', text: 'see author' });
+    p.append(' (', authorLink, ') ');
+    div.appendChild(p);
+
+    let did = atURI(this.post.uri).repo;
+
+    api.fetchHandleForDid(did).then(handle => {
+      this.post.author = { did, handle };
       authorLink.href = this.linkToAuthor;
       authorLink.innerText = `@${handle}`;
     });

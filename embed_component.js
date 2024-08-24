@@ -64,11 +64,7 @@ class EmbedComponent {
   buildQuotedPostElement(embed) {
     let div = $tag('div.quote-embed');
 
-    if (embed.post instanceof Post || embed.post instanceof BlockedPost) {
-      let postView = new PostComponent(embed.post, 'quote').buildElement();
-      div.appendChild(postView);
-
-    } else if (embed.post instanceof MissingPost) {
+    if ([Post, BlockedPost, MissingPost, DetachedQuotePost].some(c => embed.post instanceof c)) {
       let postView = new PostComponent(embed.post, 'quote').buildElement();
       div.appendChild(postView);
 

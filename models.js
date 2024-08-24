@@ -48,7 +48,7 @@ class ATProtoRecord {
 /**
  * Standard Bluesky post record.
  *
- * @typedef {Post | BlockedPost | MissingPost} AnyPost
+ * @typedef {Post | BlockedPost | MissingPost | DetachedQuotePost} AnyPost
  */
 
 class Post extends ATProtoRecord {
@@ -152,6 +152,9 @@ class Post extends ATProtoRecord {
 
     case 'app.bsky.embed.record#viewBlocked':
       return new BlockedPost(json);
+
+    case 'app.bsky.embed.record#viewDetached':
+      return new DetachedQuotePost(json);
 
     case 'app.bsky.feed.defs#generatorView':
       return new FeedGeneratorRecord(json);
@@ -431,6 +434,13 @@ class BlockedPost extends ATProtoRecord {
  */
 
 class MissingPost extends ATProtoRecord {}
+
+
+/**
+ * Stub of a quoted post which was un-quoted by the original author.
+ */
+
+class DetachedQuotePost extends ATProtoRecord {}
 
 
 /**
