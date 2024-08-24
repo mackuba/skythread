@@ -354,6 +354,23 @@ class PostComponent {
     loadHiddenSubtree(this.post, loadMoreButton.closest('.post'));
   }
 
+  /** @param {HTMLLinkElement} authorLink */
+
+  loadReferencedPostAuthor(authorLink) {
+    let did = atURI(this.post.uri).repo;
+
+    api.fetchHandleForDid(did).then(handle => {
+      if (this.post.author) {
+        this.post.author.handle = handle;
+      } else {
+        this.post.author = { did, handle };
+      }
+
+      authorLink.href = this.linkToAuthor;
+      authorLink.innerText = `@${handle}`;
+    });
+  }
+
   /** @param {AnyElement} div, @returns {AnyElement} */
 
   buildBlockedPostElement(div) {
@@ -373,13 +390,7 @@ class PostComponent {
     p.append(' (', authorLink, blockStatus, ') ');
     div.appendChild(p);
 
-    let did = atURI(this.post.uri).repo;
-    
-    api.fetchHandleForDid(did).then(handle => {
-      this.post.author.handle = handle;
-      authorLink.href = this.linkToAuthor;
-      authorLink.innerText = `@${handle}`;
-    });
+    this.loadReferencedPostAuthor(authorLink);
 
     let loadPost = $tag('p.load-post');
     let a = $tag('a', { href: '#', text: "Load post…" });
@@ -412,13 +423,7 @@ class PostComponent {
     p.append(' (', authorLink, ') ');
     div.appendChild(p);
 
-    let did = atURI(this.post.uri).repo;
-
-    api.fetchHandleForDid(did).then(handle => {
-      this.post.author = { did, handle };
-      authorLink.href = this.linkToAuthor;
-      authorLink.innerText = `@${handle}`;
-    });
+    this.loadReferencedPostAuthor(authorLink);
 
     let loadPost = $tag('p.load-post');
     let a = $tag('a', { href: '#', text: "Load post…" });
@@ -444,13 +449,7 @@ class PostComponent {
     let authorLink = $tag('a', { href: this.didLinkToAuthor, target: '_blank', text: 'see author' });
     p.append(' (', authorLink, ') ');
 
-    let did = atURI(this.post.uri).repo;
-    
-    api.fetchHandleForDid(did).then(handle => {
-      this.post.author = { did, handle };
-      authorLink.href = this.linkToAuthor;
-      authorLink.innerText = `@${handle}`;
-    });
+    this.loadReferencedPostAuthor(authorLink);
 
     div.appendChild(p);
     div.classList.add('blocked');
