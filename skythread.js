@@ -420,34 +420,38 @@ function showNotificationsPage() {
   let finished = false;
   let cursor;
 
-  loadInPages(() => {
+  loadInPages((next) => {
     if (isLoading || finished) { return; }
     isLoading = true;
 
     accountAPI.loadNotifications(cursor).then(data => {
       let posts = data.notifications.filter(x => x.reason == 'reply').map(x => new Post(x));
 
-      if (!firstPageLoaded) {
-        hideLoader();
+      if (posts.length > 0) {
+        if (!firstPageLoaded) {
+          hideLoader();
+          firstPageLoaded = true;
 
-        let header = $tag('header');
-        let h2 = $tag('h2', { text: "Replies:" });
-        header.append(h2);
-        $id('thread').appendChild(header);
-        $id('thread').classList.add('notifications');
-      }
+          let header = $tag('header');
+          let h2 = $tag('h2', { text: "Replies:" });
+          header.append(h2);
+          $id('thread').appendChild(header);
+          $id('thread').classList.add('notifications');
+        }
 
-      for (let post of posts) {
-        let postView = new PostComponent(post, 'feed').buildElement();
-        $id('thread').appendChild(postView);
+        for (let post of posts) {
+          let postView = new PostComponent(post, 'feed').buildElement();
+          $id('thread').appendChild(postView);
+        }
       }
 
       isLoading = false;
-      firstPageLoaded = true;
       cursor = data.cursor;
 
-      if (!cursor || posts.length == 0) {
+      if (!cursor || data.notifications.length == 0) {
         finished = true;
+      } else if (posts.length == 0) {
+        next();
       }
     }).catch(error => {
       hideLoader();
@@ -577,13 +581,13 @@ function loadQuotesPage(url) {
 /** @param {Function} callback */
 
 function loadInPages(callback) {
-  callback();
-
   let loadIfNeeded = () => {
     if (window.pageYOffset + window.innerHeight > document.body.offsetHeight - 200) {
-      callback();
+      callback(loadIfNeeded);
     }
   };
+
+  callback(loadIfNeeded);
 
   document.addEventListener('scroll', loadIfNeeded);
   const resizeObserver = new ResizeObserver(loadIfNeeded);
