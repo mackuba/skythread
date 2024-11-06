@@ -59,7 +59,9 @@ class PostComponent {
 
   /** @returns {json} */
   get timeFormatForTimestamp() {
-    if (this.isRoot || this.context != 'thread') {
+    if (this.context == 'quotes' || this.context == 'feed') {
+      return { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric', hour: 'numeric', minute: 'numeric' };
+    } else if (this.isRoot || this.context != 'thread') {
       return { day: 'numeric', month: 'short', year: 'numeric', hour: 'numeric', minute: 'numeric' };
     } else if (this.post.pageRoot && !sameDay(this.post.createdAt, this.post.pageRoot.createdAt)) {
       return { day: 'numeric', month: 'short', hour: 'numeric', minute: 'numeric' };
