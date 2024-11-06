@@ -153,6 +153,7 @@ function parseQueryParams() {
   let post = params.get('post');
   let quotes = params.get('quotes');
   let hash = params.get('hash');
+  let page = params.get('page');
 
   if (quotes) {
     showLoader();
@@ -166,6 +167,8 @@ function parseQueryParams() {
   } else if (author && post) {
     showLoader();
     loadThreadById(decodeURIComponent(author), decodeURIComponent(post));
+  } else if (page) {
+    openPage(page);
   } else {
     showSearch();
   }
@@ -394,6 +397,66 @@ function submitSearch() {
   }
 }
 
+function openPage(page) {
+  if (!accountAPI.isLoggedIn) {
+    let header = $tag('header');
+    let h2 = $tag('h2', { text: "<--- Log in there & reload :)" });
+    header.append(h2);
+    $id('thread').appendChild(header);
+    return;    
+  }
+
+  if (page == 'notif') {
+    showLoader();
+    showNotificationsPage();
+  }
+}
+
+function showNotificationsPage() {
+  document.title = `Notifications - Skythread`;
+
+  let isLoading = false;
+  let firstPageLoaded = false;
+  let finished = false;
+  let cursor;
+
+  loadInPages(() => {
+    if (isLoading || finished) { return; }
+    isLoading = true;
+
+    accountAPI.loadNotifications(cursor).then(data => {
+      let posts = data.notifications.filter(x => x.reason == 'reply').map(x => new Post(x));
+
+      if (!firstPageLoaded) {
+        hideLoader();
+
+        let header = $tag('header');
+        let h2 = $tag('h2', { text: "Replies:" });
+        header.append(h2);
+        $id('thread').appendChild(header);
+        $id('thread').classList.add('notifications');
+      }
+
+      for (let post of posts) {
+        let postView = new PostComponent(post, 'feed').buildElement();
+        $id('thread').appendChild(postView);
+      }
+
+      isLoading = false;
+      firstPageLoaded = true;
+      cursor = data.cursor;
+
+      if (!cursor || posts.length == 0) {
+        finished = true;
+      }
+    }).catch(error => {
+      hideLoader();
+      console.log(error);
+      isLoading = false;
+    });
+  }); 
+}
+
 /** @param {Post} post */
 
 function setPageTitle(post) {
@@ -516,11 +579,15 @@ function loadQuotesPage(url) {
 function loadInPages(callback) {
   callback();
 
-  document.addEventListener('scroll', (e) => {
+  let loadIfNeeded = () => {
     if (window.pageYOffset + window.innerHeight > document.body.offsetHeight - 200) {
       callback();
     }
-  });
+  };
+
+  document.addEventListener('scroll', loadIfNeeded);
+  const resizeObserver = new ResizeObserver(loadIfNeeded);
+  resizeObserver.observe(document.body);
 }
 
 /** @param {string} url */

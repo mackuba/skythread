@@ -320,6 +320,11 @@ a:visited {
   border-bottom: 1px solid #ddd;
 }
 
+#thread.notifications .post {
+  padding-bottom: 10px;
+  border-bottom: 1px solid #ddd;
+}
+
 #thread + p.note {
   margin-top: 30px;
   margin-left: 15px;
