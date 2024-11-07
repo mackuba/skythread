@@ -582,7 +582,7 @@ function loadQuotesPage(url) {
 
 function loadInPages(callback) {
   let loadIfNeeded = () => {
-    if (window.pageYOffset + window.innerHeight > document.body.offsetHeight - 200) {
+    if (window.pageYOffset + window.innerHeight > document.body.offsetHeight - 500) {
       callback(loadIfNeeded);
     }
   };
