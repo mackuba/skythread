@@ -425,7 +425,7 @@ function showNotificationsPage() {
     isLoading = true;
 
     accountAPI.loadNotifications(cursor).then(data => {
-      let posts = data.notifications.filter(x => x.reason == 'reply').map(x => new Post(x));
+      let posts = data.notifications.filter(x => ['reply', 'mention'].includes(x.reason)).map(x => new Post(x));
 
       if (posts.length > 0) {
         if (!firstPageLoaded) {
@@ -433,7 +433,7 @@ function showNotificationsPage() {
           firstPageLoaded = true;
 
           let header = $tag('header');
-          let h2 = $tag('h2', { text: "Replies:" });
+          let h2 = $tag('h2', { text: "Replies & Mentions:" });
           header.append(h2);
           $id('thread').appendChild(header);
           $id('thread').classList.add('notifications');
