@@ -162,6 +162,9 @@ class Post extends ATProtoRecord {
     case 'app.bsky.graph.defs#listView':
       return new UserListRecord(json);
 
+    case 'app.bsky.graph.defs#starterPackViewBasic':
+      return new StarterPackRecord(json);
+
     default:
       console.warn('Unknown record type:', json.$type);
       return new ATProtoRecord(json);
@@ -507,6 +510,30 @@ class UserListRecord extends ATProtoRecord {
   /** @returns {string | undefined} */
   get avatar() {
     return this.data.avatar;
+  }
+}
+
+
+/**
+ * Record representing a starter pack.
+ */
+
+class StarterPackRecord extends ATProtoRecord {
+
+  /** @param {json} data */
+  constructor(data) {
+    super(data);
+    this.author = data.creator;
+  }
+
+  /** @returns {string | undefined} */
+  get title() {
+    return this.data.record.name;
+  }
+
+  /** @returns {string | undefined} */
+  get description() {
+    return this.data.record.description;
   }
 }
 

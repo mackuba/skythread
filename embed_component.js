@@ -74,6 +74,9 @@ class EmbedComponent {
     } else if (embed.post instanceof UserListRecord) {
       return this.buildUserListView(embed.post);
 
+    } else if (embed.post instanceof StarterPackRecord) {
+      return this.buildStarterPackView(embed.post);
+
     } else {
       let p = $tag('p', { text: `[${embed.post.type}]` });
       div.appendChild(p);
@@ -194,6 +197,28 @@ class EmbedComponent {
 
     if (list.description) {
       let description = $tag('p.description', { text: list.description });
+      box.append(description);
+    }
+
+    a.append(box);
+    return a;
+  }
+
+  /** @param {StarterPackRecord} pack, @returns {AnyElement} */
+
+  buildStarterPackView(pack) {
+    let { repo, rkey } = atURI(pack.uri);
+    let link = `https://bsky.app/starter-pack/${repo}/${rkey}`;
+
+    let a = $tag('a.link-card.record', { href: link, target: '_blank' });
+    let box = $tag('div');
+
+    let title = $tag('h2', { text: pack.title });
+    title.append($tag('span.handle', { text: `• Starter pack by @${pack.author.handle}` }));
+    box.append(title);
+
+    if (pack.description) {
+      let description = $tag('p.description', { text: pack.description });
       box.append(description);
     }
 
