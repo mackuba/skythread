@@ -448,7 +448,7 @@ function showNotificationsPage() {
       isLoading = false;
       cursor = data.cursor;
 
-      if (!cursor || data.posts.length == 0) {
+      if (!cursor) {
         finished = true;
       } else if (posts.length == 0) {
         next();
