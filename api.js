@@ -286,6 +286,20 @@ class BlueskyAPI extends Minisky {
     return await this.getRequest('app.bsky.notification.listNotifications', params);
   }
 
+  async loadMentions(cursor) {
+    let response = await this.loadNotifications(cursor);
+    let mentions = response.notifications.filter(x => ['reply', 'mention'].includes(x.reason));
+    let uris = mentions.map(x => x['uri']);
+    let posts = [];
+
+    for (let i = 0; i < uris.length; i += 25) {
+      let batch = await this.loadPosts(uris.slice(i, i + 25));
+      posts = posts.concat(batch);
+    }
+
+    return { cursor: response.cursor, posts };
+  }
+
   /** @param {string} postURI, @returns {Promise<json>} */
 
   async loadPost(postURI) {

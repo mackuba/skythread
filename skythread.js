@@ -424,8 +424,8 @@ function showNotificationsPage() {
     if (isLoading || finished) { return; }
     isLoading = true;
 
-    accountAPI.loadNotifications(cursor).then(data => {
-      let posts = data.notifications.filter(x => ['reply', 'mention'].includes(x.reason)).map(x => new Post(x));
+    accountAPI.loadMentions(cursor).then(data => {
+      let posts = data.posts.map(x => new Post(x));
 
       if (posts.length > 0) {
         if (!firstPageLoaded) {
@@ -448,7 +448,7 @@ function showNotificationsPage() {
       isLoading = false;
       cursor = data.cursor;
 
-      if (!cursor || data.notifications.length == 0) {
+      if (!cursor || data.posts.length == 0) {
         finished = true;
       } else if (posts.length == 0) {
         next();
