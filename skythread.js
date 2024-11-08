@@ -440,6 +440,27 @@ function showNotificationsPage() {
         }
 
         for (let post of posts) {
+          if (post.parentReference) {
+            let p = $tag('p.back');
+            p.innerHTML = `<i class="fa-solid fa-reply"></i> `;
+
+            let { repo, rkey } = atURI(post.parentReference.uri);
+            let url = linkToPostById(repo, rkey);
+            let parentLink = $tag('a', { href: url });
+            p.append(parentLink);
+
+            if (repo == api.user.did) {
+              parentLink.innerText = 'Reply to you';
+            } else {
+              parentLink.innerText = 'Reply';
+              api.fetchHandleForDid(repo).then(handle => {
+                parentLink.innerText = `Reply to @${handle}`;
+              });
+            }
+
+            $id('thread').appendChild(p);
+          }
+
           let postView = new PostComponent(post, 'feed').buildElement();
           $id('thread').appendChild(postView);
         }

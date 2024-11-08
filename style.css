@@ -326,6 +326,20 @@ a:visited {
   margin-top: 24px;
 }
 
+#thread.notifications .back {
+  margin-left: 22px;
+  margin-bottom: -12px;
+}
+
+#thread.notifications .back, #thread.notifications .back a {
+  font-size: 10pt;
+}
+
+#thread.notifications .back i {
+  font-size: 9pt;
+  margin-right: 2px;
+}
+
 #thread + p.note {
   margin-top: 30px;
   margin-left: 15px;
