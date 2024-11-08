@@ -321,7 +321,7 @@ a:visited {
 }
 
 #thread.notifications .post {
-  padding-bottom: 8px;
+  padding-bottom: 4px;
   border-bottom: 1px solid #ddd;
   margin-top: 24px;
 }
@@ -329,6 +329,7 @@ a:visited {
 #thread.notifications .back {
   margin-left: 22px;
   margin-bottom: -12px;
+  margin-top: 15px;
 }
 
 #thread.notifications .back, #thread.notifications .back a {
