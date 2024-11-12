@@ -54,7 +54,7 @@ class Minisky {
     if (response.status == 200) {
       let service = (json.service || []).find(s => s.id == '#atproto_pds');
       if (service) {
-        return service.serviceEndpoint;
+        return service.serviceEndpoint.replace('https://', '');
       } else {
         throw new DIDError("Missing #atproto_pds service definition");
       }
@@ -276,7 +276,13 @@ class Minisky {
     this.user.accessToken = json['accessJwt'];
     this.user.refreshToken = json['refreshJwt'];
     this.user.did = json['did'];
-    this.user.pdsEndpoint = json['didDoc']['service'].find(s => s.id == '#atproto_pds')['serviceEndpoint'];
+
+    if (json.didDoc?.service) {
+      let service = json.didDoc.service.find(s => s.id == '#atproto_pds');
+      this.host = service.serviceEndpoint.replace('https://', '');
+    }
+
+    this.user.pdsEndpoint = this.host;
     this.config.save();
   }
 
