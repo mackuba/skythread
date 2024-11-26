@@ -399,10 +399,7 @@ function submitSearch() {
 
 function openPage(page) {
   if (!accountAPI.isLoggedIn) {
-    let header = $tag('header');
-    let h2 = $tag('h2', { text: "<--- Log in there & reload :)" });
-    header.append(h2);
-    $id('thread').appendChild(header);
+    toggleDialog(loginDialog);
     return;    
   }
 
