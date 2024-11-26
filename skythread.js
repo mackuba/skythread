@@ -320,6 +320,12 @@ function submitLogin() {
     showMenuButton('logout');
     showMenuButton('incognito');
     hideMenuButton('login');
+
+    let params = new URLSearchParams(location.search);
+    let page = params.get('page');
+    if (page) {
+      openPage(page);      
+    }
   })
   .catch((error) => {
     submit.style.display = 'inline';
