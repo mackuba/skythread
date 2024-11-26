@@ -332,7 +332,11 @@ function submitLogin() {
     cloudy.style.display = 'none';
     console.log(error);
 
-    window.setTimeout(() => alert(error), 10);
+    if (error.code == 401 && error.json.error == 'AuthFactorTokenRequired') {
+      alert("Please log in using an \"app password\" if you have 2FA enabled.");
+    } else {
+      window.setTimeout(() => alert(error), 10);      
+    }
   });
 }
 
