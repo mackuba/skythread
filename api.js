@@ -124,6 +124,12 @@ class BlueskyAPI extends Minisky {
   static parsePostURL(string) {
     let url;
 
+    let acceptedHostnames = [
+      'bsky.app',
+      'main.bsky.dev',
+      'deer.social',
+    ];
+
     try {
       url = new URL(string);
     } catch (error) {
@@ -134,8 +140,8 @@ class BlueskyAPI extends Minisky {
       throw new URLError('URL must start with https://');
     }
 
-    if (!(url.host == 'staging.bsky.app' || url.host == 'bsky.app' || url.host == 'main.bsky.dev')) {
-      throw new URLError('Only bsky.app URLs are supported');
+    if (!acceptedHostnames.includes(url.host)) {
+      throw new URLError('Unsupported URL');
     }
 
     let parts = url.pathname.split('/');
