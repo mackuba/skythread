@@ -155,6 +155,11 @@ class PostComponent {
     let p = this.buildPostBody();
     wrapper.appendChild(p);
 
+    if (this.post.tags) {
+      let tagsRow = this.buildTagsRow(this.post.tags);
+      wrapper.appendChild(tagsRow);
+    }
+
     if (this.post.embed) {
       let embed = new EmbedComponent(this.post, this.post.embed).buildElement();
       wrapper.appendChild(embed);
@@ -287,6 +292,22 @@ class PostComponent {
         let link = this.buildLoadFediPostLink(this.post.embed.url, p);
         p.append(' ', link);
       }
+    }
+
+    return p;
+  }
+
+  /** @param {string[]} tags, @returns {AnyElement} */
+
+  buildTagsRow(tags) {
+    let p = $tag('p.tags');
+
+    for (let tag of tags) {
+      let url = new URL(getLocation());
+      url.searchParams.set('hash', tag);
+
+      let tagLink = $tag('a', { href: url.toString(), text: '# ' + tag });
+      p.append(tagLink);
     }
 
     return p;

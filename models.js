@@ -341,6 +341,11 @@ class Post extends ATProtoRecord {
     return this.record.facets;
   }
 
+  /** @returns {string[] | undefined} */
+  get tags() {
+    return this.record.tags;
+  }
+
   /** @returns {Date} */
   get createdAt() {
     return new Date(this.record.createdAt);

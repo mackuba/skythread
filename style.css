@@ -682,6 +682,21 @@ p.back i {
   margin-top: 5px;
 }
 
+.post .tags a {
+  background-color: hsl(210, 90%, 97%);
+  border: 1px solid hsl(215, 90%, 85%);
+  border-radius: 6px;
+  padding: 3px 7px;
+  margin-right: 5px;
+  font-size: 10pt;
+  color: #333;
+}
+
+.post .tags a:hover {
+  text-decoration: none;
+  background-color: hsl(210, 90%, 93%);
+}
+
 .post p.hidden-replies {
   margin-top: 20px;
   font-size: 11pt;
