@@ -26,7 +26,11 @@ class PostComponent {
 
   /** @returns {string} */
   get linkToAuthor() {
-    return 'https://bsky.app/profile/' + this.post.author.handle;
+    if (this.post.author.handle != 'handle.invalid') {
+      return 'https://bsky.app/profile/' + this.post.author.handle;      
+    } else {
+      return 'https://bsky.app/profile/' + this.post.author.did;
+    }
   }
 
   /** @returns {string} */
