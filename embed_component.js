@@ -46,6 +46,9 @@ class EmbedComponent {
     } else if (this.embed instanceof RawLinkEmbed || this.embed instanceof InlineLinkEmbed) {
       return this.buildLinkComponent(this.embed);
 
+    } else if (this.embed instanceof RawVideoEmbed || this.embed instanceof InlineVideoEmbed) {
+      return this.buildVideoComponent(this.embed);
+
     } else {
       return $tag('p', { text: `[${this.embed.type}]` });
     }
@@ -264,6 +267,37 @@ class EmbedComponent {
         );
         wrapper.appendChild(details);
       }
+    }
+
+    return wrapper;
+  }
+
+  /** @params {RawVideoEmbed | InlineVideoEmbed} embed, @returns {AnyElement} */
+
+  buildVideoComponent(embed) {
+    let wrapper = $tag('div');
+
+    // TODO: load thumbnail
+    let a = $tag('a', { text: "Video" });
+
+    if (embed.playlistURL) {
+      a.href = embed.playlistURL;
+    } else {
+      let cid = embed.video.ref['$link'];
+      a.href = `https://video.bsky.app/watch/${this.post.author.did}/${cid}/playlist.m3u8`;
+    }
+
+    let p = $tag('p');
+    p.append('[', a, ']');
+    wrapper.append(p);
+
+    if (embed.alt) {
+      let details = $tag('details.image-alt');
+      details.append(
+        $tag('summary', { text: 'Show alt' }),
+        embed.alt
+      );
+      wrapper.appendChild(details);
     }
 
     return wrapper;

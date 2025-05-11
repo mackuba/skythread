@@ -569,6 +569,9 @@ class Embed {
     case 'app.bsky.embed.external#view':
       return new InlineLinkEmbed(json);
 
+    case 'app.bsky.embed.video#view':
+      return new InlineVideoEmbed(json);
+
     default:
       if (location.protocol == 'file:') {
         throw new PostDataError(`Unexpected embed type: ${json.$type}`);
@@ -598,6 +601,9 @@ class Embed {
 
     case 'app.bsky.embed.external':
       return new RawLinkEmbed(json);
+
+    case 'app.bsky.embed.video':
+      return new RawVideoEmbed(json);
 
     default:
       if (location.protocol == 'file:') {
@@ -637,6 +643,15 @@ class RawLinkEmbed extends Embed {
 
     this.url = json.external.uri;
     this.title = json.external.title;
+  }
+}
+
+class RawVideoEmbed extends Embed {
+
+  /** @param {json} json */
+  constructor(json) {
+    super(json);
+    this.video = json.video;
   }
 }
 
@@ -708,5 +723,18 @@ class InlineImageEmbed extends Embed {
   constructor(json) {
     super(json);
     this.images = json.images;
+  }
+}
+
+class InlineVideoEmbed extends Embed {
+
+  /**
+   * app.bsky.embed.video#view
+   * @param {json} json
+   */
+  constructor(json) {
+    super(json);
+    this.playlistURL = json.playlist;
+    this.alt = json.alt;
   }
 }
