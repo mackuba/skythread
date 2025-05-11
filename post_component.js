@@ -4,6 +4,12 @@
 
 class PostComponent {
   /**
+   * Post component's root HTML element, if built.
+   * @type {AnyElement | undefined}
+   */
+  _rootElement;
+
+  /**
     Contexts:
     - thread - a post in the thread tree
     - parent - parent reference above the thread root
@@ -17,6 +23,17 @@ class PostComponent {
   constructor(post, context) {
     this.post = /** @type {Post}, TODO */ (post);
     this.context = context;
+  }
+
+  /**
+   * @returns {AnyElement}
+   */
+  get rootElement() {
+    if (!this._rootElement) {
+      throw new Error("rootElement not initialized");
+    }
+
+    return this._rootElement;
   }
 
   /** @returns {boolean} */
@@ -76,7 +93,12 @@ class PostComponent {
 
   /** @returns {AnyElement} */
   buildElement() {
+    if (this._rootElement) {
+      return this._rootElement;
+    }
+
     let div = $tag('div.post');
+    this._rootElement = div;
 
     if (this.post.muted) {
       div.classList.add('muted');
@@ -110,7 +132,7 @@ class PostComponent {
       [edge, plus].forEach(x => {
         x.addEventListener('click', (e) => {
           e.preventDefault();
-          this.toggleSectionFold(div);
+          this.toggleSectionFold();
         });
       });
     }
@@ -534,16 +556,19 @@ class PostComponent {
     }
   }
 
-  /** @param {AnyElement} div */
+  /** @returns {boolean} */
+  isCollapsed() {
+    return this.rootElement.classList.contains('collapsed');
+  }
 
-  toggleSectionFold(div) {
-    let plus = div.querySelector('.plus');
+  toggleSectionFold() {
+    let plus = this.rootElement.querySelector('.plus');
 
-    if (div.classList.contains('collapsed')) {
-      div.classList.remove('collapsed');
+    if (this.isCollapsed()) {
+      this.rootElement.classList.remove('collapsed');
       plus.src = 'icons/subtract-square.png'
     } else {
-      div.classList.add('collapsed');
+      this.rootElement.classList.add('collapsed');
       plus.src = 'icons/add-square.png'
     }
   }
