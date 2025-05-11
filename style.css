@@ -389,6 +389,13 @@ p.back i {
   border-left: 2px solid #888;
 }
 
+.post .plus {
+  position: absolute;
+  top: 8px;
+  left: -6px;
+  width: 14px;
+}
+
 .post.collapsed .line {
   display: none;
 }
@@ -402,7 +409,7 @@ p.back i {
   margin-top: 25px;
 }
 
-.post.flat > .edge {
+.post.flat > .margin {
   display: none;
 }
 
@@ -425,17 +432,6 @@ p.back i {
 
 .post.muted .missing {
   color: #bbb;
-}
-
-.post .plus {
-  position: absolute;
-  top: 8px;
-  left: -6px;
-  width: 14px;
-}
-
-.post.flat > .plus {
-  display: none;
 }
 
 .post h2 {

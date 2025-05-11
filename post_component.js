@@ -121,20 +121,8 @@ class PostComponent {
     let content = $tag('div.content');
 
     if (this.context == 'thread' && !this.isRoot) {
-      let edge = $tag('div.edge');
-      let line = $tag('div.line');
-      edge.appendChild(line);
-      div.appendChild(edge);
-
-      let plus = $tag('img.plus', { src: 'icons/subtract-square.png' });
-      div.appendChild(plus);
-
-      [edge, plus].forEach(x => {
-        x.addEventListener('click', (e) => {
-          e.preventDefault();
-          this.toggleSectionFold();
-        });
-      });
+      let edgeMargin = this.buildEdgeMargin();
+      div.appendChild(edgeMargin);
     }
 
     let wrapper;
@@ -240,6 +228,27 @@ class PostComponent {
     return h;
   }
 
+  buildEdgeMargin() {
+    let div = $tag('div.margin');
+
+    let edge = $tag('div.edge');
+    let line = $tag('div.line');
+    edge.appendChild(line);
+    div.appendChild(edge);
+
+    let plus = $tag('img.plus', { src: 'icons/subtract-square.png' });
+    div.appendChild(plus);
+
+    [edge, plus].forEach(x => {
+      x.addEventListener('click', (e) => {
+        e.preventDefault();
+        this.toggleSectionFold();
+      });
+    });
+
+    return div;
+  }
+
   /** @param {string} url, @returns {HTMLImageElement} */
 
   buildUserAvatar(url) {
@@ -324,18 +333,38 @@ class PostComponent {
     }
 
     if (!this.isRoot && this.context != 'quote' && this.post.quoteCount) {
-      let q = new URL(getLocation());
-      q.searchParams.set('quotes', this.linkToPost);
-
-      let quotes = $tag('a', {
-        html: `<i class="fa-regular ${this.post.quoteCount > 1 ? 'fa-comments' : 'fa-comment'}"></i> ${this.post.quoteCount}`,
-        href: q.toString()
-      });
-
-      stats.append(quotes);
+      let quotesLink = this.buildQuotesIconLink(this.post.quoteCount, false);
+      stats.append(quotesLink);
     }
 
     return stats;
+  }
+
+  /** @param {number} count, @param {boolean} expanded, @returns {AnyElement} */
+
+  buildQuotesIconLink(count, expanded) {
+    let q = new URL(getLocation());
+    q.searchParams.set('quotes', this.linkToPost);
+
+    let url = q.toString();
+    let icon = `<i class="fa-regular ${count > 1 ? 'fa-comments' : 'fa-comment'}"></i>`;
+
+    if (expanded) {
+      let span = $tag('span', { html: `${icon} ` });
+      let link = $tag('a', { text: (count > 1) ? `${count} quotes` : '1 quote', href: url });
+      span.append(link);
+      return span;
+    } else {
+      return $tag('a', { html: `${icon} ${count}`, href: url });
+    }
+  }
+
+  /** @param {number} quoteCount, @param {boolean} expanded */
+
+  appendQuotesIconLink(quoteCount, expanded) {
+    let stats = this.rootElement.querySelector(':scope > .content > p.stats');
+    let quotesLink = this.buildQuotesIconLink(quoteCount, expanded);
+    stats.append(quotesLink);
   }
 
   /** @returns {AnyElement} */
@@ -554,7 +583,7 @@ class PostComponent {
   }
 
   toggleSectionFold() {
-    let plus = this.rootElement.querySelector('.plus');
+    let plus = this.rootElement.querySelector(':scope > .margin .plus');
 
     if (this.isCollapsed()) {
       this.rootElement.classList.remove('collapsed');

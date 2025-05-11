@@ -672,16 +672,7 @@ function displayThread(json) {
 
   loadQuoteCount?.then(count => {
     if (count > 0) {
-      let stats = view.querySelector(':scope > .content > p.stats');
-      let q = new URL(getLocation());
-      q.searchParams.set('quotes', component.linkToPost);
-      stats.append($tag('i', { className: count > 1 ? 'fa-regular fa-comments' : 'fa-regular fa-comment' }));
-      stats.append(" ");
-      let quotes = $tag('a', {
-        text: count > 1 ? `${count} quotes` : '1 quote',
-        href: q.toString()
-      });
-      stats.append(quotes);
+      component.appendQuotesIconLink(count, true);
     }
   }).catch(error => {
     console.warn("Couldn't load quote count: " + error);
