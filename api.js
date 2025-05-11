@@ -247,9 +247,15 @@ class BlueskyAPI extends Minisky {
   /** @param {string} url, @param {string | undefined} cursor, @returns {Promise<json>} */
 
   async getQuotes(url, cursor = undefined) {
-    let [handle, postId] = BlueskyAPI.parsePostURL(url);
-    let did = handle.startsWith('did:') ? handle : await appView.resolveHandle(handle);
-    let postURI = `at://${did}/app.bsky.feed.post/${postId}`;
+    let postURI;
+
+    if (url.startsWith('at://')) {
+      postURI = url;
+    } else {
+      let [handle, postId] = BlueskyAPI.parsePostURL(url);
+      let did = handle.startsWith('did:') ? handle : await appView.resolveHandle(handle);
+      postURI = `at://${did}/app.bsky.feed.post/${postId}`;
+    }
 
     let params = { uri: postURI };
 
