@@ -306,11 +306,6 @@ class Post extends ATProtoRecord {
     return this.author?.handle.endsWith('.ap.brid.gy');
   }
 
-  /** @returns {boolean} */
-  get isTruncatedFediPost() {
-    return this.isFediPost && (this.text.endsWith('…') || this.text.endsWith('[…]'));
-  }
-
   /** @returns {string | undefined} */
   get originalFediContent() {
     return this.record.bridgyOriginalText;

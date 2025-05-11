@@ -287,13 +287,6 @@ class PostComponent {
       }
     }
 
-    if (this.post.isTruncatedFediPost) {
-      if (this.post.embed && ('url' in this.post.embed) && typeof this.post.embed.url == 'string') {
-        let link = this.buildLoadFediPostLink(this.post.embed.url, p);
-        p.append(' ', link);
-      }
-    }
-
     return p;
   }
 
@@ -331,24 +324,6 @@ class PostComponent {
     }
 
     return stats;
-  }
-
-  /** @param {string} originalURL, @param {HTMLElement} p, @returns {AnyElement} */
-
-  buildLoadFediPostLink(originalURL, p) {
-    let link = $tag('a', {
-      href: originalURL,
-      text: "(Load full post)"
-    });
-
-    link.addEventListener('click', (e) => {
-      e.preventDefault();
-      link.remove();
-
-      this.loadFediPost(originalURL, p);
-    });
-
-    return link;
   }
 
   /** @returns {AnyElement} */
@@ -558,22 +533,6 @@ class PostComponent {
 
       // TODO
       Array.from(div.querySelectorAll('a.link-card')).forEach(x => x.remove());
-    }
-  }
-
-  /** @param {string} url, @param {HTMLElement} p, @returns Promise<void> */
-
-  async loadFediPost(url, p) {
-    let host = new URL(url).host;
-    let postId = url.replace(/\/$/, '').split('/').reverse()[0];
-    let statusURL = `https://${host}/api/v1/statuses/${postId}`;
-
-    let response = await fetch(statusURL);
-    let json = await response.json();
-
-    if (json.content) {
-      let div = $tag('div.body', { html: sanitizeHTML(json.content) });
-      p.replaceWith(div);
     }
   }
 
