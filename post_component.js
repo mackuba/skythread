@@ -323,6 +323,18 @@ class PostComponent {
       stats.append(span);
     }
 
+    if (!this.isRoot && this.context != 'quote' && this.post.quoteCount) {
+      let q = new URL(getLocation());
+      q.searchParams.set('quotes', this.linkToPost);
+
+      let quotes = $tag('a', {
+        html: `<i class="fa-regular ${this.post.quoteCount > 1 ? 'fa-comments' : 'fa-comment'}"></i> ${this.post.quoteCount}`,
+        href: q.toString()
+      });
+
+      stats.append(quotes);
+    }
+
     return stats;
   }
 

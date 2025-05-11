@@ -356,6 +356,11 @@ class Post extends ATProtoRecord {
     return castToInt(this.data.replyCount);
   }
 
+  /** @returns {number} */
+  get quoteCount() {
+    return castToInt(this.data.quoteCount);
+  }
+
   /** @returns {boolean} */
   get hasMoreReplies() {
     let shouldHaveMoreReplies = (this.replyCount !== undefined && this.replyCount > this.replies.length);
