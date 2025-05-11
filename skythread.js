@@ -24,7 +24,7 @@ function init() {
       } else {
         e.stopPropagation();
       }
-    });    
+    });
 
     dialog.querySelector('.close')?.addEventListener('click', (e) => {
       hideDialog(dialog);
@@ -324,7 +324,7 @@ function submitLogin() {
     let params = new URLSearchParams(location.search);
     let page = params.get('page');
     if (page) {
-      openPage(page);      
+      openPage(page);
     }
   })
   .catch((error) => {
@@ -335,7 +335,7 @@ function submitLogin() {
     if (error.code == 401 && error.json.error == 'AuthFactorTokenRequired') {
       alert("Please log in using an \"app password\" if you have 2FA enabled.");
     } else {
-      window.setTimeout(() => alert(error), 10);      
+      window.setTimeout(() => alert(error), 10);
     }
   });
 }
@@ -410,7 +410,7 @@ function submitSearch() {
 function openPage(page) {
   if (!accountAPI.isLoggedIn) {
     toggleDialog(loginDialog);
-    return;    
+    return;
   }
 
   if (page == 'notif') {
@@ -486,7 +486,7 @@ function showNotificationsPage() {
       console.log(error);
       isLoading = false;
     });
-  }); 
+  });
 }
 
 /** @param {Post} post */
@@ -657,7 +657,7 @@ function displayThread(json) {
 
   if (root instanceof Post) {
     setPageTitle(root);
-    loadQuoteCount = blueAPI.getQuoteCount(root.uri);        
+    loadQuoteCount = blueAPI.getQuoteCount(root.uri);
 
     if (root.parent) {
       let p = buildParentLink(root.parent);

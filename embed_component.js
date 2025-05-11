@@ -117,7 +117,7 @@ class EmbedComponent {
         text = embed.description.slice(0, 300) + '…';
       }
 
-      box.append($tag('p.description', { text: text }));      
+      box.append($tag('p.description', { text: text }));
     }
 
     a.append(box);

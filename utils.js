@@ -101,7 +101,7 @@ function getLocation() {
 
 function showError(error) {
   console.log(error);
-  alert(error);  
+  alert(error);
 }
 
 /** @param {Date} date1, @param {Date} date2, @returns {boolean} */

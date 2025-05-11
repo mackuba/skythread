@@ -159,7 +159,7 @@ class BlueskyAPI extends Minisky {
 
       if (did) {
         this.handleCache.setHandleDid(handle, did);
-        return did;        
+        return did;
       } else {
         throw new ResponseDataError('Missing DID in response: ' + JSON.stringify(json));
       }
@@ -236,7 +236,7 @@ class BlueskyAPI extends Minisky {
     let json = await this.getRequest('blue.feeds.post.getReplies', { uri });
     return json.replies;
   }
-  
+
   /** @param {string} uri, @returns {Promise<number>} */
 
   async getQuoteCount(uri) {

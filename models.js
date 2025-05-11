@@ -110,7 +110,7 @@ class Post extends ATProtoRecord {
     case 'app.bsky.feed.defs#threadViewPost':
       let post = new Post(json.post, { level: level, absoluteLevel: absoluteLevel });
 
-      post.pageRoot = pageRoot ?? post; 
+      post.pageRoot = pageRoot ?? post;
 
       if (json.replies) {
         let replies = json.replies.map(x => Post.parseThreadPost(x, post.pageRoot, level + 1, absoluteLevel + 1));

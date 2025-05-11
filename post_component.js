@@ -44,7 +44,7 @@ class PostComponent {
   /** @returns {string} */
   get linkToAuthor() {
     if (this.post.author.handle != 'handle.invalid') {
-      return 'https://bsky.app/profile/' + this.post.author.handle;      
+      return 'https://bsky.app/profile/' + this.post.author.handle;
     } else {
       return 'https://bsky.app/profile/' + this.post.author.did;
     }
@@ -109,10 +109,10 @@ class PostComponent {
       return div;
     } else if (this.post instanceof DetachedQuotePost) {
       this.buildDetachedQuoteElement(div);
-      return div;      
+      return div;
     } else if (this.post instanceof MissingPost) {
       this.buildMissingPostElement(div);
-      return div;      
+      return div;
     }
 
     let header = this.buildPostHeader();
@@ -583,7 +583,7 @@ class PostComponent {
           alert("Sorry, this post is blocked.");
         });
       } else {
-        showDialog(loginDialog);        
+        showDialog(loginDialog);
       }
       return;
     }
