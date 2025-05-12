@@ -71,6 +71,13 @@ class Post extends ATProtoRecord {
   pageRoot;
 
   /**
+   * Info about the author of the "grandparent" post. Included only in feedPost views, for the purposes
+   * of feed filtering algorithm.
+   * @type {json | undefined}
+   */
+  grandparentAuthor;
+
+  /**
    * Depth of the post in the getPostThread response it was loaded from, starting from 0. May be negative.
    * @type {number | undefined}
    */

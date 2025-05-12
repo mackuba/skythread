@@ -12,6 +12,7 @@ declare var api: BlueskyAPI;
 declare var isIncognito: boolean;
 declare var biohazardEnabled: boolean;
 declare var loginDialog: AnyElement;
+declare var accountMenu: AnyElement;
 
 type SomeElement = Element | HTMLElement | AnyElement;
 type json = Record<string, any>;
@@ -20,6 +21,7 @@ interface AnyElement {
   classList: CSSClassList;
   className: string;
   innerText: string;
+  innerHTML: string;
   nextElementSibling: AnyElement;
   parentNode: AnyElement;
   src: string;
@@ -31,7 +33,9 @@ interface AnyElement {
 
   append(...e: Array<string | SomeElement>): void;
   appendChild(e: SomeElement): void;
+  closest(q: string): AnyElement;
   querySelector(q: string): AnyElement;
+  querySelectorAll(q: string): AnyElement[];
   prepend(...e: Array<string | SomeElement>): void;
   remove(): void;
   replaceChildren(e: SomeElement): void;

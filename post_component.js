@@ -380,7 +380,7 @@ class PostComponent {
     link.addEventListener('click', (e) => {
       e.preventDefault();
       loadMore.innerHTML = `<img class="loader" src="icons/sunny.png">`;
-      loadSubtree(this.post, loadMore.closest('.post'));
+      loadSubtree(this.post, this.rootElement);
     });
 
     loadMore.appendChild(link);
@@ -416,7 +416,7 @@ class PostComponent {
 
   loadHiddenReplies(loadMoreButton) {
     loadMoreButton.innerHTML = `<img class="loader" src="icons/sunny.png">`;
-    loadHiddenSubtree(this.post, loadMoreButton.closest('.post'));
+    loadHiddenSubtree(this.post, this.rootElement);
   }
 
   /** @param {HTMLLinkElement} authorLink */

@@ -7,6 +7,7 @@ function init() {
   window.biohazardEnabled = JSON.parse(localStorage.getItem('biohazard') ?? 'null');
 
   window.loginDialog = document.querySelector('#login');
+  window.accountMenu = document.querySelector('#account_menu');
 
   html.addEventListener('click', (e) => {
     $id('account_menu').style.visibility = 'hidden';
@@ -52,7 +53,9 @@ function init() {
       window.loadInfohazard = undefined;
     }
 
-    hideDialog(e.target.closest('.dialog'));
+    let target = /** @type {AnyElement} */ (/** @type {unknown} */ (e.target));
+
+    hideDialog(target.closest('.dialog'));
   });
 
   document.querySelector('#biohazard_hide').addEventListener('click', (e) => {
@@ -66,7 +69,9 @@ function init() {
       p.style.display = 'none';
     }
 
-    hideDialog(e.target.closest('.dialog'));
+    let target = /** @type {AnyElement} */ (/** @type {unknown} */ (e.target));
+
+    hideDialog(target.closest('.dialog'));
   });
 
   document.querySelector('#account').addEventListener('click', (e) => {
@@ -74,11 +79,11 @@ function init() {
     e.stopPropagation();
   });
 
-  document.querySelector('#account_menu').addEventListener('click', (e) => {
+  accountMenu.addEventListener('click', (e) => {
     e.stopPropagation();
   });
 
-  document.querySelector('#account_menu a[data-action=biohazard]').addEventListener('click', (e) => {
+  accountMenu.querySelector('a[data-action=biohazard]').addEventListener('click', (e) => {
     e.preventDefault();
 
     let hazards = document.querySelectorAll('p.hidden-replies, .content > .post.blocked, .blocked > .load-post');
@@ -96,7 +101,7 @@ function init() {
     }
   });
 
-  document.querySelector('#account_menu a[data-action=incognito]').addEventListener('click', (e) => {
+  accountMenu.querySelector('a[data-action=incognito]').addEventListener('click', (e) => {
     e.preventDefault();
 
     if (isIncognito) {
@@ -108,13 +113,13 @@ function init() {
     location.reload();
   });
 
-  document.querySelector('#account_menu a[data-action=login]').addEventListener('click', (e) => {
+  accountMenu.querySelector('a[data-action=login]').addEventListener('click', (e) => {
     e.preventDefault();
     toggleDialog(loginDialog);
     $id('account_menu').style.visibility = 'hidden';
   });
 
-  document.querySelector('#account_menu a[data-action=logout]').addEventListener('click', (e) => {
+  accountMenu.querySelector('a[data-action=logout]').addEventListener('click', (e) => {
     e.preventDefault();
     logOut();
   });
@@ -248,21 +253,21 @@ function toggleAccountMenu() {
 /** @param {string} buttonName */
 
 function showMenuButton(buttonName) {
-  let button = document.querySelector(`#account_menu a[data-action=${buttonName}]`);
+  let button = accountMenu.querySelector(`a[data-action=${buttonName}]`);
   button.parentNode.style.display = 'list-item';
 }
 
 /** @param {string} buttonName */
 
 function hideMenuButton(buttonName) {
-  let button = document.querySelector(`#account_menu a[data-action=${buttonName}]`);
+  let button = accountMenu.querySelector(`a[data-action=${buttonName}]`);
   button.parentNode.style.display = 'none';
 }
 
 /** @param {string} buttonName, @param {boolean} state */
 
 function toggleMenuButton(buttonName, state) {
-  let button = document.querySelector(`#account_menu a[data-action=${buttonName}]`);
+  let button = accountMenu.querySelector(`a[data-action=${buttonName}]`);
   button.querySelector('.check').style.display = (state) ? 'inline' : 'none';
 }
 
