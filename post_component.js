@@ -599,17 +599,20 @@ class PostComponent {
   onHeartClick(heart) {
     if (!this.post.hasViewerInfo) {
       if (accountAPI.isLoggedIn) {
-        accountAPI.loadPost(this.post.uri).then(data => {
-          this.post = new Post(data);
+        accountAPI.loadPostIfExists(this.post.uri).then(data => {
+          if (data) {
+            this.post = new Post(data);
 
-          if (this.post.liked) {
-            heart.classList.add('liked');
+            if (this.post.liked) {
+              heart.classList.add('liked');
+            } else {
+              this.onHeartClick(heart);
+            }
           } else {
-            this.onHeartClick(heart);
+            alert("Sorry, this post is blocked or was deleted.");
           }
         }).catch(error => {
-          console.log(error);
-          alert("Sorry, this post is blocked.");
+          alert(error);
         });
       } else {
         showDialog(loginDialog);
