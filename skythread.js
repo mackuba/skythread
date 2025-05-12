@@ -711,6 +711,11 @@ function loadHiddenSubtree(post, nodeToUpdate) {
         .filter(v => v)
         .map(json => Post.parseThreadPost(json.thread, post.pageRoot, 1, post.absoluteLevel + 1));
 
+      if (replies.length < responses.length) {
+        // TODO
+        console.log((responses.length - replies.length) + " replies missing");
+      }
+
       post.setReplies(replies);
 
       let content = nodeToUpdate.querySelector('.content');
