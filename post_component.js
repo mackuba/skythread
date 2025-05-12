@@ -252,19 +252,9 @@ class PostComponent {
   /** @param {string} url, @returns {HTMLImageElement} */
 
   buildUserAvatar(url) {
-    let avatar = $tag('img.avatar', { src: url });
-    let tries = 0;
-
-    let errorHandler = function(e) {
-      if (tries < 3) {
-        tries++;
-        setTimeout(() => { avatar.src = url }, Math.random() * 5 * tries);
-      } else {
-        avatar.removeEventListener('error', errorHandler);
-      }
-    };
-
-    avatar.addEventListener('error', errorHandler);
+    let avatar = $tag('img.avatar', { loading: 'lazy' }); // needs to be set before src!
+    avatar.src = url;
+    window.avatarPreloader.observe(avatar);
     return avatar;
   }
 

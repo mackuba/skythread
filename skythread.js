@@ -9,6 +9,8 @@ function init() {
   window.loginDialog = document.querySelector('#login');
   window.accountMenu = document.querySelector('#account_menu');
 
+  window.avatarPreloader = buildAvatarPreloader();
+
   html.addEventListener('click', (e) => {
     $id('account_menu').style.visibility = 'hidden';
   });
@@ -197,6 +199,22 @@ function buildParentLink(post) {
   }
 
   return p;
+}
+
+/** @returns {IntersectionObserver} */
+
+function buildAvatarPreloader() {
+  return new IntersectionObserver((entries, observer) => {
+    for (const entry of entries) {
+      if (entry.isIntersecting) {
+        const img = entry.target;
+        img.removeAttribute('lazy');
+        observer.unobserve(img);
+      }
+    }
+  }, {
+    rootMargin: '1000px 0px'
+  });
 }
 
 function showLoader() {

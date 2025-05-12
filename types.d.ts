@@ -13,6 +13,7 @@ declare var isIncognito: boolean;
 declare var biohazardEnabled: boolean;
 declare var loginDialog: AnyElement;
 declare var accountMenu: AnyElement;
+declare var avatarPreloader: IntersectionObserver;
 
 type SomeElement = Element | HTMLElement | AnyElement;
 type json = Record<string, any>;
