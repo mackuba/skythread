@@ -339,7 +339,8 @@ class PostComponent {
     }
 
     if (!this.isRoot && this.context != 'quote' && this.post.quoteCount) {
-      let quotesLink = this.buildQuotesIconLink(this.post.quoteCount, false);
+      let expanded = this.context == 'quotes' || this.context == 'feed';
+      let quotesLink = this.buildQuotesIconLink(this.post.quoteCount, expanded);
       stats.append(quotesLink);
     }
 
