@@ -703,6 +703,12 @@ p.back i {
   color: saddlebrown;
 }
 
+.post p.missing-replies-info {
+  font-size: 11pt;
+  color: darkred;
+  margin-top: 25px;
+}
+
 @media (prefers-color-scheme: dark) {
   body {
     background-color: rgb(39, 39, 37);

@@ -718,6 +718,9 @@ function loadSubtree(post, nodeToUpdate) {
 /** @param {Post} post, @param {AnyElement} nodeToUpdate */
 
 function loadHiddenSubtree(post, nodeToUpdate) {
+  let content = nodeToUpdate.querySelector('.content');
+  let hiddenRepliesDiv = content.querySelector(':scope > .hidden-replies');
+
   blueAPI.getReplies(post.uri).then(replies => {
     let missingReplies = replies.filter(r => !post.replies.some(x => x.uri === r));
 
@@ -727,21 +730,38 @@ function loadHiddenSubtree(post, nodeToUpdate) {
         .filter(v => v)
         .map(json => Post.parseThreadPost(json.thread, post.pageRoot, 1, post.absoluteLevel + 1));
 
-      if (replies.length < responses.length) {
-        // TODO
-        console.log((responses.length - replies.length) + " replies missing");
-      }
-
       post.setReplies(replies);
-
-      let content = nodeToUpdate.querySelector('.content');
-      content.querySelector(':scope > .hidden-replies').remove();
+      hiddenRepliesDiv.remove();
 
       for (let reply of post.replies) {
         let component = new PostComponent(reply, 'thread');
         let view = component.buildElement();
         content.append(view);
       }
-    }).catch(showError);
-  }).catch(showError);
+
+      if (replies.length < responses.length) {
+        let notFoundCount = responses.length - replies.length;
+        let pluralizedCount = notFoundCount + ' ' + ((notFoundCount > 1) ? 'replies are' : 'reply is');
+
+        let info = $tag('p.missing-replies-info', {
+          html: `<i class="fa-solid fa-ban"></i> ${pluralizedCount} missing (likely taken down by moderation)`
+        });
+        content.append(info);
+      }
+    }).catch(error => {
+      hiddenRepliesDiv.remove();
+      setTimeout(() => showError(error), 1);
+    });
+  }).catch(error => {
+    hiddenRepliesDiv.remove();
+
+    if (error instanceof APIError && error.code == 404) {
+      let info = $tag('p.missing-replies-info', {
+        html: `<i class="fa-solid fa-ban"></i> Hidden replies not available (post too old)`
+      });
+      content.append(info);
+    } else {
+      setTimeout(() => showError(error), 1);
+    }
+  });
 }
