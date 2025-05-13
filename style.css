@@ -513,6 +513,10 @@ p.back i {
   display: none;
 }
 
+.post-quotes .post-quote p.stats {
+  display: none;
+}
+
 .post .image-alt {
   font-size: 11pt;
   color: #666;
