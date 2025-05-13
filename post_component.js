@@ -354,7 +354,7 @@ class PostComponent {
     q.searchParams.set('quotes', this.linkToPost);
 
     let url = q.toString();
-    let icon = `<i class="fa-regular ${count > 1 ? 'fa-comments' : 'fa-comment'}"></i>`;
+    let icon = `<i class="fa-regular fa-comments"></i>`;
 
     if (expanded) {
       let span = $tag('span', { html: `${icon} ` });
