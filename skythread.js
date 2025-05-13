@@ -1,13 +1,12 @@
 function init() {
-  let document = /** @type {AnyElement} */ (/** @type {unknown} */ (window.document));
-  let html = /** @type {AnyElement} */ (/** @type {unknown} */ (window.document.body.parentNode));
+  let html = $(document.body.parentNode);
 
   window.dateLocale = localStorage.getItem('locale') || undefined;
   window.isIncognito = !!localStorage.getItem('incognito');
   window.biohazardEnabled = JSON.parse(localStorage.getItem('biohazard') ?? 'null');
 
-  window.loginDialog = document.querySelector('#login');
-  window.accountMenu = document.querySelector('#account_menu');
+  window.loginDialog = $(document.querySelector('#login'));
+  window.accountMenu = $(document.querySelector('#account_menu'));
 
   window.avatarPreloader = buildAvatarPreloader();
 
@@ -15,7 +14,7 @@ function init() {
     $id('account_menu').style.visibility = 'hidden';
   });
 
-  document.querySelector('#search form').addEventListener('submit', (e) => {
+  $(document.querySelector('#search form')).addEventListener('submit', (e) => {
     e.preventDefault();
     submitSearch();
   });
@@ -34,17 +33,17 @@ function init() {
     });
   }
 
-  document.querySelector('#login .info a').addEventListener('click', (e) => {
+  $(document.querySelector('#login .info a')).addEventListener('click', (e) => {
     e.preventDefault();
     toggleLoginInfo();
   });
 
-  document.querySelector('#login form').addEventListener('submit', (e) => {
+  $(document.querySelector('#login form')).addEventListener('submit', (e) => {
     e.preventDefault();
     submitLogin();
   });
 
-  document.querySelector('#biohazard_show').addEventListener('click', (e) => {
+  $(document.querySelector('#biohazard_show')).addEventListener('click', (e) => {
     e.preventDefault();
 
     window.biohazardEnabled = true;
@@ -55,12 +54,12 @@ function init() {
       window.loadInfohazard = undefined;
     }
 
-    let target = /** @type {AnyElement} */ (/** @type {unknown} */ (e.target));
+    let target = $(e.target);
 
     hideDialog(target.closest('.dialog'));
   });
 
-  document.querySelector('#biohazard_hide').addEventListener('click', (e) => {
+  $(document.querySelector('#biohazard_hide')).addEventListener('click', (e) => {
     e.preventDefault();
 
     window.biohazardEnabled = false;
@@ -68,15 +67,15 @@ function init() {
     toggleMenuButton('biohazard', false);
 
     for (let p of document.querySelectorAll('p.hidden-replies, .content > .post.blocked, .blocked > .load-post')) {
-      p.style.display = 'none';
+      $(p).style.display = 'none';
     }
 
-    let target = /** @type {AnyElement} */ (/** @type {unknown} */ (e.target));
+    let target = $(e.target);
 
     hideDialog(target.closest('.dialog'));
   });
 
-  document.querySelector('#account').addEventListener('click', (e) => {
+  $(document.querySelector('#account')).addEventListener('click', (e) => {
     toggleAccountMenu();
     e.stopPropagation();
   });
@@ -85,7 +84,7 @@ function init() {
     e.stopPropagation();
   });
 
-  accountMenu.querySelector('a[data-action=biohazard]').addEventListener('click', (e) => {
+  $(accountMenu.querySelector('a[data-action=biohazard]')).addEventListener('click', (e) => {
     e.preventDefault();
 
     let hazards = document.querySelectorAll('p.hidden-replies, .content > .post.blocked, .blocked > .load-post');
@@ -94,16 +93,16 @@ function init() {
       window.biohazardEnabled = true;
       localStorage.setItem('biohazard', 'true');
       toggleMenuButton('biohazard', true);
-      Array.from(hazards).forEach(p => { p.style.display = 'block' });
+      Array.from(hazards).forEach(p => { $(p).style.display = 'block' });
     } else {
       window.biohazardEnabled = false;
       localStorage.setItem('biohazard', 'false');
       toggleMenuButton('biohazard', false);
-      Array.from(hazards).forEach(p => { p.style.display = 'none' });
+      Array.from(hazards).forEach(p => { $(p).style.display = 'none' });
     }
   });
 
-  accountMenu.querySelector('a[data-action=incognito]').addEventListener('click', (e) => {
+  $(accountMenu.querySelector('a[data-action=incognito]')).addEventListener('click', (e) => {
     e.preventDefault();
 
     if (isIncognito) {
@@ -115,13 +114,13 @@ function init() {
     location.reload();
   });
 
-  accountMenu.querySelector('a[data-action=login]').addEventListener('click', (e) => {
+  $(accountMenu.querySelector('a[data-action=login]')).addEventListener('click', (e) => {
     e.preventDefault();
     toggleDialog(loginDialog);
     $id('account_menu').style.visibility = 'hidden';
   });
 
-  accountMenu.querySelector('a[data-action=logout]').addEventListener('click', (e) => {
+  $(accountMenu.querySelector('a[data-action=logout]')).addEventListener('click', (e) => {
     e.preventDefault();
     logOut();
   });
@@ -181,7 +180,7 @@ function parseQueryParams() {
   }
 }
 
-/** @param {AnyPost} post, @returns {AnyElement} */
+/** @param {AnyPost} post, @returns {HTMLElement} */
 
 function buildParentLink(post) {
   let p = $tag('p.back');
@@ -189,7 +188,8 @@ function buildParentLink(post) {
   if (post instanceof BlockedPost) {
     let element = new PostComponent(post, 'parent').buildElement();
     element.className = 'back';
-    element.querySelector('p.blocked-header span').innerText = 'Parent post blocked';
+    let span = $(element.querySelector('p.blocked-header span'));
+    span.innerText = 'Parent post blocked';
     return element;
   } else if (post instanceof MissingPost) {
     p.innerHTML = `<i class="fa-solid fa-ban"></i> parent post has been deleted`;
@@ -226,8 +226,11 @@ function hideLoader() {
 }
 
 function showSearch() {
-  $id('search').style.visibility = 'visible';
-  $id('search').querySelector('input[type=text]').focus();
+  let search = $id('search');
+  let searchField = $(search.querySelector('input[type=text]'));
+
+  search.style.visibility = 'visible';
+  searchField.focus();
 }
 
 function hideSearch() {
@@ -271,22 +274,25 @@ function toggleAccountMenu() {
 /** @param {string} buttonName */
 
 function showMenuButton(buttonName) {
-  let button = accountMenu.querySelector(`a[data-action=${buttonName}]`);
-  button.parentNode.style.display = 'list-item';
+  let button = $(accountMenu.querySelector(`a[data-action=${buttonName}]`));
+  let item = $(button.parentNode);
+  item.style.display = 'list-item';
 }
 
 /** @param {string} buttonName */
 
 function hideMenuButton(buttonName) {
-  let button = accountMenu.querySelector(`a[data-action=${buttonName}]`);
-  button.parentNode.style.display = 'none';
+  let button = $(accountMenu.querySelector(`a[data-action=${buttonName}]`));
+  let item = $(button.parentNode);
+  item.style.display = 'none';
 }
 
 /** @param {string} buttonName, @param {boolean} state */
 
 function toggleMenuButton(buttonName, state) {
-  let button = accountMenu.querySelector(`a[data-action=${buttonName}]`);
-  button.querySelector('.check').style.display = (state) ? 'inline' : 'none';
+  let button = $(accountMenu.querySelector(`a[data-action=${buttonName}]`));
+  let check = $(button.querySelector('.check'));
+  check.style.display = (state) ? 'inline' : 'none';
 }
 
 /** @param {boolean | 'incognito'} loggedIn, @param {string | undefined | null} [avatar] */
@@ -295,7 +301,7 @@ function showLoggedInStatus(loggedIn, avatar) {
   let account = $id('account');
 
   if (loggedIn === true && avatar) {
-    let button = account.querySelector('i');
+    let button = $(account.querySelector('i'));
 
     let img = $tag('img.avatar', { src: avatar });
     img.style.display = 'none';
@@ -318,8 +324,8 @@ function showLoggedInStatus(loggedIn, avatar) {
 }
 
 function submitLogin() {
-  let handle = $id('login_handle');
-  let password = $id('login_password');
+  let handle = $id('login_handle', HTMLInputElement);
+  let password = $id('login_password', HTMLInputElement);
   let submit = $id('login_submit');
   let cloudy = $id('cloudy');
 
@@ -401,7 +407,9 @@ function logOut() {
 }
 
 function submitSearch() {
-  let url = $id('search').querySelector('input[name=q]').value.trim();
+  let search = $id('search');
+  let searchField = $(search.querySelector('input[name=q]'), HTMLInputElement);
+  let url = searchField.value.trim();
 
   if (!url) { return }
 
@@ -702,7 +710,7 @@ function displayThread(json) {
   });
 }
 
-/** @param {Post} post, @param {AnyElement} nodeToUpdate */
+/** @param {Post} post, @param {HTMLElement} nodeToUpdate */
 
 function loadSubtree(post, nodeToUpdate) {
   api.loadThreadByAtURI(post.uri).then(json => {
@@ -715,11 +723,11 @@ function loadSubtree(post, nodeToUpdate) {
   }).catch(showError);
 }
 
-/** @param {Post} post, @param {AnyElement} nodeToUpdate */
+/** @param {Post} post, @param {HTMLElement} nodeToUpdate */
 
 function loadHiddenSubtree(post, nodeToUpdate) {
-  let content = nodeToUpdate.querySelector('.content');
-  let hiddenRepliesDiv = content.querySelector(':scope > .hidden-replies');
+  let content = $(nodeToUpdate.querySelector('.content'));
+  let hiddenRepliesDiv = $(content.querySelector(':scope > .hidden-replies'));
 
   blueAPI.getReplies(post.uri).then(replies => {
     let missingReplies = replies.filter(r => !post.replies.some(x => x.uri === r));

@@ -5,7 +5,7 @@
 class PostComponent {
   /**
    * Post component's root HTML element, if built.
-   * @type {AnyElement | undefined}
+   * @type {HTMLElement | undefined}
    */
   _rootElement;
 
@@ -26,7 +26,7 @@ class PostComponent {
   }
 
   /**
-   * @returns {AnyElement}
+   * @returns {HTMLElement}
    */
   get rootElement() {
     if (!this._rootElement) {
@@ -91,15 +91,18 @@ class PostComponent {
     }
   }
 
-  /** @param {AnyElement} nodeToUpdate */
+  /** @param {HTMLElement} nodeToUpdate */
   installIntoElement(nodeToUpdate) {
     let view = this.buildElement();
 
-    nodeToUpdate.querySelector('.content').replaceWith(view.querySelector('.content'));
+    let oldContent = $(nodeToUpdate.querySelector('.content'));
+    let newContent = $(view.querySelector('.content'));
+    oldContent.replaceWith(newContent);
+
     this._rootElement = nodeToUpdate;
   }
 
-  /** @returns {AnyElement} */
+  /** @returns {HTMLElement} */
   buildElement() {
     if (this._rootElement) {
       return this._rootElement;
@@ -196,7 +199,7 @@ class PostComponent {
     return div;
   }
 
-  /** @returns {AnyElement} */
+  /** @returns {HTMLElement} */
 
   buildPostHeader() {
     let timeFormat = this.timeFormatForTimestamp;
@@ -260,13 +263,13 @@ class PostComponent {
   /** @param {string} url, @returns {HTMLImageElement} */
 
   buildUserAvatar(url) {
-    let avatar = $tag('img.avatar', { loading: 'lazy' }); // needs to be set before src!
+    let avatar = $tag('img.avatar', { loading: 'lazy' }, HTMLImageElement); // needs to be set before src!
     avatar.src = url;
     window.avatarPreloader.observe(avatar);
     return avatar;
   }
 
-  /** @returns {AnyElement} */
+  /** @returns {HTMLElement} */
 
   buildPostBody() {
     if (this.post.originalFediContent) {
@@ -297,7 +300,7 @@ class PostComponent {
     return p;
   }
 
-  /** @param {string[]} tags, @returns {AnyElement} */
+  /** @param {string[]} tags, @returns {HTMLElement} */
 
   buildTagsRow(tags) {
     let p = $tag('p.tags');
@@ -313,7 +316,7 @@ class PostComponent {
     return p;
   }
 
-  /** @returns {AnyElement} */
+  /** @returns {HTMLElement} */
 
   buildStatsFooter() {
     let stats = $tag('p.stats');
@@ -347,7 +350,7 @@ class PostComponent {
     return stats;
   }
 
-  /** @param {number} count, @param {boolean} expanded, @returns {AnyElement} */
+  /** @param {number} count, @param {boolean} expanded, @returns {HTMLElement} */
 
   buildQuotesIconLink(count, expanded) {
     let q = new URL(getLocation());
@@ -369,12 +372,12 @@ class PostComponent {
   /** @param {number} quoteCount, @param {boolean} expanded */
 
   appendQuotesIconLink(quoteCount, expanded) {
-    let stats = this.rootElement.querySelector(':scope > .content > p.stats');
+    let stats = $(this.rootElement.querySelector(':scope > .content > p.stats'));
     let quotesLink = this.buildQuotesIconLink(quoteCount, expanded);
     stats.append(quotesLink);
   }
 
-  /** @returns {AnyElement} */
+  /** @returns {HTMLElement} */
 
   buildLoadMoreLink() {
     let loadMore = $tag('p');
@@ -394,7 +397,7 @@ class PostComponent {
     return loadMore;
   }
 
-  /** @returns {AnyElement} */
+  /** @returns {HTMLElement} */
 
   buildHiddenRepliesLink() {
     let loadMore = $tag('p.hidden-replies');
@@ -419,7 +422,7 @@ class PostComponent {
     return loadMore;
   }
 
-  /** @param {HTMLLinkElement} loadMoreButton */
+  /** @param {HTMLElement} loadMoreButton */
 
   loadHiddenReplies(loadMoreButton) {
     loadMoreButton.innerHTML = `<img class="loader" src="icons/sunny.png">`;
@@ -443,7 +446,7 @@ class PostComponent {
     });
   }
 
-  /** @param {AnyElement} div, @returns {AnyElement} */
+  /** @param {HTMLElement} div, @returns {HTMLElement} */
 
   buildBlockedPostElement(div) {
     let p = $tag('p.blocked-header');
@@ -458,7 +461,7 @@ class PostComponent {
     let blockStatus = this.post.blockedByUser ? 'has blocked you' : this.post.blocksUser ? "you've blocked them" : '';
     blockStatus = blockStatus ? `, ${blockStatus}` : '';
 
-    let authorLink = $tag('a', { href: this.didLinkToAuthor, target: '_blank', text: 'see author' });
+    let authorLink = $tag('a', { href: this.didLinkToAuthor, target: '_blank', text: 'see author' }, HTMLLinkElement);
     p.append(' (', authorLink, blockStatus, ') ');
     div.appendChild(p);
 
@@ -479,7 +482,7 @@ class PostComponent {
     return div;
   }
 
-  /** @param {AnyElement} div, @returns {AnyElement} */
+  /** @param {HTMLElement} div, @returns {HTMLElement} */
 
   buildDetachedQuoteElement(div) {
     let p = $tag('p.blocked-header');
@@ -491,7 +494,7 @@ class PostComponent {
       return p;
     }
 
-    let authorLink = $tag('a', { href: this.didLinkToAuthor, target: '_blank', text: 'see author' });
+    let authorLink = $tag('a', { href: this.didLinkToAuthor, target: '_blank', text: 'see author' }, HTMLLinkElement);
     p.append(' (', authorLink, ') ');
     div.appendChild(p);
 
@@ -512,13 +515,13 @@ class PostComponent {
     return div;
   }
 
-  /** @param {AnyElement} div, @returns {AnyElement} */
+  /** @param {HTMLElement} div, @returns {HTMLElement} */
 
   buildMissingPostElement(div) {
     let p = $tag('p.blocked-header');
     p.innerHTML = `<i class="fa-solid fa-ban"></i> <span>Deleted post</span>`;
 
-    let authorLink = $tag('a', { href: this.didLinkToAuthor, target: '_blank', text: 'see author' });
+    let authorLink = $tag('a', { href: this.didLinkToAuthor, target: '_blank', text: 'see author' }, HTMLLinkElement);
     p.append(' (', authorLink, ') ');
 
     this.loadReferencedPostAuthor(authorLink);
@@ -528,7 +531,7 @@ class PostComponent {
     return div;
   }
 
-  /** @param {string} uri, @param {AnyElement} div, @returns Promise<void> */
+  /** @param {string} uri, @param {HTMLElement} div, @returns Promise<void> */
 
   async loadBlockedPost(uri, div) {
     let record = await appView.loadPostIfExists(this.post.uri);
@@ -554,12 +557,13 @@ class PostComponent {
         html: `<i class="fa-solid fa-arrows-split-up-and-left fa-rotate-180"></i>`
       });
 
-      let header = div.querySelector('p.blocked-header');
+      let header = $(div.querySelector('p.blocked-header'));
       let separator = $tag('span.separator', { html: '&bull;' });
       header.append(separator, ' ', a);
     }
 
-    div.querySelector('p.load-post').remove();
+    let loadPost = $(div.querySelector('p.load-post'));
+    loadPost.remove();
 
     if (this.isRoot && this.post.parentReference) {
       let { repo, rkey } = atURI(this.post.parentReference.uri);
@@ -590,7 +594,7 @@ class PostComponent {
   }
 
   toggleSectionFold() {
-    let plus = this.rootElement.querySelector(':scope > .margin .plus');
+    let plus = $(this.rootElement.querySelector(':scope > .margin .plus'), HTMLImageElement);
 
     if (this.isCollapsed()) {
       this.rootElement.classList.remove('collapsed');
@@ -601,7 +605,7 @@ class PostComponent {
     }
   }
 
-  /** @param {AnyElement} heart */
+  /** @param {HTMLElement} heart */
 
   onHeartClick(heart) {
     if (!this.post.hasViewerInfo) {
@@ -627,7 +631,7 @@ class PostComponent {
       return;
     }
 
-    let count = heart.nextElementSibling;
+    let count = $(heart.nextElementSibling);
 
     if (!heart.classList.contains('liked')) {
       accountAPI.likePost(this.post).then((like) => {

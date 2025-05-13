@@ -17,9 +17,15 @@ class AtURI {
   }
 }
 
-/** @param {string} tag, @param {string | object} [params], @returns {any} */
+/**
+ * @template T
+ * @param {string} tag
+ * @param {string | object} params
+ * @param {new (...args: any[]) => T} type
+ * @returns {T}
+ */
 
-function $tag(tag, params) {
+function $tag(tag, params, type) {
   let element;
   let parts = tag.split('.');
 
@@ -45,13 +51,22 @@ function $tag(tag, params) {
     }
   }
 
-  return element;
+  return /** @type {T} */ (element);
 }
 
-/** @param {string} name, @returns {any} */
+function $id(name, type) {
+  return (document.getElementById(name));
+}
 
-function $id(name) {
-  return document.getElementById(name);
+/**
+ * @template T
+ * @param {Node | EventTarget | null} element
+ * @param {new (...args: any[]) => T} type
+ * @returns {T}
+ */
+
+function $(element, type) {
+  return /** @type {T} */ (element);
 }
 
 /** @param {string} uri, @returns {AtURI} */

@@ -10,7 +10,7 @@ class EmbedComponent {
     this.embed = embed;
   }
 
-  /** @returns {AnyElement} */
+  /** @returns {HTMLElement} */
 
   buildElement() {
     if (this.embed instanceof RawRecordEmbed) {
@@ -54,7 +54,7 @@ class EmbedComponent {
     }
   }
 
-  /** @returns {AnyElement} */
+  /** @returns {HTMLElement} */
 
   quotedPostPlaceholder() {
     return $tag('div.quote-embed', {
@@ -62,7 +62,7 @@ class EmbedComponent {
     });
   }
 
-  /** @param {InlineRecordEmbed | InlineRecordWithMediaEmbed} embed, @returns {AnyElement} */
+  /** @param {InlineRecordEmbed | InlineRecordWithMediaEmbed} embed, @returns {HTMLElement} */
 
   buildQuotedPostElement(embed) {
     let div = $tag('div.quote-embed');
@@ -88,7 +88,7 @@ class EmbedComponent {
     return div;
   }
 
-  /** @params {RawLinkEmbed | InlineLinkEmbed} embed, @returns {AnyElement} */
+  /** @params {RawLinkEmbed | InlineLinkEmbed} embed, @returns {HTMLElement} */
 
   buildLinkComponent(embed) {
     let hostname;
@@ -128,7 +128,7 @@ class EmbedComponent {
     return a;
   }
 
-  /** @param {FeedGeneratorRecord} feedgen, @returns {AnyElement} */
+  /** @param {FeedGeneratorRecord} feedgen, @returns {HTMLElement} */
 
   buildFeedGeneratorView(feedgen) {
     let link = this.linkToFeedGenerator(feedgen);
@@ -137,7 +137,7 @@ class EmbedComponent {
     let box = $tag('div');
 
     if (feedgen.avatar) {
-      let avatar = $tag('img.avatar');
+      let avatar = $tag('img.avatar', HTMLImageElement);
       avatar.src = feedgen.avatar;
       box.append(avatar);
     }
@@ -167,7 +167,7 @@ class EmbedComponent {
     return `https://bsky.app/profile/${repo}/feed/${rkey}`;
   }
 
-  /** @param {UserListRecord} list, @returns {AnyElement} */
+  /** @param {UserListRecord} list, @returns {HTMLElement} */
 
   buildUserListView(list) {
     let link = this.linkToUserList(list);
@@ -176,7 +176,7 @@ class EmbedComponent {
     let box = $tag('div');
 
     if (list.avatar) {
-      let avatar = $tag('img.avatar');
+      let avatar = $tag('img.avatar', HTMLImageElement);
       avatar.src = list.avatar;
       box.append(avatar);
     }
@@ -207,7 +207,7 @@ class EmbedComponent {
     return a;
   }
 
-  /** @param {StarterPackRecord} pack, @returns {AnyElement} */
+  /** @param {StarterPackRecord} pack, @returns {HTMLElement} */
 
   buildStarterPackView(pack) {
     let { repo, rkey } = atURI(pack.uri);
@@ -236,7 +236,7 @@ class EmbedComponent {
     return `https://bsky.app/profile/${repo}/lists/${rkey}`;
   }
 
-  /** @params {RawImageEmbed | InlineImageEmbed} embed, @returns {AnyElement} */
+  /** @params {RawImageEmbed | InlineImageEmbed} embed, @returns {HTMLElement} */
 
   buildImagesComponent(embed) {
     let wrapper = $tag('div');
@@ -246,7 +246,7 @@ class EmbedComponent {
       p.append('[');
 
       // TODO: load image
-      let a = $tag('a', { text: "Image" });
+      let a = $tag('a', { text: "Image" }, HTMLLinkElement);
 
       if (image.fullsize) {
         a.href = image.fullsize;
@@ -272,13 +272,13 @@ class EmbedComponent {
     return wrapper;
   }
 
-  /** @params {RawVideoEmbed | InlineVideoEmbed} embed, @returns {AnyElement} */
+  /** @params {RawVideoEmbed | InlineVideoEmbed} embed, @returns {HTMLElement} */
 
   buildVideoComponent(embed) {
     let wrapper = $tag('div');
 
     // TODO: load thumbnail
-    let a = $tag('a', { text: "Video" });
+    let a = $tag('a', { text: "Video" }, HTMLLinkElement);
 
     if (embed.playlistURL) {
       a.href = embed.playlistURL;
@@ -303,7 +303,7 @@ class EmbedComponent {
     return wrapper;
   }
 
-  /** @param {string} uri, @param {AnyElement} div, @returns Promise<void> */
+  /** @param {string} uri, @param {HTMLElement} div, @returns Promise<void> */
 
   async loadQuotedPost(uri, div) {
     let record = await api.loadPostIfExists(uri);

@@ -11,34 +11,19 @@ declare var appView: BlueskyAPI;
 declare var api: BlueskyAPI;
 declare var isIncognito: boolean;
 declare var biohazardEnabled: boolean;
-declare var loginDialog: AnyElement;
-declare var accountMenu: AnyElement;
+declare var loginDialog: HTMLElement;
+declare var accountMenu: HTMLElement;
 declare var avatarPreloader: IntersectionObserver;
 
-type SomeElement = Element | HTMLElement | AnyElement;
 type json = Record<string, any>;
 
-interface AnyElement {
-  classList: CSSClassList;
-  className: string;
-  innerText: string;
-  innerHTML: string;
-  nextElementSibling: AnyElement;
-  parentNode: AnyElement;
-  src: string;
-  style: CSSStyleDeclaration;
+function $tag(tag: string): HTMLElement;
+function $tag<T>(tag: string, type: new (...args: any[]) => T): T;
+function $tag(tag: string, params: string | object): HTMLElement;
+function $tag<T>(tag: string, params: string | object, type: new (...args: any[]) => T): T;
 
-  addEventListener<K extends keyof DocumentEventMap>(
-    type: K, listener: EventListenerOrEventListenerObject
-  ): void;
+function $id(id: string): HTMLElement;
+function $id<T>(id: string, type: new (...args: any[]) => T): T;
 
-  append(...e: Array<string | SomeElement>): void;
-  appendChild(e: SomeElement): void;
-  closest(q: string): AnyElement;
-  querySelector(q: string): AnyElement;
-  querySelectorAll(q: string): AnyElement[];
-  prepend(...e: Array<string | SomeElement>): void;
-  remove(): void;
-  replaceChildren(e: SomeElement): void;
-  replaceWith(e: SomeElement): void;
-}
+function $(element: Node | EventTarget | null): HTMLElement;
+function $<T>(element: Node | EventTarget | null, type: new (...args: any[]) => T): T;
