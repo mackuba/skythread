@@ -54,14 +54,21 @@ function $tag(tag, params, type) {
   return /** @type {T} */ (element);
 }
 
+/**
+ * @template {HTMLElement} T
+ * @param {string} name
+ * @param {new (...args: any[]) => T} [type]
+ * @returns {T}
+ */
+
 function $id(name, type) {
-  return (document.getElementById(name));
+  return /** @type {T} */ (document.getElementById(name));
 }
 
 /**
- * @template T
+ * @template {HTMLElement} T
  * @param {Node | EventTarget | null} element
- * @param {new (...args: any[]) => T} type
+ * @param {new (...args: any[]) => T} [type]
  * @returns {T}
  */
 

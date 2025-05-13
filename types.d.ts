@@ -18,12 +18,6 @@ declare var avatarPreloader: IntersectionObserver;
 type json = Record<string, any>;
 
 function $tag(tag: string): HTMLElement;
-function $tag<T>(tag: string, type: new (...args: any[]) => T): T;
+function $tag<T extends HTMLElement>(tag: string, type: new (...args: any[]) => T): T;
 function $tag(tag: string, params: string | object): HTMLElement;
-function $tag<T>(tag: string, params: string | object, type: new (...args: any[]) => T): T;
-
-function $id(id: string): HTMLElement;
-function $id<T>(id: string, type: new (...args: any[]) => T): T;
-
-function $(element: Node | EventTarget | null): HTMLElement;
-function $<T>(element: Node | EventTarget | null, type: new (...args: any[]) => T): T;
+function $tag<T extends HTMLElement>(tag: string, params: string | object, type: new (...args: any[]) => T): T;
