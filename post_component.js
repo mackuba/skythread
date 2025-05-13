@@ -91,6 +91,14 @@ class PostComponent {
     }
   }
 
+  /** @param {AnyElement} nodeToUpdate */
+  installIntoElement(nodeToUpdate) {
+    let view = this.buildElement();
+
+    nodeToUpdate.querySelector('.content').replaceWith(view.querySelector('.content'));
+    this._rootElement = nodeToUpdate;
+  }
+
   /** @returns {AnyElement} */
   buildElement() {
     if (this._rootElement) {

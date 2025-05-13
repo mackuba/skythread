@@ -711,9 +711,7 @@ function loadSubtree(post, nodeToUpdate) {
     window.subtreeRoot = post;
 
     let component = new PostComponent(post, 'thread');
-    let view = component.buildElement();
-
-    nodeToUpdate.querySelector('.content').replaceWith(view.querySelector('.content'));
+    component.installIntoElement(nodeToUpdate);
   }).catch(showError);
 }
 
