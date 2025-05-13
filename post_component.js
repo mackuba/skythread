@@ -330,6 +330,14 @@ class PostComponent {
       stats.append(span);
     }
 
+    if (this.post.replyCount > 0 && (this.context == 'quotes' || this.context == 'feed')) {
+      let pluralizedCount = (this.post.replyCount > 1) ? `${this.post.replyCount} replies` : '1 reply';
+      let span = $tag('span', {
+        html: `<i class="fa-regular fa-message"></i> <a href="${linkToPostThread(this.post)}">${pluralizedCount}</a>`
+      });
+      stats.append(span);
+    }
+
     if (!this.isRoot && this.context != 'quote' && this.post.quoteCount) {
       let quotesLink = this.buildQuotesIconLink(this.post.quoteCount, false);
       stats.append(quotesLink);

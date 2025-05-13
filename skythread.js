@@ -741,7 +741,7 @@ function loadHiddenSubtree(post, nodeToUpdate) {
 
       if (replies.length < responses.length) {
         let notFoundCount = responses.length - replies.length;
-        let pluralizedCount = notFoundCount + ' ' + ((notFoundCount > 1) ? 'replies are' : 'reply is');
+        let pluralizedCount = (notFoundCount > 1) ? `${notFoundCount} replies are` : '1 reply is';
 
         let info = $tag('p.missing-replies-info', {
           html: `<i class="fa-solid fa-ban"></i> ${pluralizedCount} missing (likely taken down by moderation)`
