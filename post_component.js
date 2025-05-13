@@ -105,7 +105,7 @@ class PostComponent {
       return this._rootElement;
     }
 
-    let div = $tag('div.post');
+    let div = $tag('div.post', `post-${this.context}`);
     this._rootElement = div;
 
     if (this.post.muted) {

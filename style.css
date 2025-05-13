@@ -509,6 +509,10 @@ p.back i {
   color: #888;
 }
 
+.post-quotes .post-quote .quote-embed {
+  display: none;
+}
+
 .post .image-alt {
   font-size: 11pt;
   color: #666;
