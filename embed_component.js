@@ -108,7 +108,7 @@ class EmbedComponent {
     let box = $tag('div');
 
     let domain = $tag('p.domain', { text: hostname });
-    let title = $tag('h2', { text: embed.title });
+    let title = $tag('h2', { text: embed.title || embed.url });
     box.append(domain, title);
 
     if (embed.description) {
