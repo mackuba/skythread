@@ -612,7 +612,9 @@ class PostComponent {
       if (accountAPI.isLoggedIn) {
         accountAPI.loadPostIfExists(this.post.uri).then(data => {
           if (data) {
-            this.post = new Post(data);
+            this.post.author = data.author;
+            this.post.viewerData = data.viewer;
+            this.post.viewerLike = data.viewer?.like;
 
             if (this.post.liked) {
               heart.classList.add('liked');
