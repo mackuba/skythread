@@ -88,6 +88,43 @@
     </form>
   </div>
 
+  <div id="posting_stats_page">
+    <h2>Bluesky posting statistics</h2>
+
+    <form>
+      <p>
+        Scan posts from:
+        <input type="radio" name="scan_type" id="scan_type_timeline" value="timeline" checked>
+        <label for="scan_type_timeline">Your timeline</label>
+        <input type="radio" name="scan_type" id="scan_type_users" value="users" disabled>
+        <label for="scan_type_users">Selected users</label>
+      </p>
+
+      <p>
+        Time range: <input type="range" min="1" max="90" value="30"> 30 days
+      </p>
+
+      <p>
+        <input type="submit" value="Start scan">
+      </p>
+    </form>
+
+    <table class="scan-result">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Handle</th>
+          <th>All posts /d</th>
+          <th>Own posts /d</th>
+          <th>Reposts /d</th>
+          <th>%</th>
+        </tr>
+      </thead>
+      <tbody>
+      </tbody>
+    </table>
+  </div>
+
   <script src="lib/purify.min.js"></script>
   <script src="minisky.js"></script>
   <script src="api.js"></script>

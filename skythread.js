@@ -447,7 +447,66 @@ function openPage(page) {
   if (page == 'notif') {
     showLoader();
     showNotificationsPage();
+  } else if (page == 'posting_stats') {
+    showPostingStatsPage();
   }
+}
+
+function showPostingStatsPage() {
+  $id('posting_stats_page').style.display = 'block';
+
+  let days = 7;
+
+  accountAPI.loadTimeline(days).then(items => {
+    let users = {};
+    let total = 0;
+
+    for (let item of items) {
+      if (item.reply) { continue; }
+
+      let user = item.reason ? item.reason.by.handle : item.post.author.handle;
+      users[user] = users[user] ?? { handle: user, own: 0, reposts: 0 };
+      total += 1;
+
+      if (item.reason) {
+        users[user].reposts += 1;
+      } else {
+        users[user].own += 1;
+      }
+    }
+
+    let sorted = Object.values(users).sort((a, b) => {
+      let asum = a.own + a.reposts;
+      let bsum = b.own + b.reposts;
+
+      if (asum < bsum) {
+        return 1;
+      } else if (asum > bsum) {
+        return -1;
+      } else {
+        return 0;
+      }
+    });
+
+    let tbody = $id('posting_stats_page').querySelector('table.scan-result tbody');
+    tbody.innerHTML = '';
+
+    for (let i = 0; i < sorted.length; i++) {
+      let user = sorted[i];
+      let tr = $tag('tr');
+
+      tr.append(
+        $tag('td', { text: i + 1 }),
+        $tag('td.handle', { text: user.handle }),
+        $tag('td', { text: ((user.own + user.reposts) / days).toFixed(1) }),
+        $tag('td', { text: (user.own / days).toFixed(1) }),
+        $tag('td', { text: (user.reposts / days).toFixed(1) }),
+        $tag('td', { text: ((user.own + user.reposts) * 100 / total).toFixed(1) })
+      );
+
+      tbody.append(tr);
+    }
+  });
 }
 
 function showNotificationsPage() {

@@ -14,6 +14,13 @@ class APIError extends Error {
 
 
 /**
+ * Thrown when passed arguments/options are invalid or missing.
+ */
+
+class RequestError extends Error {}
+
+
+/**
  * Thrown when authentication is needed, but access token is invalid or missing.
  */
 
@@ -97,7 +104,7 @@ class Minisky {
       let host = (this.host.includes('://')) ? this.host : `https://${this.host}`;
       return host + '/xrpc';
     } else {
-      throw new AuthError('Hostname not set');
+      throw new RequestError('Hostname not set');
     }
   }
 
@@ -172,6 +179,38 @@ class Minisky {
     return await this.parseResponse(response);
   }
 
+  async fetchAll(method, params, options) {
+    if (!options || !options.field) {
+      throw new RequestError("'field' option is required");
+    }
+
+    let data = [];
+    let reqParams = params ?? {};
+    let reqOptions = this.sliceOptions(options, ['auth', 'headers']);
+
+    for (;;) {
+      let response = await this.getRequest(method, reqParams, reqOptions);
+
+      let items = response[options.field];
+      let cursor = response.cursor;
+
+      if (options.breakWhen && items.some(x => options.breakWhen(x))) {
+        let filtered = items.filter(x => !options.breakWhen(x));
+        data = data.concat(filtered);
+        break;
+      }
+
+      data = data.concat(items);
+      reqParams.cursor = cursor;
+
+      if (items.length == 0 || !cursor) {
+        break;
+      }
+    }
+
+    return data;
+  }
+
   /** @param {string | boolean} auth, @returns {Record<string, string>} */
 
   authHeaders(auth) {
@@ -186,6 +225,18 @@ class Minisky {
     } else {
       return {};
     }
+  }
+
+  sliceOptions(options, list) {
+    let newOptions = {};
+
+    for (let i of list) {
+      if (i in options) {
+        newOptions[i] = options[i];
+      }
+    }
+
+    return newOptions;
   }
 
   /** @param {string} token, @returns {number} */

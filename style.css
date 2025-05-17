@@ -717,6 +717,32 @@ p.back i {
   margin-top: 25px;
 }
 
+#posting_stats_page {
+  display: none;
+}
+
+#posting_stats_page .scan-result {
+  border: 1px solid #333;
+  border-collapse: collapse;
+}
+
+#posting_stats_page .scan-result td, #posting_stats_page .scan-result th {
+  border: 1px solid #333;
+  padding: 5px 8px;
+}
+
+#posting_stats_page .scan-result td {
+  text-align: right;
+}
+
+#posting_stats_page .scan-result th {
+  text-align: center;
+}
+
+#posting_stats_page .scan-result td.handle {
+  text-align: left;
+}
+
 @media (prefers-color-scheme: dark) {
   body {
     background-color: rgb(39, 39, 37);

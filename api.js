@@ -302,6 +302,19 @@ class BlueskyAPI extends Minisky {
     return { cursor: response.cursor, posts };
   }
 
+  async loadTimeline(days) {
+    let now = new Date();
+    let timeLimit = now.getTime() - days * 86400 * 1000;
+
+    return await this.fetchAll('app.bsky.feed.getTimeline', { limit: 100 }, {
+      field: 'feed',
+      breakWhen: (x) => {
+        let timestamp = x.reason ? x.reason.indexedAt : x.post.record.createdAt;
+        return Date.parse(timestamp) < timeLimit;
+      }
+    });
+  }
+
   /** @param {string} postURI, @returns {Promise<json>} */
 
   async loadPost(postURI) {
