@@ -7,6 +7,7 @@ function init() {
 
   window.loginDialog = $(document.querySelector('#login'));
   window.accountMenu = $(document.querySelector('#account_menu'));
+  window.postingStatsPage = $id('posting_stats_page');
 
   window.avatarPreloader = buildAvatarPreloader();
 
@@ -123,6 +124,10 @@ function init() {
   $(accountMenu.querySelector('a[data-action=logout]')).addEventListener('click', (e) => {
     e.preventDefault();
     logOut();
+  });
+
+  $(postingStatsPage.querySelector('form')).addEventListener('submit', (e) => {
+    scanPostingStats();
   });
 
   window.appView = new BlueskyAPI('api.bsky.app', false);
@@ -454,11 +459,19 @@ function openPage(page) {
 
 function showPostingStatsPage() {
   $id('posting_stats_page').style.display = 'block';
+}
 
+function scanPostingStats() {
   let days = 7;
 
-  let output = $id('posting_stats_page').querySelector('input[type=submit] + output');
+  let submit = $(postingStatsPage.querySelector('input[type=submit]'), HTMLInputElement);
+  submit.disabled = true;
+
+  let output = $(postingStatsPage.querySelector('input[type=submit] + output'));
   output.innerText = '';
+
+  let tbody = $(postingStatsPage.querySelector('table.scan-result tbody'));
+  tbody.innerHTML = '';
 
   accountAPI.loadTimeline(days, {
     onPageLoad: (d) => { output.innerText += '.' }
@@ -493,9 +506,6 @@ function showPostingStatsPage() {
       }
     });
 
-    let tbody = $id('posting_stats_page').querySelector('table.scan-result tbody');
-    tbody.innerHTML = '';
-
     for (let i = 0; i < sorted.length; i++) {
       let user = sorted[i];
       let tr = $tag('tr');
@@ -511,6 +521,8 @@ function showPostingStatsPage() {
 
       tbody.append(tr);
     }
+
+    submit.disabled = false;
   });
 }
 
