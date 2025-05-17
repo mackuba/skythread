@@ -195,13 +195,16 @@ class Minisky {
       let cursor = response.cursor;
 
       if (options.breakWhen && items.some(x => options.breakWhen(x))) {
-        let filtered = items.filter(x => !options.breakWhen(x));
-        data = data.concat(filtered);
-        break;
+        items = items.filter(x => !options.breakWhen(x));
+        cursor = null;
       }
 
       data = data.concat(items);
       reqParams.cursor = cursor;
+
+      if (options.onPageLoad) {
+        options.onPageLoad(items);
+      }
 
       if (items.length == 0 || !cursor) {
         break;

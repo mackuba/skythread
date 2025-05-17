@@ -457,7 +457,12 @@ function showPostingStatsPage() {
 
   let days = 7;
 
-  accountAPI.loadTimeline(days).then(items => {
+  let output = $id('posting_stats_page').querySelector('input[type=submit] + output');
+  output.innerText = '';
+
+  accountAPI.loadTimeline(days, {
+    onPageLoad: (d) => { output.innerText += '.' }
+  }).then(items => {
     let users = {};
     let total = 0;
 

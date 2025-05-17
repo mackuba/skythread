@@ -302,7 +302,7 @@ class BlueskyAPI extends Minisky {
     return { cursor: response.cursor, posts };
   }
 
-  async loadTimeline(days) {
+  async loadTimeline(days, options = {}) {
     let now = new Date();
     let timeLimit = now.getTime() - days * 86400 * 1000;
 
@@ -311,7 +311,8 @@ class BlueskyAPI extends Minisky {
       breakWhen: (x) => {
         let timestamp = x.reason ? x.reason.indexedAt : x.post.record.createdAt;
         return Date.parse(timestamp) < timeLimit;
-      }
+      },
+      onPageLoad: options.onPageLoad
     });
   }
 
