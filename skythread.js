@@ -540,7 +540,9 @@ function scanPostingStats() {
 
       tr.append(
         $tag('td', { text: i + 1 }),
-        $tag('td.handle', { text: user.handle }),
+        $tag('td.handle', {
+          html: `<a href="https://bsky.app/profile/${user.handle}" target="_blank">${user.handle}</a>`
+        }),
         $tag('td', { text: ((user.own + user.reposts) / days).toFixed(1) }),
         $tag('td', { text: (user.own / days).toFixed(1) }),
         $tag('td', { text: (user.reposts / days).toFixed(1) }),
