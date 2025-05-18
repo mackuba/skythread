@@ -543,7 +543,7 @@ function scanPostingStats() {
       let tr = $tag('tr');
 
       tr.append(
-        $tag('td', { text: i + 1 }),
+        $tag('td.no', { text: i + 1 }),
         $tag('td.handle', {
           html: `<img class="avatar" src="${user.avatar}"> ` + 
                 `<a href="https://bsky.app/profile/${user.handle}" target="_blank">${user.handle}</a>`
@@ -551,7 +551,7 @@ function scanPostingStats() {
         $tag('td', { text: ((user.own + user.reposts) / days).toFixed(1) }),
         $tag('td', { text: (user.own / days).toFixed(1) }),
         $tag('td', { text: (user.reposts / days).toFixed(1) }),
-        $tag('td', { text: ((user.own + user.reposts) * 100 / total).toFixed(1) })
+        $tag('td.percent', { text: ((user.own + user.reposts) * 100 / total).toFixed(1) })
       );
 
       tbody.append(tr);

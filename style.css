@@ -721,9 +721,29 @@ p.back i {
   display: none;
 }
 
+#posting_stats_page input[type="radio"] {
+  position: relative;
+  top: -1px;
+}
+
+#posting_stats_page label {
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+#posting_stats_page input:disabled + label {
+  color: #999;
+}
+
 #posting_stats_page input[type="range"] {
   width: 250px;
   vertical-align: middle;
+}
+
+#posting_stats_page input[type="submit"] {
+  font-size: 12pt;
+  margin: 5px 0px;
+  padding: 5px 10px;
 }
 
 #posting_stats_page progress {
@@ -750,6 +770,8 @@ p.back i {
 
 #posting_stats_page .scan-result th {
   text-align: center;
+  background-color: hsl(207, 100%, 86%);
+  padding: 7px 10px;
 }
 
 #posting_stats_page .scan-result td.handle {
@@ -762,6 +784,14 @@ p.back i {
   vertical-align: middle;
   margin-right: 2px;
   padding: 2px;  
+}
+
+#posting_stats_page .scan-result td.no {
+  font-weight: bold;
+}
+
+#posting_stats_page .scan-result td.percent {
+  min-width: 50px;
 }
 
 @media (prefers-color-scheme: dark) {
