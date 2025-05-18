@@ -127,7 +127,11 @@ function init() {
   });
 
   $(postingStatsPage.querySelector('form')).addEventListener('submit', (e) => {
-    scanPostingStats();
+    if (!window.scanStartTime) {
+      scanPostingStats();      
+    } else {
+      stopScan();
+    }
   });
 
   $(postingStatsPage.querySelector('input[type="range"]')).addEventListener('input', (e) => {
@@ -475,7 +479,7 @@ function configurePostingStats(args) {
 
 function scanPostingStats() {
   let submit = $(postingStatsPage.querySelector('input[type=submit]'), HTMLInputElement);
-  submit.disabled = true;
+  submit.value = 'Cancel';
 
   let range = $(postingStatsPage.querySelector('input[type=range]'), HTMLInputElement);
   let days = parseInt(range.value, 10);
@@ -492,10 +496,15 @@ function scanPostingStats() {
   tbody.innerHTML = '';
 
   let now = new Date().getTime();
+  window.scanStartTime = now;
 
   accountAPI.loadTimeline(days, {
     onPageLoad: (data) => {
       let minTime = now;
+
+      if (window.scanStartTime != now) {
+        return { cancel: true };
+      }
 
       for (let item of data) {
         let timestamp = item.reason ? item.reason.indexedAt : item.post.record.createdAt;
@@ -507,6 +516,10 @@ function scanPostingStats() {
       progressBar.value = daysBack;
     }
   }).then(items => {
+    if (window.scanStartTime != now) {
+      return;
+    }
+
     let users = {};
     let total = 0;
 
@@ -558,9 +571,19 @@ function scanPostingStats() {
     }
 
     table.style.display = 'table';
-    submit.disabled = false;
+    submit.value = 'Start scan';
     progressBar.style.display = 'none';
+    window.scanStartTime = undefined;
   });
+}
+
+function stopScan() {
+  let submit = $(postingStatsPage.querySelector('input[type=submit]'), HTMLInputElement);
+  submit.value = 'Start scan';
+  window.scanStartTime = undefined;
+
+  let progressBar = $(postingStatsPage.querySelector('input[type=submit] + progress'), HTMLProgressElement);
+  progressBar.style.display = 'none';
 }
 
 function showNotificationsPage() {

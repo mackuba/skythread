@@ -203,7 +203,11 @@ class Minisky {
       reqParams.cursor = cursor;
 
       if (options.onPageLoad) {
-        options.onPageLoad(items);
+        let result = options.onPageLoad(items);
+
+        if (result?.cancel) {
+          break;
+        }
       }
 
       if (items.length == 0 || !cursor) {
