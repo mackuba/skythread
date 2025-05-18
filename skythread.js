@@ -130,6 +130,11 @@ function init() {
     scanPostingStats();
   });
 
+  $(postingStatsPage.querySelector('input[type="range"]')).addEventListener('input', (e) => {
+    let range = $(e.target, HTMLInputElement);
+    configurePostingStats({ days: range.value });
+  });
+
   window.appView = new BlueskyAPI('api.bsky.app', false);
   window.blueAPI = new BlueskyAPI('blue.mackuba.eu', false);
   window.accountAPI = new BlueskyAPI(undefined, true);
@@ -461,11 +466,19 @@ function showPostingStatsPage() {
   $id('posting_stats_page').style.display = 'block';
 }
 
-function scanPostingStats() {
-  let days = 7;
+function configurePostingStats(args) {
+  if (args.days) {
+    let label = $(postingStatsPage.querySelector('input[type=range] + label'));
+    label.innerText = (args.days == 1) ? '1 day' : `${args.days} days`;
+  }
+}
 
+function scanPostingStats() {
   let submit = $(postingStatsPage.querySelector('input[type=submit]'), HTMLInputElement);
   submit.disabled = true;
+
+  let range = $(postingStatsPage.querySelector('input[type=range]'), HTMLInputElement);
+  let days = parseInt(range.value, 10);
 
   let output = $(postingStatsPage.querySelector('input[type=submit] + output'));
   output.innerText = '';

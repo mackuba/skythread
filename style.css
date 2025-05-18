@@ -721,6 +721,11 @@ p.back i {
   display: none;
 }
 
+#posting_stats_page input[type="range"] {
+  width: 250px;
+  vertical-align: middle;
+}
+
 #posting_stats_page .scan-result {
   border: 1px solid #333;
   border-collapse: collapse;
