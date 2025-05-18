@@ -961,4 +961,16 @@ p.back i {
   .post .stats i.fa-heart.liked:hover {
     color: #ff7070;
   }
+
+  #posting_stats_page input:disabled + label {
+    color: #777;
+  }
+
+  #posting_stats_page .scan-result, #posting_stats_page .scan-result td, #posting_stats_page .scan-result th {
+    border-color: #888;
+  }
+
+  #posting_stats_page .scan-result th {
+    background-color: hsl(207, 90%, 25%);
+  }
 }
