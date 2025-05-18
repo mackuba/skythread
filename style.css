@@ -726,6 +726,13 @@ p.back i {
   vertical-align: middle;
 }
 
+#posting_stats_page progress {
+  width: 300px;
+  margin-left: 10px;
+  vertical-align: middle;
+  display: none;
+}
+
 #posting_stats_page .scan-result {
   border: 1px solid #333;
   border-collapse: collapse;

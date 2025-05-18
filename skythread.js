@@ -480,14 +480,29 @@ function scanPostingStats() {
   let range = $(postingStatsPage.querySelector('input[type=range]'), HTMLInputElement);
   let days = parseInt(range.value, 10);
 
-  let output = $(postingStatsPage.querySelector('input[type=submit] + output'));
-  output.innerText = '';
+  let progressBar = $(postingStatsPage.querySelector('input[type=submit] + progress'), HTMLProgressElement);
+  progressBar.max = days;
+  progressBar.value = 0;
+  progressBar.style.display = 'inline';
 
   let tbody = $(postingStatsPage.querySelector('table.scan-result tbody'));
   tbody.innerHTML = '';
 
+  let now = new Date().getTime();
+
   accountAPI.loadTimeline(days, {
-    onPageLoad: (d) => { output.innerText += '.' }
+    onPageLoad: (data) => {
+      let minTime = now;
+
+      for (let item of data) {
+        let timestamp = item.reason ? item.reason.indexedAt : item.post.record.createdAt;
+        let date = Date.parse(timestamp);
+        minTime = Math.min(minTime, date);
+      }
+
+      let daysBack = (now - minTime) / 86400 / 1000;
+      progressBar.value = daysBack;
+    }
   }).then(items => {
     let users = {};
     let total = 0;
@@ -536,6 +551,7 @@ function scanPostingStats() {
     }
 
     submit.disabled = false;
+    progressBar.style.display = 'none';
   });
 }
 
