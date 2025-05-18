@@ -485,7 +485,10 @@ function scanPostingStats() {
   progressBar.value = 0;
   progressBar.style.display = 'inline';
 
-  let tbody = $(postingStatsPage.querySelector('table.scan-result tbody'));
+  let table = $(postingStatsPage.querySelector('table.scan-result'));
+  table.style.display = 'none';
+
+  let tbody = $(table.querySelector('tbody'));
   tbody.innerHTML = '';
 
   let now = new Date().getTime();
@@ -554,6 +557,7 @@ function scanPostingStats() {
       tbody.append(tr);
     }
 
+    table.style.display = 'table';
     submit.disabled = false;
     progressBar.style.display = 'none';
   });

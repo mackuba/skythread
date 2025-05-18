@@ -736,6 +736,7 @@ p.back i {
 #posting_stats_page .scan-result {
   border: 1px solid #333;
   border-collapse: collapse;
+  display: none;
 }
 
 #posting_stats_page .scan-result td, #posting_stats_page .scan-result th {
