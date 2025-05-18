@@ -510,14 +510,15 @@ function scanPostingStats() {
     for (let item of items) {
       if (item.reply) { continue; }
 
-      let user = item.reason ? item.reason.by.handle : item.post.author.handle;
-      users[user] = users[user] ?? { handle: user, own: 0, reposts: 0 };
+      let user = item.reason ? item.reason.by : item.post.author;
+      let handle = user.handle;
+      users[handle] = users[handle] ?? { handle: handle, own: 0, reposts: 0, avatar: user.avatar };
       total += 1;
 
       if (item.reason) {
-        users[user].reposts += 1;
+        users[handle].reposts += 1;
       } else {
-        users[user].own += 1;
+        users[handle].own += 1;
       }
     }
 
@@ -541,7 +542,8 @@ function scanPostingStats() {
       tr.append(
         $tag('td', { text: i + 1 }),
         $tag('td.handle', {
-          html: `<a href="https://bsky.app/profile/${user.handle}" target="_blank">${user.handle}</a>`
+          html: `<img class="avatar" src="${user.avatar}"> ` + 
+                `<a href="https://bsky.app/profile/${user.handle}" target="_blank">${user.handle}</a>`
         }),
         $tag('td', { text: ((user.own + user.reposts) / days).toFixed(1) }),
         $tag('td', { text: (user.own / days).toFixed(1) }),

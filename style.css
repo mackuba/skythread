@@ -755,6 +755,14 @@ p.back i {
   text-align: left;
 }
 
+#posting_stats_page .scan-result .avatar {
+  width: 24px;
+  border-radius: 14px;
+  vertical-align: middle;
+  margin-right: 2px;
+  padding: 2px;  
+}
+
 @media (prefers-color-scheme: dark) {
   body {
     background-color: rgb(39, 39, 37);
