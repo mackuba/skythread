@@ -789,6 +789,17 @@ p.back i {
   white-space: nowrap;
 }
 
+#posting_stats_page .scan-result tr.total td {
+  font-weight: bold;
+  font-size: 11pt;
+  background-color: hsla(207, 100%, 86%, 0.4);
+}
+
+#posting_stats_page .scan-result tr.total td.handle {
+  text-align: left;
+  padding: 10px 12px;
+}
+
 #posting_stats_page .scan-result .avatar {
   width: 24px;
   border-radius: 14px;
@@ -983,5 +994,9 @@ p.back i {
 
   #posting_stats_page .scan-result th {
     background-color: hsl(207, 90%, 25%);
+  }
+
+  #posting_stats_page .scan-result tr.total td {
+    background-color: hsla(207, 90%, 25%, 0.4);
   }
 }

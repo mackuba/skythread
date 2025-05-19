@@ -526,6 +526,8 @@ function scanPostingStats() {
 
     let users = {};
     let total = 0;
+    let allReposts = 0;
+    let allNormalPosts = 0;
 
     for (let item of items) {
       if (item.reply) { continue; }
@@ -537,10 +539,25 @@ function scanPostingStats() {
 
       if (item.reason) {
         users[handle].reposts += 1;
+        allReposts += 1;
       } else {
         users[handle].own += 1;
+        allNormalPosts += 1;
       }
     }
+
+    let tr = $tag('tr.total');
+
+    tr.append(
+      $tag('td.no', { text: '' }),
+      $tag('td.handle', { text: 'Total:' }),
+      $tag('td', { text: (total / daysBack).toFixed(1) }),
+      $tag('td', { text: (allNormalPosts / daysBack).toFixed(1) }),
+      $tag('td', { text: (allReposts / daysBack).toFixed(1) }),
+      $tag('td.percent', { text: '' })
+    );
+
+    tbody.append(tr);
 
     let sorted = Object.values(users).sort((a, b) => {
       let asum = a.own + a.reposts;
