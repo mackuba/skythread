@@ -592,7 +592,7 @@ function scanPostingStats() {
     }
 
     if (Math.ceil(daysBack) < days) {
-      scanInfo.innerText = `🕓 Showing data from ${Math.round(daysBack)} days:`;
+      scanInfo.innerText = `🕓 Showing data from ${Math.round(daysBack)} days (your timeline only goes that far):`;
       scanInfo.style.display = 'block';
     }
 
