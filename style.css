@@ -753,6 +753,13 @@ p.back i {
   display: none;
 }
 
+#posting_stats_page .scan-info {
+  display: none;
+  font-weight: 600;
+  line-height: 125%;
+  margin: 20px 0px;
+}
+
 #posting_stats_page .scan-result {
   border: 1px solid #333;
   border-collapse: collapse;

@@ -501,6 +501,9 @@ function scanPostingStats() {
   let minTime = now;
   let daysBack = 0;
 
+  let scanInfo = $(postingStatsPage.querySelector('.scan-info'));
+  scanInfo.style.display = 'none';
+
   accountAPI.loadTimeline(days, {
     onPageLoad: (data) => {
       if (window.scanStartTime != now) {
@@ -569,6 +572,11 @@ function scanPostingStats() {
       );
 
       tbody.append(tr);
+    }
+
+    if (Math.ceil(daysBack) < days) {
+      scanInfo.innerText = `🕓 Showing data from ${Math.round(daysBack)} days:`;
+      scanInfo.style.display = 'block';
     }
 
     table.style.display = 'table';
