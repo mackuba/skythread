@@ -791,7 +791,7 @@ p.back i {
 }
 
 #posting_stats_page .scan-result td.percent {
-  min-width: 50px;
+  min-width: 70px;
 }
 
 @media (prefers-color-scheme: dark) {

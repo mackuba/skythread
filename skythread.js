@@ -564,7 +564,7 @@ function scanPostingStats() {
         $tag('td', { text: ((user.own + user.reposts) / days).toFixed(1) }),
         $tag('td', { text: (user.own / days).toFixed(1) }),
         $tag('td', { text: (user.reposts / days).toFixed(1) }),
-        $tag('td.percent', { text: ((user.own + user.reposts) * 100 / total).toFixed(1) })
+        $tag('td.percent', { text: ((user.own + user.reposts) * 100 / total).toFixed(1) + '%' })
       );
 
       tbody.append(tr);
