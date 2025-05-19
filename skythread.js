@@ -127,6 +127,8 @@ function init() {
   });
 
   $(postingStatsPage.querySelector('form')).addEventListener('submit', (e) => {
+    e.preventDefault();
+
     if (!window.scanStartTime) {
       scanPostingStats();      
     } else {
