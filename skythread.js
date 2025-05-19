@@ -11,6 +11,8 @@ function init() {
 
   window.avatarPreloader = buildAvatarPreloader();
 
+  window.threadPage = new ThreadPage();
+
   html.addEventListener('click', (e) => {
     $id('account_menu').style.visibility = 'hidden';
   });
@@ -185,36 +187,15 @@ function parseQueryParams() {
     loadHashtagPage(decodeURIComponent(hash));
   } else if (query) {
     showLoader();
-    loadThreadByURL(decodeURIComponent(query));
+    threadPage.loadThreadByURL(decodeURIComponent(query));
   } else if (author && post) {
     showLoader();
-    loadThreadById(decodeURIComponent(author), decodeURIComponent(post));
+    threadPage.loadThreadById(decodeURIComponent(author), decodeURIComponent(post));
   } else if (page) {
     openPage(page);
   } else {
     showSearch();
   }
-}
-
-/** @param {AnyPost} post, @returns {HTMLElement} */
-
-function buildParentLink(post) {
-  let p = $tag('p.back');
-
-  if (post instanceof BlockedPost) {
-    let element = new PostComponent(post, 'parent').buildElement();
-    element.className = 'back';
-    let span = $(element.querySelector('p.blocked-header span'));
-    span.innerText = 'Parent post blocked';
-    return element;
-  } else if (post instanceof MissingPost) {
-    p.innerHTML = `<i class="fa-solid fa-ban"></i> parent post has been deleted`;
-  } else {
-    let url = linkToPostThread(post);
-    p.innerHTML = `<i class="fa-solid fa-reply"></i><a href="${url}">See parent post (@${post.author.handle})</a>`;
-  }
-
-  return p;
 }
 
 /** @returns {IntersectionObserver} */
@@ -815,125 +796,4 @@ function loadInPages(callback) {
   document.addEventListener('scroll', loadIfNeeded);
   const resizeObserver = new ResizeObserver(loadIfNeeded);
   resizeObserver.observe(document.body);
-}
-
-/** @param {string} url */
-
-function loadThreadByURL(url) {
-  let loadThread = url.startsWith('at://') ? api.loadThreadByAtURI(url) : api.loadThreadByURL(url);
-
-  loadThread.then(json => {
-    displayThread(json);
-  }).catch(error => {
-    hideLoader();
-    showError(error);
-  });
-}
-
-/** @param {string} author, @param {string} rkey */
-
-function loadThreadById(author, rkey) {
-  api.loadThreadById(author, rkey).then(json => {
-    displayThread(json);
-  }).catch(error => {
-    hideLoader();
-    showError(error);
-  });
-}
-
-/** @param {json} json */
-
-function displayThread(json) {
-  let root = Post.parseThreadPost(json.thread);
-  window.root = root;
-  window.subtreeRoot = root;
-
-  let loadQuoteCount;
-
-  if (root instanceof Post) {
-    setPageTitle(root);
-    loadQuoteCount = blueAPI.getQuoteCount(root.uri);
-
-    if (root.parent) {
-      let p = buildParentLink(root.parent);
-      $id('thread').appendChild(p);
-    }
-  }
-
-  let component = new PostComponent(root, 'thread');
-  let view = component.buildElement();
-  hideLoader();
-  $id('thread').appendChild(view);
-
-  loadQuoteCount?.then(count => {
-    if (count > 0) {
-      component.appendQuotesIconLink(count, true);
-    }
-  }).catch(error => {
-    console.warn("Couldn't load quote count: " + error);
-  });
-}
-
-/** @param {Post} post, @param {HTMLElement} nodeToUpdate */
-
-function loadSubtree(post, nodeToUpdate) {
-  api.loadThreadByAtURI(post.uri).then(json => {
-    let root = Post.parseThreadPost(json.thread, post.pageRoot, 0, post.absoluteLevel);
-    post.updateDataFromPost(root);
-    window.subtreeRoot = post;
-
-    let component = new PostComponent(post, 'thread');
-    component.installIntoElement(nodeToUpdate);
-  }).catch(showError);
-}
-
-/** @param {Post} post, @param {HTMLElement} nodeToUpdate */
-
-function loadHiddenSubtree(post, nodeToUpdate) {
-  let content = $(nodeToUpdate.querySelector('.content'));
-  let hiddenRepliesDiv = $(content.querySelector(':scope > .hidden-replies'));
-
-  blueAPI.getReplies(post.uri).then(replies => {
-    let missingReplies = replies.filter(r => !post.replies.some(x => x.uri === r));
-
-    Promise.allSettled(missingReplies.map(uri => api.loadThreadByAtURI(uri))).then(responses => {
-      let replies = responses
-        .map(r => r.status == 'fulfilled' ? r.value : undefined)
-        .filter(v => v)
-        .map(json => Post.parseThreadPost(json.thread, post.pageRoot, 1, post.absoluteLevel + 1));
-
-      post.setReplies(replies);
-      hiddenRepliesDiv.remove();
-
-      for (let reply of post.replies) {
-        let component = new PostComponent(reply, 'thread');
-        let view = component.buildElement();
-        content.append(view);
-      }
-
-      if (replies.length < responses.length) {
-        let notFoundCount = responses.length - replies.length;
-        let pluralizedCount = (notFoundCount > 1) ? `${notFoundCount} replies are` : '1 reply is';
-
-        let info = $tag('p.missing-replies-info', {
-          html: `<i class="fa-solid fa-ban"></i> ${pluralizedCount} missing (likely taken down by moderation)`
-        });
-        content.append(info);
-      }
-    }).catch(error => {
-      hiddenRepliesDiv.remove();
-      setTimeout(() => showError(error), 1);
-    });
-  }).catch(error => {
-    hiddenRepliesDiv.remove();
-
-    if (error instanceof APIError && error.code == 404) {
-      let info = $tag('p.missing-replies-info', {
-        html: `<i class="fa-solid fa-ban"></i> Hidden replies not available (post too old)`
-      });
-      content.append(info);
-    } else {
-      setTimeout(() => showError(error), 1);
-    }
-  });
 }

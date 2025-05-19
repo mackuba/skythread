@@ -16,6 +16,7 @@ declare var loginDialog: HTMLElement;
 declare var accountMenu: HTMLElement;
 declare var postingStatsPage: HTMLElement;
 declare var avatarPreloader: IntersectionObserver;
+declare var threadPage: ThreadPage;
 
 type json = Record<string, any>;
 

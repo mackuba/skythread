@@ -390,7 +390,7 @@ class PostComponent {
     link.addEventListener('click', (e) => {
       e.preventDefault();
       loadMore.innerHTML = `<img class="loader" src="icons/sunny.png">`;
-      loadSubtree(this.post, this.rootElement);
+      this.loadSubtree(this.post, this.rootElement);
     });
 
     loadMore.appendChild(link);
@@ -426,7 +426,7 @@ class PostComponent {
 
   loadHiddenReplies(loadMoreButton) {
     loadMoreButton.innerHTML = `<img class="loader" src="icons/sunny.png">`;
-    loadHiddenSubtree(this.post, this.rootElement);
+    this.loadHiddenSubtree(this.post, this.rootElement);
   }
 
   /** @param {HTMLLinkElement} authorLink */
@@ -586,6 +586,71 @@ class PostComponent {
       // TODO
       Array.from(div.querySelectorAll('a.link-card')).forEach(x => x.remove());
     }
+  }
+
+  /** @param {Post} post, @param {HTMLElement} nodeToUpdate */
+
+  loadSubtree(post, nodeToUpdate) {
+    api.loadThreadByAtURI(post.uri).then(json => {
+      let root = Post.parseThreadPost(json.thread, post.pageRoot, 0, post.absoluteLevel);
+      post.updateDataFromPost(root);
+      window.subtreeRoot = post;
+
+      let component = new PostComponent(post, 'thread');
+      component.installIntoElement(nodeToUpdate);
+    }).catch(showError);
+  }
+
+
+  /** @param {Post} post, @param {HTMLElement} nodeToUpdate */
+
+  loadHiddenSubtree(post, nodeToUpdate) {
+    let content = $(nodeToUpdate.querySelector('.content'));
+    let hiddenRepliesDiv = $(content.querySelector(':scope > .hidden-replies'));
+
+    blueAPI.getReplies(post.uri).then(replies => {
+      let missingReplies = replies.filter(r => !post.replies.some(x => x.uri === r));
+
+      Promise.allSettled(missingReplies.map(uri => api.loadThreadByAtURI(uri))).then(responses => {
+        let replies = responses
+          .map(r => r.status == 'fulfilled' ? r.value : undefined)
+          .filter(v => v)
+          .map(json => Post.parseThreadPost(json.thread, post.pageRoot, 1, post.absoluteLevel + 1));
+
+        post.setReplies(replies);
+        hiddenRepliesDiv.remove();
+
+        for (let reply of post.replies) {
+          let component = new PostComponent(reply, 'thread');
+          let view = component.buildElement();
+          content.append(view);
+        }
+
+        if (replies.length < responses.length) {
+          let notFoundCount = responses.length - replies.length;
+          let pluralizedCount = (notFoundCount > 1) ? `${notFoundCount} replies are` : '1 reply is';
+
+          let info = $tag('p.missing-replies-info', {
+            html: `<i class="fa-solid fa-ban"></i> ${pluralizedCount} missing (likely taken down by moderation)`
+          });
+          content.append(info);
+        }
+      }).catch(error => {
+        hiddenRepliesDiv.remove();
+        setTimeout(() => showError(error), 1);
+      });
+    }).catch(error => {
+      hiddenRepliesDiv.remove();
+
+      if (error instanceof APIError && error.code == 404) {
+        let info = $tag('p.missing-replies-info', {
+          html: `<i class="fa-solid fa-ban"></i> Hidden replies not available (post too old)`
+        });
+        content.append(info);
+      } else {
+        setTimeout(() => showError(error), 1);
+      }
+    });
   }
 
   /** @returns {boolean} */
