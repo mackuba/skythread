@@ -498,10 +498,11 @@ function scanPostingStats() {
   let now = new Date().getTime();
   window.scanStartTime = now;
 
+  let minTime = now;
+  let daysBack = 0;
+
   accountAPI.loadTimeline(days, {
     onPageLoad: (data) => {
-      let minTime = now;
-
       if (window.scanStartTime != now) {
         return { cancel: true };
       }
@@ -512,7 +513,7 @@ function scanPostingStats() {
         minTime = Math.min(minTime, date);
       }
 
-      let daysBack = (now - minTime) / 86400 / 1000;
+      daysBack = (now - minTime) / 86400 / 1000;
       progressBar.value = daysBack;
     }
   }).then(items => {
@@ -561,9 +562,9 @@ function scanPostingStats() {
           html: `<img class="avatar" src="${user.avatar}"> ` + 
                 `<a href="https://bsky.app/profile/${user.handle}" target="_blank">${user.handle}</a>`
         }),
-        $tag('td', { text: ((user.own + user.reposts) / days).toFixed(1) }),
-        $tag('td', { text: user.own > 0 ? (user.own / days).toFixed(1) : '–' }),
-        $tag('td', { text: user.reposts > 0 ? (user.reposts / days).toFixed(1) : '–' }),
+        $tag('td', { text: ((user.own + user.reposts) / daysBack).toFixed(1) }),
+        $tag('td', { text: user.own > 0 ? (user.own / daysBack).toFixed(1) : '–' }),
+        $tag('td', { text: user.reposts > 0 ? (user.reposts / daysBack).toFixed(1) : '–' }),
         $tag('td.percent', { text: ((user.own + user.reposts) * 100 / total).toFixed(1) + '%' })
       );
 
