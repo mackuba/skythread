@@ -562,8 +562,8 @@ function scanPostingStats() {
                 `<a href="https://bsky.app/profile/${user.handle}" target="_blank">${user.handle}</a>`
         }),
         $tag('td', { text: ((user.own + user.reposts) / days).toFixed(1) }),
-        $tag('td', { text: (user.own / days).toFixed(1) }),
-        $tag('td', { text: (user.reposts / days).toFixed(1) }),
+        $tag('td', { text: user.own > 0 ? (user.own / days).toFixed(1) : '–' }),
+        $tag('td', { text: user.reposts > 0 ? (user.reposts / days).toFixed(1) : '–' }),
         $tag('td.percent', { text: ((user.own + user.reposts) * 100 / total).toFixed(1) + '%' })
       );
 
