@@ -7,6 +7,7 @@ function init() {
 
   window.loginDialog = $(document.querySelector('#login'));
   window.accountMenu = $(document.querySelector('#account_menu'));
+  window.postingStatsPage = $id('posting_stats_page');
 
   window.avatarPreloader = buildAvatarPreloader();
 
@@ -123,6 +124,19 @@ function init() {
   $(accountMenu.querySelector('a[data-action=logout]')).addEventListener('click', (e) => {
     e.preventDefault();
     logOut();
+  });
+
+  $(postingStatsPage.querySelector('form')).addEventListener('submit', (e) => {
+    if (!window.scanStartTime) {
+      scanPostingStats();      
+    } else {
+      stopScan();
+    }
+  });
+
+  $(postingStatsPage.querySelector('input[type="range"]')).addEventListener('input', (e) => {
+    let range = $(e.target, HTMLInputElement);
+    configurePostingStats({ days: range.value });
   });
 
   window.appView = new BlueskyAPI('api.bsky.app', false);
@@ -447,7 +461,129 @@ function openPage(page) {
   if (page == 'notif') {
     showLoader();
     showNotificationsPage();
+  } else if (page == 'posting_stats') {
+    showPostingStatsPage();
   }
+}
+
+function showPostingStatsPage() {
+  $id('posting_stats_page').style.display = 'block';
+}
+
+function configurePostingStats(args) {
+  if (args.days) {
+    let label = $(postingStatsPage.querySelector('input[type=range] + label'));
+    label.innerText = (args.days == 1) ? '1 day' : `${args.days} days`;
+  }
+}
+
+function scanPostingStats() {
+  let submit = $(postingStatsPage.querySelector('input[type=submit]'), HTMLInputElement);
+  submit.value = 'Cancel';
+
+  let range = $(postingStatsPage.querySelector('input[type=range]'), HTMLInputElement);
+  let days = parseInt(range.value, 10);
+
+  let progressBar = $(postingStatsPage.querySelector('input[type=submit] + progress'), HTMLProgressElement);
+  progressBar.max = days;
+  progressBar.value = 0;
+  progressBar.style.display = 'inline';
+
+  let table = $(postingStatsPage.querySelector('table.scan-result'));
+  table.style.display = 'none';
+
+  let tbody = $(table.querySelector('tbody'));
+  tbody.innerHTML = '';
+
+  let now = new Date().getTime();
+  window.scanStartTime = now;
+
+  accountAPI.loadTimeline(days, {
+    onPageLoad: (data) => {
+      let minTime = now;
+
+      if (window.scanStartTime != now) {
+        return { cancel: true };
+      }
+
+      for (let item of data) {
+        let timestamp = item.reason ? item.reason.indexedAt : item.post.record.createdAt;
+        let date = Date.parse(timestamp);
+        minTime = Math.min(minTime, date);
+      }
+
+      let daysBack = (now - minTime) / 86400 / 1000;
+      progressBar.value = daysBack;
+    }
+  }).then(items => {
+    if (window.scanStartTime != now) {
+      return;
+    }
+
+    let users = {};
+    let total = 0;
+
+    for (let item of items) {
+      if (item.reply) { continue; }
+
+      let user = item.reason ? item.reason.by : item.post.author;
+      let handle = user.handle;
+      users[handle] = users[handle] ?? { handle: handle, own: 0, reposts: 0, avatar: user.avatar };
+      total += 1;
+
+      if (item.reason) {
+        users[handle].reposts += 1;
+      } else {
+        users[handle].own += 1;
+      }
+    }
+
+    let sorted = Object.values(users).sort((a, b) => {
+      let asum = a.own + a.reposts;
+      let bsum = b.own + b.reposts;
+
+      if (asum < bsum) {
+        return 1;
+      } else if (asum > bsum) {
+        return -1;
+      } else {
+        return 0;
+      }
+    });
+
+    for (let i = 0; i < sorted.length; i++) {
+      let user = sorted[i];
+      let tr = $tag('tr');
+
+      tr.append(
+        $tag('td.no', { text: i + 1 }),
+        $tag('td.handle', {
+          html: `<img class="avatar" src="${user.avatar}"> ` + 
+                `<a href="https://bsky.app/profile/${user.handle}" target="_blank">${user.handle}</a>`
+        }),
+        $tag('td', { text: ((user.own + user.reposts) / days).toFixed(1) }),
+        $tag('td', { text: user.own > 0 ? (user.own / days).toFixed(1) : '–' }),
+        $tag('td', { text: user.reposts > 0 ? (user.reposts / days).toFixed(1) : '–' }),
+        $tag('td.percent', { text: ((user.own + user.reposts) * 100 / total).toFixed(1) + '%' })
+      );
+
+      tbody.append(tr);
+    }
+
+    table.style.display = 'table';
+    submit.value = 'Start scan';
+    progressBar.style.display = 'none';
+    window.scanStartTime = undefined;
+  });
+}
+
+function stopScan() {
+  let submit = $(postingStatsPage.querySelector('input[type=submit]'), HTMLInputElement);
+  submit.value = 'Start scan';
+  window.scanStartTime = undefined;
+
+  let progressBar = $(postingStatsPage.querySelector('input[type=submit] + progress'), HTMLProgressElement);
+  progressBar.style.display = 'none';
 }
 
 function showNotificationsPage() {

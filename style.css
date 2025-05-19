@@ -717,6 +717,83 @@ p.back i {
   margin-top: 25px;
 }
 
+#posting_stats_page {
+  display: none;
+}
+
+#posting_stats_page input[type="radio"] {
+  position: relative;
+  top: -1px;
+}
+
+#posting_stats_page label {
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+#posting_stats_page input:disabled + label {
+  color: #999;
+}
+
+#posting_stats_page input[type="range"] {
+  width: 250px;
+  vertical-align: middle;
+}
+
+#posting_stats_page input[type="submit"] {
+  font-size: 12pt;
+  margin: 5px 0px;
+  padding: 5px 10px;
+}
+
+#posting_stats_page progress {
+  width: 300px;
+  margin-left: 10px;
+  vertical-align: middle;
+  display: none;
+}
+
+#posting_stats_page .scan-result {
+  border: 1px solid #333;
+  border-collapse: collapse;
+  display: none;
+}
+
+#posting_stats_page .scan-result td, #posting_stats_page .scan-result th {
+  border: 1px solid #333;
+  padding: 5px 8px;
+}
+
+#posting_stats_page .scan-result td {
+  text-align: right;
+}
+
+#posting_stats_page .scan-result th {
+  text-align: center;
+  background-color: hsl(207, 100%, 86%);
+  padding: 7px 10px;
+}
+
+#posting_stats_page .scan-result td.handle {
+  text-align: left;
+}
+
+#posting_stats_page .scan-result .avatar {
+  width: 24px;
+  border-radius: 14px;
+  vertical-align: middle;
+  margin-right: 2px;
+  padding: 2px;  
+}
+
+#posting_stats_page .scan-result td.no {
+  font-weight: bold;
+}
+
+#posting_stats_page .scan-result td.percent {
+  min-width: 70px;
+}
+
 @media (prefers-color-scheme: dark) {
   body {
     background-color: rgb(39, 39, 37);
@@ -883,5 +960,17 @@ p.back i {
 
   .post .stats i.fa-heart.liked:hover {
     color: #ff7070;
+  }
+
+  #posting_stats_page input:disabled + label {
+    color: #777;
+  }
+
+  #posting_stats_page .scan-result, #posting_stats_page .scan-result td, #posting_stats_page .scan-result th {
+    border-color: #888;
+  }
+
+  #posting_stats_page .scan-result th {
+    background-color: hsl(207, 90%, 25%);
   }
 }

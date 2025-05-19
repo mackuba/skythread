@@ -11,8 +11,10 @@ declare var appView: BlueskyAPI;
 declare var api: BlueskyAPI;
 declare var isIncognito: boolean;
 declare var biohazardEnabled: boolean;
+declare var scanStartTime: number | undefined;
 declare var loginDialog: HTMLElement;
 declare var accountMenu: HTMLElement;
+declare var postingStatsPage: HTMLElement;
 declare var avatarPreloader: IntersectionObserver;
 
 type json = Record<string, any>;
