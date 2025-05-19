@@ -783,6 +783,10 @@ p.back i {
 
 #posting_stats_page .scan-result td.handle {
   text-align: left;
+  max-width: 450px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 #posting_stats_page .scan-result .avatar {
