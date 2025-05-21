@@ -230,7 +230,7 @@ class BlueskyAPI extends Minisky {
     }
   }
 
-  /** @param {string} uri, @returns {Promise<json[]>} */
+  /** @param {string} uri, @returns {Promise<string[]>} */
 
   async getReplies(uri) {
     let json = await this.getRequest('blue.feeds.post.getReplies', { uri });
@@ -278,6 +278,8 @@ class BlueskyAPI extends Minisky {
     return await this.getRequest('app.bsky.feed.searchPosts', params);
   }
 
+  /** @param {string} [cursor], @returns {Promise<json>} */
+
   async loadNotifications(cursor) {
     let params = { limit: 100 };
 
@@ -287,6 +289,8 @@ class BlueskyAPI extends Minisky {
 
     return await this.getRequest('app.bsky.notification.listNotifications', params);
   }
+
+  /** @param {string} [cursor], @returns {Promise<{ cursor: string | undefined, posts: json[] }>} */
 
   async loadMentions(cursor) {
     let response = await this.loadNotifications(cursor);
@@ -301,6 +305,8 @@ class BlueskyAPI extends Minisky {
 
     return { cursor: response.cursor, posts };
   }
+
+  /** @param {number} days, @returns {Promise<json[]>} */
 
   async loadTimeline(days, options = {}) {
     let now = new Date();

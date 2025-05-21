@@ -54,6 +54,8 @@ class PostingStatsPage {
     }
   }
 
+  /** @returns {Promise<void>} */
+
   async scanPostingStats() {
     this.submitButton.value = 'Cancel';
 

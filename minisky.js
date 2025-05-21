@@ -179,6 +179,19 @@ class Minisky {
     return await this.parseResponse(response);
   }
 
+  /**
+   * @typedef {MiniskyOptions & {
+   *   field: string,
+   *   breakWhen?: (obj: json) => boolean,
+   *   onPageLoad?: (obj: json[]) => { cancel: true },
+   * }} FetchAllOptions
+   *
+   * @param {string} method
+   * @param {json | null} params
+   * @param {FetchAllOptions} [options]
+   * @returns {Promise<json[]>}
+   */
+
   async fetchAll(method, params, options) {
     if (!options || !options.field) {
       throw new RequestError("'field' option is required");
@@ -194,9 +207,13 @@ class Minisky {
       let items = response[options.field];
       let cursor = response.cursor;
 
-      if (options.breakWhen && items.some(x => options.breakWhen(x))) {
-        items = items.filter(x => !options.breakWhen(x));
-        cursor = null;
+      if (options.breakWhen) {
+        let test = options.breakWhen;
+
+        if (items.some(x => test(x))) {
+          items = items.filter(x => !test(x));
+          cursor = null;
+        }
       }
 
       data = data.concat(items);
@@ -233,6 +250,8 @@ class Minisky {
       return {};
     }
   }
+
+  /** @param {json} options, @param {string[]} list, @returns {json} */
 
   sliceOptions(options, list) {
     let newOptions = {};
