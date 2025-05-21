@@ -227,7 +227,7 @@ class Minisky {
         }
       }
 
-      if (items.length == 0 || !cursor) {
+      if (!cursor) {
         break;
       }
     }
