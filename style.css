@@ -680,6 +680,12 @@ p.back i {
   margin-right: 10px;
 }
 
+.post .stats .blocked-info {
+  color: #a02020;
+  font-weight: bold;
+  margin-left: 5px;
+}
+
 .post img.loader {
   width: 24px;
   animation: rotation 3s infinite linear;

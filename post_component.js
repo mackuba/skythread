@@ -699,8 +699,7 @@ class PostComponent {
               // continue down
             }
           } else {
-            // no data
-            alert("Sorry, this post is blocked or was deleted.");
+            this.showPostAsBlocked();
             return;
           }
         } else {
@@ -726,6 +725,15 @@ class PostComponent {
       }
     } catch (error) {
       showError(error);
+    }
+  }
+
+  showPostAsBlocked() {
+    let stats = $(this.rootElement.querySelector(':scope > .content > p.stats'));
+
+    if (!stats.querySelector('.blocked-info')) {
+      let span = $tag('span.blocked-info', { text: '🚫 Post unavailable' });
+      stats.append(span);
     }
   }
 
