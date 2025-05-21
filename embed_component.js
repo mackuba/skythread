@@ -125,7 +125,54 @@ class EmbedComponent {
 
     a.append(box);
 
+    if (hostname == 'media.tenor.com') {
+      a.addEventListener('click', (e) => {
+        e.preventDefault();
+        this.displayGIFInline(a, embed);
+      });
+    }
+
     return a;
+  }
+
+  /** @param {HTMLElement} a, @param {RawLinkEmbed | InlineLinkEmbed} embed */
+
+  displayGIFInline(a, embed) {
+    let gifDiv = $tag('div.gif');
+    let img = $tag('img', { src: embed.url }, HTMLImageElement);
+    img.style.opacity = '0';
+    img.style.maxHeight = '200px';
+    gifDiv.append(img);
+    a.replaceWith(gifDiv);
+
+    img.addEventListener('load', (e) => {
+      if (img.naturalWidth > img.naturalHeight) {
+        img.style.maxHeight = '200px';
+      } else {
+        img.style.maxWidth = '200px';
+        img.style.maxHeight = '400px';
+      }
+
+      img.style.opacity = '';
+    });
+
+    let staticPic;
+
+    if (typeof embed.thumb == 'string') {
+      staticPic = embed.thumb;
+    } else {
+      staticPic = `https://cdn.bsky.app/img/avatar/plain/${this.post.author.did}/${embed.thumb.ref.$link}@jpeg`;
+    }
+
+    img.addEventListener('click', (e) => {
+      if (img.classList.contains('static')) {
+        img.src = embed.url;
+        img.classList.remove('static');
+      } else {
+        img.src = staticPic;
+        img.classList.add('static');
+      }
+    });
   }
 
   /** @param {FeedGeneratorRecord} feedgen, @returns {HTMLElement} */

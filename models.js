@@ -650,6 +650,7 @@ class RawLinkEmbed extends Embed {
 
     this.url = json.external.uri;
     this.title = json.external.title;
+    this.thumb = json.external.thumb;
   }
 }
 
@@ -718,6 +719,7 @@ class InlineLinkEmbed extends Embed {
     this.url = json.external.uri;
     this.title = json.external.title;
     this.description = json.external.description;
+    this.thumb = json.external.thumb;
   }
 }
 

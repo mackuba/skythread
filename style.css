@@ -640,6 +640,15 @@ p.back i {
   color: #aaa;
 }
 
+.post div.gif img {
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.post div.gif img.static {
+  opacity: 0.75;
+}
+
 .post .stats {
   font-size: 10pt;
   color: #666;
