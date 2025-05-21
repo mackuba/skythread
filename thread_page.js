@@ -25,28 +25,28 @@ class ThreadPage {
     return p;
   } 
 
-  /** @param {string} url */
+  /** @param {string} url, @returns {Promise<void>} */
 
-  loadThreadByURL(url) {
-    let loadThread = url.startsWith('at://') ? api.loadThreadByAtURI(url) : api.loadThreadByURL(url);
-
-    loadThread.then(json => {
+  async loadThreadByURL(url) {
+    try {
+      let json = url.startsWith('at://') ? await api.loadThreadByAtURI(url) : await api.loadThreadByURL(url);
       this.displayThread(json);
-    }).catch(error => {
+    } catch (error) {
       hideLoader();
       showError(error);
-    });
+    }
   }
 
-  /** @param {string} author, @param {string} rkey */
+  /** @param {string} author, @param {string} rkey, @returns {Promise<void>} */
 
-  loadThreadById(author, rkey) {
-    api.loadThreadById(author, rkey).then(json => {
+  async loadThreadById(author, rkey) {
+    try {
+      let json = await api.loadThreadById(author, rkey);
       this.displayThread(json);
-    }).catch(error => {
+    } catch (error) {
       hideLoader();
       showError(error);
-    });
+    }
   }
 
   /** @param {json} json */

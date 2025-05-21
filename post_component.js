@@ -588,58 +588,33 @@ class PostComponent {
     }
   }
 
-  /** @param {Post} post, @param {HTMLElement} nodeToUpdate */
+  /** @param {Post} post, @param {HTMLElement} nodeToUpdate, @returns {Promise<void>} */
 
-  loadSubtree(post, nodeToUpdate) {
-    api.loadThreadByAtURI(post.uri).then(json => {
+  async loadSubtree(post, nodeToUpdate) {
+    try {
+      let json = await api.loadThreadByAtURI(post.uri);
+
       let root = Post.parseThreadPost(json.thread, post.pageRoot, 0, post.absoluteLevel);
       post.updateDataFromPost(root);
       window.subtreeRoot = post;
 
       let component = new PostComponent(post, 'thread');
       component.installIntoElement(nodeToUpdate);
-    }).catch(showError);
+    } catch (error) {
+      showError(error);
+    }
   }
 
 
-  /** @param {Post} post, @param {HTMLElement} nodeToUpdate */
+  /** @param {Post} post, @param {HTMLElement} nodeToUpdate, @returns {Promise<void>} */
 
-  loadHiddenSubtree(post, nodeToUpdate) {
+  async loadHiddenSubtree(post, nodeToUpdate) {
     let content = $(nodeToUpdate.querySelector('.content'));
     let hiddenRepliesDiv = $(content.querySelector(':scope > .hidden-replies'));
 
-    blueAPI.getReplies(post.uri).then(replies => {
-      let missingReplies = replies.filter(r => !post.replies.some(x => x.uri === r));
-
-      Promise.allSettled(missingReplies.map(uri => api.loadThreadByAtURI(uri))).then(responses => {
-        let replies = responses
-          .map(r => r.status == 'fulfilled' ? r.value : undefined)
-          .filter(v => v)
-          .map(json => Post.parseThreadPost(json.thread, post.pageRoot, 1, post.absoluteLevel + 1));
-
-        post.setReplies(replies);
-        hiddenRepliesDiv.remove();
-
-        for (let reply of post.replies) {
-          let component = new PostComponent(reply, 'thread');
-          let view = component.buildElement();
-          content.append(view);
-        }
-
-        if (replies.length < responses.length) {
-          let notFoundCount = responses.length - replies.length;
-          let pluralizedCount = (notFoundCount > 1) ? `${notFoundCount} replies are` : '1 reply is';
-
-          let info = $tag('p.missing-replies-info', {
-            html: `<i class="fa-solid fa-ban"></i> ${pluralizedCount} missing (likely taken down by moderation)`
-          });
-          content.append(info);
-        }
-      }).catch(error => {
-        hiddenRepliesDiv.remove();
-        setTimeout(() => showError(error), 1);
-      });
-    }).catch(error => {
+    try {
+      var expectedReplyURIs = await blueAPI.getReplies(post.uri);
+    } catch (error) {
       hiddenRepliesDiv.remove();
 
       if (error instanceof APIError && error.code == 404) {
@@ -650,7 +625,45 @@ class PostComponent {
       } else {
         setTimeout(() => showError(error), 1);
       }
-    });
+
+      return;
+    }
+
+    let missingReplyURIs = expectedReplyURIs.filter(r => !post.replies.some(x => x.uri === r));
+    let promises = missingReplyURIs.map(uri => api.loadThreadByAtURI(uri));
+
+    try {
+      // TODO
+      var responses = await Promise.allSettled(promises);
+    } catch (error) {
+      hiddenRepliesDiv.remove();
+      setTimeout(() => showError(error), 1);
+      return;
+    }
+
+    let replies = responses
+      .map(r => r.status == 'fulfilled' ? r.value : undefined)
+      .filter(v => v)
+      .map(json => Post.parseThreadPost(json.thread, post.pageRoot, 1, post.absoluteLevel + 1));
+
+    post.setReplies(replies);
+    hiddenRepliesDiv.remove();
+
+    for (let reply of post.replies) {
+      let component = new PostComponent(reply, 'thread');
+      let view = component.buildElement();
+      content.append(view);
+    }
+
+    if (replies.length < responses.length) {
+      let notFoundCount = responses.length - replies.length;
+      let pluralizedCount = (notFoundCount > 1) ? `${notFoundCount} replies are` : '1 reply is';
+
+      let info = $tag('p.missing-replies-info', {
+        html: `<i class="fa-solid fa-ban"></i> ${pluralizedCount} missing (likely taken down by moderation)`
+      });
+      content.append(info);
+    }
   }
 
   /** @returns {boolean} */
@@ -670,48 +683,63 @@ class PostComponent {
     }
   }
 
-  /** @param {HTMLElement} heart */
+  /** @param {HTMLElement} heart, @returns {Promise<void>} */
 
-  onHeartClick(heart) {
-    if (!this.post.hasViewerInfo) {
-      if (accountAPI.isLoggedIn) {
-        accountAPI.loadPostIfExists(this.post.uri).then(data => {
+  async onHeartClick(heart) {
+    try {
+      if (!this.post.hasViewerInfo) {
+        if (accountAPI.isLoggedIn) {
+          let data = await this.loadViewerInfo();
+
           if (data) {
-            this.post.author = data.author;
-            this.post.viewerData = data.viewer;
-            this.post.viewerLike = data.viewer?.like;
-
             if (this.post.liked) {
               heart.classList.add('liked');
+              return;
             } else {
-              this.onHeartClick(heart);
+              // continue down
             }
           } else {
+            // no data
             alert("Sorry, this post is blocked or was deleted.");
+            return;
           }
-        }).catch(error => {
-          alert(error);
-        });
-      } else {
-        showDialog(loginDialog);
+        } else {
+          // not logged in
+          showDialog(loginDialog);
+          return;
+        }
       }
-      return;
-    }
 
-    let count = $(heart.nextElementSibling);
+      let countField = $(heart.nextElementSibling);
+      let likeCount = parseInt(countField.innerText, 10);
 
-    if (!heart.classList.contains('liked')) {
-      accountAPI.likePost(this.post).then((like) => {
+      if (!heart.classList.contains('liked')) {
+        let like = await accountAPI.likePost(this.post);
         this.post.viewerLike = like.uri;
         heart.classList.add('liked');
-        count.innerText = String(parseInt(count.innerText, 10) + 1);
-      }).catch(showError);
-    } else {
-      accountAPI.removeLike(this.post.viewerLike).then(() => {
+        countField.innerText = String(likeCount + 1);
+      } else {
+        await accountAPI.removeLike(this.post.viewerLike);
         this.post.viewerLike = undefined;
         heart.classList.remove('liked');
-        count.innerText = String(parseInt(count.innerText, 10) - 1);
-      }).catch(showError);
+        countField.innerText = String(likeCount - 1);
+      }
+    } catch (error) {
+      showError(error);
     }
+  }
+
+  /** @returns {Promise<json | undefined>} */
+
+  async loadViewerInfo() {
+    let data = await accountAPI.loadPostIfExists(this.post.uri);
+
+    if (data) {
+      this.post.author = data.author;
+      this.post.viewerData = data.viewer;
+      this.post.viewerLike = data.viewer?.like;
+    }
+
+    return data;
   }
 }
