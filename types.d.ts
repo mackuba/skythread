@@ -12,7 +12,7 @@ declare var api: BlueskyAPI;
 declare var isIncognito: boolean;
 declare var biohazardEnabled: boolean;
 declare var loginDialog: HTMLElement;
-declare var accountMenu: HTMLElement;
+declare var accountMenu: Menu;
 declare var avatarPreloader: IntersectionObserver;
 declare var threadPage: ThreadPage;
 declare var postingStatsPage: PostingStatsPage;

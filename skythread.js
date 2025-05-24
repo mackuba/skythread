@@ -1,21 +1,15 @@
 function init() {
-  let html = $(document.body.parentNode);
-
   window.dateLocale = localStorage.getItem('locale') || undefined;
   window.isIncognito = !!localStorage.getItem('incognito');
   window.biohazardEnabled = JSON.parse(localStorage.getItem('biohazard') ?? 'null');
 
   window.loginDialog = $(document.querySelector('#login'));
-  window.accountMenu = $(document.querySelector('#account_menu'));
 
   window.avatarPreloader = buildAvatarPreloader();
 
+  window.accountMenu = new Menu();
   window.threadPage = new ThreadPage();
   window.postingStatsPage = new PostingStatsPage();
-
-  html.addEventListener('click', (e) => {
-    $id('account_menu').style.visibility = 'hidden';
-  });
 
   $(document.querySelector('#search form')).addEventListener('submit', (e) => {
     e.preventDefault();
@@ -67,7 +61,7 @@ function init() {
 
     window.biohazardEnabled = false;
     localStorage.setItem('biohazard', 'false');
-    toggleMenuButton('biohazard', false);
+    accountMenu.toggleMenuButtonCheck('biohazard', false);
 
     for (let p of document.querySelectorAll('p.hidden-replies, .content > .post.blocked, .blocked > .load-post')) {
       $(p).style.display = 'none';
@@ -78,79 +72,29 @@ function init() {
     hideDialog(target.closest('.dialog'));
   });
 
-  $(document.querySelector('#account')).addEventListener('click', (e) => {
-    toggleAccountMenu();
-    e.stopPropagation();
-  });
-
-  accountMenu.addEventListener('click', (e) => {
-    e.stopPropagation();
-  });
-
-  $(accountMenu.querySelector('a[data-action=biohazard]')).addEventListener('click', (e) => {
-    e.preventDefault();
-
-    let hazards = document.querySelectorAll('p.hidden-replies, .content > .post.blocked, .blocked > .load-post');
-
-    if (window.biohazardEnabled === false) {
-      window.biohazardEnabled = true;
-      localStorage.setItem('biohazard', 'true');
-      toggleMenuButton('biohazard', true);
-      Array.from(hazards).forEach(p => { $(p).style.display = 'block' });
-    } else {
-      window.biohazardEnabled = false;
-      localStorage.setItem('biohazard', 'false');
-      toggleMenuButton('biohazard', false);
-      Array.from(hazards).forEach(p => { $(p).style.display = 'none' });
-    }
-  });
-
-  $(accountMenu.querySelector('a[data-action=incognito]')).addEventListener('click', (e) => {
-    e.preventDefault();
-
-    if (isIncognito) {
-      localStorage.removeItem('incognito');
-    } else {
-      localStorage.setItem('incognito', '1');
-    }
-
-    location.reload();
-  });
-
-  $(accountMenu.querySelector('a[data-action=login]')).addEventListener('click', (e) => {
-    e.preventDefault();
-    toggleDialog(loginDialog);
-    $id('account_menu').style.visibility = 'hidden';
-  });
-
-  $(accountMenu.querySelector('a[data-action=logout]')).addEventListener('click', (e) => {
-    e.preventDefault();
-    logOut();
-  });
-
   window.appView = new BlueskyAPI('api.bsky.app', false);
   window.blueAPI = new BlueskyAPI('blue.mackuba.eu', false);
   window.accountAPI = new BlueskyAPI(undefined, true);
 
   if (accountAPI.isLoggedIn) {
     accountAPI.host = accountAPI.user.pdsEndpoint;
-    hideMenuButton('login');
+    accountMenu.hideMenuButton('login');
 
     if (!isIncognito) {
       window.api = accountAPI;
-      showLoggedInStatus(true, api.user.avatar);
+      accountMenu.showLoggedInStatus(true, api.user.avatar);
     } else {
       window.api = appView;
-      showLoggedInStatus('incognito');
-      toggleMenuButton('incognito', true);
+      accountMenu.showLoggedInStatus('incognito');
+      accountMenu.toggleMenuButtonCheck('incognito', true);
     }
   } else {
     window.api = appView;
-    hideMenuButton('logout');
-    hideMenuButton('incognito');
+    accountMenu.hideMenuButton('logout');
+    accountMenu.hideMenuButton('incognito');
   }
 
-  toggleMenuButton('biohazard', window.biohazardEnabled !== false);
+  accountMenu.toggleMenuButtonCheck('biohazard', window.biohazardEnabled !== false);
 
   parseQueryParams();
 }
@@ -248,63 +192,6 @@ function toggleLoginInfo(event) {
   $id('login').classList.toggle('expanded');
 }
 
-function toggleAccountMenu() {
-  let menu = $id('account_menu');
-  menu.style.visibility = (menu.style.visibility == 'visible') ? 'hidden' : 'visible';
-}
-
-/** @param {string} buttonName */
-
-function showMenuButton(buttonName) {
-  let button = $(accountMenu.querySelector(`a[data-action=${buttonName}]`));
-  let item = $(button.parentNode);
-  item.style.display = 'list-item';
-}
-
-/** @param {string} buttonName */
-
-function hideMenuButton(buttonName) {
-  let button = $(accountMenu.querySelector(`a[data-action=${buttonName}]`));
-  let item = $(button.parentNode);
-  item.style.display = 'none';
-}
-
-/** @param {string} buttonName, @param {boolean} state */
-
-function toggleMenuButton(buttonName, state) {
-  let button = $(accountMenu.querySelector(`a[data-action=${buttonName}]`));
-  let check = $(button.querySelector('.check'));
-  check.style.display = (state) ? 'inline' : 'none';
-}
-
-/** @param {boolean | 'incognito'} loggedIn, @param {string | undefined | null} [avatar] */
-
-function showLoggedInStatus(loggedIn, avatar) {
-  let account = $id('account');
-
-  if (loggedIn === true && avatar) {
-    let button = $(account.querySelector('i'));
-
-    let img = $tag('img.avatar', { src: avatar });
-    img.style.display = 'none';
-    img.addEventListener('load', () => {
-      button.remove();
-      img.style.display = 'inline';
-    });
-    img.addEventListener('error', () => {
-      showLoggedInStatus(true, null);
-    })
-
-    account.append(img);
-  } else if (loggedIn === false) {
-    $id('account').innerHTML = `<i class="fa-regular fa-user-circle fa-xl"></i>`;
-  } else if (loggedIn === 'incognito') {
-    $id('account').innerHTML = `<i class="fa-solid fa-user-secret fa-lg"></i>`;
-  } else {
-    account.innerHTML = `<i class="fa-solid fa-user-circle fa-xl"></i>`;
-  }
-}
-
 function submitLogin() {
   let handle = $id('login_handle', HTMLInputElement);
   let password = $id('login_password', HTMLInputElement);
@@ -327,10 +214,11 @@ function submitLogin() {
     submit.style.display = 'inline';
     cloudy.style.display = 'none';
 
-    loadCurrentUserAvatar();
-    showMenuButton('logout');
-    showMenuButton('incognito');
-    hideMenuButton('login');
+    accountMenu.loadCurrentUserAvatar();
+
+    accountMenu.showMenuButton('logout');
+    accountMenu.showMenuButton('incognito');
+    accountMenu.hideMenuButton('login');
 
     let params = new URLSearchParams(location.search);
     let page = params.get('page');
@@ -371,15 +259,6 @@ async function logIn(identifier, password) {
   let pds = new BlueskyAPI(pdsEndpoint, true);
   await pds.logIn(identifier, password);
   return pds;
-}
-
-function loadCurrentUserAvatar() {
-  api.loadCurrentUserAvatar().then((url) => {
-    showLoggedInStatus(true, url);
-  }).catch((error) => {
-    console.log(error);
-    showLoggedInStatus(true, null);
-  });
 }
 
 function logOut() {
