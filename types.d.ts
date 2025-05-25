@@ -16,6 +16,7 @@ declare var accountMenu: Menu;
 declare var avatarPreloader: IntersectionObserver;
 declare var threadPage: ThreadPage;
 declare var postingStatsPage: PostingStatsPage;
+declare var likeStatsPage: LikeStatsPage;
 
 type json = Record<string, any>;
 

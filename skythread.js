@@ -10,6 +10,7 @@ function init() {
   window.accountMenu = new Menu();
   window.threadPage = new ThreadPage();
   window.postingStatsPage = new PostingStatsPage();
+  window.likeStatsPage = new LikeStatsPage();
 
   $(document.querySelector('#search form')).addEventListener('submit', (e) => {
     e.preventDefault();
@@ -310,6 +311,8 @@ function openPage(page) {
     showNotificationsPage();
   } else if (page == 'posting_stats') {
     window.postingStatsPage.show();
+  } else if (page == 'like_stats') {
+    window.likeStatsPage.show();
   }
 }
 
