@@ -56,47 +56,16 @@ class LikeStatsPage {
     let fetchGivenLikes = this.fetchGivenLikes(requestedDays);
 
     let receivedLikes = await this.fetchReceivedLikes(requestedDays);
+    let received = countElementsBy(receivedLikes, (x) => x.actor.handle);
 
-    let received = {};
-
-    for (let like of receivedLikes) {
-      received[like.actor.handle] = received[like.actor.handle] || 0;
-      received[like.actor.handle] += 1;
-    }
-
-    Object.entries(received).sort(this.sortResults).slice(0, 20).forEach(([h, i]) => {
-      let tr = $tag('tr');
-      tr.append(
-        $tag('td', { html: `<a href="https://bsky.app/profile/${h}" target="_blank">${h}</a>` }),
-        $tag('td', { text: i })
-      );
-      this.receivedTable.append(tr);
-    });
-
-    this.receivedTable.style.display = 'table';
+    await this.renderResults(received, this.receivedTable);
 
     let givenLikes = await fetchGivenLikes;
+    let given = countElementsBy(givenLikes, (x) => atURI(x.value.subject.uri).repo);
 
-    let given = {};
+    await this.renderResults(given, this.givenTable);
 
-    for (let like of givenLikes) {
-      let did = like.value.subject.uri.split('/')[2];
-      given[did] = given[did] || 0;
-      given[did] += 1;
-    }
-
-    let entries = Object.entries(given).sort(this.sortResults).slice(0, 20);
-
-    for (let [d, i] of entries) {
-      let h = await accountAPI.fetchHandleForDid(d);
-      let tr = $tag('tr');
-      tr.append(
-        $tag('td', { html: `<a href="https://bsky.app/profile/${h}" target="_blank">${h}</a>` }),
-        $tag('td', { text: i })
-      );
-      this.givenTable.append(tr);
-    };
-
+    this.receivedTable.style.display = 'table';
     this.givenTable.style.display = 'table';
   }
 
@@ -123,6 +92,22 @@ class LikeStatsPage {
 
     let results = await Promise.all(fetchPostLikes);
     return results.flat();
+  }
+
+  async renderResults(counts, table) {
+    let entries = Object.entries(counts).sort(this.sortResults).slice(0, 20);
+
+    for (let [user, count] of entries) {
+      let handle = user.startsWith('did:') ? await accountAPI.fetchHandleForDid(user) : user;
+
+      let tr = $tag('tr');
+      tr.append(
+        $tag('td', { html: `<a href="https://bsky.app/profile/${handle}" target="_blank">${handle}</a>` }),
+        $tag('td', { text: count })
+      );
+
+      table.append(tr);
+    };
   }
 
   sortResults(a, b) {

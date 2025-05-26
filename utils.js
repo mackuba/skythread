@@ -150,3 +150,23 @@ function linkToPostById(handle, postId) {
   url.searchParams.set('post', postId);
   return url.toString();
 }
+
+/**
+ * @template T
+ * @param {T[]} list
+ * @param {(T) => string} prop
+ * @returns {Record<string, number>}
+ */
+
+function countElementsBy(list, prop) {
+  /** @type {Record<string, number>} */
+  let counts = {};
+
+  for (let obj of list) {
+    let value = prop(obj);
+    counts[value] = counts[value] || 0;
+    counts[value] += 1;
+  }
+
+  return counts;
+}
