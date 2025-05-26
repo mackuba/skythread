@@ -86,11 +86,21 @@ class LikeStatsPage {
     let myPosts = await this.appView.loadUserTimeline(accountAPI.user.did, requestedDays);
     let likedPosts = myPosts.filter(x => !x['reason'] && x['post']['likeCount'] > 0);
 
-    let fetchPostLikes = likedPosts.map(x => {
-      return this.appView.fetchAll('app.bsky.feed.getLikes', { uri: x['post']['uri'], limit: 100 }, { field: 'likes' });
-    });
+    let results = [];
 
-    let results = await Promise.all(fetchPostLikes);
+    for (let i = 0; i < likedPosts.length; i += 10) {
+      let batch = likedPosts.slice(i, i + 10);
+
+      let fetchBatch = batch.map(x => {
+        return this.appView.fetchAll('app.bsky.feed.getLikes', { uri: x['post']['uri'], limit: 100 }, {
+          field: 'likes'
+        });
+      });
+
+      let batchResults = await Promise.all(fetchBatch);
+      results = results.concat(batchResults);
+    }
+
     return results.flat();
   }
 
