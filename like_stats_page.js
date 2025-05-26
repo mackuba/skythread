@@ -140,6 +140,9 @@ class LikeStatsPage {
   }
 
   async renderResults(counts, table) {
+    let tableBody = $(table.querySelector('tbody'));
+    tableBody.innerHTML = '';
+
     let entries = Object.entries(counts).sort(this.sortResults).slice(0, 20);
 
     for (let [user, count] of entries) {
@@ -151,7 +154,7 @@ class LikeStatsPage {
         $tag('td', { text: count })
       );
 
-      table.append(tr);
+      tableBody.append(tr);
     };
   }
 
