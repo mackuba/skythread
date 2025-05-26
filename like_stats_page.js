@@ -16,6 +16,10 @@ class LikeStatsPage {
     this.appView = new BlueskyAPI('public.api.bsky.app', false);
 
     this.setupEvents();
+
+    this.progressPosts = 0;
+    this.progressLikeRecords = 0;
+    this.progressPostLikes = 0;
   }
 
   setupEvents() {
@@ -45,6 +49,8 @@ class LikeStatsPage {
   show() {
     this.pageElement.style.display = 'block';
   }
+
+  /** @returns {Promise<void>} */
 
   async findLikes() {
     this.submitButton.value = 'Cancel';
@@ -80,8 +86,10 @@ class LikeStatsPage {
     this.scanStartTime = undefined;
   }
 
+  /** @param {number} requestedDays, @returns {Promise<json[]>} */
+
   async fetchGivenLikes(requestedDays) {
-    let now = new Date().getTime();
+    let startTime = /** @type {number} */ (this.scanStartTime);
 
     return await accountAPI.fetchAll('com.atproto.repo.listRecords', {
       repo: accountAPI.user.did,
@@ -89,20 +97,24 @@ class LikeStatsPage {
       limit: 100
     }, {
       field: 'records',
-      breakWhen: (x) => Date.parse(x['value']['createdAt']) < now - 86400 * requestedDays * 1000,
+      breakWhen: (x) => Date.parse(x['value']['createdAt']) < startTime - 86400 * requestedDays * 1000,
       onPageLoad: (data) => {
         if (data.length == 0) { return }
 
         let last = data[data.length - 1];
         let lastDate = Date.parse(last.value.createdAt);
 
-        let daysBack = (this.scanStartTime - lastDate) / 86400 / 1000;
+        let daysBack = (startTime - lastDate) / 86400 / 1000;
         this.updateProgress({ likeRecords: Math.min(1.0, daysBack / requestedDays) });
       }
     });
   }
 
+  /** @param {number} requestedDays, @returns {Promise<json[]>} */
+
   async fetchReceivedLikes(requestedDays) {
+    let startTime = /** @type {number} */ (this.scanStartTime);
+
     let myPosts = await this.appView.loadUserTimeline(accountAPI.user.did, requestedDays, {
       onPageLoad: (data) => {
         if (data.length == 0) { return }
@@ -111,7 +123,7 @@ class LikeStatsPage {
         let lastTimestamp = last.reason ? last.reason.indexedAt : last.post.record.createdAt;
         let lastDate = Date.parse(lastTimestamp);
 
-        let daysBack = (this.scanStartTime - lastDate) / 86400 / 1000;
+        let daysBack = (startTime - lastDate) / 86400 / 1000;
         this.updateProgress({ posts: Math.min(1.0, daysBack / requestedDays) });
       }
     });
@@ -164,6 +176,8 @@ class LikeStatsPage {
     this.progressLikeRecords = 0;
     this.progressPostLikes = 0;
   }
+
+  /** @param {{ posts?: number, likeRecords?: number, postLikes?: number }} data */
 
   updateProgress(data) {
     if (data.posts) {

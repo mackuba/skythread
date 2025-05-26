@@ -290,7 +290,10 @@ class BlueskyAPI extends Minisky {
     return await this.getRequest('app.bsky.notification.listNotifications', params);
   }
 
-  /** @param {string} [cursor], @returns {Promise<{ cursor: string | undefined, posts: json[] }>} */
+  /**
+   * @param {string} [cursor]
+   * @returns {Promise<{ cursor: string | undefined, posts: json[] }>}
+   */
 
   async loadMentions(cursor) {
     let response = await this.loadNotifications(cursor);
@@ -306,7 +309,11 @@ class BlueskyAPI extends Minisky {
     return { cursor: response.cursor, posts };
   }
 
-  /** @param {number} days, @returns {Promise<json[]>} */
+  /**
+   * @param {number} days
+   * @param {{ onPageLoad?: FetchAllOnPageLoad }} [options]
+   * @returns {Promise<json[]>}
+   */
 
   async loadTimeline(days, options = {}) {
     let now = new Date();
@@ -322,7 +329,12 @@ class BlueskyAPI extends Minisky {
     });
   }
 
-  /** @param {string} did, @param {number} days, @returns {Promise<json[]>} */
+  /**
+   * @param {string} did
+   * @param {number} days
+   * @param {{ onPageLoad?: FetchAllOnPageLoad }} [options]
+   * @returns {Promise<json[]>}
+   */
 
   async loadUserTimeline(did, days, options = {}) {
     let now = new Date();

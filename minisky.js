@@ -180,10 +180,12 @@ class Minisky {
   }
 
   /**
+   * @typedef {(obj: json[]) => { cancel: true } | void} FetchAllOnPageLoad
+   *
    * @typedef {MiniskyOptions & {
    *   field: string,
    *   breakWhen?: (obj: json) => boolean,
-   *   onPageLoad?: (obj: json[]) => { cancel: true },
+   *   onPageLoad?: FetchAllOnPageLoad | undefined
    * }} FetchAllOptions
    *
    * @param {string} method
