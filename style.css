@@ -732,34 +732,6 @@ p.back i {
   margin-top: 25px;
 }
 
-#like_stats_page {
-  display: none;
-}
-
-#like_stats_page input[type="range"] {
-  width: 250px;
-  vertical-align: middle;
-}
-
-#like_stats_page .scan-result {
-  border: 1px solid #333;
-  border-collapse: collapse;
-  display: none;
-  float: left;
-  margin-right: 100px;
-}
-
-#like_stats_page .scan-result td, #like_stats_page .scan-result th {
-  border: 1px solid #333;
-  padding: 5px 8px;
-}
-
-#like_stats_page .scan-result th {
-  text-align: center;
-  background-color: hsl(207, 100%, 86%);
-  padding: 7px 10px;
-}
-
 #posting_stats_page {
   display: none;
 }
@@ -857,6 +829,41 @@ p.back i {
 
 #posting_stats_page .scan-result td.percent {
   min-width: 70px;
+}
+
+#like_stats_page {
+  display: none;
+}
+
+#like_stats_page input[type="range"] {
+  width: 250px;
+  vertical-align: middle;
+}
+
+#like_stats_page progress {
+  width: 300px;
+  margin-left: 10px;
+  vertical-align: middle;
+  display: none;
+}
+
+#like_stats_page .scan-result {
+  border: 1px solid #333;
+  border-collapse: collapse;
+  display: none;
+  float: left;
+  margin-right: 100px;
+}
+
+#like_stats_page .scan-result td, #like_stats_page .scan-result th {
+  border: 1px solid #333;
+  padding: 5px 8px;
+}
+
+#like_stats_page .scan-result th {
+  text-align: center;
+  background-color: hsl(207, 100%, 86%);
+  padding: 7px 10px;
 }
 
 @media (prefers-color-scheme: dark) {
