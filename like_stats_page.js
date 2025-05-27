@@ -210,20 +210,21 @@ class LikeStatsPage {
     return Object.entries(counts).sort(this.sortResults).map(x => x[1]).slice(0, 20);
   }
 
-  /** @param {LikeStat[]} topEntries, @param {HTMLTableElement} table, @returns {Promise<void>} */
+  /** @param {LikeStat[]} topUsers, @param {HTMLTableElement} table, @returns {Promise<void>} */
 
-  async renderResults(topEntries, table) {
+  async renderResults(topUsers, table) {
     let tableBody = $(table.querySelector('tbody'));
     tableBody.innerHTML = '';
 
-    for (let user of topEntries) {
+    for (let [i, user] of topUsers.entries()) {
       let tr = $tag('tr');
       tr.append(
-        $tag('td', {
+        $tag('td.no', { text: i + 1 }),
+        $tag('td.handle', {
           html: `<img class="avatar" src="${user.avatar}"> ` + 
                 `<a href="https://bsky.app/profile/${user.handle}" target="_blank">${user.handle}</a>`
         }),
-        $tag('td', { text: user.count })
+        $tag('td.count', { text: user.count })
       );
 
       tableBody.append(tr);
