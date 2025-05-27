@@ -212,7 +212,7 @@ class LikeStatsPage {
   /** @param {LikeStatHash} counts, @returns {LikeStat[]} */
 
   getTopEntries(counts) {
-    return Object.entries(counts).sort(this.sortResults).map(x => x[1]).slice(0, 20);
+    return Object.entries(counts).sort(this.sortResults).map(x => x[1]).slice(0, 25);
   }
 
   /** @param {LikeStat[]} topUsers, @param {HTMLTableElement} table, @returns {Promise<void>} */
