@@ -10,8 +10,8 @@ class LikeStatsPage {
     this.submitButton = $(this.pageElement.querySelector('input[type="submit"]'), HTMLInputElement);
     this.progressBar = $(this.pageElement.querySelector('input[type=submit] + progress'), HTMLProgressElement);
 
-    this.receivedTable = $(this.pageElement.querySelector('.received-likes'));
-    this.givenTable = $(this.pageElement.querySelector('.given-likes'));
+    this.receivedTable = $(this.pageElement.querySelector('.received-likes'), HTMLTableElement);
+    this.givenTable = $(this.pageElement.querySelector('.given-likes'), HTMLTableElement);
 
     this.appView = new BlueskyAPI('public.api.bsky.app', false);
 
@@ -69,14 +69,24 @@ class LikeStatsPage {
     let fetchGivenLikes = this.fetchGivenLikes(requestedDays);
 
     let receivedLikes = await this.fetchReceivedLikes(requestedDays);
-    let received = countElementsBy(receivedLikes, (x) => x.actor.handle);
+    let receivedStats = this.sumUpReceivedLikes(receivedLikes);
+    let topReceived = this.getTopEntries(receivedStats);
 
-    await this.renderResults(received, this.receivedTable);
+    await this.renderResults(topReceived, this.receivedTable);
 
     let givenLikes = await fetchGivenLikes;
-    let given = countElementsBy(givenLikes, (x) => atURI(x.value.subject.uri).repo);
+    let givenStats = this.sumUpGivenLikes(givenLikes);
+    let topGiven = this.getTopEntries(givenStats);
 
-    await this.renderResults(given, this.givenTable);
+    let profileInfo = await appView.getRequest('app.bsky.actor.getProfiles', { actors: topGiven.map(x => x.did) });
+
+    for (let profile of profileInfo.profiles) {
+      let user = /** @type {LikeStat} */ (topGiven.find(x => x.did == profile.did));
+      user.handle = profile.handle;
+      user.avatar = profile.avatar;
+    }
+
+    await this.renderResults(topGiven, this.givenTable);
 
     this.receivedTable.style.display = 'table';
     this.givenTable.style.display = 'table';
@@ -151,19 +161,69 @@ class LikeStatsPage {
     return results.flat();
   }
 
-  async renderResults(counts, table) {
+  /**
+   * @typedef {{ handle?: string, did?: string, avatar?: string, count: number }} LikeStat
+   * @typedef {Record<string, LikeStat>} LikeStatHash
+   */
+
+  /** @param {json[]} likes, @returns {LikeStatHash} */
+
+  sumUpReceivedLikes(likes) {
+    /** @type {LikeStatHash} */
+    let stats = {};
+
+    for (let like of likes) {
+      let handle = like.actor.handle;
+
+      if (!stats[handle]) {
+        stats[handle] = { handle: handle, count: 0, avatar: like.actor.avatar };
+      }
+
+      stats[handle].count += 1;
+    }
+
+    return stats;
+  }
+
+  /** @param {json[]} likes, @returns {LikeStatHash} */
+
+  sumUpGivenLikes(likes) {
+    /** @type {LikeStatHash} */
+    let stats = {};
+
+    for (let like of likes) {
+      let did = atURI(like.value.subject.uri).repo;
+
+      if (!stats[did]) {
+        stats[did] = { did: did, count: 0 };
+      }
+
+      stats[did].count += 1;
+    }
+
+    return stats;
+  }
+
+  /** @param {LikeStatHash} counts, @returns {LikeStat[]} */
+
+  getTopEntries(counts) {
+    return Object.entries(counts).sort(this.sortResults).map(x => x[1]).slice(0, 20);
+  }
+
+  /** @param {LikeStat[]} topEntries, @param {HTMLTableElement} table, @returns {Promise<void>} */
+
+  async renderResults(topEntries, table) {
     let tableBody = $(table.querySelector('tbody'));
     tableBody.innerHTML = '';
 
-    let entries = Object.entries(counts).sort(this.sortResults).slice(0, 20);
-
-    for (let [user, count] of entries) {
-      let handle = user.startsWith('did:') ? await accountAPI.fetchHandleForDid(user) : user;
-
+    for (let user of topEntries) {
       let tr = $tag('tr');
       tr.append(
-        $tag('td', { html: `<a href="https://bsky.app/profile/${handle}" target="_blank">${handle}</a>` }),
-        $tag('td', { text: count })
+        $tag('td', {
+          html: `<img class="avatar" src="${user.avatar}"> ` + 
+                `<a href="https://bsky.app/profile/${user.handle}" target="_blank">${user.handle}</a>`
+        }),
+        $tag('td', { text: user.count })
       );
 
       tableBody.append(tr);
@@ -201,10 +261,12 @@ class LikeStatsPage {
     this.progressBar.value = totalProgress;
   }
 
+  /** @param {[string, LikeStat]} a, @param {[string, LikeStat]} b, @returns {-1|1|0} */
+
   sortResults(a, b) {
-    if (a[1] < b[1]) {
+    if (a[1].count < b[1].count) {
       return 1;
-    } else if (a[1] > b[1]) {
+    } else if (a[1].count > b[1].count) {
       return -1;
     } else {
       return 0;
