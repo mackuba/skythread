@@ -127,14 +127,44 @@
     </table>
   </div>
 
+  <div id="like_stats_page">
+    <h2>Like statistics</h2>
+
+    <form>
+      <p>
+        Time range: <input type="range" min="1" max="60" value="7"> <label>7 days</label>
+      </p>
+
+      <p>
+        <input type="submit" value="Start scan"> <progress></progress>
+      </p>
+    </form>
+
+    <table class="scan-result given-likes">
+      <thead>
+        <tr><th colspan="3">❤️ Likes from you:</th></tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+
+    <table class="scan-result received-likes">
+      <thead>
+        <tr><th colspan="3">💛 Likes on your posts:</th></tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+
   <script src="lib/purify.min.js"></script>
   <script src="minisky.js"></script>
   <script src="api.js"></script>
   <script src="utils.js"></script>
   <script src="rich_text_lite.js"></script>
   <script src="models.js"></script>
+  <script src="menu.js"></script>
   <script src="thread_page.js"></script>
   <script src="posting_stats_page.js"></script>
+  <script src="like_stats_page.js"></script>
   <script src="embed_component.js"></script>
   <script src="post_component.js"></script>
   <script src="skythread.js"></script>

@@ -290,7 +290,10 @@ class BlueskyAPI extends Minisky {
     return await this.getRequest('app.bsky.notification.listNotifications', params);
   }
 
-  /** @param {string} [cursor], @returns {Promise<{ cursor: string | undefined, posts: json[] }>} */
+  /**
+   * @param {string} [cursor]
+   * @returns {Promise<{ cursor: string | undefined, posts: json[] }>}
+   */
 
   async loadMentions(cursor) {
     let response = await this.loadNotifications(cursor);
@@ -306,13 +309,40 @@ class BlueskyAPI extends Minisky {
     return { cursor: response.cursor, posts };
   }
 
-  /** @param {number} days, @returns {Promise<json[]>} */
+  /**
+   * @param {number} days
+   * @param {{ onPageLoad?: FetchAllOnPageLoad }} [options]
+   * @returns {Promise<json[]>}
+   */
 
   async loadTimeline(days, options = {}) {
     let now = new Date();
     let timeLimit = now.getTime() - days * 86400 * 1000;
 
     return await this.fetchAll('app.bsky.feed.getTimeline', { limit: 100 }, {
+      field: 'feed',
+      breakWhen: (x) => {
+        let timestamp = x.reason ? x.reason.indexedAt : x.post.record.createdAt;
+        return Date.parse(timestamp) < timeLimit;
+      },
+      onPageLoad: options.onPageLoad
+    });
+  }
+
+  /**
+   * @param {string} did
+   * @param {number} days
+   * @param {{ onPageLoad?: FetchAllOnPageLoad }} [options]
+   * @returns {Promise<json[]>}
+   */
+
+  async loadUserTimeline(did, days, options = {}) {
+    let now = new Date();
+    let timeLimit = now.getTime() - days * 86400 * 1000;
+
+    let params = { actor: did, filter: 'posts_no_replies', limit: 100 };
+
+    return await this.fetchAll('app.bsky.feed.getAuthorFeed', params, {
       field: 'feed',
       breakWhen: (x) => {
         let timestamp = x.reason ? x.reason.indexedAt : x.post.record.createdAt;

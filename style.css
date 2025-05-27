@@ -783,11 +783,11 @@ p.back i {
 
 #posting_stats_page .scan-result td, #posting_stats_page .scan-result th {
   border: 1px solid #333;
-  padding: 5px 8px;
 }
 
 #posting_stats_page .scan-result td {
   text-align: right;
+  padding: 5px 8px;
 }
 
 #posting_stats_page .scan-result th {
@@ -829,6 +829,73 @@ p.back i {
 
 #posting_stats_page .scan-result td.percent {
   min-width: 70px;
+}
+
+#like_stats_page {
+  display: none;
+}
+
+#like_stats_page input[type="range"] {
+  width: 250px;
+  vertical-align: middle;
+}
+
+#like_stats_page input[type="submit"] {
+  font-size: 12pt;
+  margin: 5px 0px;
+  padding: 5px 10px;
+}
+
+#like_stats_page progress {
+  width: 300px;
+  margin-left: 10px;
+  vertical-align: middle;
+  display: none;
+}
+
+#like_stats_page .scan-result {
+  border: 1px solid #333;
+  border-collapse: collapse;
+  display: none;
+  float: left;
+  margin-top: 20px;
+  margin-bottom: 40px;
+}
+
+#like_stats_page .given-likes {
+  margin-right: 100px;
+}
+
+#like_stats_page .scan-result td, #like_stats_page .scan-result th {
+  border: 1px solid #333;
+  padding: 5px 10px;
+}
+
+#like_stats_page .scan-result th {
+  text-align: center;
+  background-color: hsl(207, 100%, 86%);
+  padding: 12px 10px;
+}
+
+#like_stats_page .scan-result td.no {
+  font-weight: bold;
+  text-align: right;
+}
+
+#like_stats_page .scan-result td.handle {
+  width: 280px;
+}
+
+#like_stats_page .scan-result td.count {
+  padding: 5px 15px;
+}
+
+#like_stats_page .scan-result .avatar {
+  width: 24px;
+  border-radius: 14px;
+  vertical-align: middle;
+  margin-right: 2px;
+  padding: 2px;  
 }
 
 @media (prefers-color-scheme: dark) {
@@ -1013,5 +1080,13 @@ p.back i {
 
   #posting_stats_page .scan-result tr.total td {
     background-color: hsla(207, 90%, 25%, 0.4);
+  }
+
+  #like_stats_page .scan-result, #like_stats_page .scan-result td, #like_stats_page .scan-result th {
+    border-color: #888;
+  }
+
+  #like_stats_page .scan-result th {
+    background-color: hsl(207, 90%, 25%);
   }
 }
