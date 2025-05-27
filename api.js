@@ -319,7 +319,10 @@ class BlueskyAPI extends Minisky {
     let now = new Date();
     let timeLimit = now.getTime() - days * 86400 * 1000;
 
-    return await this.fetchAll('app.bsky.feed.getTimeline', { limit: 100 }, {
+    return await this.fetchAll('app.bsky.feed.getTimeline', {
+      params: {
+        limit: 100
+      },
       field: 'feed',
       breakWhen: (x) => {
         let timestamp = x.reason ? x.reason.indexedAt : x.post.record.createdAt;
@@ -340,9 +343,12 @@ class BlueskyAPI extends Minisky {
     let now = new Date();
     let timeLimit = now.getTime() - days * 86400 * 1000;
 
-    let params = { actor: did, filter: 'posts_no_replies', limit: 100 };
-
-    return await this.fetchAll('app.bsky.feed.getAuthorFeed', params, {
+    return await this.fetchAll('app.bsky.feed.getAuthorFeed', {
+      params: {
+        actor: did,
+        filter: 'posts_no_replies',
+        limit: 100
+      },
       field: 'feed',
       breakWhen: (x) => {
         let timestamp = x.reason ? x.reason.indexedAt : x.post.record.createdAt;

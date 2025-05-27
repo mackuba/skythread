@@ -102,10 +102,11 @@ class LikeStatsPage {
     let startTime = /** @type {number} */ (this.scanStartTime);
 
     return await accountAPI.fetchAll('com.atproto.repo.listRecords', {
-      repo: accountAPI.user.did,
-      collection: 'app.bsky.feed.like',
-      limit: 100
-    }, {
+      params: {
+        repo: accountAPI.user.did,
+        collection: 'app.bsky.feed.like',
+        limit: 100
+      },
       field: 'records',
       breakWhen: (x) => Date.parse(x['value']['createdAt']) < startTime - 86400 * requestedDays * 1000,
       onPageLoad: (data) => {
@@ -147,7 +148,11 @@ class LikeStatsPage {
       this.updateProgress({ postLikes: i / likedPosts.length });
 
       let fetchBatch = batch.map(x => {
-        return this.appView.fetchAll('app.bsky.feed.getLikes', { uri: x['post']['uri'], limit: 100 }, {
+        return this.appView.fetchAll('app.bsky.feed.getLikes', {
+          params: {
+            uri: x['post']['uri'],
+            limit: 100
+          },
           field: 'likes'
         });
       });

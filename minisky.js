@@ -184,23 +184,23 @@ class Minisky {
    *
    * @typedef {MiniskyOptions & {
    *   field: string,
+   *   params?: json,
    *   breakWhen?: (obj: json) => boolean,
    *   onPageLoad?: FetchAllOnPageLoad | undefined
    * }} FetchAllOptions
    *
    * @param {string} method
-   * @param {json | null} params
    * @param {FetchAllOptions} [options]
    * @returns {Promise<json[]>}
    */
 
-  async fetchAll(method, params, options) {
+  async fetchAll(method, options) {
     if (!options || !options.field) {
       throw new RequestError("'field' option is required");
     }
 
     let data = [];
-    let reqParams = params ?? {};
+    let reqParams = options.params ?? {};
     let reqOptions = this.sliceOptions(options, ['auth', 'headers']);
 
     for (;;) {
