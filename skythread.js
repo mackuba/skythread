@@ -103,12 +103,7 @@ function init() {
 
 function parseQueryParams() {
   let params = new URLSearchParams(location.search);
-  let query = params.get('q');
-  let author = params.get('author');
-  let post = params.get('post');
-  let quotes = params.get('quotes');
-  let hash = params.get('hash');
-  let page = params.get('page');
+  let { q, author, post, quotes, hash, page } = Object.fromEntries(params);
 
   if (quotes) {
     showLoader();
@@ -116,9 +111,9 @@ function parseQueryParams() {
   } else if (hash) {
     showLoader();
     loadHashtagPage(decodeURIComponent(hash));
-  } else if (query) {
+  } else if (q) {
     showLoader();
-    threadPage.loadThreadByURL(decodeURIComponent(query));
+    threadPage.loadThreadByURL(decodeURIComponent(q));
   } else if (author && post) {
     showLoader();
     threadPage.loadThreadById(decodeURIComponent(author), decodeURIComponent(post));
