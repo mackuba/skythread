@@ -17,6 +17,7 @@ declare var avatarPreloader: IntersectionObserver;
 declare var threadPage: ThreadPage;
 declare var postingStatsPage: PostingStatsPage;
 declare var likeStatsPage: LikeStatsPage;
+declare var notificationsPage: NotificationsPage;
 
 type json = Record<string, any>;
 

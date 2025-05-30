@@ -11,6 +11,7 @@ function init() {
   window.threadPage = new ThreadPage();
   window.postingStatsPage = new PostingStatsPage();
   window.likeStatsPage = new LikeStatsPage();
+  window.notificationsPage = new NotificationsPage();
 
   $(document.querySelector('#search form')).addEventListener('submit', (e) => {
     e.preventDefault();
@@ -307,83 +308,12 @@ function openPage(page) {
   }
 
   if (page == 'notif') {
-    showLoader();
-    showNotificationsPage();
+    window.notificationsPage.show();
   } else if (page == 'posting_stats') {
     window.postingStatsPage.show();
   } else if (page == 'like_stats') {
     window.likeStatsPage.show();
   }
-}
-
-function showNotificationsPage() {
-  document.title = `Notifications - Skythread`;
-
-  let isLoading = false;
-  let firstPageLoaded = false;
-  let finished = false;
-  let cursor;
-
-  loadInPages((next) => {
-    if (isLoading || finished) { return; }
-    isLoading = true;
-
-    accountAPI.loadMentions(cursor).then(data => {
-      let posts = data.posts.map(x => new Post(x));
-
-      if (posts.length > 0) {
-        if (!firstPageLoaded) {
-          hideLoader();
-          firstPageLoaded = true;
-
-          let header = $tag('header');
-          let h2 = $tag('h2', { text: "Replies & Mentions:" });
-          header.append(h2);
-          $id('thread').appendChild(header);
-          $id('thread').classList.add('notifications');
-        }
-
-        for (let post of posts) {
-          if (post.parentReference) {
-            let p = $tag('p.back');
-            p.innerHTML = `<i class="fa-solid fa-reply"></i> `;
-
-            let { repo, rkey } = atURI(post.parentReference.uri);
-            let url = linkToPostById(repo, rkey);
-            let parentLink = $tag('a', { href: url });
-            p.append(parentLink);
-
-            if (repo == accountAPI.user.did) {
-              parentLink.innerText = 'Reply to you';
-            } else {
-              parentLink.innerText = 'Reply';
-              api.fetchHandleForDid(repo).then(handle => {
-                parentLink.innerText = `Reply to @${handle}`;
-              });
-            }
-
-            $id('thread').appendChild(p);
-          }
-
-          let postView = new PostComponent(post, 'feed').buildElement();
-          $id('thread').appendChild(postView);
-        }
-      }
-
-      isLoading = false;
-      cursor = data.cursor;
-
-      if (!cursor) {
-        finished = true;
-      } else if (posts.length == 0) {
-        next();
-      }
-    }).catch(error => {
-      hideLoader();
-      console.log(error);
-      isLoading = false;
-    });
-  });
 }
 
 /** @param {Post} post */
