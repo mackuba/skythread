@@ -353,7 +353,7 @@ function showNotificationsPage() {
             let parentLink = $tag('a', { href: url });
             p.append(parentLink);
 
-            if (repo == api.user.did) {
+            if (repo == accountAPI.user.did) {
               parentLink.innerText = 'Reply to you';
             } else {
               parentLink.innerText = 'Reply';
