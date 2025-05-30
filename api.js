@@ -278,16 +278,10 @@ class BlueskyAPI extends Minisky {
     return await this.getRequest('app.bsky.feed.searchPosts', params);
   }
 
-  /** @param {string} [cursor], @returns {Promise<json>} */
+  /** @param {json} [params], @returns {Promise<json>} */
 
-  async loadNotifications(cursor) {
-    let params = { limit: 100 };
-
-    if (cursor) {
-      params.cursor = cursor;
-    }
-
-    return await this.getRequest('app.bsky.notification.listNotifications', params);
+  async loadNotifications(params) {
+    return await this.getRequest('app.bsky.notification.listNotifications', params || {});
   }
 
   /**
@@ -296,17 +290,18 @@ class BlueskyAPI extends Minisky {
    */
 
   async loadMentions(cursor) {
-    let response = await this.loadNotifications(cursor);
-    let mentions = response.notifications.filter(x => ['reply', 'mention'].includes(x.reason));
-    let uris = mentions.map(x => x['uri']);
-    let posts = [];
+    let response = await this.loadNotifications({ cursor: cursor ?? '', limit: 100, reasons: ['reply', 'mention'] });
+    let uris = response.notifications.map(x => x.uri);
+    let batches = [];
 
     for (let i = 0; i < uris.length; i += 25) {
-      let batch = await this.loadPosts(uris.slice(i, i + 25));
-      posts = posts.concat(batch);
+      let batch = this.loadPosts(uris.slice(i, i + 25));
+      batches.push(batch);
     }
 
-    return { cursor: response.cursor, posts };
+    let postGroups = await Promise.all(batches);
+
+    return { cursor: response.cursor, posts: postGroups.flat() };
   }
 
   /**
