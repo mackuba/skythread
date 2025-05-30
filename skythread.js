@@ -190,20 +190,23 @@ function toggleLoginInfo(event) {
 }
 
 function submitLogin() {
-  let handle = $id('login_handle', HTMLInputElement);
-  let password = $id('login_password', HTMLInputElement);
+  let handleField = $id('login_handle', HTMLInputElement);
+  let passwordField = $id('login_password', HTMLInputElement);
   let submit = $id('login_submit');
   let cloudy = $id('cloudy');
 
   if (submit.style.display == 'none') { return }
 
-  handle.blur();
-  password.blur();
+  handleField.blur();
+  passwordField.blur();
 
   submit.style.display = 'none';
   cloudy.style.display = 'inline-block';
 
-  logIn(handle.value, password.value).then((pds) => {
+  let handle = handleField.value.trim();
+  let password = passwordField.value.trim();
+
+  logIn(handle, password).then((pds) => {
     window.api = pds;
     window.accountAPI = pds;
 
