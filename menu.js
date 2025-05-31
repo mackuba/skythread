@@ -55,7 +55,7 @@ class Menu {
     $(this.menuElement.querySelector('a[data-action=login]')).addEventListener('click', (e) => {
       e.preventDefault();
 
-      toggleDialog(loginDialog);
+      showDialog(loginDialog);
       this.menuElement.style.visibility = 'hidden';
     });
 

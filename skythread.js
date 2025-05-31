@@ -19,15 +19,17 @@ function init() {
   });
 
   for (let dialog of document.querySelectorAll('.dialog')) {
+    let close = $(dialog.querySelector('.close'));
+
     dialog.addEventListener('click', (e) => {
-      if (e.target === e.currentTarget) {
+      if (e.target === e.currentTarget && close && close.offsetHeight > 0) {
         hideDialog(dialog);
       } else {
         e.stopPropagation();
       }
     });
 
-    dialog.querySelector('.close')?.addEventListener('click', (e) => {
+    close?.addEventListener('click', (e) => {
       hideDialog(dialog);
     });
   }
@@ -194,6 +196,7 @@ function submitLogin() {
   let passwordField = $id('login_password', HTMLInputElement);
   let submit = $id('login_submit');
   let cloudy = $id('cloudy');
+  let close = $(loginDialog.querySelector('.close'));
 
   if (submit.style.display == 'none') { return }
 
@@ -213,6 +216,7 @@ function submitLogin() {
     hideDialog(loginDialog);
     submit.style.display = 'inline';
     cloudy.style.display = 'none';
+    close.style.display = 'inline';
 
     accountMenu.loadCurrentUserAvatar();
 
@@ -301,7 +305,8 @@ function submitSearch() {
 
 function openPage(page) {
   if (!accountAPI.isLoggedIn) {
-    toggleDialog(loginDialog);
+    showDialog(loginDialog);
+    $(loginDialog.querySelector('.close')).style.display = 'none';
     return;
   }
 
