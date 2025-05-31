@@ -287,6 +287,10 @@ class Post extends ATProtoRecord {
         return -1;
       } else if (a.author.did != this.author.did && b.author.did == this.author.did) {
         return 1;
+      } else if (a.text != "📌" && b.text == "📌") {
+        return -1;
+      } else if (a.text == "📌" && b.text != "📌") {
+        return 1;
       } else if (a.createdAt.getTime() < b.createdAt.getTime()) {
         return -1;
       } else if (a.createdAt.getTime() > b.createdAt.getTime()) {
