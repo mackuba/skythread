@@ -386,6 +386,11 @@ class Post extends ATProtoRecord {
     return shouldHaveMoreReplies && (this.replies.length > 0 || (this.level !== undefined && this.level <= 4));
   }
 
+  /** @returns {boolean} */
+  get isRestrictingReplies() {
+    return !!(this.data.threadgate && this.data.threadgate.record.allow);
+  }
+
   /** @returns {number} */
   get repostCount() {
     return castToInt(this.data.repostCount);

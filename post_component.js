@@ -348,6 +348,11 @@ class PostComponent {
       stats.append(quotesLink);
     }
 
+    if (this.context == 'thread' && this.post.isRestrictingReplies) {
+      let span = $tag('span', { html: `<i class="fa-solid fa-ban"></i> Limited replies` });
+      stats.append(span);
+    }
+
     return stats;
   }
 
