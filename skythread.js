@@ -12,6 +12,7 @@ function init() {
   window.postingStatsPage = new PostingStatsPage();
   window.likeStatsPage = new LikeStatsPage();
   window.notificationsPage = new NotificationsPage();
+  window.privateSearchPage = new PrivateSearchPage();
 
   $(document.querySelector('#search form')).addEventListener('submit', (e) => {
     e.preventDefault();
@@ -316,6 +317,8 @@ function openPage(page) {
     window.postingStatsPage.show();
   } else if (page == 'like_stats') {
     window.likeStatsPage.show();
+  } else if (page == 'search') {
+    window.privateSearchPage.show();
   }
 }
 

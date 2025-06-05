@@ -18,6 +18,7 @@ declare var threadPage: ThreadPage;
 declare var postingStatsPage: PostingStatsPage;
 declare var likeStatsPage: LikeStatsPage;
 declare var notificationsPage: NotificationsPage;
+declare var privateSearchPage: PrivateSearchPage;
 
 type json = Record<string, any>;
 

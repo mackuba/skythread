@@ -342,6 +342,15 @@ class Post extends ATProtoRecord {
     return this.record.text;
   }
 
+  /** @returns {string} */
+  get lowercaseText() {
+    if (!this._lowercaseText) {
+      this._lowercaseText = this.record.text.toLowerCase();
+    }
+
+    return this._lowercaseText;
+  }
+
   /** @returns {json} */
   get facets() {
     return this.record.facets;

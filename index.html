@@ -155,6 +155,29 @@
     </table>
   </div>
 
+  <div id="private_search_page">
+    <h2>Archive search *Beta*</h2>
+
+    <form>
+      <p>
+        Fetch timeline posts: <input type="range" min="1" max="60" value="7"> <label>7 days</label>
+      </p>
+
+      <p>
+        <input type="submit" value="Fetch timeline"> <progress></progress>
+      </p>
+    </form>
+
+    <p class="archive-status"></p>
+
+    <hr>
+
+    <p class="search">Search: <input type="text" class="search-query"></p>
+
+    <div class="results">
+    </div>
+  </div>
+
   <script src="lib/purify.min.js"></script>
   <script src="minisky.js"></script>
   <script src="api.js"></script>
@@ -166,6 +189,7 @@
   <script src="posting_stats_page.js"></script>
   <script src="like_stats_page.js"></script>
   <script src="notifications_page.js"></script>
+  <script src="private_search_page.js"></script>
   <script src="embed_component.js"></script>
   <script src="post_component.js"></script>
   <script src="skythread.js"></script>

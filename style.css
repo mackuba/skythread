@@ -898,6 +898,40 @@ p.back i {
   padding: 2px;  
 }
 
+#private_search_page {
+  display: none;
+}
+
+#private_search_page input[type="range"] {
+  width: 250px;
+  vertical-align: middle;
+}
+
+#private_search_page input[type="submit"] {
+  font-size: 12pt;
+  margin: 5px 0px;
+  padding: 5px 10px;
+}
+
+#private_search_page progress {
+  width: 300px;
+  margin-left: 10px;
+  vertical-align: middle;
+  display: none;
+}
+
+#private_search_page .search {
+  display: none;
+}
+
+#private_search_page .search-query {
+  font-size: 12pt;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  padding: 5px 6px;
+  margin-left: 8px;
+}
+
 @media (prefers-color-scheme: dark) {
   body {
     background-color: rgb(39, 39, 37);
@@ -1088,5 +1122,9 @@ p.back i {
 
   #like_stats_page .scan-result th {
     background-color: hsl(207, 90%, 25%);
+  }
+
+  #private_search_page .search-query {
+    border: 1px solid #666;
   }
 }
