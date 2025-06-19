@@ -98,7 +98,7 @@ class PostingStatsPage {
   updateProgress(dataPage, startTime) {
     if (dataPage.length == 0) { return }
 
-    let last = dataPage[dataPage.length - 1];
+    let last = dataPage.at(-1);
     let lastTimestamp = last.reason ? last.reason.indexedAt : last.post.record.createdAt;
     let lastDate = Date.parse(lastTimestamp);
 
@@ -129,7 +129,7 @@ class PostingStatsPage {
     let allReposts = 0;
     let allNormalPosts = 0;
 
-    let last = items[items.length - 1];
+    let last = items.at(-1);
     let lastTimestamp = last.reason ? last.reason.indexedAt : last.post.record.createdAt;
     let lastDate = Date.parse(lastTimestamp);
     let daysBack = (startTime - lastDate) / 86400 / 1000;

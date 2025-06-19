@@ -112,7 +112,7 @@ class LikeStatsPage {
       onPageLoad: (data) => {
         if (data.length == 0) { return }
 
-        let last = data[data.length - 1];
+        let last = data.at(-1);
         let lastDate = Date.parse(last.value.createdAt);
 
         let daysBack = (startTime - lastDate) / 86400 / 1000;
@@ -130,7 +130,7 @@ class LikeStatsPage {
       onPageLoad: (data) => {
         if (data.length == 0) { return }
 
-        let last = data[data.length - 1];
+        let last = data.at(-1);
         let lastTimestamp = last.reason ? last.reason.indexedAt : last.post.record.createdAt;
         let lastDate = Date.parse(lastTimestamp);
 
