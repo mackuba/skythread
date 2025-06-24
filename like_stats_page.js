@@ -127,6 +127,7 @@ class LikeStatsPage {
     let startTime = /** @type {number} */ (this.scanStartTime);
 
     let myPosts = await this.appView.loadUserTimeline(accountAPI.user.did, requestedDays, {
+      filter: 'posts_no_replies',
       onPageLoad: (data) => {
         if (data.length == 0) { return }
 

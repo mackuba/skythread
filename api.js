@@ -328,20 +328,33 @@ class BlueskyAPI extends Minisky {
   }
 
   /**
+    @typedef
+    {'posts_with_replies' | 'posts_no_replies' | 'posts_and_author_threads' | 'posts_with_media' | 'posts_with_video'}
+    AuthorFeedFilter
+
+    Filters:
+    - posts_with_replies: posts, replies and reposts (default)
+    - posts_no_replies: posts and reposts (no replies)
+    - posts_and_author_threads: posts, reposts, and replies in your own threads
+    - posts_with_media: posts and replies, but only with images (no reposts)
+    - posts_with_video: posts and replies, but only with videos (no reposts)
+  */
+
+  /**
    * @param {string} did
    * @param {number} days
-   * @param {{ onPageLoad?: FetchAllOnPageLoad }} [options]
+   * @param {{ onPageLoad?: FetchAllOnPageLoad, filter: AuthorFeedFilter }} options
    * @returns {Promise<json[]>}
    */
 
-  async loadUserTimeline(did, days, options = {}) {
+  async loadUserTimeline(did, days, options) {
     let now = new Date();
     let timeLimit = now.getTime() - days * 86400 * 1000;
 
     return await this.fetchAll('app.bsky.feed.getAuthorFeed', {
       params: {
         actor: did,
-        filter: 'posts_no_replies',
+        filter: options.filter,
         limit: 100
       },
       field: 'feed',
