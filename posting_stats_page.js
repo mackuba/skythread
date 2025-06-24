@@ -9,6 +9,7 @@ class PostingStatsPage {
 
   constructor() {
     this.pageElement = $id('posting_stats_page');
+    this.form = $(this.pageElement.querySelector('form'), HTMLFormElement);
 
     this.rangeInput = $(this.pageElement.querySelector('input[type="range"]'), HTMLInputElement);
     this.submitButton = $(this.pageElement.querySelector('input[type="submit"]'), HTMLInputElement);
@@ -32,6 +33,12 @@ class PostingStatsPage {
     this.rangeInput.addEventListener('input', (e) => {
       let days = parseInt(this.rangeInput.value, 10);
       this.configurePostingStats({ days });
+    });
+
+    this.pageElement.querySelectorAll('input[type="radio"]').forEach(r => {
+      r.addEventListener('click', (e) => {
+        this.table.style.display = 'none';
+      });
     });
   }
 
@@ -70,27 +77,46 @@ class PostingStatsPage {
     let tbody = $(this.table.querySelector('tbody'));
     tbody.innerHTML = '';
 
+    let thead = $(this.table.querySelector('thead'));
+    thead.innerHTML = '';
+
     let startTime = new Date().getTime();
     this.scanStartTime = startTime;
 
     let scanInfo = $(this.pageElement.querySelector('.scan-info'));
     scanInfo.style.display = 'none';
 
-    let items = await accountAPI.loadHomeTimeline(requestedDays, {
-      onPageLoad: (data) => {
-        if (this.scanStartTime != startTime) {
-          return { cancel: true };
-        }
-
-        this.updateProgress(data, startTime);
+    /** @type {FetchAllOnPageLoad} */
+    let onPageLoad = (data) => {
+      if (this.scanStartTime != startTime) {
+        return { cancel: true };
       }
-    });
 
-    if (this.scanStartTime != startTime) {
-      return;
+      this.updateProgress(data, startTime);
+    };
+
+    let scanType = this.form.elements['scan_type'].value;
+
+    if (scanType == 'home') {
+      let items = await accountAPI.loadHomeTimeline(requestedDays, { onPageLoad });
+
+      if (this.scanStartTime != startTime) {
+        return;
+      }
+
+      this.updateResultsTable(items, startTime, requestedDays);
+    } else {
+      let items = await accountAPI.loadUserTimeline(accountAPI.user.did, requestedDays, {
+        filter: 'posts_no_replies',
+        onPageLoad: onPageLoad
+      });
+
+      if (this.scanStartTime != startTime) {
+        return;
+      }
+
+      this.updateResultsTable(items, startTime, requestedDays, { showTotal: false, showPercentages: false });
     }
-
-    this.updateResultsTable(items, startTime, requestedDays);
   }
 
   /** @param {json[]} dataPage, @param {number} startTime */
@@ -121,9 +147,14 @@ class PostingStatsPage {
     }
   }
 
-  /** @param {json[]} items, @param {number} startTime, @param {number} requestedDays */
+  /**
+   * @param {json[]} items
+   * @param {number} startTime
+   * @param {number} requestedDays
+   * @param {{ showTotal?: boolean, showPercentages?: boolean }} [options]
+   */
 
-  updateResultsTable(items, startTime, requestedDays) {
+  updateResultsTable(items, startTime, requestedDays, options = {}) {
     let users = {};
     let total = 0;
     let allReposts = 0;
@@ -151,19 +182,42 @@ class PostingStatsPage {
       }
     }
 
-    let tbody = $(this.table.querySelector('tbody'));
-    let tr = $tag('tr.total');
+    let thead = $(this.table.querySelector('thead'));
+    let headRow = $tag('tr');
 
-    tr.append(
-      $tag('td.no', { text: '' }),
-      $tag('td.handle', { text: 'Total:' }),
-      $tag('td', { text: (total / daysBack).toFixed(1) }),
-      $tag('td', { text: (allNormalPosts / daysBack).toFixed(1) }),
-      $tag('td', { text: (allReposts / daysBack).toFixed(1) }),
-      $tag('td.percent', { text: '' })
+    headRow.append(
+      $tag('th', { text: '#' }),
+      $tag('th', { text: 'Handle' }),
+      $tag('th', { text: 'All posts /d' }),
+      $tag('th', { text: 'Own posts /d' }),
+      $tag('th', { text: 'Reposts /d' })
     );
 
-    tbody.append(tr);
+    if (options.showPercentages !== false) {
+      headRow.append($tag('th', { text: '% of all' }));
+    }
+
+    thead.append(headRow);
+
+    let tbody = $(this.table.querySelector('tbody'));
+
+    if (options.showTotal !== false) {
+      let tr = $tag('tr.total');
+
+      tr.append(
+        $tag('td.no', { text: '' }),
+        $tag('td.handle', { text: 'Total:' }),
+        $tag('td', { text: (total / daysBack).toFixed(1) }),
+        $tag('td', { text: (allNormalPosts / daysBack).toFixed(1) }),
+        $tag('td', { text: (allReposts / daysBack).toFixed(1) })
+      );
+
+      if (options.showPercentages !== false) {
+        tr.append($tag('td.percent', { text: '' }));
+      }
+
+      tbody.append(tr);      
+    }
 
     let sorted = Object.values(users).sort(this.sortUserRows);
 
@@ -179,9 +233,12 @@ class PostingStatsPage {
         }),
         $tag('td', { text: ((user.own + user.reposts) / daysBack).toFixed(1) }),
         $tag('td', { text: user.own > 0 ? (user.own / daysBack).toFixed(1) : '–' }),
-        $tag('td', { text: user.reposts > 0 ? (user.reposts / daysBack).toFixed(1) : '–' }),
-        $tag('td.percent', { text: ((user.own + user.reposts) * 100 / total).toFixed(1) + '%' })
+        $tag('td', { text: user.reposts > 0 ? (user.reposts / daysBack).toFixed(1) : '–' })
       );
+
+      if (options.showPercentages !== false) {
+        tr.append($tag('td.percent', { text: ((user.own + user.reposts) * 100 / total).toFixed(1) + '%' }));
+      }
 
       tbody.append(tr);
     }

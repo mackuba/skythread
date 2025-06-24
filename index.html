@@ -94,10 +94,14 @@
     <form>
       <p>
         Scan posts from:
-        <input type="radio" name="scan_type" id="scan_type_timeline" value="timeline" checked>
-        <label for="scan_type_timeline">Your timeline</label>
+        <input type="radio" name="scan_type" id="scan_type_timeline" value="home" checked>
+        <label for="scan_type_timeline">Home timeline</label>
+
         <input type="radio" name="scan_type" id="scan_type_users" value="users" disabled>
         <label for="scan_type_users">Selected users (coming soon)</label>
+
+        <input type="radio" name="scan_type" id="scan_type_you" value="you">
+        <label for="scan_type_you">Your profile</label>
       </p>
 
       <p>
@@ -113,14 +117,6 @@
 
     <table class="scan-result">
       <thead>
-        <tr>
-          <th>#</th>
-          <th>Handle</th>
-          <th>All posts /d</th>
-          <th>Own posts /d</th>
-          <th>Reposts /d</th>
-          <th>% of all</th>
-        </tr>
       </thead>
       <tbody>
       </tbody>

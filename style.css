@@ -739,6 +739,7 @@ p.back i {
 #posting_stats_page input[type="radio"] {
   position: relative;
   top: -1px;
+  margin-left: 5px;
 }
 
 #posting_stats_page label {
