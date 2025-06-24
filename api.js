@@ -310,7 +310,7 @@ class BlueskyAPI extends Minisky {
    * @returns {Promise<json[]>}
    */
 
-  async loadTimeline(days, options = {}) {
+  async loadHomeTimeline(days, options = {}) {
     let now = new Date();
     let timeLimit = now.getTime() - days * 86400 * 1000;
 

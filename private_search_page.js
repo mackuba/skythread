@@ -72,7 +72,7 @@ class PrivateSearchPage {
     let startTime = new Date().getTime();
     this.fetchStartTime = startTime;
 
-    let timeline = await accountAPI.loadTimeline(requestedDays, {
+    let timeline = await accountAPI.loadHomeTimeline(requestedDays, {
       onPageLoad: (data) => {
         if (this.fetchStartTime != startTime) {
           return { cancel: true };

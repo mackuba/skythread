@@ -76,7 +76,7 @@ class PostingStatsPage {
     let scanInfo = $(this.pageElement.querySelector('.scan-info'));
     scanInfo.style.display = 'none';
 
-    let items = await accountAPI.loadTimeline(requestedDays, {
+    let items = await accountAPI.loadHomeTimeline(requestedDays, {
       onPageLoad: (data) => {
         if (this.scanStartTime != startTime) {
           return { cancel: true };
