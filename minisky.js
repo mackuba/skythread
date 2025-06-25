@@ -186,6 +186,7 @@ class Minisky {
    *   field: string,
    *   params?: json,
    *   breakWhen?: (obj: json) => boolean,
+   *   keepLastPage?: boolean | undefined,
    *   onPageLoad?: FetchAllOnPageLoad | undefined
    * }} FetchAllOptions
    *
@@ -213,7 +214,10 @@ class Minisky {
         let test = options.breakWhen;
 
         if (items.some(x => test(x))) {
-          items = items.filter(x => !test(x));
+          if (!options.keepLastPage) {
+            items = items.filter(x => !test(x));
+          }
+
           cursor = null;
         }
       }

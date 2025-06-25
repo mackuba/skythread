@@ -306,7 +306,7 @@ class BlueskyAPI extends Minisky {
 
   /**
    * @param {number} days
-   * @param {{ onPageLoad?: FetchAllOnPageLoad }} [options]
+   * @param {{ onPageLoad?: FetchAllOnPageLoad, keepLastPage?: boolean }} [options]
    * @returns {Promise<json[]>}
    */
 
@@ -323,7 +323,8 @@ class BlueskyAPI extends Minisky {
         let timestamp = x.reason ? x.reason.indexedAt : x.post.record.createdAt;
         return Date.parse(timestamp) < timeLimit;
       },
-      onPageLoad: options.onPageLoad
+      onPageLoad: options.onPageLoad,
+      keepLastPage: options.keepLastPage
     });
   }
 
@@ -343,7 +344,7 @@ class BlueskyAPI extends Minisky {
   /**
    * @param {string} did
    * @param {number} days
-   * @param {{ onPageLoad?: FetchAllOnPageLoad, filter: AuthorFeedFilter }} options
+   * @param {{ filter: AuthorFeedFilter, onPageLoad?: FetchAllOnPageLoad, keepLastPage?: boolean }} options
    * @returns {Promise<json[]>}
    */
 
@@ -362,7 +363,8 @@ class BlueskyAPI extends Minisky {
         let timestamp = x.reason ? x.reason.indexedAt : x.post.record.createdAt;
         return Date.parse(timestamp) < timeLimit;
       },
-      onPageLoad: options.onPageLoad
+      onPageLoad: options.onPageLoad,
+      keepLastPage: options.keepLastPage
     });
   }
 
@@ -383,7 +385,7 @@ class BlueskyAPI extends Minisky {
   /**
    * @param {string} list
    * @param {number} days
-   * @param {{ onPageLoad?: FetchAllOnPageLoad }} [options]
+   * @param {{ onPageLoad?: FetchAllOnPageLoad, keepLastPage?: boolean }} [options]
    * @returns {Promise<json[]>}
    */
 
@@ -400,7 +402,8 @@ class BlueskyAPI extends Minisky {
       breakWhen: (x) => {
         return Date.parse(x.post.record.createdAt) < timeLimit;
       },
-      onPageLoad: options.onPageLoad
+      onPageLoad: options.onPageLoad,
+      keepLastPage: options.keepLastPage
     });
   }
 

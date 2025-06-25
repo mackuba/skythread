@@ -122,7 +122,10 @@ class PostingStatsPage {
     let scanType = this.form.elements['scan_type'].value;
 
     if (scanType == 'home') {
-      let items = await accountAPI.loadHomeTimeline(requestedDays, { onPageLoad });
+      let items = await accountAPI.loadHomeTimeline(requestedDays, {
+        onPageLoad: onPageLoad,
+        keepLastPage: true
+      });
 
       if (this.scanStartTime != startTime) {
         return;
@@ -132,7 +135,10 @@ class PostingStatsPage {
     } else if (scanType == 'list') {
       let select = $(this.pageElement.querySelector('.list-choice select'), HTMLSelectElement);
       let list = select.value;
-      let items = await accountAPI.loadListTimeline(list, requestedDays, { onPageLoad });
+      let items = await accountAPI.loadListTimeline(list, requestedDays, {
+        onPageLoad: onPageLoad,
+        keepLastPage: true
+      });
 
       if (this.scanStartTime != startTime) {
         return;
@@ -142,7 +148,8 @@ class PostingStatsPage {
     } else {
       let items = await accountAPI.loadUserTimeline(accountAPI.user.did, requestedDays, {
         filter: 'posts_no_replies',
-        onPageLoad: onPageLoad
+        onPageLoad: onPageLoad,
+        keepLastPage: true
       });
 
       if (this.scanStartTime != startTime) {
@@ -204,7 +211,20 @@ class PostingStatsPage {
 
     let lastTimestamp = last.reason ? last.reason.indexedAt : last.post.record.createdAt;
     let lastDate = Date.parse(lastTimestamp);
-    let daysBack = (startTime - lastDate) / 86400 / 1000;
+    let fetchedDays = (startTime - lastDate) / 86400 / 1000;
+
+    if (Math.ceil(fetchedDays) < requestedDays) {
+      let scanInfo = $(this.pageElement.querySelector('.scan-info'));
+      scanInfo.innerText = `🕓 Showing data from ${Math.round(fetchedDays)} days (the timeline only goes that far):`;
+      scanInfo.style.display = 'block';
+    }
+
+    items = items.filter(x => {
+      let timestamp = x.reason ? x.reason.indexedAt : x.post.record.createdAt;
+      return Date.parse(timestamp) > startTime - requestedDays * 86400 * 1000;
+    });
+
+    let daysBack = Math.min(requestedDays, fetchedDays);
 
     for (let item of items) {
       if (item.reply) { continue; }
@@ -300,12 +320,6 @@ class PostingStatsPage {
       }
 
       tbody.append(tr);
-    }
-
-    if (Math.ceil(daysBack) < requestedDays) {
-      let scanInfo = $(this.pageElement.querySelector('.scan-info'));
-      scanInfo.innerText = `🕓 Showing data from ${Math.round(daysBack)} days (your timeline only goes that far):`;
-      scanInfo.style.display = 'block';
     }
 
     this.table.style.display = 'table';
