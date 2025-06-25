@@ -7,6 +7,9 @@ class PostingStatsPage {
   /** @type {number | undefined} */
   scanStartTime;
 
+  /** @type {Record<string, { pages: number, progress: number }>} */
+  userProgress;
+
   constructor() {
     this.pageElement = $id('posting_stats_page');
     this.form = $(this.pageElement.querySelector('form'), HTMLFormElement);
@@ -17,6 +20,8 @@ class PostingStatsPage {
     this.table = $(this.pageElement.querySelector('table.scan-result'));
 
     this.setupEvents();
+
+    this.userProgress = {};
   }
 
   setupEvents() {
@@ -151,14 +156,16 @@ class PostingStatsPage {
       let users = textarea.value.split(/\n/).map(x => x.trim()).filter(x => x.length > 0);
       let dids = await Promise.all(users.map(u => accountAPI.resolveHandle(u)));
 
-      let requests = dids.map(d => accountAPI.loadUserTimeline(d, requestedDays, {
+      this.resetUserProgress(dids);
+
+      let requests = dids.map(did => accountAPI.loadUserTimeline(did, requestedDays, {
         filter: 'posts_no_replies',
         onPageLoad: (data) => {
           if (this.scanStartTime != startTime) {
             return { cancel: true };
           }
 
-          //this.updateProgress(data, startTime);
+          this.updateUserProgress(did, data, startTime, requestedDays);
         },
         keepLastPage: true
       }));
@@ -201,6 +208,39 @@ class PostingStatsPage {
     let daysBack = (startTime - lastDate) / 86400 / 1000;
 
     this.progressBar.value = daysBack;    
+  }
+
+
+  /** @param {string[]} dids */
+
+  resetUserProgress(dids) {
+    this.userProgress = {};
+
+    for (let did of dids) {
+      this.userProgress[did] = { pages: 0, progress: 0 };
+    }
+  }
+
+  /** @param {string} did, @param {json[]} dataPage, @param {number} startTime, @param {number} requestedDays */
+
+  updateUserProgress(did, dataPage, startTime, requestedDays) {
+    let last = dataPage.at(-1);
+
+    if (!last) { return }
+
+    let lastTimestamp = last.reason ? last.reason.indexedAt : last.post.record.createdAt;
+    let lastDate = Date.parse(lastTimestamp);
+    let daysBack = (startTime - lastDate) / 86400 / 1000;
+
+    this.userProgress[did].pages += 1;
+    this.userProgress[did].progress = Math.min(daysBack / requestedDays, 1.0);
+
+    let expectedPages = Object.values(this.userProgress).map(x => x.pages / x.progress);
+    let known = expectedPages.filter(x => !isNaN(x));
+    let expectedTotalPages = known.reduce((a, b) => a + b) / known.length * expectedPages.length;
+    let fetchedPages = Object.values(this.userProgress).map(x => x.pages).reduce((a, b) => a + b);
+
+    this.progressBar.value = Math.max(this.progressBar.value, (fetchedPages / expectedTotalPages) * requestedDays);
   }
 
   /** @param {json} a, @param {json} b, @returns {number} */
