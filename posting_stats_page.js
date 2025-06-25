@@ -22,6 +22,7 @@ class PostingStatsPage {
     this.setupEvents();
 
     this.userProgress = {};
+    this.appView = new BlueskyAPI('public.api.bsky.app', false);
   }
 
   setupEvents() {
@@ -158,7 +159,7 @@ class PostingStatsPage {
 
       this.resetUserProgress(dids);
 
-      let requests = dids.map(did => accountAPI.loadUserTimeline(did, requestedDays, {
+      let requests = dids.map(did => this.appView.loadUserTimeline(did, requestedDays, {
         filter: 'posts_no_replies',
         onPageLoad: (data) => {
           if (this.scanStartTime != startTime) {
