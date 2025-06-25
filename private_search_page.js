@@ -125,13 +125,14 @@ class PrivateSearchPage {
   /** @param {json[]} dataPage, @param {number} startTime */
 
   updateProgress(dataPage, startTime) {
-    if (dataPage.length == 0) { return }
-
     let last = dataPage.at(-1);
+
+    if (!last) { return }
+
     let lastTimestamp = last.reason ? last.reason.indexedAt : last.post.record.createdAt;
     let lastDate = Date.parse(lastTimestamp);
-
     let daysBack = (startTime - lastDate) / 86400 / 1000;
+
     this.progressBar.value = daysBack;    
   }
 

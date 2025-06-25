@@ -110,12 +110,13 @@ class LikeStatsPage {
       field: 'records',
       breakWhen: (x) => Date.parse(x['value']['createdAt']) < startTime - 86400 * requestedDays * 1000,
       onPageLoad: (data) => {
-        if (data.length == 0) { return }
-
         let last = data.at(-1);
-        let lastDate = Date.parse(last.value.createdAt);
 
+        if (!last) { return }
+
+        let lastDate = Date.parse(last.value.createdAt);
         let daysBack = (startTime - lastDate) / 86400 / 1000;
+
         this.updateProgress({ likeRecords: Math.min(1.0, daysBack / requestedDays) });
       }
     });
@@ -129,13 +130,14 @@ class LikeStatsPage {
     let myPosts = await this.appView.loadUserTimeline(accountAPI.user.did, requestedDays, {
       filter: 'posts_with_replies',
       onPageLoad: (data) => {
-        if (data.length == 0) { return }
-
         let last = data.at(-1);
+
+        if (!last) { return }
+
         let lastTimestamp = last.reason ? last.reason.indexedAt : last.post.record.createdAt;
         let lastDate = Date.parse(lastTimestamp);
-
         let daysBack = (startTime - lastDate) / 86400 / 1000;
+
         this.updateProgress({ posts: Math.min(1.0, daysBack / requestedDays) });
       }
     });
