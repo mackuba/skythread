@@ -37,6 +37,10 @@ class PostingStatsPage {
 
     this.pageElement.querySelectorAll('input[type="radio"]').forEach(r => {
       r.addEventListener('click', (e) => {
+        let value = $(r, HTMLInputElement).value;
+
+        $(this.pageElement.querySelector('.list-choice')).style.display = (value == 'list') ? 'block' : 'none';
+
         this.table.style.display = 'none';
       });
     });
@@ -44,12 +48,32 @@ class PostingStatsPage {
 
   show() {
     this.pageElement.style.display = 'block';
+    this.fetchLists();
   }
 
   /** @returns {number} */
 
   selectedDaysRange() {
     return parseInt(this.rangeInput.value, 10);
+  }
+
+  /** @returns {Promise<void>} */
+
+  async fetchLists() {
+    let select = $(this.pageElement.querySelector('.list-choice select'));
+    let lists = await accountAPI.loadUserLists();
+
+    let sorted = lists.sort((a, b) => {
+      let aName = a.name.toLocaleLowerCase();
+      let bName = b.name.toLocaleLowerCase();
+
+      return aName.localeCompare(bName);
+    });
+
+    for (let list of lists) {
+      let opt = $tag('option', { value: list.uri, text: list.name + ' ' });
+      select.append(opt);
+    }
   }
 
   /** @param {{ days: number }} args */
@@ -105,6 +129,16 @@ class PostingStatsPage {
       }
 
       this.updateResultsTable(items, startTime, requestedDays);
+    } else if (scanType == 'list') {
+      let select = $(this.pageElement.querySelector('.list-choice select'), HTMLSelectElement);
+      let list = select.value;
+      let items = await accountAPI.loadListTimeline(list, requestedDays, { onPageLoad });
+
+      if (this.scanStartTime != startTime) {
+        return;
+      }
+
+      this.updateResultsTable(items, startTime, requestedDays, { showReposts: false });      
     } else {
       let items = await accountAPI.loadUserTimeline(accountAPI.user.did, requestedDays, {
         filter: 'posts_no_replies',
@@ -151,7 +185,7 @@ class PostingStatsPage {
    * @param {json[]} items
    * @param {number} startTime
    * @param {number} requestedDays
-   * @param {{ showTotal?: boolean, showPercentages?: boolean }} [options]
+   * @param {{ showTotal?: boolean, showPercentages?: boolean, showReposts?: boolean }} [options]
    */
 
   updateResultsTable(items, startTime, requestedDays, options = {}) {
@@ -185,13 +219,21 @@ class PostingStatsPage {
     let thead = $(this.table.querySelector('thead'));
     let headRow = $tag('tr');
 
-    headRow.append(
-      $tag('th', { text: '#' }),
-      $tag('th', { text: 'Handle' }),
-      $tag('th', { text: 'All posts /d' }),
-      $tag('th', { text: 'Own posts /d' }),
-      $tag('th', { text: 'Reposts /d' })
-    );
+    if (options.showReposts !== false) {
+      headRow.append(
+        $tag('th', { text: '#' }),
+        $tag('th', { text: 'Handle' }),
+        $tag('th', { text: 'All posts /d' }),
+        $tag('th', { text: 'Own posts /d' }),
+        $tag('th', { text: 'Reposts /d' })
+      );
+    } else {
+      headRow.append(
+        $tag('th', { text: '#' }),
+        $tag('th', { text: 'Handle' }),
+        $tag('th', { text: 'Posts /d' }),
+      );
+    }
 
     if (options.showPercentages !== false) {
       headRow.append($tag('th', { text: '% of all' }));
@@ -207,9 +249,14 @@ class PostingStatsPage {
       tr.append(
         $tag('td.no', { text: '' }),
         $tag('td.handle', { text: 'Total:' }),
-        $tag('td', { text: (total / daysBack).toFixed(1) }),
+
+        (options.showReposts !== false) ?
+          $tag('td', { text: (total / daysBack).toFixed(1) }) : '',
+
         $tag('td', { text: (allNormalPosts / daysBack).toFixed(1) }),
-        $tag('td', { text: (allReposts / daysBack).toFixed(1) })
+
+        (options.showReposts !== false) ?
+          $tag('td', { text: (allReposts / daysBack).toFixed(1) }) : ''
       );
 
       if (options.showPercentages !== false) {
@@ -231,9 +278,14 @@ class PostingStatsPage {
           html: `<img class="avatar" src="${user.avatar}"> ` + 
                 `<a href="https://bsky.app/profile/${user.handle}" target="_blank">${user.handle}</a>`
         }),
-        $tag('td', { text: ((user.own + user.reposts) / daysBack).toFixed(1) }),
+
+        (options.showReposts !== false) ?
+          $tag('td', { text: ((user.own + user.reposts) / daysBack).toFixed(1) }) : '',
+
         $tag('td', { text: user.own > 0 ? (user.own / daysBack).toFixed(1) : '–' }),
-        $tag('td', { text: user.reposts > 0 ? (user.reposts / daysBack).toFixed(1) : '–' })
+
+        (options.showReposts !== false) ?
+          $tag('td', { text: user.reposts > 0 ? (user.reposts / daysBack).toFixed(1) : '–' }) : ''
       );
 
       if (options.showPercentages !== false) {

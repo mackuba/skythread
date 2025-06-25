@@ -97,6 +97,9 @@
         <input type="radio" name="scan_type" id="scan_type_timeline" value="home" checked>
         <label for="scan_type_timeline">Home timeline</label>
 
+        <input type="radio" name="scan_type" id="scan_type_list" value="list">
+        <label for="scan_type_list">List feed</label>
+
         <input type="radio" name="scan_type" id="scan_type_users" value="users" disabled>
         <label for="scan_type_users">Selected users (coming soon)</label>
 
@@ -106,6 +109,11 @@
 
       <p>
         Time range: <input type="range" min="1" max="60" value="7"> <label>7 days</label>
+      </p>
+
+      <p class="list-choice">
+        <label>Select list:</label>
+        <select name="scan_list"></select>
       </p>
 
       <p>

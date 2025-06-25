@@ -366,6 +366,44 @@ class BlueskyAPI extends Minisky {
     });
   }
 
+  /** @returns {Promise<json[]>} */
+
+  async loadUserLists() {
+    let lists = await this.fetchAll('app.bsky.graph.getLists', {
+      params: {
+        actor: this.user.did,
+        limit: 100
+      },
+      field: 'lists'
+    });
+
+    return lists.filter(x => x.purpose == "app.bsky.graph.defs#curatelist");
+  }
+
+  /**
+   * @param {string} list
+   * @param {number} days
+   * @param {{ onPageLoad?: FetchAllOnPageLoad }} [options]
+   * @returns {Promise<json[]>}
+   */
+
+  async loadListTimeline(list, days, options = {}) {
+    let now = new Date();
+    let timeLimit = now.getTime() - days * 86400 * 1000;
+
+    return await this.fetchAll('app.bsky.feed.getListFeed', {
+      params: {
+        list: list,
+        limit: 100
+      },
+      field: 'feed',
+      breakWhen: (x) => {
+        return Date.parse(x.post.record.createdAt) < timeLimit;
+      },
+      onPageLoad: options.onPageLoad
+    });
+  }
+
   /** @param {string} postURI, @returns {Promise<json>} */
 
   async loadPost(postURI) {
