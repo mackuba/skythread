@@ -40,6 +40,7 @@ class PostingStatsPage {
         let value = $(r, HTMLInputElement).value;
 
         $(this.pageElement.querySelector('.list-choice')).style.display = (value == 'list') ? 'block' : 'none';
+        $(this.pageElement.querySelector('.user-choice')).style.display = (value == 'users') ? 'block' : 'none';
 
         this.table.style.display = 'none';
       });
@@ -145,6 +146,34 @@ class PostingStatsPage {
       }
 
       this.updateResultsTable(items, startTime, requestedDays, { showReposts: false });      
+    } else if (scanType == 'users') {
+      let textarea = $(this.pageElement.querySelector('textarea'), HTMLTextAreaElement);
+      let users = textarea.value.split(/\n/).map(x => x.trim()).filter(x => x.length > 0);
+      let dids = await Promise.all(users.map(u => accountAPI.resolveHandle(u)));
+
+      let requests = dids.map(d => accountAPI.loadUserTimeline(d, requestedDays, {
+        filter: 'posts_no_replies',
+        onPageLoad: (data) => {
+          if (this.scanStartTime != startTime) {
+            return { cancel: true };
+          }
+
+          //this.updateProgress(data, startTime);
+        },
+        keepLastPage: true
+      }));
+
+      let datasets = await Promise.all(requests);
+
+      if (this.scanStartTime != startTime) {
+        return;
+      }
+
+      let items = datasets.flat();
+
+      this.updateResultsTable(items, startTime, requestedDays, {
+        showTotal: false, showPercentages: false, countFetchedDays: false
+      });
     } else {
       let items = await accountAPI.loadUserTimeline(accountAPI.user.did, requestedDays, {
         filter: 'posts_no_replies',
@@ -193,7 +222,7 @@ class PostingStatsPage {
    * @param {json[]} items
    * @param {number} startTime
    * @param {number} requestedDays
-   * @param {{ showTotal?: boolean, showPercentages?: boolean, showReposts?: boolean }} [options]
+   * @param {{ showTotal?: boolean, showPercentages?: boolean, showReposts?: boolean, countFetchedDays?: boolean }} [options]
    */
 
   updateResultsTable(items, startTime, requestedDays, options = {}) {
@@ -209,22 +238,28 @@ class PostingStatsPage {
       return;
     }
 
-    let lastTimestamp = last.reason ? last.reason.indexedAt : last.post.record.createdAt;
-    let lastDate = Date.parse(lastTimestamp);
-    let fetchedDays = (startTime - lastDate) / 86400 / 1000;
+    let daysBack;
 
-    if (Math.ceil(fetchedDays) < requestedDays) {
-      let scanInfo = $(this.pageElement.querySelector('.scan-info'));
-      scanInfo.innerText = `🕓 Showing data from ${Math.round(fetchedDays)} days (the timeline only goes that far):`;
-      scanInfo.style.display = 'block';
+    if (options.countFetchedDays !== false) {
+      let lastTimestamp = last.reason ? last.reason.indexedAt : last.post.record.createdAt;
+      let lastDate = Date.parse(lastTimestamp);
+      let fetchedDays = (startTime - lastDate) / 86400 / 1000;
+
+      if (Math.ceil(fetchedDays) < requestedDays) {
+        let scanInfo = $(this.pageElement.querySelector('.scan-info'));
+        scanInfo.innerText = `🕓 Showing data from ${Math.round(fetchedDays)} days (the timeline only goes that far):`;
+        scanInfo.style.display = 'block';
+      }
+
+      daysBack = Math.min(requestedDays, fetchedDays);
+    } else {
+      daysBack = requestedDays;
     }
 
     items = items.filter(x => {
       let timestamp = x.reason ? x.reason.indexedAt : x.post.record.createdAt;
       return Date.parse(timestamp) > startTime - requestedDays * 86400 * 1000;
     });
-
-    let daysBack = Math.min(requestedDays, fetchedDays);
 
     for (let item of items) {
       if (item.reply) { continue; }

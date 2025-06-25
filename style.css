@@ -778,6 +778,16 @@ p.back i {
   display: none;
 }
 
+#posting_stats_page .user-choice {
+  display: none;
+}
+
+#posting_stats_page .user-choice textarea {
+  width: 250px;
+  height: 100px;
+  font-size: 10pt;
+}
+
 #posting_stats_page .scan-info {
   display: none;
   font-weight: 600;
