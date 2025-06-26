@@ -296,7 +296,7 @@ class PostingStatsPage {
     }
 
     if (options.showPercentages !== false) {
-      headRow.append($tag('th', { text: '% of all' }));
+      headRow.append($tag('th', { text: '% of timeline' }));
     }
 
     this.tableHead.append(headRow);
