@@ -90,8 +90,7 @@ class PrivateSearchPage {
     let daysBack;
 
     if (last) {
-      let lastTimestamp = last.reason ? last.reason.indexedAt : last.post.record.createdAt;
-      let lastDate = Date.parse(lastTimestamp);
+      let lastDate = feedPostTime(last);
       daysBack = Math.round((startTime - lastDate) / 86400 / 1000);
     } else {
       daysBack = 0;
@@ -129,8 +128,7 @@ class PrivateSearchPage {
 
     if (!last) { return }
 
-    let lastTimestamp = last.reason ? last.reason.indexedAt : last.post.record.createdAt;
-    let lastDate = Date.parse(lastTimestamp);
+    let lastDate = feedPostTime(last);
     let daysBack = (startTime - lastDate) / 86400 / 1000;
 
     this.progressBar.value = daysBack;    

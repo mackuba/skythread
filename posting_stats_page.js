@@ -204,8 +204,7 @@ class PostingStatsPage {
 
     if (!last) { return }
 
-    let lastTimestamp = last.reason ? last.reason.indexedAt : last.post.record.createdAt;
-    let lastDate = Date.parse(lastTimestamp);
+    let lastDate = feedPostTime(last);
     let daysBack = (startTime - lastDate) / 86400 / 1000;
 
     this.progressBar.value = daysBack;    
@@ -229,8 +228,7 @@ class PostingStatsPage {
 
     if (!last) { return }
 
-    let lastTimestamp = last.reason ? last.reason.indexedAt : last.post.record.createdAt;
-    let lastDate = Date.parse(lastTimestamp);
+    let lastDate = feedPostTime(last);
     let daysBack = (startTime - lastDate) / 86400 / 1000;
 
     this.userProgress[did].pages += 1;
@@ -282,8 +280,7 @@ class PostingStatsPage {
     let daysBack;
 
     if (options.countFetchedDays !== false) {
-      let lastTimestamp = last.reason ? last.reason.indexedAt : last.post.record.createdAt;
-      let lastDate = Date.parse(lastTimestamp);
+      let lastDate = feedPostTime(last);
       let fetchedDays = (startTime - lastDate) / 86400 / 1000;
 
       if (Math.ceil(fetchedDays) < requestedDays) {
@@ -297,10 +294,8 @@ class PostingStatsPage {
       daysBack = requestedDays;
     }
 
-    items = items.filter(x => {
-      let timestamp = x.reason ? x.reason.indexedAt : x.post.record.createdAt;
-      return Date.parse(timestamp) > startTime - requestedDays * 86400 * 1000;
-    });
+    let timeLimit = startTime - requestedDays * 86400 * 1000;
+    items = items.filter(x => (feedPostTime(x) > timeLimit));
 
     for (let item of items) {
       if (item.reply) { continue; }

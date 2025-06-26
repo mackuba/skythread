@@ -134,8 +134,7 @@ class LikeStatsPage {
 
         if (!last) { return }
 
-        let lastTimestamp = last.reason ? last.reason.indexedAt : last.post.record.createdAt;
-        let lastDate = Date.parse(lastTimestamp);
+        let lastDate = feedPostTime(last);
         let daysBack = (startTime - lastDate) / 86400 / 1000;
 
         this.updateProgress({ posts: Math.min(1.0, daysBack / requestedDays) });

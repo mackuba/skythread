@@ -315,14 +315,9 @@ class BlueskyAPI extends Minisky {
     let timeLimit = now.getTime() - days * 86400 * 1000;
 
     return await this.fetchAll('app.bsky.feed.getTimeline', {
-      params: {
-        limit: 100
-      },
+      params: { limit: 100 },
       field: 'feed',
-      breakWhen: (x) => {
-        let timestamp = x.reason ? x.reason.indexedAt : x.post.record.createdAt;
-        return Date.parse(timestamp) < timeLimit;
-      },
+      breakWhen: (x) => (feedPostTime(x) < timeLimit),
       onPageLoad: options.onPageLoad,
       keepLastPage: options.keepLastPage
     });
@@ -359,10 +354,7 @@ class BlueskyAPI extends Minisky {
         limit: 100
       },
       field: 'feed',
-      breakWhen: (x) => {
-        let timestamp = x.reason ? x.reason.indexedAt : x.post.record.createdAt;
-        return Date.parse(timestamp) < timeLimit;
-      },
+      breakWhen: (x) => (feedPostTime(x) < timeLimit),
       onPageLoad: options.onPageLoad,
       keepLastPage: options.keepLastPage
     });
@@ -399,9 +391,7 @@ class BlueskyAPI extends Minisky {
         limit: 100
       },
       field: 'feed',
-      breakWhen: (x) => {
-        return Date.parse(x.post.record.createdAt) < timeLimit;
-      },
+      breakWhen: (x) => (feedPostTime(x) < timeLimit),
       onPageLoad: options.onPageLoad,
       keepLastPage: options.keepLastPage
     });

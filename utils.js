@@ -98,6 +98,13 @@ function escapeHTML(html) {
              .replace(/>/g,'&gt;');
 }
 
+/** @param {json} feedPost, @returns {number} */
+
+function feedPostTime(feedPost) {
+  let timestamp = feedPost.reason ? feedPost.reason.indexedAt : feedPost.post.record.createdAt;
+  return Date.parse(timestamp);
+}
+
 /** @param {string} html, @returns {string} */
 
 function sanitizeHTML(html) {
