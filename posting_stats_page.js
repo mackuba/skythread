@@ -96,8 +96,6 @@ class PostingStatsPage {
     let requestedDays = this.selectedDaysRange();
     let scanType = this.scanType.value;
 
-    this.startScan(startTime, requestedDays);
-
     /** @type {FetchAllOnPageLoad} */
     let onPageLoad = (data) => {
       if (this.scanStartTime != startTime) {
@@ -108,25 +106,40 @@ class PostingStatsPage {
     };
 
     if (scanType == 'home') {
-      let items = await accountAPI.loadHomeTimeline(requestedDays, {
+      this.startScan(startTime, requestedDays);
+
+      let posts = await accountAPI.loadHomeTimeline(requestedDays, {
         onPageLoad: onPageLoad,
         keepLastPage: true
       });
 
-      this.updateResultsTable(items, startTime, requestedDays);
+      this.updateResultsTable(posts, startTime, requestedDays);
     } else if (scanType == 'list') {
       let list = this.listSelect.value;
-      let items = await accountAPI.loadListTimeline(list, requestedDays, {
+
+      if (!list) {
+        return;
+      }
+
+      this.startScan(startTime, requestedDays);
+
+      let posts = await accountAPI.loadListTimeline(list, requestedDays, {
         onPageLoad: onPageLoad,
         keepLastPage: true
       });
 
-      this.updateResultsTable(items, startTime, requestedDays, { showReposts: false });      
+      this.updateResultsTable(posts, startTime, requestedDays, { showReposts: false });      
     } else if (scanType == 'users') {
       let textarea = $(this.pageElement.querySelector('textarea'), HTMLTextAreaElement);
       let users = textarea.value.split(/\n/).map(x => x.trim()).filter(x => x.length > 0);
-      let dids = await Promise.all(users.map(u => accountAPI.resolveHandle(u)));
 
+      if (users.length == 0) {
+        return;
+      }
+
+      this.startScan(startTime, requestedDays);
+
+      let dids = await Promise.all(users.map(u => accountAPI.resolveHandle(u)));
       this.resetUserProgress(dids);
 
       let requests = dids.map(did => this.appView.loadUserTimeline(did, requestedDays, {
@@ -142,19 +155,21 @@ class PostingStatsPage {
       }));
 
       let datasets = await Promise.all(requests);
-      let items = datasets.flat();
+      let posts = datasets.flat();
 
-      this.updateResultsTable(items, startTime, requestedDays, {
+      this.updateResultsTable(posts, startTime, requestedDays, {
         showTotal: false, showPercentages: false, countFetchedDays: false
       });
     } else {
-      let items = await accountAPI.loadUserTimeline(accountAPI.user.did, requestedDays, {
+      this.startScan(startTime, requestedDays);
+
+      let posts = await accountAPI.loadUserTimeline(accountAPI.user.did, requestedDays, {
         filter: 'posts_no_replies',
         onPageLoad: onPageLoad,
         keepLastPage: true
       });
 
-      this.updateResultsTable(items, startTime, requestedDays, { showTotal: false, showPercentages: false });
+      this.updateResultsTable(posts, startTime, requestedDays, { showTotal: false, showPercentages: false });
     }
   }
 
@@ -218,13 +233,13 @@ class PostingStatsPage {
   }
 
   /**
-   * @param {json[]} items
+   * @param {json[]} posts
    * @param {number} startTime
    * @param {number} requestedDays
    * @param {{ showTotal?: boolean, showPercentages?: boolean, showReposts?: boolean, countFetchedDays?: boolean }} [options]
    */
 
-  updateResultsTable(items, startTime, requestedDays, options = {}) {
+  updateResultsTable(posts, startTime, requestedDays, options = {}) {
     if (this.scanStartTime != startTime) {
       return;
     }
@@ -234,7 +249,7 @@ class PostingStatsPage {
     let allReposts = 0;
     let allNormalPosts = 0;
 
-    let last = items.at(-1);
+    let last = posts.at(-1);
 
     if (!last) {
       this.stopScan();
@@ -258,9 +273,9 @@ class PostingStatsPage {
     }
 
     let timeLimit = startTime - requestedDays * 86400 * 1000;
-    items = items.filter(x => (feedPostTime(x) > timeLimit));
+    posts = posts.filter(x => (feedPostTime(x) > timeLimit));
 
-    for (let item of items) {
+    for (let item of posts) {
       if (item.reply) { continue; }
 
       let user = item.reason ? item.reason.by : item.post.author;
