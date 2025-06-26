@@ -18,6 +18,11 @@ class PostingStatsPage {
     this.submitButton = $(this.pageElement.querySelector('input[type="submit"]'), HTMLInputElement);
     this.progressBar = $(this.pageElement.querySelector('input[type=submit] + progress'), HTMLProgressElement);
     this.table = $(this.pageElement.querySelector('table.scan-result'));
+    this.tableHead = $(this.table.querySelector('thead'));
+    this.tableBody = $(this.table.querySelector('tbody'));
+    this.listSelect = $(this.pageElement.querySelector('.list-choice select'), HTMLSelectElement);
+    this.scanInfo = $(this.pageElement.querySelector('.scan-info'));
+    this.scanType = this.form.elements['scan_type'];
 
     this.setupEvents();
 
@@ -26,7 +31,7 @@ class PostingStatsPage {
   }
 
   setupEvents() {
-    $(this.pageElement.querySelector('form')).addEventListener('submit', (e) => {
+    this.form.addEventListener('submit', (e) => {
       e.preventDefault();
 
       if (!this.scanStartTime) {
@@ -38,10 +43,11 @@ class PostingStatsPage {
 
     this.rangeInput.addEventListener('input', (e) => {
       let days = parseInt(this.rangeInput.value, 10);
-      this.configurePostingStats({ days });
+      let label = $(this.pageElement.querySelector('input[type=range] + label'));
+      label.innerText = (days == 1) ? '1 day' : `${days} days`;
     });
 
-    this.pageElement.querySelectorAll('input[type="radio"]').forEach(r => {
+    this.scanType.forEach(r => {
       r.addEventListener('click', (e) => {
         let value = $(r, HTMLInputElement).value;
 
@@ -67,7 +73,6 @@ class PostingStatsPage {
   /** @returns {Promise<void>} */
 
   async fetchLists() {
-    let select = $(this.pageElement.querySelector('.list-choice select'));
     let lists = await accountAPI.loadUserLists();
 
     let sorted = lists.sort((a, b) => {
@@ -78,44 +83,20 @@ class PostingStatsPage {
     });
 
     for (let list of lists) {
-      let opt = $tag('option', { value: list.uri, text: list.name + ' ' });
-      select.append(opt);
-    }
-  }
-
-  /** @param {{ days: number }} args */
-
-  configurePostingStats(args) {
-    if (args.days) {
-      let label = $(this.pageElement.querySelector('input[type=range] + label'));
-      label.innerText = (args.days == 1) ? '1 day' : `${args.days} days`;
+      this.listSelect.append(
+        $tag('option', { value: list.uri, text: list.name + ' ' })
+      );
     }
   }
 
   /** @returns {Promise<void>} */
 
   async scanPostingStats() {
-    this.submitButton.value = 'Cancel';
-
-    let requestedDays = this.selectedDaysRange();
-
-    this.progressBar.max = requestedDays;
-    this.progressBar.value = 0;
-    this.progressBar.style.display = 'inline';
-
-    this.table.style.display = 'none';
-
-    let tbody = $(this.table.querySelector('tbody'));
-    tbody.innerHTML = '';
-
-    let thead = $(this.table.querySelector('thead'));
-    thead.innerHTML = '';
-
     let startTime = new Date().getTime();
-    this.scanStartTime = startTime;
+    let requestedDays = this.selectedDaysRange();
+    let scanType = this.scanType.value;
 
-    let scanInfo = $(this.pageElement.querySelector('.scan-info'));
-    scanInfo.style.display = 'none';
+    this.startScan(startTime, requestedDays);
 
     /** @type {FetchAllOnPageLoad} */
     let onPageLoad = (data) => {
@@ -126,30 +107,19 @@ class PostingStatsPage {
       this.updateProgress(data, startTime);
     };
 
-    let scanType = this.form.elements['scan_type'].value;
-
     if (scanType == 'home') {
       let items = await accountAPI.loadHomeTimeline(requestedDays, {
         onPageLoad: onPageLoad,
         keepLastPage: true
       });
 
-      if (this.scanStartTime != startTime) {
-        return;
-      }
-
       this.updateResultsTable(items, startTime, requestedDays);
     } else if (scanType == 'list') {
-      let select = $(this.pageElement.querySelector('.list-choice select'), HTMLSelectElement);
-      let list = select.value;
+      let list = this.listSelect.value;
       let items = await accountAPI.loadListTimeline(list, requestedDays, {
         onPageLoad: onPageLoad,
         keepLastPage: true
       });
-
-      if (this.scanStartTime != startTime) {
-        return;
-      }
 
       this.updateResultsTable(items, startTime, requestedDays, { showReposts: false });      
     } else if (scanType == 'users') {
@@ -172,11 +142,6 @@ class PostingStatsPage {
       }));
 
       let datasets = await Promise.all(requests);
-
-      if (this.scanStartTime != startTime) {
-        return;
-      }
-
       let items = datasets.flat();
 
       this.updateResultsTable(items, startTime, requestedDays, {
@@ -188,10 +153,6 @@ class PostingStatsPage {
         onPageLoad: onPageLoad,
         keepLastPage: true
       });
-
-      if (this.scanStartTime != startTime) {
-        return;
-      }
 
       this.updateResultsTable(items, startTime, requestedDays, { showTotal: false, showPercentages: false });
     }
@@ -209,7 +170,6 @@ class PostingStatsPage {
 
     this.progressBar.value = daysBack;    
   }
-
 
   /** @param {string[]} dids */
 
@@ -265,6 +225,10 @@ class PostingStatsPage {
    */
 
   updateResultsTable(items, startTime, requestedDays, options = {}) {
+    if (this.scanStartTime != startTime) {
+      return;
+    }
+
     let users = {};
     let total = 0;
     let allReposts = 0;
@@ -284,9 +248,8 @@ class PostingStatsPage {
       let fetchedDays = (startTime - lastDate) / 86400 / 1000;
 
       if (Math.ceil(fetchedDays) < requestedDays) {
-        let scanInfo = $(this.pageElement.querySelector('.scan-info'));
-        scanInfo.innerText = `🕓 Showing data from ${Math.round(fetchedDays)} days (the timeline only goes that far):`;
-        scanInfo.style.display = 'block';
+        this.scanInfo.innerText = `🕓 Showing data from ${Math.round(fetchedDays)} days (the timeline only goes that far):`;
+        this.scanInfo.style.display = 'block';
       }
 
       daysBack = Math.min(requestedDays, fetchedDays);
@@ -314,7 +277,6 @@ class PostingStatsPage {
       }
     }
 
-    let thead = $(this.table.querySelector('thead'));
     let headRow = $tag('tr');
 
     if (options.showReposts !== false) {
@@ -337,9 +299,7 @@ class PostingStatsPage {
       headRow.append($tag('th', { text: '% of all' }));
     }
 
-    thead.append(headRow);
-
-    let tbody = $(this.table.querySelector('tbody'));
+    this.tableHead.append(headRow);
 
     if (options.showTotal !== false) {
       let tr = $tag('tr.total');
@@ -361,7 +321,7 @@ class PostingStatsPage {
         tr.append($tag('td.percent', { text: '' }));
       }
 
-      tbody.append(tr);      
+      this.tableBody.append(tr);      
     }
 
     let sorted = Object.values(users).sort(this.sortUserRows);
@@ -390,13 +350,26 @@ class PostingStatsPage {
         tr.append($tag('td.percent', { text: ((user.own + user.reposts) * 100 / total).toFixed(1) + '%' }));
       }
 
-      tbody.append(tr);
+      this.tableBody.append(tr);
     }
 
     this.table.style.display = 'table';
-    this.submitButton.value = 'Start scan';
-    this.progressBar.style.display = 'none';
-    this.scanStartTime = undefined;
+    this.stopScan();
+  }
+
+  startScan(startTime, requestedDays) {
+    this.submitButton.value = 'Cancel';
+
+    this.progressBar.max = requestedDays;
+    this.progressBar.value = 0;
+    this.progressBar.style.display = 'inline';
+
+    this.table.style.display = 'none';
+    this.tableHead.innerHTML = '';
+    this.tableBody.innerHTML = '';
+
+    this.scanStartTime = startTime;
+    this.scanInfo.style.display = 'none';
   }
 
   stopScan() {
