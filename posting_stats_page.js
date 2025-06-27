@@ -10,6 +10,15 @@ class PostingStatsPage {
   /** @type {Record<string, { pages: number, progress: number }>} */
   userProgress;
 
+  /** @type {number | undefined} */
+  autocompleteTimer;
+
+  /** @type {number} */
+  autocompleteIndex = -1;
+
+  /** @type {json[]} */
+  autocompleteResults = [];
+
   constructor() {
     this.pageElement = $id('posting_stats_page');
     this.form = $(this.pageElement.querySelector('form'), HTMLFormElement);
@@ -24,13 +33,24 @@ class PostingStatsPage {
     this.scanInfo = $(this.pageElement.querySelector('.scan-info'));
     this.scanType = this.form.elements['scan_type'];
 
-    this.setupEvents();
+    this.userField = $(this.pageElement.querySelector('.user-choice input'), HTMLInputElement);
+    this.userList = $(this.pageElement.querySelector('.selected-users'));
+    this.autocomplete = $(this.pageElement.querySelector('.autocomplete'));
 
+    this.selectedUsers = new Set();
     this.userProgress = {};
     this.appView = new BlueskyAPI('public.api.bsky.app', false);
+
+    this.setupEvents();
   }
 
   setupEvents() {
+    let html = $(document.body.parentNode);
+
+    html.addEventListener('click', (e) => {
+      this.hideAutocomplete();
+    });
+
     this.form.addEventListener('submit', (e) => {
       e.preventDefault();
 
@@ -54,8 +74,20 @@ class PostingStatsPage {
         $(this.pageElement.querySelector('.list-choice')).style.display = (value == 'list') ? 'block' : 'none';
         $(this.pageElement.querySelector('.user-choice')).style.display = (value == 'users') ? 'block' : 'none';
 
+        if (value == 'users') {
+          this.userField.focus();
+        }
+
         this.table.style.display = 'none';
       });
+    });
+
+    this.userField.addEventListener('input', () => {
+      this.onUserInput();
+    });
+
+    this.userField.addEventListener('keydown', (e) => {
+      this.onUserKeyDown(e);
     });
   }
 
@@ -87,6 +119,162 @@ class PostingStatsPage {
         $tag('option', { value: list.uri, text: list.name + ' ' })
       );
     }
+  }
+
+  onUserInput() {
+    if (this.autocompleteTimer) {
+      clearTimeout(this.autocompleteTimer);
+    }
+
+    let query = this.userField.value.trim();
+
+    if (query.length == 0) {
+      this.hideAutocomplete();
+      this.autocompleteTimer = undefined;
+      return;
+    }
+
+    this.autocompleteTimer = setTimeout(() => this.fetchAutocomplete(query), 100);
+  }
+
+  /** @param {KeyboardEvent} e */
+
+  onUserKeyDown(e) {
+    if (this.autocomplete.style.display != 'none') {
+      if (e.key == 'ArrowDown') {
+        e.preventDefault();
+        this.moveAutocomplete(1);
+      } else if (e.key == 'ArrowUp') {
+        e.preventDefault();
+        this.moveAutocomplete(-1);
+      } else if (e.key == 'Enter') {
+        e.preventDefault();
+
+        if (this.autocompleteIndex >= 0) {
+          this.selectUser(this.autocompleteIndex);
+        }
+      } else if (e.key == 'Escape') {
+        this.hideAutocomplete();
+      }
+    }
+  }
+
+  /** @param {string} query, @returns {Promise<void>} */
+
+  async fetchAutocomplete(query) {
+    let users = await accountAPI.autocompleteUsers(query);
+    users = users.filter(u => !this.selectedUsers.has(u.did));
+
+    this.autocompleteResults = users;
+    this.autocompleteIndex = -1;
+    this.showAutocomplete();
+  }
+
+  showAutocomplete() {
+    this.autocomplete.innerHTML = '';
+    this.autocomplete.scrollTop = 0;
+
+    if (this.autocompleteResults.length == 0) {
+      this.hideAutocomplete();
+      return;
+    }
+
+    for (let [i, user] of this.autocompleteResults.entries()) {
+      let row = this.makeUserRow(user);
+
+      row.addEventListener('mouseenter', () => {
+        this.highlightAutocomplete(i);
+      });
+
+      row.addEventListener('mousedown', (e) => {
+        e.preventDefault();
+        this.selectUser(i);
+      });
+
+      this.autocomplete.append(row);
+    };
+
+    this.autocomplete.style.top = this.userField.offsetHeight + 'px';
+    this.autocomplete.style.display = 'block';
+    this.highlightAutocomplete(0);
+  }
+
+  hideAutocomplete() {
+    this.autocomplete.style.display = 'none';
+  }
+
+  /** @param {number} change */
+
+  moveAutocomplete(change) {
+    if (this.autocompleteResults.length == 0) {
+      return;
+    }
+
+    let newIndex = this.autocompleteIndex + change;
+
+    if (newIndex < 0) {
+      newIndex = this.autocompleteResults.length - 1;
+    } else if (newIndex >= this.autocompleteResults.length) {
+      newIndex = 0;
+    }
+
+    this.highlightAutocomplete(newIndex);
+  }
+
+  /** @param {number} index */
+
+  highlightAutocomplete(index) {
+    this.autocompleteIndex = index;
+
+    let rows = this.autocomplete.querySelectorAll('.user-row');
+
+    rows.forEach((row, i) => {
+      row.classList.toggle('hover', i == index);
+    });
+  }
+
+  /** @param {number} index */
+
+  selectUser(index) {
+    let user = this.autocompleteResults[index];
+
+    if (!user) {
+      return;
+    }
+
+    this.selectedUsers.add(user.did);
+
+    let row = this.makeUserRow(user, true);
+    this.userList.append(row);
+
+    this.userField.value = '';
+    this.hideAutocomplete();
+  }
+
+  /** @param {json} user, @param {boolean} [withRemove], @returns HTMLElement */
+
+  makeUserRow(user, withRemove = false) {
+    let row = $tag('div.user-row');
+    row.dataset.did = user.did;
+    row.append(
+      $tag('img.avatar', { src: user.avatar }),
+      $tag('span.name', { text: user.displayName || '–' }),
+      $tag('span.handle', { text: user.handle })
+    );
+
+    if (withRemove) {
+      let remove = $tag('a.remove', { href: '#', text: '✕' });
+
+      remove.addEventListener('click', (e) => {
+        e.preventDefault();
+        row.remove();
+        this.selectedUsers.delete(user.did);
+      });
+
+      row.append(remove);
+    }
+
+    return row;
   }
 
   /** @returns {Promise<void>} */
@@ -130,16 +318,13 @@ class PostingStatsPage {
 
       this.updateResultsTable(posts, startTime, requestedDays, { showReposts: false });      
     } else if (scanType == 'users') {
-      let textarea = $(this.pageElement.querySelector('textarea'), HTMLTextAreaElement);
-      let users = textarea.value.split(/\n/).map(x => x.trim()).filter(x => x.length > 0);
+      let dids = Array.from(this.selectedUsers);
 
-      if (users.length == 0) {
+      if (dids.length == 0) {
         return;
       }
 
       this.startScan(startTime, requestedDays);
-
-      let dids = await Promise.all(users.map(u => accountAPI.resolveHandle(u)));
       this.resetUserProgress(dids);
 
       let requests = dids.map(did => this.appView.loadUserTimeline(did, requestedDays, {
@@ -371,6 +556,8 @@ class PostingStatsPage {
     this.table.style.display = 'table';
     this.stopScan();
   }
+
+  /** @param {number} startTime, @param {number} requestedDays */
 
   startScan(startTime, requestedDays) {
     this.submitButton.value = 'Cancel';

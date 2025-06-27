@@ -780,12 +780,94 @@ p.back i {
 
 #posting_stats_page .user-choice {
   display: none;
+  position: relative;
 }
 
-#posting_stats_page .user-choice textarea {
-  width: 250px;
-  height: 100px;
+#posting_stats_page .user-choice input {
+  width: 260px;
+  font-size: 11pt;
+}
+
+#posting_stats_page .user-choice .autocomplete {
+  display: none;
+  position: absolute;
+  left: 0;
+  top: 0;
+  margin-top: 4px;
+  width: 350px;
+  max-height: 250px;
+  overflow-y: auto;
+  background-color: white;
+  border: 1px solid #ccc;
+  z-index: 10;
+}
+
+#posting_stats_page .user-choice .selected-users {
+  width: 275px;
+  height: 150px;
+  overflow-y: auto;
+  border: 1px solid #aaa;
+  padding: 4px;
+  margin-top: 20px;
+}
+
+#posting_stats_page .user-choice .user-row {
+  position: relative;
+  padding: 2px 4px 2px 37px;
+  cursor: pointer;
+}
+
+#posting_stats_page .user-choice .user-row .avatar {
+  position: absolute;
+  left: 6px;
+  top: 8px;
+  width: 24px;
+  border-radius: 12px;
+}
+
+#posting_stats_page .user-choice .user-row span {
+  display: block;
+  overflow-x: hidden;
+  text-overflow: ellipsis;
+}
+
+#posting_stats_page .user-choice .user-row .name {
+  font-size: 11pt;
+  margin-top: 1px;
+  margin-bottom: 1px;
+}
+
+#posting_stats_page .user-choice .user-row .handle {
   font-size: 10pt;
+  margin-bottom: 2px;
+  color: #666;
+}
+
+#posting_stats_page .user-choice .autocomplete .user-row {
+  cursor: pointer;
+}
+
+#posting_stats_page .user-choice .autocomplete .user-row.hover {
+  background-color: hsl(207, 100%, 85%);
+}
+
+#posting_stats_page .user-choice .selected-users .user-row span {
+  padding-right: 14px;
+}
+
+#posting_stats_page .user-choice .selected-users .user-row .remove {
+  position: absolute;
+  right: 4px;
+  top: 11px;
+  padding: 0px 4px;
+  color: #333;
+  line-height: 17px;
+}
+
+#posting_stats_page .user-choice .selected-users .user-row .remove:hover {
+  text-decoration: none;
+  background-color: #ddd;
+  border-radius: 8px;
 }
 
 #posting_stats_page .scan-info {
@@ -1122,6 +1204,32 @@ p.back i {
 
   #posting_stats_page input:disabled + label {
     color: #777;
+  }
+
+  #posting_stats_page .user-choice .autocomplete {
+    background-color: hsl(210, 5%, 18%);
+    border-color: #4b4b4b;
+  }
+
+  #posting_stats_page .user-choice .selected-users {
+    border-color: #666;
+  }
+
+  #posting_stats_page .user-choice .user-row .handle {
+    color: #888;
+  }
+
+  #posting_stats_page .user-choice .autocomplete .user-row.hover {
+    background-color: hsl(207, 90%, 25%);
+  }
+
+  #posting_stats_page .user-choice .selected-users .user-row .remove {
+    color: #aaa;
+  }
+
+  #posting_stats_page .user-choice .selected-users .user-row .remove:hover {
+    background-color: #555;
+    color: #bbb;
   }
 
   #posting_stats_page .scan-result, #posting_stats_page .scan-result td, #posting_stats_page .scan-result th {

@@ -116,9 +116,11 @@
         <select name="scan_list"></select>
       </p>
 
-      <p class="user-choice">
-        <textarea name="scan_users"></textarea>
-      </p>
+      <div class="user-choice">
+        <input type="text" placeholder="Add user" autocomplete="off">
+        <div class="autocomplete"></div>
+        <div class="selected-users"></div>
+      </div>
 
       <p>
         <input type="submit" value="Start scan"> <progress></progress>
@@ -128,10 +130,8 @@
     <p class="scan-info"></p>
 
     <table class="scan-result">
-      <thead>
-      </thead>
-      <tbody>
-      </tbody>
+      <thead></thead>
+      <tbody></tbody>
     </table>
   </div>
 

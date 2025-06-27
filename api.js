@@ -199,6 +199,13 @@ class BlueskyAPI extends Minisky {
     }
   }
 
+  /** @param {string} query, @returns {Promise<json[]>} */
+
+  async autocompleteUsers(query) {
+    let json = await this.getRequest('app.bsky.actor.searchActorsTypeahead', { q: query });
+    return json.actors;
+  }
+
   /** @returns {Promise<json | undefined>} */
 
   async getCurrentUserAvatar() {
