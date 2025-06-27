@@ -188,7 +188,7 @@ function toggleDialog(dialog) {
   }
 }
 
-function toggleLoginInfo(event) {
+function toggleLoginInfo() {
   $id('login').classList.toggle('expanded');
 }
 
@@ -303,6 +303,8 @@ function submitSearch() {
     alert(error.message || "This is not a valid URL or hashtag");
   }
 }
+
+/** @param {string} page */
 
 function openPage(page) {
   if (!accountAPI.isLoggedIn) {

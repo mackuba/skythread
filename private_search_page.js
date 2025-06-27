@@ -106,6 +106,8 @@ class PrivateSearchPage {
     this.fetchStartTime = undefined;
   }
 
+  /** @param {string} query */
+
   searchInTimeline(query) {
     this.results.innerHTML = '';
 
