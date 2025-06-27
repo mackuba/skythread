@@ -435,11 +435,19 @@ class PostingStatsPage {
    *   countFetchedDays?: boolean,
    *   users?: json[]
    * }} [options]
+   * @returns {Promise<void>}
    */
 
-  updateResultsTable(posts, startTime, requestedDays, options = {}) {
+  async updateResultsTable(posts, startTime, requestedDays, options = {}) {
     if (this.scanStartTime != startTime) {
       return;
+    }
+
+    let now = new Date().getTime();
+
+    if (now - startTime < 100) {
+      // artificial UI delay in case scan finishes immediately
+      await new Promise(resolve => setTimeout(resolve, 100));
     }
 
     let users = {};
