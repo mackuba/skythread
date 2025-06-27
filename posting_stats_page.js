@@ -205,6 +205,8 @@ class PostingStatsPage {
 
   hideAutocomplete() {
     this.autocomplete.style.display = 'none';
+    this.autocompleteResults = [];
+    this.autocompleteIndex = -1;
   }
 
   /** @param {number} change */
