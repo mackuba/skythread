@@ -142,22 +142,20 @@ class PostingStatsPage {
   /** @param {KeyboardEvent} e */
 
   onUserKeyDown(e) {
-    if (this.autocomplete.style.display != 'none') {
-      if (e.key == 'ArrowDown') {
-        e.preventDefault();
-        this.moveAutocomplete(1);
-      } else if (e.key == 'ArrowUp') {
-        e.preventDefault();
-        this.moveAutocomplete(-1);
-      } else if (e.key == 'Enter') {
-        e.preventDefault();
+    if (e.key == 'Enter') {
+      e.preventDefault();
 
-        if (this.autocompleteIndex >= 0) {
-          this.selectUser(this.autocompleteIndex);
-        }
-      } else if (e.key == 'Escape') {
-        this.hideAutocomplete();
+      if (this.autocompleteIndex >= 0) {
+        this.selectUser(this.autocompleteIndex);
       }
+    } else if (e.key == 'Escape') {
+      this.hideAutocomplete();
+    } else if (e.key == 'ArrowDown' && this.autocompleteResults.length > 0) {
+      e.preventDefault();
+      this.moveAutocomplete(1);
+    } else if (e.key == 'ArrowUp' && this.autocompleteResults.length > 0) {
+      e.preventDefault();
+      this.moveAutocomplete(-1);
     }
   }
 
