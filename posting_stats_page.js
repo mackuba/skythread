@@ -19,6 +19,9 @@ class PostingStatsPage {
   /** @type {json[]} */
   autocompleteResults = [];
 
+  /** @type {Record<string, json>} */
+  selectedUsers = {};
+
   constructor() {
     this.pageElement = $id('posting_stats_page');
     this.form = $(this.pageElement.querySelector('form'), HTMLFormElement);
@@ -37,7 +40,6 @@ class PostingStatsPage {
     this.userList = $(this.pageElement.querySelector('.selected-users'));
     this.autocomplete = $(this.pageElement.querySelector('.autocomplete'));
 
-    this.selectedUsers = new Set();
     this.userProgress = {};
     this.appView = new BlueskyAPI('public.api.bsky.app', false);
 
@@ -163,7 +165,9 @@ class PostingStatsPage {
 
   async fetchAutocomplete(query) {
     let users = await accountAPI.autocompleteUsers(query);
-    users = users.filter(u => !this.selectedUsers.has(u.did));
+
+    let selectedDIDs = new Set(Object.keys(this.selectedUsers));
+    users = users.filter(u => !selectedDIDs.has(u.did));
 
     this.autocompleteResults = users;
     this.autocompleteIndex = -1;
@@ -242,7 +246,7 @@ class PostingStatsPage {
       return;
     }
 
-    this.selectedUsers.add(user.did);
+    this.selectedUsers[user.did] = user;
 
     let row = this.makeUserRow(user, true);
     this.userList.append(row);
@@ -268,7 +272,7 @@ class PostingStatsPage {
       remove.addEventListener('click', (e) => {
         e.preventDefault();
         row.remove();
-        this.selectedUsers.delete(user.did);
+        delete this.selectedUsers[user.did];
       });
 
       row.append(remove);
@@ -318,7 +322,7 @@ class PostingStatsPage {
 
       this.updateResultsTable(posts, startTime, requestedDays, { showReposts: false });      
     } else if (scanType == 'users') {
-      let dids = Array.from(this.selectedUsers);
+      let dids = Object.keys(this.selectedUsers);
 
       if (dids.length == 0) {
         return;
@@ -343,7 +347,10 @@ class PostingStatsPage {
       let posts = datasets.flat();
 
       this.updateResultsTable(posts, startTime, requestedDays, {
-        showTotal: false, showPercentages: false, countFetchedDays: false
+        showTotal: false,
+        showPercentages: false,
+        countFetchedDays: false,
+        users: Object.values(this.selectedUsers)
       });
     } else {
       this.startScan(startTime, requestedDays);
@@ -421,7 +428,13 @@ class PostingStatsPage {
    * @param {json[]} posts
    * @param {number} startTime
    * @param {number} requestedDays
-   * @param {{ showTotal?: boolean, showPercentages?: boolean, showReposts?: boolean, countFetchedDays?: boolean }} [options]
+   * @param {{
+   *   showTotal?: boolean,
+   *   showPercentages?: boolean,
+   *   showReposts?: boolean,
+   *   countFetchedDays?: boolean,
+   *   users?: json[]
+   * }} [options]
    */
 
   updateResultsTable(posts, startTime, requestedDays, options = {}) {
@@ -459,6 +472,12 @@ class PostingStatsPage {
 
     let timeLimit = startTime - requestedDays * 86400 * 1000;
     posts = posts.filter(x => (feedPostTime(x) > timeLimit));
+
+    if (options.users) {
+      for (let user of options.users) {
+        users[user.handle] = { handle: user.handle, own: 0, reposts: 0, avatar: user.avatar };
+      }
+    }
 
     for (let item of posts) {
       if (item.reply) { continue; }
