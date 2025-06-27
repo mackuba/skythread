@@ -919,6 +919,7 @@ p.back i {
 
 #posting_stats_page .scan-result .avatar {
   width: 24px;
+  height: 24px;
   border-radius: 14px;
   vertical-align: middle;
   margin-right: 2px;
@@ -994,6 +995,7 @@ p.back i {
 
 #like_stats_page .scan-result .avatar {
   width: 24px;
+  height: 24px;
   border-radius: 14px;
   vertical-align: middle;
   margin-right: 2px;
