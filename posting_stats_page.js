@@ -57,7 +57,7 @@ class PostingStatsPage {
       e.preventDefault();
 
       if (!this.scanStartTime) {
-        this.scanPostingStats();      
+        this.scanPostingStats();
       } else {
         this.stopScan();
       }
@@ -320,7 +320,7 @@ class PostingStatsPage {
         keepLastPage: true
       });
 
-      this.updateResultsTable(posts, startTime, requestedDays, { showReposts: false });      
+      this.updateResultsTable(posts, startTime, requestedDays, { showReposts: false });
     } else if (scanType == 'users') {
       let dids = Object.keys(this.selectedUsers);
 
@@ -375,7 +375,7 @@ class PostingStatsPage {
     let lastDate = feedPostTime(last);
     let daysBack = (startTime - lastDate) / 86400 / 1000;
 
-    this.progressBar.value = daysBack;    
+    this.progressBar.value = daysBack;
   }
 
   /** @param {string[]} dids */
@@ -548,7 +548,7 @@ class PostingStatsPage {
         tr.append($tag('td.percent', { text: '' }));
       }
 
-      this.tableBody.append(tr);      
+      this.tableBody.append(tr);
     }
 
     let sorted = Object.values(users).sort(this.sortUserRows);
@@ -560,7 +560,7 @@ class PostingStatsPage {
       tr.append(
         $tag('td.no', { text: i + 1 }),
         $tag('td.handle', {
-          html: `<img class="avatar" src="${user.avatar}"> ` + 
+          html: `<img class="avatar" src="${user.avatar}"> ` +
                 `<a href="https://bsky.app/profile/${user.handle}" target="_blank">${user.handle}</a>`
         }),
 

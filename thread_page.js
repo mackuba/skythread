@@ -23,7 +23,7 @@ class ThreadPage {
     }
 
     return p;
-  } 
+  }
 
   /** @param {string} url, @returns {Promise<void>} */
 

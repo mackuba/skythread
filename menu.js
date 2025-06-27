@@ -124,7 +124,7 @@ class Menu {
   async loadCurrentUserAvatar() {
     try {
       let url = await api.loadCurrentUserAvatar();
-      this.showLoggedInStatus(true, url);      
+      this.showLoggedInStatus(true, url);
     } catch (error) {
       console.log(error);
       this.showLoggedInStatus(true, null);

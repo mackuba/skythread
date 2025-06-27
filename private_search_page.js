@@ -25,7 +25,7 @@ class PrivateSearchPage {
       e.preventDefault();
 
       if (!this.fetchStartTime) {
-        this.fetchTimeline();      
+        this.fetchTimeline();
       } else {
         this.stopFetch();
       }
@@ -133,7 +133,7 @@ class PrivateSearchPage {
     let lastDate = feedPostTime(last);
     let daysBack = (startTime - lastDate) / 86400 / 1000;
 
-    this.progressBar.value = daysBack;    
+    this.progressBar.value = daysBack;
   }
 
   stopFetch() {

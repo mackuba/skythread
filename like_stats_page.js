@@ -27,7 +27,7 @@ class LikeStatsPage {
       e.preventDefault();
 
       if (!this.scanStartTime) {
-        this.findLikes();      
+        this.findLikes();
       } else {
         this.stopScan();
       }
@@ -228,7 +228,7 @@ class LikeStatsPage {
       tr.append(
         $tag('td.no', { text: i + 1 }),
         $tag('td.handle', {
-          html: `<img class="avatar" src="${user.avatar}"> ` + 
+          html: `<img class="avatar" src="${user.avatar}"> ` +
                 `<a href="https://bsky.app/profile/${user.handle}" target="_blank">${user.handle}</a>`
         }),
         $tag('td.count', { text: user.count })

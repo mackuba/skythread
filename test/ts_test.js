@@ -19,7 +19,7 @@ function test() {
   /** @type {never} */ let x3 = html;
 
   document.addEventListener('click', (e) => {
-    let target = $(e.target);  
+    let target = $(e.target);
     /** @type {never} */ let x4 = target;
   });
 
