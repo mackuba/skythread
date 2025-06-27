@@ -332,7 +332,7 @@ class PostingStatsPage {
       this.resetUserProgress(dids);
 
       let requests = dids.map(did => this.appView.loadUserTimeline(did, requestedDays, {
-        filter: 'posts_no_replies',
+        filter: 'posts_and_author_threads',
         onPageLoad: (data) => {
           if (this.scanStartTime != startTime) {
             return { cancel: true };
@@ -480,6 +480,7 @@ class PostingStatsPage {
 
     let timeLimit = startTime - requestedDays * 86400 * 1000;
     posts = posts.filter(x => (feedPostTime(x) > timeLimit));
+    posts.reverse();
 
     if (options.users) {
       for (let user of options.users) {
@@ -487,8 +488,14 @@ class PostingStatsPage {
       }
     }
 
+    let ownThreads = new Set();
+
     for (let item of posts) {
-      if (item.reply) { continue; }
+      if (item.reply) {
+        if (!ownThreads.has(item.reply.parent.uri)) {
+          continue;
+        }
+      }
 
       let user = item.reason ? item.reason.by : item.post.author;
       let handle = user.handle;
@@ -501,6 +508,7 @@ class PostingStatsPage {
       } else {
         users[handle].own += 1;
         allNormalPosts += 1;
+        ownThreads.add(item.post.uri);
       }
     }
 
