@@ -10,7 +10,7 @@
     font-src 'self';
     script-src-attr 'none';
     style-src-attr 'none';
-    connect-src https:;
+    connect-src https: http://localhost:3000;
     base-uri 'none';
     form-action 'none';">
 
@@ -166,21 +166,23 @@
   <div id="private_search_page">
     <h2>Archive search *Beta*</h2>
 
-    <form>
-      <p>
-        Fetch timeline posts: <input type="range" min="1" max="60" value="7"> <label>7 days</label>
-      </p>
+    <div class="timeline-search">
+      <form>
+        <p>
+          Fetch timeline posts: <input type="range" min="1" max="60" value="7"> <label>7 days</label>
+        </p>
 
-      <p>
-        <input type="submit" value="Fetch timeline"> <progress></progress>
-      </p>
-    </form>
+        <p>
+          <input type="submit" value="Fetch timeline"> <progress></progress>
+        </p>
+      </form>
 
-    <p class="archive-status"></p>
+      <p class="archive-status"></p>
 
-    <hr>
+      <hr>
+    </div>
 
-    <p class="search">Search: <input type="text" class="search-query"></p>
+    <p class="search">Search: <input type="text" class="search-query" autocomplete="off"></p>
 
     <div class="results">
     </div>

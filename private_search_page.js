@@ -18,6 +18,14 @@ class PrivateSearchPage {
     this.timelinePosts = [];
 
     this.setupEvents();
+
+    let params = new URLSearchParams(location.search);
+    this.mode = params.get('mode');
+    this.lycanMode = params.get('lycan');
+
+    if (this.lycanMode == 'local') {
+      this.lycan = new BlueskyAPI('http://localhost:3000', false);
+    }
   }
 
   setupEvents() {
@@ -37,14 +45,18 @@ class PrivateSearchPage {
       label.innerText = (days == 1) ? '1 day' : `${days} days`;
     });
 
-    this.searchField.addEventListener('input', (e) => {
-      let query = this.searchField.value.trim().toLowerCase();
+    this.searchField.addEventListener('keydown', (e) => {
+      if (e.key == 'Enter') {
+        e.preventDefault();
 
-      if (this.searchTimer) {
-        clearTimeout(this.searchTimer);
+        let query = this.searchField.value.trim().toLowerCase();
+
+        if (this.mode == 'likes') {
+          this.searchInLycan(query);
+        } else {
+          this.searchInTimeline(query);
+        }
       }
-
-      this.searchTimer = setTimeout(() => this.searchInTimeline(query), 100);
     });
   }
 
@@ -56,6 +68,13 @@ class PrivateSearchPage {
 
   show() {
     this.pageElement.style.display = 'block';
+
+    if (this.mode == 'likes') {
+      this.pageElement.querySelector('.timeline-search').style.display = 'none';
+      this.searchLine.style.display = 'block';
+    } else {
+      this.pageElement.querySelector('.timeline-search').style.display = 'block';
+    }
   }
 
   /** @returns {Promise<void>} */
@@ -120,6 +139,36 @@ class PrivateSearchPage {
     for (let post of matching) {
       let postView = new PostComponent(post, 'feed').buildElement();
       this.results.appendChild(postView);
+    }
+  }
+
+  /** @param {string} query */
+
+  async searchInLycan(query) {
+    if (query.length == 0) {
+      this.results.innerHTML = '';
+      return;
+    }
+
+    this.results.innerHTML = '...';
+
+    if (this.lycanMode == 'local') {
+      let response = await this.lycan.getRequest('blue.feeds.lycan.searchPosts', { query: query, user: window.accountAPI.user.did });
+
+      if (response.posts.length == 0) {
+        this.results.innerHTML = "No results.";
+        return;
+      }
+
+      let records = await window.accountAPI.loadPosts(response.posts);
+      let posts = records.map(x => new Post(x));
+
+      this.results.innerHTML = '';
+
+      for (let post of posts) {
+        let postView = new PostComponent(post, 'feed').buildElement();
+        this.results.appendChild(postView);
+      }
     }
   }
 

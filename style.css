@@ -1036,6 +1036,10 @@ p.back i {
   margin-left: 8px;
 }
 
+#private_search_page .results > .post {
+  padding-left: 0;
+}
+
 @media (prefers-color-scheme: dark) {
   body {
     background-color: rgb(39, 39, 37);
