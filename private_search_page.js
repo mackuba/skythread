@@ -144,7 +144,7 @@ class PrivateSearchPage {
 
   /** @param {string} query */
 
-  async searchInLycan(query) {
+  searchInLycan(query) {
     if (query.length == 0) {
       this.results.innerHTML = '';
       return;
@@ -152,24 +152,52 @@ class PrivateSearchPage {
 
     this.results.innerHTML = '...';
 
-    if (this.lycanMode == 'local') {
-      let response = await this.lycan.getRequest('blue.feeds.lycan.searchPosts', { query: query, user: window.accountAPI.user.did });
+    let isLoading = false;
+    let firstPageLoaded = false;
+    let cursor;
+    let finished = false;
+
+    loadInPages(async () => {
+      if (isLoading || finished) { return; }
+      isLoading = true;
+
+      let response;
+
+      if (this.lycanMode == 'local') {
+        let params = { query: query, user: window.accountAPI.user.did };
+        if (cursor) params.cursor = cursor;
+
+        response = await this.lycan.getRequest('blue.feeds.lycan.searchPosts', params);
+      }
 
       if (response.posts.length == 0) {
-        this.results.innerHTML = "No results.";
+        this.results.append(firstPageLoaded ? "No more results." : "No results.");
+        isLoading = false;
+        finished = true;
         return;
       }
 
       let records = await window.accountAPI.loadPosts(response.posts);
       let posts = records.map(x => new Post(x));
 
-      this.results.innerHTML = '';
+      if (!firstPageLoaded) {
+        this.results.innerHTML = '';
+        firstPageLoaded = true;
+      }
 
       for (let post of posts) {
         let postView = new PostComponent(post, 'feed').buildElement();
         this.results.appendChild(postView);
       }
-    }
+
+      isLoading = false;
+      cursor = response.cursor;
+
+      if (!cursor) {
+        finished = true;
+        this.results.append("No more results.");
+      }
+    });
   }
 
   /** @param {json[]} dataPage, @param {number} startTime */
