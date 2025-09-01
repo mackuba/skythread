@@ -168,6 +168,13 @@ class PrivateSearchPage {
         if (cursor) params.cursor = cursor;
 
         response = await this.lycan.getRequest('blue.feeds.lycan.searchPosts', params);
+      } else {
+        let params = { query: query };
+        if (cursor) params.cursor = cursor;
+
+        response = await accountAPI.getRequest('blue.feeds.lycan.searchPosts', params, {
+          headers: { 'atproto-proxy': 'did:web:lycan.feeds.blue#lycan' }
+        });
       }
 
       if (response.posts.length == 0) {
