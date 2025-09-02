@@ -17,6 +17,35 @@ class AtURI {
   }
 }
 
+window.Paginator = {
+  /** @param {Function} callback */
+
+  loadInPages(callback) {
+    if (this.scrollHandler) {
+      document.removeEventListener('scroll', this.scrollHandler);
+    }
+
+    if (this.resizeObserver) {
+      this.resizeObserver.disconnect();
+    }
+
+    let loadIfNeeded = () => {
+      if (window.pageYOffset + window.innerHeight > document.body.offsetHeight - 500) {
+        callback(loadIfNeeded);
+      }
+    };
+
+    callback(loadIfNeeded);
+
+    document.addEventListener('scroll', loadIfNeeded);
+    const resizeObserver = new ResizeObserver(loadIfNeeded);
+    resizeObserver.observe(document.body);
+
+    this.scrollHandler = loadIfNeeded;
+    this.resizeObserver = resizeObserver;
+  }
+};
+
 /**
  * @template T
  * @param {string} tag

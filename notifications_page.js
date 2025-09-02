@@ -13,7 +13,7 @@ class NotificationsPage {
     let finished = false;
     let cursor;
 
-    loadInPages((next) => {
+    Paginator.loadInPages((next) => {
       if (isLoading || finished) { return; }
       isLoading = true;
 

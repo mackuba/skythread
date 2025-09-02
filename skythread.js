@@ -341,7 +341,7 @@ function loadHashtagPage(hashtag) {
   let finished = false;
   let cursor;
 
-  loadInPages(() => {
+  Paginator.loadInPages(() => {
     if (isLoading || finished) { return; }
     isLoading = true;
 
@@ -389,7 +389,7 @@ function loadQuotesPage(url) {
   let cursor;
   let finished = false;
 
-  loadInPages(() => {
+  Paginator.loadInPages(() => {
     if (isLoading || finished) { return; }
     isLoading = true;
 
@@ -439,20 +439,4 @@ function loadQuotesPage(url) {
       isLoading = false;
     });
   });
-}
-
-/** @param {Function} callback */
-
-function loadInPages(callback) {
-  let loadIfNeeded = () => {
-    if (window.pageYOffset + window.innerHeight > document.body.offsetHeight - 500) {
-      callback(loadIfNeeded);
-    }
-  };
-
-  callback(loadIfNeeded);
-
-  document.addEventListener('scroll', loadIfNeeded);
-  const resizeObserver = new ResizeObserver(loadIfNeeded);
-  resizeObserver.observe(document.body);
 }

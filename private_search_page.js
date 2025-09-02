@@ -157,7 +157,7 @@ class PrivateSearchPage {
     let cursor;
     let finished = false;
 
-    loadInPages(async () => {
+    Paginator.loadInPages(async () => {
       if (isLoading || finished) { return; }
       isLoading = true;
 
