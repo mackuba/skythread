@@ -130,8 +130,8 @@ class BlueskyAPI extends Minisky {
       throw new URLError(`${error}`);
     }
 
-    if (url.protocol != 'https:') {
-      throw new URLError('URL must start with https://');
+    if (url.protocol != 'https:' && url.protocol != 'http:') {
+      throw new URLError('URL must start with http(s)://');
     }
 
     let parts = url.pathname.split('/');
