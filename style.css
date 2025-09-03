@@ -1036,8 +1036,25 @@ p.back i {
   margin-left: 8px;
 }
 
+#private_search_page .results {
+  margin-top: 30px;
+}
+
 #private_search_page .results > .post {
-  padding-left: 0;
+  margin-left: -15px;
+  padding-left: 15px;
+  border-bottom: 1px solid #ddd;
+  padding-bottom: 10px;
+  margin-top: 24px;
+}
+
+#private_search_page .results-end {
+  font-size: 12pt;
+  color: #333;  
+}
+
+#private_search_page .post + .results-end {
+  font-size: 11pt;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -1260,5 +1277,13 @@ p.back i {
 
   #private_search_page .search-query {
     border: 1px solid #666;
+  }
+
+  #private_search_page .results-end {
+    color: #888;  
+  }
+
+  #private_search_page .results > .post {
+    border-bottom: 1px solid #555;
   }
 }

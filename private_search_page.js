@@ -145,12 +145,14 @@ class PrivateSearchPage {
   /** @param {string} query */
 
   searchInLycan(query) {
+    this.results.innerHTML = '';
+
     if (query.length == 0) {
-      this.results.innerHTML = '';
       return;
     }
 
-    this.results.innerHTML = '...';
+    let loading = $tag('p', { text: "..." });
+    this.results.append(loading);
 
     let isLoading = false;
     let firstPageLoaded = false;
@@ -178,7 +180,10 @@ class PrivateSearchPage {
       }
 
       if (response.posts.length == 0) {
-        this.results.append(firstPageLoaded ? "No more results." : "No results.");
+        let p = $tag('p.results-end', { text: firstPageLoaded ? "No more results." : "No results." });
+        loading.remove();
+        this.results.append(p);
+
         isLoading = false;
         finished = true;
         return;
@@ -188,7 +193,7 @@ class PrivateSearchPage {
       let posts = records.map(x => new Post(x));
 
       if (!firstPageLoaded) {
-        this.results.innerHTML = '';
+        loading.remove();
         firstPageLoaded = true;
       }
 
