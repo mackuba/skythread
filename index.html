@@ -182,7 +182,14 @@
       <hr>
     </div>
 
-    <p class="search">Search: <input type="text" class="search-query" autocomplete="off"></p>
+    <form class="search-form">
+      <p class="search">Search: <input type="text" class="search-query" autocomplete="off"></p>
+
+      <div class="search-collections">
+        <input type="radio" name="collection" value="likes" id="collection-likes" checked> <label for="collection-likes">Likes</label>
+        <input type="radio" name="collection" value="reposts" id="collection-reposts"> <label for="collection-reposts">Reposts</label>
+      </div>
+    </form>
 
     <div class="results">
     </div>

@@ -13,6 +13,7 @@ class PrivateSearchPage {
 
     this.searchLine = $(this.pageElement.querySelector('.search'));
     this.searchField = $(this.pageElement.querySelector('.search-query'), HTMLInputElement);
+    this.searchForm = $(this.pageElement.querySelector('.search-form'), HTMLFormElement);
     this.results = $(this.pageElement.querySelector('.results'));
 
     this.timelinePosts = [];
@@ -71,9 +72,11 @@ class PrivateSearchPage {
 
     if (this.mode == 'likes') {
       this.pageElement.querySelector('.timeline-search').style.display = 'none';
+      this.pageElement.querySelector('.search-collections').style.display = 'block';
       this.searchLine.style.display = 'block';
     } else {
       this.pageElement.querySelector('.timeline-search').style.display = 'block';
+      this.pageElement.querySelector('.search-collections').style.display = 'none';
     }
   }
 
@@ -151,6 +154,8 @@ class PrivateSearchPage {
       return;
     }
 
+    let collection = this.searchForm.elements['collection'].value;
+
     let loading = $tag('p', { text: "..." });
     this.results.append(loading);
 
@@ -166,12 +171,12 @@ class PrivateSearchPage {
       let response;
 
       if (this.lycanMode == 'local') {
-        let params = { query: query, user: window.accountAPI.user.did };
+        let params = { collection, query, user: window.accountAPI.user.did };
         if (cursor) params.cursor = cursor;
 
         response = await this.lycan.getRequest('blue.feeds.lycan.searchPosts', params);
       } else {
-        let params = { query: query };
+        let params = { collection, query };
         if (cursor) params.cursor = cursor;
 
         response = await accountAPI.getRequest('blue.feeds.lycan.searchPosts', params, {

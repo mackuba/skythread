@@ -1036,6 +1036,10 @@ p.back i {
   margin-left: 8px;
 }
 
+#private_search_page .search-collections label {
+  vertical-align: middle;
+}
+
 #private_search_page .results {
   margin-top: 30px;
 }
