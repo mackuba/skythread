@@ -486,6 +486,13 @@ p.back i {
   margin-top: 18px;
 }
 
+.post .body .highlight {
+  background-color: rgba(255, 255, 0, 0.75);
+  padding: 1px 2px;
+  margin-left: -1px;
+  margin-right: -1px;
+}
+
 .post .quote-embed {
   border: 1px solid #ddd;
   border-radius: 8px;
@@ -1178,6 +1185,10 @@ p.back i {
 
   .post h2 .action {
     color: #888;
+  }
+
+  .post .body .highlight {
+    background-color: rgba(255, 255, 0, 0.35);
   }
 
   .post .quote-embed {

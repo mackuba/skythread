@@ -301,6 +301,47 @@ class PostComponent {
     return p;
   }
 
+  /** @param {string[]} terms */
+
+  highlightSearchResults(terms) {
+    let regexp = new RegExp(`\\b(${terms.join('|')})\\b`, 'gi');
+
+    let body = this._rootElement.querySelector(':scope > .content > .body');
+    let walker = document.createTreeWalker(body, NodeFilter.SHOW_TEXT);
+    let textNodes = [];
+
+    while (walker.nextNode()) {
+      textNodes.push(walker.currentNode);
+    }
+
+    for (let node of textNodes) {
+      let markedText = document.createDocumentFragment();
+      let currentPosition = 0;
+
+      for (;;) {
+        let match = regexp.exec(node.textContent);
+        if (match === null) break;
+
+        if (match.index > currentPosition) {
+          let earlierText = node.textContent.slice(currentPosition, match.index);
+          markedText.appendChild(document.createTextNode(earlierText));
+        }
+
+        let span = $tag('span.highlight', { text: match[0] });
+        markedText.appendChild(span);
+
+        currentPosition = match.index + match[0].length;
+      }
+
+      if (currentPosition < node.textContent.length) {
+        let remainingText = node.textContent.slice(currentPosition);
+        markedText.appendChild(document.createTextNode(remainingText));
+      }
+
+      node.parentNode.replaceChild(markedText, node);
+    }
+  }
+
   /** @param {string[]} tags, @returns {HTMLElement} */
 
   buildTagsRow(tags) {

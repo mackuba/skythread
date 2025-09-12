@@ -203,8 +203,11 @@ class PrivateSearchPage {
       }
 
       for (let post of posts) {
-        let postView = new PostComponent(post, 'feed').buildElement();
+        let component = new PostComponent(post, 'feed');
+        let postView = component.buildElement();
         this.results.appendChild(postView);
+
+        component.highlightSearchResults(response.terms);
       }
 
       isLoading = false;
