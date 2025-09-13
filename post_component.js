@@ -306,7 +306,7 @@ class PostComponent {
   highlightSearchResults(terms) {
     let regexp = new RegExp(`\\b(${terms.join('|')})\\b`, 'gi');
 
-    let body = this._rootElement.querySelector(':scope > .content > .body');
+    let body = this._rootElement.querySelector(':scope > .content > .body, :scope > .content > details .body');
     let walker = document.createTreeWalker(body, NodeFilter.SHOW_TEXT);
     let textNodes = [];
 
