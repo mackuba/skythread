@@ -171,7 +171,10 @@ class PostComponent {
     }
 
     if (this.post.originalFediURL) {
-      wrapper.appendChild(this.buildFediSourceLink());
+      let link = this.buildFediSourceLink(this.post.originalFediURL);
+      if (link) {
+        wrapper.appendChild(link);
+      }
     }
 
     if (this.post.likeCount !== undefined && this.post.repostCount !== undefined) {
@@ -316,7 +319,8 @@ class PostComponent {
   highlightSearchResults(terms) {
     let regexp = new RegExp(`\\b(${terms.join('|')})\\b`, 'gi');
 
-    let body = this._rootElement.querySelector(':scope > .content > .body, :scope > .content > details .body');
+    let root = this.rootElement;
+    let body = $(root.querySelector(':scope > .content > .body, :scope > .content > details .body'));
     let walker = document.createTreeWalker(body, NodeFilter.SHOW_TEXT);
     let textNodes = [];
 
@@ -325,6 +329,8 @@ class PostComponent {
     }
 
     for (let node of textNodes) {
+      if (!node.textContent) { continue; }
+
       let markedText = document.createDocumentFragment();
       let currentPosition = 0;
 
@@ -348,7 +354,7 @@ class PostComponent {
         markedText.appendChild(document.createTextNode(remainingText));
       }
 
-      node.parentNode.replaceChild(markedText, node);
+      $(node.parentNode).replaceChild(markedText, node);
     }
   }
 
@@ -486,23 +492,20 @@ class PostComponent {
     this.loadHiddenSubtree(this.post, this.rootElement);
   }
 
-  /** @returns {HTMLElement | undefined} */
+  /** @param {string} url, @returns {HTMLElement | undefined} */
 
-  buildFediSourceLink() {
-    let url = this.post.originalFediURL;
-    let hostname;
-
+  buildFediSourceLink(url) {
     try {
-      hostname = new URL(url).hostname;
+      let hostname = new URL(url).hostname;
+      let a = $tag('a.fedi-link', { href: url, target: '_blank' });
+
+      let box = $tag('div', { html: `<i class="fa-solid fa-arrow-up-right-from-square fa-sm"></i> View on ${hostname}` });
+      a.append(box);
+      return a;
     } catch (error) {
       console.log("Invalid Fedi URL:" + error);
       return undefined;
     }
-
-    let a = $tag('a.fedi-link', { href: url, target: '_blank' });
-    let box = $tag('div', { html: `<i class="fa-solid fa-arrow-up-right-from-square fa-sm"></i> View on ${hostname}` });
-    a.append(box);
-    return a;
   }
 
   /** @param {HTMLLinkElement} authorLink */

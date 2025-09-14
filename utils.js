@@ -17,9 +17,14 @@ class AtURI {
   }
 }
 
-window.Paginator = {
-  /** @param {Function} callback */
+/**
+ * @typedef {object} PaginatorType
+ * @property {(callback: (boolean) => void) => void} loadInPages
+ * @property {(() => void)=} scrollHandler
+ * @property {ResizeObserver=} resizeObserver
+ */
 
+window.Paginator = {
   loadInPages(callback) {
     if (this.scrollHandler) {
       document.removeEventListener('scroll', this.scrollHandler);

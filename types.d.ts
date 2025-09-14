@@ -20,6 +20,8 @@ declare var likeStatsPage: LikeStatsPage;
 declare var notificationsPage: NotificationsPage;
 declare var privateSearchPage: PrivateSearchPage;
 
+declare var Paginator: PaginatorType;
+
 type json = Record<string, any>;
 
 function $tag(tag: string): HTMLElement;
