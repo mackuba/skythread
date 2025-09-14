@@ -162,6 +162,16 @@ class PostComponent {
     if (this.post.embed) {
       let embed = new EmbedComponent(this.post, this.post.embed).buildElement();
       wrapper.appendChild(embed);
+
+      if (this.post.originalFediURL) {
+        if (this.post.embed instanceof InlineLinkEmbed && this.post.embed.title.startsWith('Original post on ')) {
+          embed.remove();
+        }
+      }
+    }
+
+    if (this.post.originalFediURL) {
+      wrapper.appendChild(this.buildFediSourceLink());
     }
 
     if (this.post.likeCount !== undefined && this.post.repostCount !== undefined) {
@@ -474,6 +484,25 @@ class PostComponent {
   loadHiddenReplies(loadMoreButton) {
     loadMoreButton.innerHTML = `<img class="loader" src="icons/sunny.png">`;
     this.loadHiddenSubtree(this.post, this.rootElement);
+  }
+
+  /** @returns {HTMLElement | undefined} */
+
+  buildFediSourceLink() {
+    let url = this.post.originalFediURL;
+    let hostname;
+
+    try {
+      hostname = new URL(url).hostname;
+    } catch (error) {
+      console.log("Invalid Fedi URL:" + error);
+      return undefined;
+    }
+
+    let a = $tag('a.fedi-link', { href: url, target: '_blank' });
+    let box = $tag('div', { html: `<i class="fa-solid fa-arrow-up-right-from-square fa-sm"></i> View on ${hostname}` });
+    a.append(box);
+    return a;
   }
 
   /** @param {HTMLLinkElement} authorLink */

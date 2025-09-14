@@ -647,6 +647,33 @@ p.back i {
   color: #aaa;
 }
 
+.post a.fedi-link {
+  display: inline-block;
+  margin-bottom: 6px;
+  margin-top: 2px;
+}
+
+.post a.fedi-link:hover {
+  text-decoration: none;
+}
+
+.post a.fedi-link > div {
+  border: 1px solid #d8d8d8;
+  border-radius: 8px;
+  padding: 5px 9px;
+  color: #666;
+  font-size: 10pt;
+}
+
+.post a.fedi-link i {
+  margin-right: 2px;
+}
+
+.post a.fedi-link:hover > div {
+  background-color: #f6f7f8;
+  border: 1px solid #c8c8c8;
+}
+
 .post div.gif img {
   user-select: none;
   -webkit-user-select: none;

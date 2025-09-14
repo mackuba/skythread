@@ -322,6 +322,11 @@ class Post extends ATProtoRecord {
     return this.record.bridgyOriginalText;
   }
 
+  /** @returns {string | undefined} */
+  get originalFediURL() {
+    return this.record.bridgyOriginalUrl;
+  }
+
   /** @returns {boolean} */
   get isRoot() {
     // I AM ROOOT
