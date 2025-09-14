@@ -65,6 +65,15 @@ class ThreadPage {
       if (root.parent) {
         let p = this.buildParentLink(root.parent);
         $id('thread').appendChild(p);
+      } else if (root.parentReference) {
+        let { repo, rkey } = atURI(root.parentReference.uri);
+        let url = linkToPostById(repo, rkey);
+
+        let handle = api.findHandleByDid(repo);
+        let link = handle ? `See parent post (@${handle})` : "See parent post";
+
+        let p = $tag('p.back', { html: `<i class="fa-solid fa-reply"></i><a href="${url}">${link}</a>` });
+        $id('thread').appendChild(p);
       }
     }
 
