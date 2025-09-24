@@ -301,7 +301,7 @@ class Minisky {
     let text = await response.text();
     let json = text.trim().length > 0 ? JSON.parse(text) : undefined;
 
-    if (response.status == 200) {
+    if (response.status >= 200 && response.status < 300) {
       return json;
     } else {
       throw new APIError(response.status, json);
