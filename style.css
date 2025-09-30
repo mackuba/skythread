@@ -1058,6 +1058,60 @@ p.back i {
   display: none;
 }
 
+#private_search_page .likes-import {
+  display: none;
+  margin: 15px 0 25px;
+}
+
+#private_search_page .likes-import p {
+  margin: 0 0 10px;
+}
+
+#private_search_page .likes-import .import-loading,
+#private_search_page .likes-import .import-description,
+#private_search_page .likes-import .import-position {
+  color: #555;
+  font-size: 0.92em;
+}
+
+#private_search_page .likes-import .import-intro,
+#private_search_page .likes-import .import-progress {
+  display: none;
+}
+
+#private_search_page .likes-import .import-progress progress {
+  display: block;
+  width: 100%;
+  max-width: 520px;
+  margin: 12px 0 6px;
+  height: 12px;
+}
+
+#private_search_page .likes-import .import-status {
+  font-weight: 600;
+}
+
+#private_search_page .likes-import .import-error {
+  color: #b21f2d;
+  font-size: 0.9em;
+  margin-top: 6px;
+}
+
+#private_search_page .likes-import .start-import {
+  font-size: 12pt;
+  padding: 6px 18px;
+  border-radius: 6px;
+  border: none;
+  background-color: hsl(207, 90%, 48%);
+  color: white;
+  cursor: pointer;
+}
+
+#private_search_page .likes-import .start-import:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
 #private_search_page .search {
   display: none;
 }
@@ -1371,5 +1425,19 @@ p.back i {
 
   #private_search_page .results > .post {
     border-bottom: 1px solid #555;
+  }
+
+  #private_search_page .likes-import .import-loading,
+  #private_search_page .likes-import .import-description,
+  #private_search_page .likes-import .import-position {
+    color: #bbb;
+  }
+
+  #private_search_page .likes-import .import-error {
+    color: #f08080;
+  }
+
+  #private_search_page .likes-import .start-import {
+    background-color: hsl(207, 90%, 40%);
   }
 }
