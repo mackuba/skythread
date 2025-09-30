@@ -182,6 +182,23 @@
       <hr>
     </div>
 
+    <div class="likes-import">
+      <p class="import-loading">Checking archive status…</p>
+
+      <div class="import-intro">
+        <p class="import-description">To search inside your likes and other saved posts, we first need to download them from Lycan. Start the import and we will fetch your data in the background. This can take some time, so you may need to return later once it is finished.</p>
+        <button type="button" class="start-import">Start import</button>
+      </div>
+
+      <div class="import-progress">
+        <p class="import-status">Import in progress…</p>
+        <progress max="1" value="0"></progress>
+        <p class="import-position"></p>
+      </div>
+
+      <p class="import-error"></p>
+    </div>
+
     <form class="search-form">
       <p class="search">Search: <input type="text" class="search-query" autocomplete="off"></p>
 
