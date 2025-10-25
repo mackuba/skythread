@@ -3,6 +3,12 @@ class PrivateSearchPage {
   /** @type {number | undefined} */
   fetchStartTime;
 
+  /** @type {number | undefined} */
+  importTimer;
+
+  /** @type {string | undefined} */
+  lycanImportStatus;
+
   constructor() {
     this.pageElement = $id('private_search_page');
 
@@ -17,8 +23,17 @@ class PrivateSearchPage {
     this.results = $(this.pageElement.querySelector('.results'));
 
     this.timelineSearch = $(this.pageElement.querySelector('.timeline-search'));
+    this.timelineSearchForm = $(this.pageElement.querySelector('.timeline-search form'), HTMLFormElement);
     this.searchCollections = $(this.pageElement.querySelector('.search-collections'));
 
+    this.lycanImportSection = $(this.pageElement.querySelector('.lycan-import'));
+    this.lycanImportForm = $(this.pageElement.querySelector('.lycan-import form'), HTMLFormElement);
+    this.importProgress = $(this.pageElement.querySelector('.import-progress'));
+    this.importProgressBar = $(this.pageElement.querySelector('.import-progress progress'), HTMLProgressElement);
+    this.importStatusLabel = $(this.pageElement.querySelector('.import-status'));
+    this.importStatusPosition = $(this.pageElement.querySelector('.import-progress output'));
+
+    this.isCheckingStatus = false;
     this.timelinePosts = [];
 
     this.setupEvents();
@@ -33,7 +48,7 @@ class PrivateSearchPage {
   }
 
   setupEvents() {
-    $(this.pageElement.querySelector('form')).addEventListener('submit', (e) => {
+    this.timelineSearchForm.addEventListener('submit', (e) => {
       e.preventDefault();
 
       if (!this.fetchStartTime) {
@@ -62,6 +77,11 @@ class PrivateSearchPage {
         }
       }
     });
+
+    this.lycanImportForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      this.startLycanImport();
+    });
   }
 
   /** @returns {number} */
@@ -77,9 +97,153 @@ class PrivateSearchPage {
       this.timelineSearch.style.display = 'none';
       this.searchCollections.style.display = 'block';
       this.searchLine.style.display = 'block';
+      this.lycanImportSection.style.display = 'none';
+      this.checkLycanImportStatus();
     } else {
       this.timelineSearch.style.display = 'block';
       this.searchCollections.style.display = 'none';
+      this.lycanImportSection.style.display = 'none';
+    }
+  }
+
+  /** @returns {Promise<void>} */
+
+  async checkLycanImportStatus() {
+    if (this.isCheckingStatus) {
+      return;
+    }
+
+    this.isCheckingStatus = true;
+
+    try {
+      let response = await this.getImportStatus();
+      this.showImportStatus(response);
+    } catch (error) {
+      this.showImportError(`Couldn't check import status: ${error}`);
+    } finally {
+      this.isCheckingStatus = false;
+    }
+  }
+
+  /** @returns {Promise<json>} */
+
+  async getImportStatus() {
+    if (this.localLycan) {
+      return await this.localLycan.getRequest('blue.feeds.lycan.getImportStatus', { user: accountAPI.user.did });
+    } else {
+      return await accountAPI.getRequest('blue.feeds.lycan.getImportStatus', null, {
+        headers: { 'atproto-proxy': 'did:web:lycan.feeds.blue#lycan' }
+      });
+    }
+  }
+
+  /** @param {json} info */
+
+  showImportStatus(info) {
+    console.log(info);
+
+    if (!info.status) {
+      this.showImportError("Error checking import status");
+      return;
+    }
+
+    this.lycanImportStatus = info.status;
+
+    if (info.status == 'not_started') {
+      this.lycanImportSection.style.display = 'block';
+      this.lycanImportForm.style.display = 'block';
+      this.importProgress.style.display = 'none';
+
+      this.stopImportTimer();
+    } else if (info.status == 'in_progress' || info.status == 'scheduled' || info.status == 'requested') {
+      this.lycanImportSection.style.display = 'block';
+      this.lycanImportForm.style.display = 'none';
+      this.importProgress.style.display = 'block';
+
+      this.showImportProgress(info);
+      this.startImportTimer();
+    } else if (info.status == 'finished') {
+      this.lycanImportForm.style.display = 'none';
+      this.importProgress.style.display = 'block';
+
+      this.showImportProgress({ status: 'finished', progress: 1.0 });
+      this.stopImportTimer();
+    } else {
+      this.showImportError("Error checking import status");
+      this.stopImportTimer();
+    }
+  }
+
+  /** @param {json} info */
+
+  showImportProgress(info) {
+    let progress = Math.max(0, Math.min(info.progress || 0));
+    this.importProgressBar.value = progress;
+    this.importProgressBar.style.display = 'inline';
+
+    let percent = Math.round(progress * 100);
+    this.importStatusPosition.innerText = `${percent}%`;
+
+    if (info.progress == 1.0) {
+      this.importStatusLabel.innerText = `Import complete ✓`;
+    } else if (info.position) {
+      let date = new Date(info.position).toLocaleString(window.dateLocale, { day: 'numeric', month: 'short', year: 'numeric' });
+      this.importStatusLabel.innerText = `Imported data until: ${date}`;
+    } else if (info.status == 'requested') {
+      this.importStatusLabel.innerText = 'Requesting import…';
+    } else {
+      this.importStatusLabel.innerText = 'Import started…';
+    }
+  }
+
+  /** @param {string} message */
+
+  showImportError(message) {
+    this.lycanImportSection.style.display = 'block';
+    this.lycanImportForm.style.display = 'none';
+    this.importProgress.style.display = 'block';
+
+    this.importStatusLabel.innerText = message;
+    this.stopImportTimer();
+  }
+
+  startImportTimer() {
+    if (this.importTimer) {
+      return;
+    }
+
+    this.importTimer = setInterval(() => {
+      this.checkLycanImportStatus();
+    }, 3000);
+  }
+
+  stopImportTimer() {
+    if (this.importTimer) {
+      clearInterval(this.importTimer);
+      this.importTimer = undefined;
+    }
+  }
+
+  /** @returns {Promise<void>} */
+
+  async startLycanImport() {
+    this.showImportStatus({ status: 'requested' });
+
+    try {
+      if (this.localLycan) {
+        await this.localLycan.postRequest('blue.feeds.lycan.startImport', {
+          user: accountAPI.user.did
+        });
+      } else {
+        await accountAPI.postRequest('blue.feeds.lycan.startImport', null, {
+          headers: { 'atproto-proxy': 'did:web:lycan.feeds.blue#lycan' }
+        });
+      }
+
+      this.startImportTimer();
+    } catch (err) {
+      console.error('Failed to start Lycan import', err);
+      this.showImportError(`Import failed: ${err}`);
     }
   }
 
@@ -151,11 +315,12 @@ class PrivateSearchPage {
   /** @param {string} query */
 
   searchInLycan(query) {
-    this.results.innerHTML = '';
-
-    if (query.length == 0) {
+    if (query.length == 0 || this.lycanImportStatus != 'finished') {
       return;
     }
+
+    this.results.innerHTML = '';
+    this.lycanImportSection.style.display = 'none';
 
     let collection = this.searchForm.elements['collection'].value;
 
@@ -174,7 +339,7 @@ class PrivateSearchPage {
       let response;
 
       if (this.localLycan) {
-        let params = { collection, query, user: window.accountAPI.user.did };
+        let params = { collection, query, user: accountAPI.user.did };
         if (cursor) params.cursor = cursor;
 
         response = await this.localLycan.getRequest('blue.feeds.lycan.searchPosts', params);
@@ -197,7 +362,7 @@ class PrivateSearchPage {
         return;
       }
 
-      let records = await window.accountAPI.loadPosts(response.posts);
+      let records = await accountAPI.loadPosts(response.posts);
       let posts = records.map(x => new Post(x));
 
       if (!firstPageLoaded) {

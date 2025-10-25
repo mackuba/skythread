@@ -1074,6 +1074,27 @@ p.back i {
   vertical-align: middle;
 }
 
+#private_search_page .lycan-import {
+  display: none;
+
+  margin-top: 30px;
+  border-top: 1px solid #ccc;
+  padding-top: 5px;
+}
+
+#private_search_page .lycan-import form p {
+  line-height: 135%;
+}
+
+#private_search_page .lycan-import .import-progress progress {
+  margin-left: 0;
+  margin-right: 6px;
+}
+
+#private_search_page .lycan-import .import-progress progress + output {
+  font-size: 11pt;
+}
+
 #private_search_page .results {
   margin-top: 30px;
 }
@@ -1363,6 +1384,10 @@ p.back i {
 
   #private_search_page .search-query {
     border: 1px solid #666;
+  }
+
+  #private_search_page .lycan-import {
+    border-top-color: #888;
   }
 
   #private_search_page .results-end {
