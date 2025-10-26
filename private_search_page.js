@@ -289,7 +289,7 @@ class PrivateSearchPage {
       daysBack = 0;
     }
 
-    this.timelinePosts = timeline.map(x => Post.parseFeedPost(x));
+    this.timelinePosts = timeline;
 
     this.archiveStatus.innerText = "Timeline archive fetched: " + ((daysBack == 1) ? '1 day' : `${daysBack} days`);
     this.searchLine.style.display = 'block';
@@ -308,7 +308,9 @@ class PrivateSearchPage {
       return;
     }
 
-    let matching = this.timelinePosts.filter(x => x.lowercaseText.includes(query));
+    let matching = this.timelinePosts
+      .filter(x => x.post.record.text.toLowerCase().includes(query))
+      .map(x => Post.parseFeedPost(x));
 
     for (let post of matching) {
       let postView = new PostComponent(post, 'feed').buildElement();
