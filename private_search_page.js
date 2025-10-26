@@ -12,6 +12,8 @@ class PrivateSearchPage {
   constructor() {
     this.pageElement = $id('private_search_page');
 
+    this.header = $(this.pageElement.querySelector('h2'));
+
     this.rangeInput = $(this.pageElement.querySelector('input[type="range"]'), HTMLInputElement);
     this.submitButton = $(this.pageElement.querySelector('input[type="submit"]'), HTMLInputElement);
     this.progressBar = $(this.pageElement.querySelector('input[type="submit"] + progress'), HTMLProgressElement);
@@ -94,12 +96,14 @@ class PrivateSearchPage {
     this.pageElement.style.display = 'block';
 
     if (this.mode == 'likes') {
+      this.header.innerText = 'Archive search';
       this.timelineSearch.style.display = 'none';
       this.searchCollections.style.display = 'block';
       this.searchLine.style.display = 'block';
       this.lycanImportSection.style.display = 'none';
       this.checkLycanImportStatus();
     } else {
+      this.header.innerText = 'Timeline search';
       this.timelineSearch.style.display = 'block';
       this.searchCollections.style.display = 'none';
       this.lycanImportSection.style.display = 'none';
