@@ -11,6 +11,7 @@ class Menu {
 
     html.addEventListener('click', (e) => {
       this.menuElement.style.visibility = 'hidden';
+      this.icon.classList.remove('active');
     });
 
     let homeLink = $(this.menuElement.querySelector('a[href="?"]'), HTMLLinkElement);
@@ -69,7 +70,10 @@ class Menu {
   }
 
   toggleAccountMenu() {
-    this.menuElement.style.visibility = (this.menuElement.style.visibility == 'visible') ? 'hidden' : 'visible';
+    let isVisible = (this.menuElement.style.visibility == 'visible');
+
+    this.menuElement.style.visibility = isVisible ? 'hidden' : 'visible';
+    this.icon.classList.toggle('active', !isVisible);
   }
 
   /** @param {string} buttonName */

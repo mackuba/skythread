@@ -1158,6 +1158,10 @@ p.back i {
     background-color: transparent;
   }
 
+  #account.active {
+    color: #333;
+  }
+
   #account_menu {
     background: hsl(210, 33.33%, 94.0%);
     border-color: #ccc;
