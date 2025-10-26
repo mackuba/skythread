@@ -13,6 +13,9 @@ class Menu {
       this.menuElement.style.visibility = 'hidden';
     });
 
+    let homeLink = $(this.menuElement.querySelector('a[href="?"]'), HTMLLinkElement);
+    homeLink.href = location.origin + location.pathname;
+
     this.icon.addEventListener('click', (e) => {
       e.stopPropagation();
       this.toggleAccountMenu();

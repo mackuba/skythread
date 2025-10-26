@@ -127,7 +127,7 @@ a:visited {
   padding: 6px 11px;
 }
 
-#account_menu li a {
+#account_menu li a[data-action] {
   display: inline-block;
   color: #333;
   font-size: 11pt;
@@ -138,9 +138,25 @@ a:visited {
   background-color: hsla(210, 100%, 4%, 0.12);
 }
 
-#account_menu li a:hover {
+#account_menu li a[data-action]:hover {
   background-color: hsla(210, 100%, 4%, 0.2);
   text-decoration: none;
+}
+
+#account_menu li:not(.link) + li.link {
+  margin-top: 16px;
+  padding-top: 10px;
+  border-top: 1px solid #ccc;
+}
+
+#account_menu li.link {
+  margin-top: 8px;
+  margin-left: 2px;
+}
+
+#account_menu li.link a {
+  font-size: 11pt;
+  color: #333;
 }
 
 #account_menu li .check {
@@ -1147,13 +1163,13 @@ p.back i {
     border-color: #ccc;
   }
 
-  #account_menu li a {
+  #account_menu li a[data-action] {
     color: #333;
     border-color: #bbb;
     background-color: hsla(210, 100%, 4%, 0.12);
   }
 
-  #account_menu li a:hover {
+  #account_menu li a[data-action]:hover {
     background-color: hsla(210, 100%, 4%, 0.2);
   }
 
