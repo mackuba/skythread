@@ -157,18 +157,21 @@ class PrivateSearchPage {
       this.lycanImportSection.style.display = 'block';
       this.lycanImportForm.style.display = 'block';
       this.importProgress.style.display = 'none';
+      this.searchField.disabled = true;
 
       this.stopImportTimer();
     } else if (info.status == 'in_progress' || info.status == 'scheduled' || info.status == 'requested') {
       this.lycanImportSection.style.display = 'block';
       this.lycanImportForm.style.display = 'none';
       this.importProgress.style.display = 'block';
+      this.searchField.disabled = true;
 
       this.showImportProgress(info);
       this.startImportTimer();
     } else if (info.status == 'finished') {
       this.lycanImportForm.style.display = 'none';
       this.importProgress.style.display = 'block';
+      this.searchField.disabled = false;
 
       this.showImportProgress({ status: 'finished', progress: 1.0 });
       this.stopImportTimer();
@@ -192,7 +195,7 @@ class PrivateSearchPage {
       this.importStatusLabel.innerText = `Import complete ✓`;
     } else if (info.position) {
       let date = new Date(info.position).toLocaleString(window.dateLocale, { day: 'numeric', month: 'short', year: 'numeric' });
-      this.importStatusLabel.innerText = `Imported data until: ${date}`;
+      this.importStatusLabel.innerText = `Downloaded data until: ${date}`;
     } else if (info.status == 'requested') {
       this.importStatusLabel.innerText = 'Requesting import…';
     } else {
@@ -206,6 +209,7 @@ class PrivateSearchPage {
     this.lycanImportSection.style.display = 'block';
     this.lycanImportForm.style.display = 'none';
     this.importProgress.style.display = 'block';
+    this.searchField.disabled = true;
 
     this.importStatusLabel.innerText = message;
     this.stopImportTimer();
