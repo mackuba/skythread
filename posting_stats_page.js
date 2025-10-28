@@ -1,8 +1,11 @@
+import { $, $id, $tag, feedPostTime } from './utils.js';
+import { BlueskyAPI } from './api.js';
+
 /**
  * Manages the Posting Stats page.
  */
 
-class PostingStatsPage {
+export class PostingStatsPage {
 
   /** @type {number | undefined} */
   scanStartTime;

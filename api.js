@@ -1,15 +1,19 @@
+import { AuthError, Minisky } from './minisky.js';
+import { atURI, feedPostTime } from './utils.js';
+import { Post } from './models.js';
+
 /**
  * Thrown when the response is technically a "success" one, but the returned data is not what it should be.
  */
 
-class ResponseDataError extends Error {}
+export class ResponseDataError extends Error {}
 
 
 /**
  * Thrown when the passed URL is not a supported post URL on bsky.app.
  */
 
-class URLError extends Error {
+export class URLError extends Error {
 
   /** @param {string} message */
   constructor(message) {
@@ -82,7 +86,7 @@ class LocalStorageConfig {
  * API client for connecting to the Bluesky XRPC API (authenticated or not).
  */
 
-class BlueskyAPI extends Minisky {
+export class BlueskyAPI extends Minisky {
 
   /** @param {string | undefined} host, @param {boolean} useAuthentication */
   constructor(host, useAuthentication) {

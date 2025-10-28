@@ -1,4 +1,7 @@
-class Menu {
+import { $, $id, $tag } from './utils.js';
+import { logOut, showDialog } from './skythread.js';
+
+export class Menu {
   constructor() {
     this.menuElement = $id('account_menu');
     this.icon = $id('account');

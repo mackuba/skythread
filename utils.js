@@ -1,4 +1,8 @@
-class AtURI {
+import { URLError } from './api.js';
+import DOMPurify from './lib/purify.es.mjs';
+import { Post } from './models.js';
+
+export class AtURI {
   /** @param {string} uri */
   constructor(uri) {
     if (!uri.startsWith('at://')) {
@@ -24,7 +28,7 @@ class AtURI {
  * @property {ResizeObserver=} resizeObserver
  */
 
-window.Paginator = {
+export const Paginator = {
   loadInPages(callback) {
     if (this.scrollHandler) {
       document.removeEventListener('scroll', this.scrollHandler);
@@ -59,7 +63,7 @@ window.Paginator = {
  * @returns {T}
  */
 
-function $tag(tag, params, type) {
+export function $tag(tag, params, type) {
   let element;
   let parts = tag.split('.');
 
@@ -95,7 +99,7 @@ function $tag(tag, params, type) {
  * @returns {T}
  */
 
-function $id(name, type) {
+export function $id(name, type) {
   return /** @type {T} */ (document.getElementById(name));
 }
 
@@ -106,17 +110,17 @@ function $id(name, type) {
  * @returns {T}
  */
 
-function $(element, type) {
+export function $(element, type) {
   return /** @type {T} */ (element);
 }
 
 /** @param {string} uri, @returns {AtURI} */
 
-function atURI(uri) {
+export function atURI(uri) {
   return new AtURI(uri);
 }
 
-function castToInt(value) {
+export function castToInt(value) {
   if (value === undefined || value === null || typeof value == "number") {
     return value;
   } else {
@@ -126,7 +130,7 @@ function castToInt(value) {
 
 /** @param {string} html, @returns {string} */
 
-function escapeHTML(html) {
+export function escapeHTML(html) {
   return html.replace(/&/g, '&amp;')
              .replace(/</g, '&lt;')
              .replace(/>/g,'&gt;');
@@ -134,14 +138,14 @@ function escapeHTML(html) {
 
 /** @param {json} feedPost, @returns {number} */
 
-function feedPostTime(feedPost) {
+export function feedPostTime(feedPost) {
   let timestamp = feedPost.reason ? feedPost.reason.indexedAt : feedPost.post.record.createdAt;
   return Date.parse(timestamp);
 }
 
 /** @param {string} html, @returns {string} */
 
-function sanitizeHTML(html) {
+export function sanitizeHTML(html) {
   return DOMPurify.sanitize(html, {
     ALLOWED_TAGS: [
       'a', 'b', 'blockquote', 'br', 'code', 'dd', 'del', 'div', 'dl', 'dt', 'em', 'font',
@@ -156,20 +160,20 @@ function sanitizeHTML(html) {
 
 /** @returns {string} */
 
-function getLocation() {
+export function getLocation() {
   return location.origin + location.pathname;
 }
 
 /** @param {object} error */
 
-function showError(error) {
+export function showError(error) {
   console.log(error);
   alert(error);
 }
 
 /** @param {Date} date1, @param {Date} date2, @returns {boolean} */
 
-function sameDay(date1, date2) {
+export function sameDay(date1, date2) {
   return (
     date1.getDate() == date2.getDate() &&
     date1.getMonth() == date2.getMonth() &&
@@ -179,13 +183,13 @@ function sameDay(date1, date2) {
 
 /** @param {Post} post, @returns {string} */
 
-function linkToPostThread(post) {
+export function linkToPostThread(post) {
   return linkToPostById(post.author.handle, post.rkey);
 }
 
 /** @param {string} handle, @param {string} postId, @returns {string} */
 
-function linkToPostById(handle, postId) {
+export function linkToPostById(handle, postId) {
   let url = new URL(getLocation());
   url.searchParams.set('author', handle);
   url.searchParams.set('post', postId);

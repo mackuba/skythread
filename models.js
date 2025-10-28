@@ -1,3 +1,5 @@
+import { atURI, castToInt } from './utils.js';
+
 /**
  * Thrown when parsing post JSON fails.
  */
@@ -15,7 +17,7 @@ class PostDataError extends Error {
  * Generic record type, base class for all records or record view objects.
  */
 
-class ATProtoRecord {
+export class ATProtoRecord {
 
   /** @param {json} data, @param {json} [extra] */
   constructor(data, extra) {
@@ -47,11 +49,9 @@ class ATProtoRecord {
 
 /**
  * Standard Bluesky post record.
- *
- * @typedef {Post | BlockedPost | MissingPost | DetachedQuotePost} AnyPost
  */
 
-class Post extends ATProtoRecord {
+export class Post extends ATProtoRecord {
   /**
    * Post object which is the direct parent of this post.
    * @type {ATProtoRecord | undefined}
@@ -447,7 +447,7 @@ class Post extends ATProtoRecord {
  * between the post author and the parent author). It only includes a reference, but no post content.
  */
 
-class BlockedPost extends ATProtoRecord {
+export class BlockedPost extends ATProtoRecord {
 
   /** @param {json} data */
   constructor(data) {
@@ -471,21 +471,21 @@ class BlockedPost extends ATProtoRecord {
  * Stub of a post which was deleted or hidden.
  */
 
-class MissingPost extends ATProtoRecord {}
+export class MissingPost extends ATProtoRecord {}
 
 
 /**
  * Stub of a quoted post which was un-quoted by the original author.
  */
 
-class DetachedQuotePost extends ATProtoRecord {}
+export class DetachedQuotePost extends ATProtoRecord {}
 
 
 /**
  * Record representing a feed generator.
  */
 
-class FeedGeneratorRecord extends ATProtoRecord {
+export class FeedGeneratorRecord extends ATProtoRecord {
 
   /** @param {json} data */
   constructor(data) {
@@ -519,7 +519,7 @@ class FeedGeneratorRecord extends ATProtoRecord {
  * Record representing a user list or moderation list.
  */
 
-class UserListRecord extends ATProtoRecord {
+export class UserListRecord extends ATProtoRecord {
 
   /** @param {json} data */
   constructor(data) {
@@ -553,7 +553,7 @@ class UserListRecord extends ATProtoRecord {
  * Record representing a starter pack.
  */
 
-class StarterPackRecord extends ATProtoRecord {
+export class StarterPackRecord extends ATProtoRecord {
 
   /** @param {json} data */
   constructor(data) {
@@ -577,7 +577,7 @@ class StarterPackRecord extends ATProtoRecord {
  * Base class for embed objects.
  */
 
-class Embed {
+export class Embed {
 
   /**
    * More hydrated view of an embed, taken from a full post view (#postView).
@@ -656,7 +656,7 @@ class Embed {
   }
 }
 
-class RawImageEmbed extends Embed {
+export class RawImageEmbed extends Embed {
 
   /** @param {json} json */
   constructor(json) {
@@ -665,7 +665,7 @@ class RawImageEmbed extends Embed {
   }
 }
 
-class RawLinkEmbed extends Embed {
+export class RawLinkEmbed extends Embed {
 
   /** @param {json} json */
   constructor(json) {
@@ -677,7 +677,7 @@ class RawLinkEmbed extends Embed {
   }
 }
 
-class RawVideoEmbed extends Embed {
+export class RawVideoEmbed extends Embed {
 
   /** @param {json} json */
   constructor(json) {
@@ -686,7 +686,7 @@ class RawVideoEmbed extends Embed {
   }
 }
 
-class RawRecordEmbed extends Embed {
+export class RawRecordEmbed extends Embed {
 
   /** @param {json} json */
   constructor(json) {
@@ -695,7 +695,7 @@ class RawRecordEmbed extends Embed {
   }
 }
 
-class RawRecordWithMediaEmbed extends Embed {
+export class RawRecordWithMediaEmbed extends Embed {
 
   /** @param {json} json */
   constructor(json) {
@@ -705,7 +705,7 @@ class RawRecordWithMediaEmbed extends Embed {
   }
 }
 
-class InlineRecordEmbed extends Embed {
+export class InlineRecordEmbed extends Embed {
 
   /**
    * app.bsky.embed.record#view
@@ -717,7 +717,7 @@ class InlineRecordEmbed extends Embed {
   }
 }
 
-class InlineRecordWithMediaEmbed extends Embed {
+export class InlineRecordWithMediaEmbed extends Embed {
 
   /**
    * app.bsky.embed.recordWithMedia#view
@@ -730,7 +730,7 @@ class InlineRecordWithMediaEmbed extends Embed {
   }
 }
 
-class InlineLinkEmbed extends Embed {
+export class InlineLinkEmbed extends Embed {
 
   /**
    * app.bsky.embed.external#view
@@ -746,7 +746,7 @@ class InlineLinkEmbed extends Embed {
   }
 }
 
-class InlineImageEmbed extends Embed {
+export class InlineImageEmbed extends Embed {
 
   /**
    * app.bsky.embed.images#view
@@ -758,7 +758,7 @@ class InlineImageEmbed extends Embed {
   }
 }
 
-class InlineVideoEmbed extends Embed {
+export class InlineVideoEmbed extends Embed {
 
   /**
    * app.bsky.embed.video#view

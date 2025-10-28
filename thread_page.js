@@ -1,8 +1,13 @@
+import { $, $id, $tag, atURI, linkToPostById, linkToPostThread, showError } from './utils.js';
+import { Post, BlockedPost, MissingPost } from './models.js';
+import { PostComponent } from './post_component.js';
+import { setPageTitle, hideLoader } from './skythread.js';
+
 /**
  * Manages the page that displays a thread, as a whole.
  */
 
-class ThreadPage {
+export class ThreadPage {
 
   /** @param {AnyPost} post, @returns {HTMLElement} */
 

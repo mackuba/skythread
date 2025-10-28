@@ -1,4 +1,7 @@
-class LikeStatsPage {
+import { $, $id, $tag, atURI, feedPostTime } from './utils.js';
+import { BlueskyAPI } from './api.js';
+
+export class LikeStatsPage {
 
   /** @type {number | undefined} */
   scanStartTime;

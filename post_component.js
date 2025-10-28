@@ -1,8 +1,26 @@
+import {
+  $, $id, $tag,
+  atURI,
+  escapeHTML,
+  getLocation,
+  linkToPostById,
+  linkToPostThread,
+  sameDay,
+  sanitizeHTML,
+  showError
+} from './utils.js';
+
+import { Post, BlockedPost, MissingPost, DetachedQuotePost, InlineLinkEmbed } from './models.js';
+import { APIError } from './minisky.js';
+import { EmbedComponent } from './embed_component.js';
+import { RichText } from './rich_text_lite.js';
+import { showDialog } from './skythread.js';
+
 /**
  * Renders a post/thread view and its subviews.
  */
 
-class PostComponent {
+export class PostComponent {
   /**
    * Post component's root HTML element, if built.
    * @type {HTMLElement | undefined}

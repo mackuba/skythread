@@ -48,7 +48,7 @@ class RichTextSegment {
   }
 }
 
-class RichText {
+export class RichText {
   /** @params {json} props */
   constructor(props) {
     this.unicodeText = new UnicodeString(props.text);

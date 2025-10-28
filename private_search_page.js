@@ -1,4 +1,9 @@
-class PrivateSearchPage {
+import { $, $id, $tag, feedPostTime } from './utils.js';
+import { PostComponent } from './post_component.js';
+import { Post } from './models.js';
+import { BlueskyAPI } from './api.js';
+
+export class PrivateSearchPage {
 
   /** @type {number | undefined} */
   fetchStartTime;
