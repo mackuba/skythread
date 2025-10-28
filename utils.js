@@ -56,43 +56,6 @@ export const Paginator = {
 };
 
 /**
- * @template T
- * @param {string} tag
- * @param {string | object} params
- * @param {new (...args: any[]) => T} type
- * @returns {T}
- */
-
-export function $tag(tag, params, type) {
-  let element;
-  let parts = tag.split('.');
-
-  if (parts.length > 1) {
-    let tagName = parts[0];
-    element = document.createElement(tagName);
-    element.className = parts.slice(1).join(' ');
-  } else {
-    element = document.createElement(tag);
-  }
-
-  if (typeof params === 'string') {
-    element.className = element.className + ' ' + params;
-  } else if (params) {
-    for (let key in params) {
-      if (key == 'text') {
-        element.innerText = params[key];
-      } else if (key == 'html') {
-        element.innerHTML = params[key];
-      } else {
-        element[key] = params[key];
-      }
-    }
-  }
-
-  return /** @type {T} */ (element);
-}
-
-/**
  * @template {HTMLElement} T
  * @param {string} name
  * @param {new (...args: any[]) => T} [type]

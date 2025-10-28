@@ -1,4 +1,5 @@
-import { $, $id, $tag, feedPostTime } from './utils.js';
+import { $, $id, feedPostTime } from './utils.js';
+import { $tag } from './utils_ts.js';
 import { BlueskyAPI } from './api.js';
 
 /**

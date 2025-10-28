@@ -1,5 +1,5 @@
 import {
-  $, $id, $tag,
+  $, $id,
   atURI,
   escapeHTML,
   getLocation,
@@ -10,6 +10,7 @@ import {
   showError
 } from './utils.js';
 
+import { $tag } from './utils_ts.js';
 import { Post, BlockedPost, MissingPost, DetachedQuotePost, InlineLinkEmbed } from './models.js';
 import { APIError } from './minisky.js';
 import { EmbedComponent } from './embed_component.js';

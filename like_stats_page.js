@@ -1,4 +1,5 @@
-import { $, $id, $tag, atURI, feedPostTime } from './utils.js';
+import { $, $id, atURI, feedPostTime } from './utils.js';
+import { $tag } from './utils_ts.js';
 import { BlueskyAPI } from './api.js';
 
 export class LikeStatsPage {

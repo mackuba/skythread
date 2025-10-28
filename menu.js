@@ -1,4 +1,5 @@
-import { $, $id, $tag } from './utils.js';
+import { $, $id } from './utils.js';
+import { $tag } from './utils_ts.js';
 import { logOut, showDialog } from './skythread.js';
 
 export class Menu {

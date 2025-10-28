@@ -1,4 +1,5 @@
-import { $, $id, $tag, atURI, linkToPostById, linkToPostThread, showError } from './utils.js';
+import { $, $id, atURI, linkToPostById, linkToPostThread, showError } from './utils.js';
+import { $tag } from './utils_ts.js';
 import { Post, BlockedPost, MissingPost } from './models.js';
 import { PostComponent } from './post_component.js';
 import { setPageTitle, hideLoader } from './skythread.js';
