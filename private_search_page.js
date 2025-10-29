@@ -42,10 +42,14 @@ class PrivateSearchPage {
 
     let params = new URLSearchParams(location.search);
     this.mode = params.get('mode');
-    this.lycanMode = params.get('lycan');
+    let lycan = params.get('lycan');
 
-    if (this.lycanMode == 'local') {
+    if (lycan == 'local') {
       this.localLycan = new BlueskyAPI('http://localhost:3000', false);
+    } else if (lycan) {
+      this.lycanAddress = `did:web:${lycan}#lycan`;
+    } else {
+      this.lycanAddress = 'did:web:lycan.feeds.blue#lycan';
     }
   }
 
@@ -136,7 +140,7 @@ class PrivateSearchPage {
       return await this.localLycan.getRequest('blue.feeds.lycan.getImportStatus', { user: accountAPI.user.did });
     } else {
       return await accountAPI.getRequest('blue.feeds.lycan.getImportStatus', null, {
-        headers: { 'atproto-proxy': 'did:web:lycan.feeds.blue#lycan' }
+        headers: { 'atproto-proxy': this.lycanAddress }
       });
     }
   }
@@ -244,7 +248,7 @@ class PrivateSearchPage {
         });
       } else {
         await accountAPI.postRequest('blue.feeds.lycan.startImport', null, {
-          headers: { 'atproto-proxy': 'did:web:lycan.feeds.blue#lycan' }
+          headers: { 'atproto-proxy': this.lycanAddress }
         });
       }
 
@@ -358,7 +362,7 @@ class PrivateSearchPage {
         if (cursor) params.cursor = cursor;
 
         response = await accountAPI.getRequest('blue.feeds.lycan.searchPosts', params, {
-          headers: { 'atproto-proxy': 'did:web:lycan.feeds.blue#lycan' }
+          headers: { 'atproto-proxy': this.lycanAddress }
         });
       }
 
