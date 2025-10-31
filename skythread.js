@@ -455,4 +455,7 @@ function loadQuotesPage(url) {
   });
 }
 
-export { init, setPageTitle, showDialog, showLoader, hideLoader, logOut };
+window.init = init;
+window.BlueskyAPI = BlueskyAPI;
+
+export { setPageTitle, showDialog, showLoader, hideLoader, logOut };
