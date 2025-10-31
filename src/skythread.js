@@ -1,4 +1,4 @@
-import { $, $id } from './utils.js';
+import { $, $id, Paginator } from './utils.js';
 import { $tag } from './utils_ts.js';
 import { getLocation, linkToPostById } from './utils.js';
 import { BlueskyAPI } from './api.js';
