@@ -24,7 +24,6 @@ declare var Paginator: PaginatorType;
 
 type json = Record<string, any>;
 
-function $tag(tag: string): HTMLElement;
-function $tag<T extends HTMLElement>(tag: string, type: new (...args: any[]) => T): T;
-function $tag(tag: string, params: string | object): HTMLElement;
-function $tag<T extends HTMLElement>(tag: string, params: string | object, type: new (...args: any[]) => T): T;
+type FetchAllOnPageLoad = (obj: json[]) => { cancel: true } | void;
+
+type AnyPost = Post | BlockedPost | MissingPost | DetachedQuotePost;

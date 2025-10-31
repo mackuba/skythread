@@ -1,3 +1,17 @@
+import { $, $id } from './utils.js';
+import { $tag } from './utils_ts.js';
+import { getLocation, linkToPostById } from './utils.js';
+import { BlueskyAPI } from './api.js';
+import { Minisky } from './minisky.js';
+import { Post } from './models.js';
+import { PostComponent } from './post_component.js';
+import { Menu } from './menu.js';
+import { ThreadPage } from './thread_page.js';
+import { PostingStatsPage } from './posting_stats_page.js';
+import { NotificationsPage } from './notifications_page.js';
+import { LikeStatsPage } from './like_stats_page.js';
+import { PrivateSearchPage } from './private_search_page.js';
+
 function init() {
   window.dateLocale = localStorage.getItem('locale') || undefined;
   window.isIncognito = !!localStorage.getItem('incognito');
@@ -440,3 +454,8 @@ function loadQuotesPage(url) {
     });
   });
 }
+
+window.init = init;
+window.BlueskyAPI = BlueskyAPI;
+
+export { setPageTitle, showDialog, showLoader, hideLoader, logOut };

@@ -2,7 +2,7 @@
  * Thrown when status code of an API response is not "success".
  */
 
-class APIError extends Error {
+export class APIError extends Error {
 
   /** @param {number} code, @param {json} json */
   constructor(code, json) {
@@ -17,28 +17,28 @@ class APIError extends Error {
  * Thrown when passed arguments/options are invalid or missing.
  */
 
-class RequestError extends Error {}
+export class RequestError extends Error {}
 
 
 /**
  * Thrown when authentication is needed, but access token is invalid or missing.
  */
 
-class AuthError extends Error {}
+export class AuthError extends Error {}
 
 
 /**
  * Thrown when DID or DID document is invalid.
  */
 
-class DIDError extends Error {}
+export class DIDError extends Error {}
 
 
 /**
  * Base API client for connecting to an ATProto XRPC API.
  */
 
-class Minisky {
+export class Minisky {
 
   /** @param {string} did, @returns {Promise<string>} */
 
@@ -180,8 +180,6 @@ class Minisky {
   }
 
   /**
-   * @typedef {(obj: json[]) => { cancel: true } | void} FetchAllOnPageLoad
-   *
    * @typedef {MiniskyOptions & {
    *   field: string,
    *   params?: json,

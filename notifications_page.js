@@ -1,4 +1,10 @@
-class NotificationsPage {
+import { showLoader, hideLoader } from './skythread.js';
+import { $id, atURI, linkToPostById } from './utils.js';
+import { $tag } from './utils_ts.js';
+import { PostComponent } from './post_component.js';
+import { Post } from './models.js';
+
+export class NotificationsPage {
 
   constructor() {
     this.pageElement = $id('thread');
