@@ -1,5 +1,7 @@
 {
-  "dependencies": {},
+  "dependencies": {
+    "dompurify": "^3.3.0"
+  },
   "devDependencies": {
     "bun-plugin-svelte": "^0.0.6"
   }

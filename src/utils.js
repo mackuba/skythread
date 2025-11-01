@@ -1,5 +1,5 @@
+import DOMPurify from 'dompurify';
 import { URLError } from './api/api.js';
-import DOMPurify from '../lib/purify.es.mjs';
 import { Post } from './models.js';
 
 export class AtURI {
