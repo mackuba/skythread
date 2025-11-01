@@ -33,8 +33,8 @@
 
 <form onsubmit={startScan}>
   <p>
-    Time range: <input type="range" min="1" max="60" bind:value={timeRangeDays}>
-    <label>{timeRangeDays} {timeRangeDays == 1 ? 'day' : 'days'}</label>
+    Time range: <input id="like_stats_range" type="range" min="1" max="60" bind:value={timeRangeDays}>
+    <label for="like_stats_range">{timeRangeDays} {timeRangeDays == 1 ? 'day' : 'days'}</label>
   </p>
 
   <p>
