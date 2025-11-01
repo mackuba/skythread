@@ -1,14 +1,31 @@
 <script>
   import LikeStatsTable from './LikeStatsTable.svelte';
-
-  let { onSubmit, state: data } = $props();
+  import { LikeStats } from '../tools/like_stats.js';
 
   let timeRangeDays = $state(7);
-  let scanInProgress = $derived(data.progress !== undefined);
+  let progress = $state();
+  let scanInProgress = $derived(progress !== undefined);
+  let givenLikesUsers = $state();
+  let receivedLikesUsers = $state();
 
-  function startScan(e) {
+  let likeStats = new LikeStats();
+
+  async function startScan(e) {
     e.preventDefault();
-    onSubmit(timeRangeDays);
+
+    if (!scanInProgress) {
+      givenLikesUsers = undefined;
+      receivedLikesUsers = undefined;
+
+      let result = await likeStats.findLikes(timeRangeDays, (p) => { progress = p });
+
+      givenLikesUsers = result.givenLikes;
+      receivedLikesUsers = result.receivedLikes;
+      progress = undefined;
+    } else {
+      likeStats.stopScan();
+      progress = undefined;
+    }
   }
 </script>
 
@@ -24,12 +41,12 @@
     <input type="submit" value="{scanInProgress ? 'Cancel' : 'Start scan'}">
 
     {#if scanInProgress}
-      <progress value={data.progress} style="display: inline;"></progress>
+      <progress value={progress} style="display: inline;"></progress>
     {/if}
   </p>
 </form>
 
-{#if !scanInProgress && data.givenLikesUsers !== undefined}
-  <LikeStatsTable cssClass="given-likes" header="❤️ Likes from you:" users={data.givenLikesUsers} />
-  <LikeStatsTable cssClass="received-likes" header="💛 Likes on your posts:" users={data.receivedLikesUsers} />
+{#if givenLikesUsers}
+  <LikeStatsTable cssClass="given-likes" header="❤️ Likes from you:" users={givenLikesUsers} />
+  <LikeStatsTable cssClass="received-likes" header="💛 Likes on your posts:" users={receivedLikesUsers} />
 {/if}

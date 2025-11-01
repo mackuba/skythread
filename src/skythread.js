@@ -1,3 +1,6 @@
+import * as svelte from 'svelte';
+import LikeStatsView from './components/LikeStatsView.svelte';
+
 import { $, $id, Paginator } from './utils.js';
 import { $tag } from './utils_ts.js';
 import { getLocation, linkToPostById } from './utils.js';
@@ -9,7 +12,6 @@ import { Menu } from './menu.js';
 import { ThreadPage } from './thread_page.js';
 import { PostingStatsPage } from './posting_stats_page.js';
 import { NotificationsPage } from './notifications_page.js';
-import { LikeStatsPage } from './like_stats_page.svelte.js';
 import { PrivateSearchPage } from './private_search_page.js';
 
 function init() {
@@ -24,7 +26,6 @@ function init() {
   window.accountMenu = new Menu();
   window.threadPage = new ThreadPage();
   window.postingStatsPage = new PostingStatsPage();
-  window.likeStatsPage = new LikeStatsPage();
   window.notificationsPage = new NotificationsPage();
   window.privateSearchPage = new PrivateSearchPage();
 
@@ -332,7 +333,9 @@ function openPage(page) {
   } else if (page == 'posting_stats') {
     window.postingStatsPage.show();
   } else if (page == 'like_stats') {
-    window.likeStatsPage.show();
+    let div = document.getElementById('like_stats_page');
+    svelte.mount(LikeStatsView, { target: div });
+    div.style.display = 'block';
   } else if (page == 'search') {
     window.privateSearchPage.show();
   }

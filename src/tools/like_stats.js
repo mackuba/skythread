@@ -1,51 +1,27 @@
-import { atURI, feedPostTime } from './utils.js';
-import { BlueskyAPI } from './api.js';
+import { atURI, feedPostTime } from '../utils.js';
+import { BlueskyAPI } from '../api.js';
 
-import * as svelte from 'svelte';
-import LikeStatsView from './components/LikeStatsView.svelte';
-
-export class LikeStatsPage {
+export class LikeStats {
 
   /** @type {number | undefined} */
   scanStartTime;
 
   constructor() {
-    this.pageElement = document.getElementById('like_stats_page');
-
     this.appView = new BlueskyAPI('public.api.bsky.app', false);
 
     this.progressPosts = 0;
     this.progressLikeRecords = 0;
     this.progressPostLikes = 0;
-
-    this.state = $state({
-      progress: undefined
-    });
   }
 
-  show() {
-    svelte.mount(LikeStatsView, {
-      target: this.pageElement,
-      props: {
-        onSubmit: (days) => this.onFormSubmit(days),
-        state: this.state
-      }
-    });
+  /**
+   * @param {number} requestedDays
+   * @param {(days: number) => void} onProgress
+   * @returns {Promise<{ givenLikes: LikeStat[], receivedLikes: LikeStat[] }>}
+   */
 
-    this.pageElement.style.display = 'block';
-  }
-
-  onFormSubmit(days) {
-    if (!this.scanStartTime) {
-      this.findLikes(days);
-    } else {
-      this.stopScan();
-    }
-  }
-
-  /** @param {number} requestedDays, @returns {Promise<void>} */
-
-  async findLikes(requestedDays) {
+  async findLikes(requestedDays, onProgress) {
+    this.onProgress = onProgress;
     this.resetProgress();
     this.scanStartTime = new Date().getTime();
 
@@ -67,10 +43,9 @@ export class LikeStatsPage {
       user.avatar = profile.avatar;
     }
 
-    this.state.givenLikesUsers = topGiven;
-    this.state.receivedLikesUsers = topReceived;
-    this.state.progress = undefined;
     this.scanStartTime = undefined;
+
+    return { givenLikes: topGiven, receivedLikes: topReceived };
   }
 
   /** @param {number} requestedDays, @returns {Promise<json[]>} */
@@ -199,7 +174,7 @@ export class LikeStatsPage {
     this.progressLikeRecords = 0;
     this.progressPostLikes = 0;
 
-    this.state.progress = 0;
+    this.onProgress && this.onProgress(0);
   }
 
   /** @param {{ posts?: number, likeRecords?: number, postLikes?: number }} data */
@@ -223,7 +198,7 @@ export class LikeStatsPage {
       0.25 * this.progressPostLikes
     );
 
-    this.state.progress = totalProgress;
+    this.onProgress && this.onProgress(totalProgress);
   }
 
   /** @param {[string, LikeStat]} a, @param {[string, LikeStat]} b, @returns {-1|1|0} */
@@ -239,7 +214,7 @@ export class LikeStatsPage {
   }
 
   stopScan() {
-    this.state.progress = undefined;
     this.scanStartTime = undefined;
+    this.onProgress = undefined;
   }
 }
