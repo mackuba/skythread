@@ -1,6 +1,8 @@
-import { $, $id, atURI, feedPostTime } from './utils.js';
-import { $tag } from './utils_ts.js';
+import { atURI, feedPostTime } from './utils.js';
 import { BlueskyAPI } from './api.js';
+
+import * as svelte from 'svelte';
+import LikeStatsView from './components/LikeStatsView.svelte';
 
 export class LikeStatsPage {
 
@@ -8,75 +10,50 @@ export class LikeStatsPage {
   scanStartTime;
 
   constructor() {
-    this.pageElement = $id('like_stats_page');
-
-    this.rangeInput = $(this.pageElement.querySelector('input[type="range"]'), HTMLInputElement);
-    this.submitButton = $(this.pageElement.querySelector('input[type="submit"]'), HTMLInputElement);
-    this.progressBar = $(this.pageElement.querySelector('input[type=submit] + progress'), HTMLProgressElement);
-
-    this.receivedTable = $(this.pageElement.querySelector('.received-likes'), HTMLTableElement);
-    this.givenTable = $(this.pageElement.querySelector('.given-likes'), HTMLTableElement);
+    this.pageElement = document.getElementById('like_stats_page');
 
     this.appView = new BlueskyAPI('public.api.bsky.app', false);
-
-    this.setupEvents();
 
     this.progressPosts = 0;
     this.progressLikeRecords = 0;
     this.progressPostLikes = 0;
-  }
 
-  setupEvents() {
-    $(this.pageElement.querySelector('form')).addEventListener('submit', (e) => {
-      e.preventDefault();
-
-      if (!this.scanStartTime) {
-        this.findLikes();
-      } else {
-        this.stopScan();
-      }
+    this.state = $state({
+      progress: undefined
     });
-
-    this.rangeInput.addEventListener('input', (e) => {
-      let days = parseInt(this.rangeInput.value, 10);
-      let label = $(this.pageElement.querySelector('input[type=range] + label'));
-      label.innerText = (days == 1) ? '1 day' : `${days} days`;
-    });
-  }
-
-  /** @returns {number} */
-
-  selectedDaysRange() {
-    return parseInt(this.rangeInput.value, 10);
   }
 
   show() {
+    svelte.mount(LikeStatsView, {
+      target: this.pageElement,
+      props: {
+        onSubmit: (days) => this.onFormSubmit(days),
+        state: this.state
+      }
+    });
+
     this.pageElement.style.display = 'block';
   }
 
-  /** @returns {Promise<void>} */
+  onFormSubmit(days) {
+    if (!this.scanStartTime) {
+      this.findLikes(days);
+    } else {
+      this.stopScan();
+    }
+  }
 
-  async findLikes() {
-    this.submitButton.value = 'Cancel';
+  /** @param {number} requestedDays, @returns {Promise<void>} */
 
-    let requestedDays = this.selectedDaysRange();
-
+  async findLikes(requestedDays) {
     this.resetProgress();
-    this.progressBar.style.display = 'inline';
-
-    let startTime = new Date().getTime();
-    this.scanStartTime = startTime;
-
-    this.receivedTable.style.display = 'none';
-    this.givenTable.style.display = 'none';
+    this.scanStartTime = new Date().getTime();
 
     let fetchGivenLikes = this.fetchGivenLikes(requestedDays);
 
     let receivedLikes = await this.fetchReceivedLikes(requestedDays);
     let receivedStats = this.sumUpReceivedLikes(receivedLikes);
     let topReceived = this.getTopEntries(receivedStats);
-
-    await this.renderResults(topReceived, this.receivedTable);
 
     let givenLikes = await fetchGivenLikes;
     let givenStats = this.sumUpGivenLikes(givenLikes);
@@ -90,13 +67,9 @@ export class LikeStatsPage {
       user.avatar = profile.avatar;
     }
 
-    await this.renderResults(topGiven, this.givenTable);
-
-    this.receivedTable.style.display = 'table';
-    this.givenTable.style.display = 'table';
-
-    this.submitButton.value = 'Start scan';
-    this.progressBar.style.display = 'none';
+    this.state.givenLikesUsers = topGiven;
+    this.state.receivedLikesUsers = topReceived;
+    this.state.progress = undefined;
     this.scanStartTime = undefined;
   }
 
@@ -221,32 +194,12 @@ export class LikeStatsPage {
     return Object.entries(counts).sort(this.sortResults).map(x => x[1]).slice(0, 25);
   }
 
-  /** @param {LikeStat[]} topUsers, @param {HTMLTableElement} table, @returns {Promise<void>} */
-
-  async renderResults(topUsers, table) {
-    let tableBody = $(table.querySelector('tbody'));
-    tableBody.innerHTML = '';
-
-    for (let [i, user] of topUsers.entries()) {
-      let tr = $tag('tr');
-      tr.append(
-        $tag('td.no', { text: i + 1 }),
-        $tag('td.handle', {
-          html: `<img class="avatar" src="${user.avatar}"> ` +
-                `<a href="https://bsky.app/profile/${user.handle}" target="_blank">${user.handle}</a>`
-        }),
-        $tag('td.count', { text: user.count })
-      );
-
-      tableBody.append(tr);
-    };
-  }
-
   resetProgress() {
-    this.progressBar.value = 0;
     this.progressPosts = 0;
     this.progressLikeRecords = 0;
     this.progressPostLikes = 0;
+
+    this.state.progress = 0;
   }
 
   /** @param {{ posts?: number, likeRecords?: number, postLikes?: number }} data */
@@ -270,7 +223,7 @@ export class LikeStatsPage {
       0.25 * this.progressPostLikes
     );
 
-    this.progressBar.value = totalProgress;
+    this.state.progress = totalProgress;
   }
 
   /** @param {[string, LikeStat]} a, @param {[string, LikeStat]} b, @returns {-1|1|0} */
@@ -286,8 +239,7 @@ export class LikeStatsPage {
   }
 
   stopScan() {
-    this.submitButton.value = 'Start scan';
-    this.progressBar.style.display = 'none';
+    this.state.progress = undefined;
     this.scanStartTime = undefined;
   }
 }

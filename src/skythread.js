@@ -9,7 +9,7 @@ import { Menu } from './menu.js';
 import { ThreadPage } from './thread_page.js';
 import { PostingStatsPage } from './posting_stats_page.js';
 import { NotificationsPage } from './notifications_page.js';
-import { LikeStatsPage } from './like_stats_page.js';
+import { LikeStatsPage } from './like_stats_page.svelte.js';
 import { PrivateSearchPage } from './private_search_page.js';
 
 function init() {
