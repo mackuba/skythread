@@ -1,5 +1,5 @@
 import { atURI, feedPostTime } from '../utils.js';
-import { BlueskyAPI } from '../api.js';
+import { BlueskyAPI } from '../api/api.js';
 
 export class LikeStats {
 

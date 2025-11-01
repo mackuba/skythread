@@ -1,4 +1,4 @@
-import { URLError } from './api.js';
+import { URLError } from './api/api.js';
 import DOMPurify from '../lib/purify.es.mjs';
 import { Post } from './models.js';
 

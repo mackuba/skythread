@@ -1,6 +1,6 @@
 import { $, $id, feedPostTime } from './utils.js';
 import { $tag } from './utils_ts.js';
-import { BlueskyAPI } from './api.js';
+import { BlueskyAPI } from './api/api.js';
 
 /**
  * Manages the Posting Stats page.

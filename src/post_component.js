@@ -12,7 +12,7 @@ import {
 
 import { $tag } from './utils_ts.js';
 import { Post, BlockedPost, MissingPost, DetachedQuotePost, InlineLinkEmbed } from './models.js';
-import { APIError } from './minisky.js';
+import { APIError } from './api/minisky.js';
 import { EmbedComponent } from './embed_component.js';
 import { RichText } from '../lib/rich_text_lite.js';
 import { showDialog } from './skythread.js';
