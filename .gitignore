@@ -2,3 +2,4 @@ Capfile
 config
 debug*
 Gemfile*
+node_modules
