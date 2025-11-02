@@ -333,7 +333,7 @@ function openPage(page) {
   } else if (page == 'posting_stats') {
     window.postingStatsPage.show();
   } else if (page == 'like_stats') {
-    let div = document.getElementById('like_stats_page');
+    let div = $id('like_stats_page');
     svelte.mount(LikeStatsView, { target: div });
     div.style.display = 'block';
   } else if (page == 'search') {

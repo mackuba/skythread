@@ -3,6 +3,8 @@ interface Window {
   root: AnyPost;
   subtreeRoot: AnyPost;
   loadInfohazard: (() => void) | undefined;
+  init: () => void;
+  BlueskyAPI: BlueskyAPI;
 }
 
 declare var accountAPI: BlueskyAPI;

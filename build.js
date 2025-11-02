@@ -24,18 +24,18 @@ async function runBuild(devMode) {
 }
 
 if (import.meta.main) {
-  const { values } = parseArgs({
+  let { values: options } = parseArgs({
     args: Bun.argv,
     options: {
       dev: {
-        type: 'boolean',
+        type: 'boolean'
       }
     },
     strict: true,
     allowPositionals: true
   });
 
-  await runBuild(values.dev);
+  await runBuild(options.dev);
 }
 
 export { buildOptions, runBuild };
