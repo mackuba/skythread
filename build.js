@@ -1,28 +1,41 @@
 import { parseArgs } from 'util';
 import { SveltePlugin } from 'bun-plugin-svelte';
 
-const { values } = parseArgs({
-  args: Bun.argv,
-  options: {
-    dev: {
-      type: 'boolean',
-    }
-  },
-  strict: true,
-  allowPositionals: true
-});
+function buildOptions(devMode) {
+  return {
+    entrypoints: ['src/skythread.js'],
+    outdir: 'dist',
+    format: 'iife',
+    minify: true,
+    sourcemap: true,
+    plugins: [
+      SveltePlugin({
+        // When `true`, this plugin will generate development-only checks and other niceties.
+        // When `false`, this plugin will generate production-ready code
+        development: devMode,
+      })
+    ]
+  };
+}
 
-await Bun.build({
-  entrypoints: ['src/skythread.js'],
-  outdir: 'dist',
-  format: 'iife',
-  minify: true,
-  sourcemap: true,
-  plugins: [
-    SveltePlugin({
-      // When `true`, this plugin will generate development-only checks and other niceties.
-      // When `false`, this plugin will generate production-ready code
-      development: values.dev,
-    })
-  ]
-});
+async function runBuild(devMode) {
+  let options = buildOptions(devMode);
+  return await Bun.build(options);
+}
+
+if (import.meta.main) {
+  const { values } = parseArgs({
+    args: Bun.argv,
+    options: {
+      dev: {
+        type: 'boolean',
+      }
+    },
+    strict: true,
+    allowPositionals: true
+  });
+
+  await runBuild(values.dev);
+}
+
+export { buildOptions, runBuild };
