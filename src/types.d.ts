@@ -12,10 +12,6 @@ declare var blueAPI: BlueskyAPI;
 declare var appView: BlueskyAPI;
 declare var api: BlueskyAPI;
 declare var avatarPreloader: IntersectionObserver;
-declare var threadPage: ThreadPage;
-declare var postingStatsPage: PostingStatsPage;
-declare var notificationsPage: NotificationsPage;
-declare var privateSearchPage: PrivateSearchPage;
 
 declare var Paginator: PaginatorType;
 

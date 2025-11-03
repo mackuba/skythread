@@ -19,6 +19,19 @@ import { PrivateSearchPage } from './private_search_page.js';
 /** @type {Record<string, any> | undefined} */
 let loginDialog;
 
+/** @type {ThreadPage} */
+let threadPage;
+
+/** @type {PostingStatsPage} */
+let postingStatsPage;
+
+/** @type {NotificationsPage} */
+let notificationsPage;
+
+/** @type {PrivateSearchPage} */
+let privateSearchPage;
+
+
 function init() {
   window.dateLocale = localStorage.getItem('locale') || undefined;
 
@@ -26,10 +39,10 @@ function init() {
 
   svelte.mount(AccountMenu, { target: $id('account_menu_wrap') });
 
-  window.threadPage = new ThreadPage();
-  window.postingStatsPage = new PostingStatsPage();
-  window.notificationsPage = new NotificationsPage();
-  window.privateSearchPage = new PrivateSearchPage();
+  threadPage = new ThreadPage();
+  postingStatsPage = new PostingStatsPage();
+  notificationsPage = new NotificationsPage();
+  privateSearchPage = new PrivateSearchPage();
 
   $(document.querySelector('#search form')).addEventListener('submit', (e) => {
     e.preventDefault();
@@ -283,15 +296,15 @@ function openPage(page) {
   }
 
   if (page == 'notif') {
-    window.notificationsPage.show();
+    notificationsPage.show();
   } else if (page == 'posting_stats') {
-    window.postingStatsPage.show();
+    postingStatsPage.show();
   } else if (page == 'like_stats') {
     let div = $id('like_stats_page');
     svelte.mount(LikeStatsView, { target: div });
     div.style.display = 'block';
   } else if (page == 'search') {
-    window.privateSearchPage.show();
+    privateSearchPage.show();
   }
 }
 
