@@ -1,5 +1,6 @@
 import { showLoader, hideLoader } from './skythread.js';
-import { $id, atURI, linkToPostById, Paginator } from './utils.js';
+import { $id, atURI, linkToPostById } from './utils.js';
+import * as paginator from './utils/paginator.js';
 import { $tag } from './utils_ts.js';
 import { PostComponent } from './post_component.js';
 import { Post } from './models/posts.js';
@@ -19,7 +20,7 @@ export class NotificationsPage {
     let finished = false;
     let cursor;
 
-    Paginator.loadInPages((next) => {
+    paginator.loadInPages((next) => {
       if (isLoading || finished) { return; }
       isLoading = true;
 

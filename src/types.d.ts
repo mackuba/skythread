@@ -13,8 +13,6 @@ declare var appView: BlueskyAPI;
 declare var api: BlueskyAPI;
 declare var avatarPreloader: IntersectionObserver;
 
-declare var Paginator: PaginatorType;
-
 type json = Record<string, any>;
 
 type FetchAllOnPageLoad = (obj: json[]) => { cancel: true } | void;

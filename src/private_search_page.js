@@ -1,4 +1,5 @@
-import { $, $id, feedPostTime, Paginator } from './utils.js';
+import { $, $id, feedPostTime } from './utils.js';
+import * as paginator from './utils/paginator.js';
 import { $tag } from './utils_ts.js';
 import { PostComponent } from './post_component.js';
 import { Post } from './models/posts.js';
@@ -348,7 +349,7 @@ export class PrivateSearchPage {
     let cursor;
     let finished = false;
 
-    Paginator.loadInPages(async () => {
+    paginator.loadInPages(async () => {
       if (isLoading || finished) { return; }
       isLoading = true;
 

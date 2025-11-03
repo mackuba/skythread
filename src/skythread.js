@@ -3,8 +3,9 @@ import AccountMenu from './components/AccountMenu.svelte';
 import LikeStatsView from './components/LikeStatsView.svelte';
 import LoginDialog from './components/LoginDialog.svelte';
 
-import { $, $id, Paginator } from './utils.js';
+import { $, $id } from './utils.js';
 import { $tag } from './utils_ts.js';
+import * as paginator from './utils/paginator.js';
 import { getLocation, linkToPostById } from './utils.js';
 import { BlueskyAPI } from './api/api.js';
 import { Minisky } from './api/minisky.js';
@@ -325,7 +326,7 @@ function loadHashtagPage(hashtag) {
   let finished = false;
   let cursor;
 
-  Paginator.loadInPages(() => {
+  paginator.loadInPages(() => {
     if (isLoading || finished) { return; }
     isLoading = true;
 
@@ -373,7 +374,7 @@ function loadQuotesPage(url) {
   let cursor;
   let finished = false;
 
-  Paginator.loadInPages(() => {
+  paginator.loadInPages(() => {
     if (isLoading || finished) { return; }
     isLoading = true;
 

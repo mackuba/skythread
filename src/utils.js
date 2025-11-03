@@ -22,40 +22,6 @@ export class AtURI {
 }
 
 /**
- * @typedef {object} PaginatorType
- * @property {(callback: (boolean) => void) => void} loadInPages
- * @property {(() => void)=} scrollHandler
- * @property {ResizeObserver=} resizeObserver
- */
-
-export const Paginator = {
-  loadInPages(callback) {
-    if (this.scrollHandler) {
-      document.removeEventListener('scroll', this.scrollHandler);
-    }
-
-    if (this.resizeObserver) {
-      this.resizeObserver.disconnect();
-    }
-
-    let loadIfNeeded = () => {
-      if (window.pageYOffset + window.innerHeight > document.body.offsetHeight - 500) {
-        callback(loadIfNeeded);
-      }
-    };
-
-    callback(loadIfNeeded);
-
-    document.addEventListener('scroll', loadIfNeeded);
-    const resizeObserver = new ResizeObserver(loadIfNeeded);
-    resizeObserver.observe(document.body);
-
-    this.scrollHandler = loadIfNeeded;
-    this.resizeObserver = resizeObserver;
-  }
-};
-
-/**
  * @template {HTMLElement} T
  * @param {string} name
  * @param {new (...args: any[]) => T} [type]
