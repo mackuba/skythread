@@ -1,6 +1,6 @@
 import DOMPurify from 'dompurify';
 import { URLError } from './api/api.js';
-import { Post } from './models.js';
+import { Post } from './models/posts.js';
 
 export class AtURI {
   /** @param {string} uri */

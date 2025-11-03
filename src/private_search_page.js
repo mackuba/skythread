@@ -1,7 +1,7 @@
 import { $, $id, feedPostTime, Paginator } from './utils.js';
 import { $tag } from './utils_ts.js';
 import { PostComponent } from './post_component.js';
-import { Post } from './models.js';
+import { Post } from './models/posts.js';
 import { BlueskyAPI } from './api/api.js';
 
 export class PrivateSearchPage {

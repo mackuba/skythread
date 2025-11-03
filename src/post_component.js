@@ -11,7 +11,8 @@ import {
 } from './utils.js';
 
 import { $tag } from './utils_ts.js';
-import { Post, BlockedPost, MissingPost, DetachedQuotePost, InlineLinkEmbed } from './models.js';
+import { Post, BlockedPost, MissingPost, DetachedQuotePost } from './models/posts.js';
+import { InlineLinkEmbed } from './models/embeds.js';
 import { APIError } from './api/minisky.js';
 import { EmbedComponent } from './embed_component.js';
 import { RichText } from '../lib/rich_text_lite.js';

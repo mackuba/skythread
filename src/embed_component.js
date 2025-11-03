@@ -2,12 +2,12 @@ import { atURI } from './utils.js';
 import { $tag } from './utils_ts.js';
 import { PostComponent } from './post_component.js';
 
+import { FeedGeneratorRecord, StarterPackRecord, UserListRecord } from './models/records.js';
+import { Post, BlockedPost, MissingPost, DetachedQuotePost } from './models/posts.js';
 import {
-  Post, BlockedPost, MissingPost, DetachedQuotePost, Embed,
-  RawRecordEmbed, RawRecordWithMediaEmbed, RawImageEmbed, RawLinkEmbed, RawVideoEmbed,
-  InlineRecordEmbed, InlineRecordWithMediaEmbed, InlineImageEmbed, InlineLinkEmbed, InlineVideoEmbed,
-  FeedGeneratorRecord, StarterPackRecord, UserListRecord
-} from './models.js';
+  Embed, RawRecordEmbed, RawRecordWithMediaEmbed, RawImageEmbed, RawLinkEmbed, RawVideoEmbed,
+  InlineRecordEmbed, InlineRecordWithMediaEmbed, InlineImageEmbed, InlineLinkEmbed, InlineVideoEmbed
+} from './models/embeds.js';
 
 /**
  * Renders an embed (e.g. image or quoted post) inside the post view.
