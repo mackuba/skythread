@@ -1,7 +1,8 @@
-import { $, $id, atURI, linkToPostById, linkToPostThread, showError } from './utils.js';
+import { $, $id, atURI, showError } from './utils.js';
 import { $tag } from './utils_ts.js';
 import { Post, BlockedPost, MissingPost } from './models/posts.js';
 import { PostComponent } from './post_component.js';
+import { linkToPostById, linkToPostThread } from './router.js';
 import { setPageTitle, hideLoader } from './skythread.js';
 
 /**

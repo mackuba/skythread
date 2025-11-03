@@ -7,7 +7,7 @@ import LoginDialog from './components/LoginDialog.svelte';
 import { $, $id } from './utils.js';
 import { $tag } from './utils_ts.js';
 import * as paginator from './utils/paginator.js';
-import { getLocation, linkToPostById } from './utils.js';
+import { getBaseLocation, linkToPostById, parseBlueskyPostURL } from './router.js';
 import { BlueskyAPI } from './api/api.js';
 import { Minisky } from './api/minisky.js';
 import { account } from './models/account.svelte.js';
@@ -266,23 +266,23 @@ function submitSearch() {
   if (!url) { return }
 
   if (url.startsWith('at://')) {
-    let target = new URL(getLocation());
+    let target = new URL(getBaseLocation());
     target.searchParams.set('q', url);
     location.assign(target.toString());
     return;
   }
 
   if (url.match(/^#?((\p{Letter}|\p{Number})+)$/u)) {
-    let target = new URL(getLocation());
+    let target = new URL(getBaseLocation());
     target.searchParams.set('hash', encodeURIComponent(url.replace(/^#/, '')));
     location.assign(target.toString());
     return;
   }
 
   try {
-    let [handle, postId] = BlueskyAPI.parsePostURL(url);
+    let { user, post } = parseBlueskyPostURL(url);
 
-    let newURL = linkToPostById(handle, postId);
+    let newURL = linkToPostById(user, post);
     location.assign(newURL);
   } catch (error) {
     console.log(error);

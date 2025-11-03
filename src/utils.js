@@ -1,6 +1,5 @@
 import DOMPurify from 'dompurify';
 import { URLError } from './api/api.js';
-import { Post } from './models/posts.js';
 
 export class AtURI {
   /** @param {string} uri */
@@ -87,12 +86,6 @@ export function sanitizeHTML(html) {
   });
 }
 
-/** @returns {string} */
-
-export function getLocation() {
-  return location.origin + location.pathname;
-}
-
 /** @param {object} error */
 
 export function showError(error) {
@@ -108,19 +101,4 @@ export function sameDay(date1, date2) {
     date1.getMonth() == date2.getMonth() &&
     date1.getFullYear() == date2.getFullYear()
   );
-}
-
-/** @param {Post} post, @returns {string} */
-
-export function linkToPostThread(post) {
-  return linkToPostById(post.author.handle, post.rkey);
-}
-
-/** @param {string} handle, @param {string} postId, @returns {string} */
-
-export function linkToPostById(handle, postId) {
-  let url = new URL(getLocation());
-  url.searchParams.set('author', handle);
-  url.searchParams.set('post', postId);
-  return url.toString();
 }

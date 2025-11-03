@@ -1,6 +1,7 @@
 import { AuthError, Minisky } from './minisky.js';
 import { atURI, feedPostTime } from '../utils.js';
 import { Post } from '../models/posts.js';
+import { parseBlueskyPostURL } from '../router.js';
 
 /**
  * Thrown when the response is technically a "success" one, but the returned data is not what it should be.
@@ -123,33 +124,6 @@ export class BlueskyAPI extends Minisky {
     }
   }
 
-  /** @param {string} string, @returns {[string, string]} */
-
-  static parsePostURL(string) {
-    let url;
-
-    try {
-      url = new URL(string);
-    } catch (error) {
-      throw new URLError(`${error}`);
-    }
-
-    if (url.protocol != 'https:' && url.protocol != 'http:') {
-      throw new URLError('URL must start with http(s)://');
-    }
-
-    let parts = url.pathname.split('/');
-
-    if (parts.length < 5 || parts[1] != 'profile' || parts[3] != 'post') {
-      throw new URLError('This is not a valid thread URL');
-    }
-
-    let handle = parts[2];
-    let postId = parts[4];
-
-    return [handle, postId];
-  }
-
   /** @param {string} handle, @returns {Promise<string>} */
 
   async resolveHandle(handle) {
@@ -173,8 +147,8 @@ export class BlueskyAPI extends Minisky {
   /** @param {string} url, @returns {Promise<json>} */
 
   async loadThreadByURL(url) {
-    let [handle, postId] = BlueskyAPI.parsePostURL(url);
-    return await this.loadThreadById(handle, postId);
+    let { user, post } = parseBlueskyPostURL(url);
+    return await this.loadThreadById(user, post);
   }
 
   /** @param {string} author, @param {string} postId, @returns {Promise<json>} */
@@ -263,9 +237,9 @@ export class BlueskyAPI extends Minisky {
     if (url.startsWith('at://')) {
       postURI = url;
     } else {
-      let [handle, postId] = BlueskyAPI.parsePostURL(url);
-      let did = handle.startsWith('did:') ? handle : await appView.resolveHandle(handle);
-      postURI = `at://${did}/app.bsky.feed.post/${postId}`;
+      let { user, post } = parseBlueskyPostURL(url);
+      let did = user.startsWith('did:') ? user : await appView.resolveHandle(user);
+      postURI = `at://${did}/app.bsky.feed.post/${post}`;
     }
 
     let params = { uri: postURI };

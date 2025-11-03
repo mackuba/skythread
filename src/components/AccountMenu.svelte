@@ -1,10 +1,10 @@
 <script>
   import { showLoginDialog } from '../skythread.js';
   import { account } from '../models/account.svelte.js';
+  import { getBaseLocation } from '../router.js';
   import AccountMenuButton from './AccountMenuButton.svelte';
   import LoadableImage from './LoadableImage.svelte';
 
-  let rootPath = location.origin + location.pathname;
   let menuVisible = $state(false);
 
   $effect(() => {
@@ -105,7 +105,7 @@
       <AccountMenuButton onclick={logOut} label="Log out" />
     {/if}
 
-    <li class="link"><a href="{rootPath}">Home</a></li>
+    <li class="link"><a href="{getBaseLocation()}">Home</a></li>
     <li class="link"><a href="?page=posting_stats">Posting stats</a></li>
     <li class="link"><a href="?page=like_stats">Like stats</a></li>
     <li class="link"><a href="?page=search">Timeline search</a></li>

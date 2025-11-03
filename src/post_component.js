@@ -1,15 +1,4 @@
-import {
-  $, $id,
-  atURI,
-  escapeHTML,
-  getLocation,
-  linkToPostById,
-  linkToPostThread,
-  sameDay,
-  sanitizeHTML,
-  showError
-} from './utils.js';
-
+import { $, $id, atURI, escapeHTML, sameDay, sanitizeHTML, showError } from './utils.js';
 import { $tag } from './utils_ts.js';
 import { Post, BlockedPost, MissingPost, DetachedQuotePost } from './models/posts.js';
 import { account } from './models/account.svelte.js';
@@ -17,6 +6,7 @@ import { InlineLinkEmbed } from './models/embeds.js';
 import { APIError } from './api/minisky.js';
 import { EmbedComponent } from './embed_component.js';
 import { RichText } from '../lib/rich_text_lite.js';
+import { linkToHashtagPage, linkToPostById, linkToPostThread, linkToQuotesPage } from './router.js';
 import { showLoginDialog, showBiohazardDialog } from './skythread.js';
 
 /**
@@ -320,8 +310,7 @@ export class PostComponent {
       } else if (seg.link) {
         p.append($tag('a', { href: seg.link.uri, text: seg.text }));
       } else if (seg.tag) {
-        let url = new URL(getLocation());
-        url.searchParams.set('hash', seg.tag.tag);
+        let url = linkToHashtagPage(seg.tag.tag);
         p.append($tag('a', { href: url.toString(), text: seg.text }));
       } else if (seg.text.includes("\n")) {
         let span = $tag('span', { text: seg.text });
@@ -385,10 +374,7 @@ export class PostComponent {
     let p = $tag('p.tags');
 
     for (let tag of tags) {
-      let url = new URL(getLocation());
-      url.searchParams.set('hash', tag);
-
-      let tagLink = $tag('a', { href: url.toString(), text: '# ' + tag });
+      let tagLink = $tag('a', { href: linkToHashtagPage(tag), text: '# ' + tag });
       p.append(tagLink);
     }
 
@@ -437,10 +423,7 @@ export class PostComponent {
   /** @param {number} count, @param {boolean} expanded, @returns {HTMLElement} */
 
   buildQuotesIconLink(count, expanded) {
-    let q = new URL(getLocation());
-    q.searchParams.set('quotes', this.linkToPost);
-
-    let url = q.toString();
+    let url = linkToQuotesPage(this.linkToPost);
     let icon = `<i class="fa-regular fa-comments"></i>`;
 
     if (expanded) {
