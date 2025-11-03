@@ -6,6 +6,7 @@ import { $tag } from './utils_ts.js';
 import { getLocation, linkToPostById } from './utils.js';
 import { BlueskyAPI } from './api/api.js';
 import { Minisky } from './api/minisky.js';
+import { account } from './models/account.svelte.js';
 import { Post } from './models/posts.js';
 import { PostComponent } from './post_component.js';
 import { Menu } from './menu.js';
@@ -16,8 +17,6 @@ import { PrivateSearchPage } from './private_search_page.js';
 
 function init() {
   window.dateLocale = localStorage.getItem('locale') || undefined;
-  window.isIncognito = !!localStorage.getItem('incognito');
-  window.biohazardEnabled = JSON.parse(localStorage.getItem('biohazard') ?? 'null');
 
   window.loginDialog = $(document.querySelector('#login'));
 
@@ -63,8 +62,7 @@ function init() {
   $(document.querySelector('#biohazard_show')).addEventListener('click', (e) => {
     e.preventDefault();
 
-    window.biohazardEnabled = true;
-    localStorage.setItem('biohazard', 'true');
+    account.biohazardEnabled = true;
 
     if (window.loadInfohazard) {
       window.loadInfohazard();
@@ -79,8 +77,7 @@ function init() {
   $(document.querySelector('#biohazard_hide')).addEventListener('click', (e) => {
     e.preventDefault();
 
-    window.biohazardEnabled = false;
-    localStorage.setItem('biohazard', 'false');
+    account.biohazardEnabled = false;
     accountMenu.toggleMenuButtonCheck('biohazard', false);
 
     for (let p of document.querySelectorAll('p.hidden-replies, .content > .post.blocked, .blocked > .load-post')) {
@@ -100,7 +97,7 @@ function init() {
     accountAPI.host = accountAPI.user.pdsEndpoint;
     accountMenu.hideMenuButton('login');
 
-    if (!isIncognito) {
+    if (!account.isIncognito) {
       window.api = accountAPI;
       accountMenu.showLoggedInStatus(true, api.user.avatar);
     } else {
@@ -114,7 +111,7 @@ function init() {
     accountMenu.hideMenuButton('incognito');
   }
 
-  accountMenu.toggleMenuButtonCheck('biohazard', window.biohazardEnabled !== false);
+  accountMenu.toggleMenuButtonCheck('biohazard', account.biohazardEnabled !== false);
 
   parseQueryParams();
 }
@@ -225,7 +222,7 @@ function submitLogin() {
   let handle = handleField.value.trim();
   let password = passwordField.value.trim();
 
-  logIn(handle, password).then((pds) => {
+  account.logIn(handle, password).then((pds) => {
     window.api = pds;
     window.accountAPI = pds;
 
@@ -257,34 +254,6 @@ function submitLogin() {
       window.setTimeout(() => alert(error), 10);
     }
   });
-}
-
-/** @param {string} identifier, @param {string} password, @returns {Promise<BlueskyAPI>} */
-
-async function logIn(identifier, password) {
-  let pdsEndpoint;
-
-  if (identifier.match(/^did:/)) {
-    pdsEndpoint = await Minisky.pdsEndpointForDid(identifier);
-  } else if (identifier.match(/^[^@]+@[^@]+$/)) {
-    pdsEndpoint = 'bsky.social';
-  } else if (identifier.match(/^@?[\w\-]+(\.[\w\-]+)+$/)) {
-    identifier = identifier.replace(/^@/, '');
-    let did = await appView.resolveHandle(identifier);
-    pdsEndpoint = await Minisky.pdsEndpointForDid(did);
-  } else {
-    throw 'Please enter your handle or DID.';
-  }
-
-  let pds = new BlueskyAPI(pdsEndpoint, true);
-  await pds.logIn(identifier, password);
-  return pds;
-}
-
-function logOut() {
-  accountAPI.resetTokens();
-  localStorage.removeItem('incognito');
-  location.reload();
 }
 
 function submitSearch() {
@@ -461,4 +430,4 @@ function loadQuotesPage(url) {
 window.init = init;
 window.BlueskyAPI = BlueskyAPI;
 
-export { setPageTitle, showDialog, showLoader, hideLoader, logOut };
+export { setPageTitle, showDialog, showLoader, hideLoader };

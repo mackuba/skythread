@@ -1,6 +1,7 @@
 import { $, $id } from './utils.js';
 import { $tag } from './utils_ts.js';
-import { logOut, showDialog } from './skythread.js';
+import { showDialog } from './skythread.js';
+import { account } from './models/account.svelte.js';
 
 export class Menu {
   constructor() {
@@ -35,14 +36,12 @@ export class Menu {
 
       let hazards = document.querySelectorAll('p.hidden-replies, .content > .post.blocked, .blocked > .load-post');
 
-      if (window.biohazardEnabled === false) {
-        window.biohazardEnabled = true;
-        localStorage.setItem('biohazard', 'true');
+      if (account.biohazardEnabled === false) {
+        account.biohazardEnabled = true;
         this.toggleMenuButtonCheck('biohazard', true);
         Array.from(hazards).forEach(p => { $(p).style.display = 'block' });
       } else {
-        window.biohazardEnabled = false;
-        localStorage.setItem('biohazard', 'false');
+        account.biohazardEnabled = false;
         this.toggleMenuButtonCheck('biohazard', false);
         Array.from(hazards).forEach(p => { $(p).style.display = 'none' });
       }
@@ -50,14 +49,7 @@ export class Menu {
 
     $(this.menuElement.querySelector('a[data-action=incognito]')).addEventListener('click', (e) => {
       e.preventDefault();
-
-      if (window.isIncognito) {
-        localStorage.removeItem('incognito');
-      } else {
-        localStorage.setItem('incognito', '1');
-      }
-
-      location.reload();
+      account.toggleIncognitoMode();
     });
 
     $(this.menuElement.querySelector('a[data-action=login]')).addEventListener('click', (e) => {
@@ -69,7 +61,7 @@ export class Menu {
 
     $(this.menuElement.querySelector('a[data-action=logout]')).addEventListener('click', (e) => {
       e.preventDefault();
-      logOut();
+      account.logOut();
     });
   }
 

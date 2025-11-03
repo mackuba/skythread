@@ -12,6 +12,7 @@ import {
 
 import { $tag } from './utils_ts.js';
 import { Post, BlockedPost, MissingPost, DetachedQuotePost } from './models/posts.js';
+import { account } from './models/account.svelte.js';
 import { InlineLinkEmbed } from './models/embeds.js';
 import { APIError } from './api/minisky.js';
 import { EmbedComponent } from './embed_component.js';
@@ -210,7 +211,7 @@ export class PostComponent {
     } else {
       for (let reply of this.post.replies) {
         if (reply instanceof MissingPost) { continue }
-        if (reply instanceof BlockedPost && window.biohazardEnabled === false) { continue }
+        if (reply instanceof BlockedPost && account.biohazardEnabled === false) { continue }
 
         let component = new PostComponent(reply, 'thread');
         content.appendChild(component.buildElement());
@@ -221,7 +222,7 @@ export class PostComponent {
       if (this.post.hasMoreReplies) {
         let loadMore = this.buildLoadMoreLink();
         content.appendChild(loadMore);
-      } else if (this.post.hasHiddenReplies && window.biohazardEnabled !== false) {
+      } else if (this.post.hasHiddenReplies && account.biohazardEnabled !== false) {
         let loadMore = this.buildHiddenRepliesLink();
         content.appendChild(loadMore);
       }
@@ -493,7 +494,7 @@ export class PostComponent {
     link.addEventListener('click', (e) => {
       e.preventDefault();
 
-      if (window.biohazardEnabled === true) {
+      if (account.biohazardEnabled === true) {
         this.loadHiddenReplies(loadMore);
       } else {
         window.loadInfohazard = () => this.loadHiddenReplies(loadMore);
@@ -551,7 +552,7 @@ export class PostComponent {
     let p = $tag('p.blocked-header');
     p.innerHTML = `<i class="fa-solid fa-ban"></i> <span>Blocked post</span>`;
 
-    if (window.biohazardEnabled === false) {
+    if (account.biohazardEnabled === false) {
       div.appendChild(p);
       div.classList.add('blocked');
       return p;
@@ -587,7 +588,7 @@ export class PostComponent {
     let p = $tag('p.blocked-header');
     p.innerHTML = `<i class="fa-solid fa-ban"></i> <span>Hidden quote</span>`;
 
-    if (window.biohazardEnabled === false) {
+    if (account.biohazardEnabled === false) {
       div.appendChild(p);
       div.classList.add('blocked');
       return p;
@@ -787,7 +788,7 @@ export class PostComponent {
   async onHeartClick(heart) {
     try {
       if (!this.post.hasViewerInfo) {
-        if (accountAPI.isLoggedIn) {
+        if (account.loggedIn) {
           let data = await this.loadViewerInfo();
 
           if (data) {
