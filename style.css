@@ -127,7 +127,7 @@ a:visited {
   padding: 6px 11px;
 }
 
-#account_menu li a[data-action] {
+#account_menu li a.button {
   display: inline-block;
   color: #333;
   font-size: 11pt;
@@ -138,7 +138,7 @@ a:visited {
   background-color: hsla(210, 100%, 4%, 0.12);
 }
 
-#account_menu li a[data-action]:hover {
+#account_menu li a.button:hover {
   background-color: hsla(210, 100%, 4%, 0.2);
   text-decoration: none;
 }
@@ -157,10 +157,6 @@ a:visited {
 #account_menu li.link a {
   font-size: 11pt;
   color: #333;
-}
-
-#account_menu li .check {
-  display: none;
 }
 
 .dialog {
@@ -1167,13 +1163,13 @@ p.back i {
     border-color: #ccc;
   }
 
-  #account_menu li a[data-action] {
+  #account_menu li a.button {
     color: #333;
     border-color: #bbb;
     background-color: hsla(210, 100%, 4%, 0.12);
   }
 
-  #account_menu li a[data-action]:hover {
+  #account_menu li a.button:hover {
     background-color: hsla(210, 100%, 4%, 0.2);
   }
 

@@ -7,16 +7,22 @@ class Account {
   #isIncognito;
   #biohazardEnabled;
   #loggedIn;
+  #avatarURL;
+  #avatarIsLoading;
 
   constructor() {
     let incognito = localStorage.getItem('incognito');
     let biohazard = JSON.parse(localStorage.getItem('biohazard') ?? 'null');
     let accountAPI = new BlueskyAPI(undefined, true);
 
-    this.#isIncognito = $state(!!incognito);
+    this.#isIncognito = $state(accountAPI.isLoggedIn && !!incognito);
     this.#biohazardEnabled = $state(biohazard);
     this.#loggedIn = $state(accountAPI.isLoggedIn);
+    this.#avatarURL = $state(accountAPI.isLoggedIn && accountAPI.user.avatar);
+    this.#avatarIsLoading = $state(false);
   }
+
+  /** @returns {boolean} */
 
   get isIncognito() {
     return this.#isIncognito;
@@ -32,17 +38,35 @@ class Account {
     location.reload();
   }
 
+  /** @returns {boolean | undefined} */
+
   get biohazardEnabled() {
     return this.#biohazardEnabled;
   }
+
+  /** @param {boolean} value */
 
   set biohazardEnabled(value) {
     this.#biohazardEnabled = value;
     localStorage.setItem('biohazard', JSON.stringify(value));
   }
 
+  /** @returns {boolean} */
+
   get loggedIn() {
     return this.#loggedIn;
+  }
+
+  /** @returns {string | undefined} */
+
+  get avatarURL() {
+    return this.#avatarURL;
+  }
+
+  /** @returns {boolean} */
+
+  get avatarIsLoading() {
+    return this.#avatarIsLoading;
   }
 
   /** @param {string} identifier, @param {string} password, @returns {Promise<BlueskyAPI>} */
@@ -50,9 +74,21 @@ class Account {
   async logIn(identifier, password) {
     let pdsEndpoint = await pdsEndpointForIdentifier(identifier);
 
-    let pds = new BlueskyAPI(pdsEndpoint, true);
-    await pds.logIn(identifier, password);
-    return pds;
+    let pdsAPI = new BlueskyAPI(pdsEndpoint, true);
+    await pdsAPI.logIn(identifier, password);
+
+    this.#loggedIn = true;
+    this.#avatarIsLoading = true;
+
+    pdsAPI.loadCurrentUserAvatar().then(url => {
+      this.#avatarURL = url;
+    }).catch(error => {
+      console.log(error);
+    }).finally(() => {
+      this.#avatarIsLoading = false;
+    });
+
+    return pdsAPI;
   }
 
   logOut() {

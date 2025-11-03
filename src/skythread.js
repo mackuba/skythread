@@ -1,4 +1,5 @@
 import * as svelte from 'svelte';
+import AccountMenu from './components/AccountMenu.svelte';
 import LikeStatsView from './components/LikeStatsView.svelte';
 
 import { $, $id, Paginator } from './utils.js';
@@ -9,7 +10,6 @@ import { Minisky } from './api/minisky.js';
 import { account } from './models/account.svelte.js';
 import { Post } from './models/posts.js';
 import { PostComponent } from './post_component.js';
-import { Menu } from './menu.js';
 import { ThreadPage } from './thread_page.js';
 import { PostingStatsPage } from './posting_stats_page.js';
 import { NotificationsPage } from './notifications_page.js';
@@ -22,7 +22,8 @@ function init() {
 
   window.avatarPreloader = buildAvatarPreloader();
 
-  window.accountMenu = new Menu();
+  svelte.mount(AccountMenu, { target: $id('account_menu_wrap') });
+
   window.threadPage = new ThreadPage();
   window.postingStatsPage = new PostingStatsPage();
   window.notificationsPage = new NotificationsPage();
@@ -78,7 +79,6 @@ function init() {
     e.preventDefault();
 
     account.biohazardEnabled = false;
-    accountMenu.toggleMenuButtonCheck('biohazard', false);
 
     for (let p of document.querySelectorAll('p.hidden-replies, .content > .post.blocked, .blocked > .load-post')) {
       $(p).style.display = 'none';
@@ -95,23 +95,15 @@ function init() {
 
   if (accountAPI.isLoggedIn) {
     accountAPI.host = accountAPI.user.pdsEndpoint;
-    accountMenu.hideMenuButton('login');
 
     if (!account.isIncognito) {
       window.api = accountAPI;
-      accountMenu.showLoggedInStatus(true, api.user.avatar);
     } else {
       window.api = appView;
-      accountMenu.showLoggedInStatus('incognito');
-      accountMenu.toggleMenuButtonCheck('incognito', true);
     }
   } else {
     window.api = appView;
-    accountMenu.hideMenuButton('logout');
-    accountMenu.hideMenuButton('incognito');
   }
-
-  accountMenu.toggleMenuButtonCheck('biohazard', account.biohazardEnabled !== false);
 
   parseQueryParams();
 }
@@ -230,12 +222,6 @@ function submitLogin() {
     submit.style.display = 'inline';
     cloudy.style.display = 'none';
     close.style.display = 'inline';
-
-    accountMenu.loadCurrentUserAvatar();
-
-    accountMenu.showMenuButton('logout');
-    accountMenu.showMenuButton('incognito');
-    accountMenu.hideMenuButton('login');
 
     let params = new URLSearchParams(location.search);
     let page = params.get('page');
