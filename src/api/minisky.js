@@ -28,47 +28,10 @@ export class AuthError extends Error {}
 
 
 /**
- * Thrown when DID or DID document is invalid.
- */
-
-export class DIDError extends Error {}
-
-
-/**
  * Base API client for connecting to an ATProto XRPC API.
  */
 
 export class Minisky {
-
-  /** @param {string} did, @returns {Promise<string>} */
-
-  static async pdsEndpointForDid(did) {
-    let url;
-
-    if (did.startsWith('did:plc:')) {
-      url = new URL(`https://plc.directory/${did}`);
-    } else if (did.startsWith('did:web:')) {
-      let host = did.replace(/^did:web:/, '');
-      url = new URL(`https://${host}/.well-known/did.json`);
-    } else {
-      throw new DIDError("Unknown DID type: " + did);
-    }
-
-    let response = await fetch(url);
-    let text = await response.text();
-    let json = text.trim().length > 0 ? JSON.parse(text) : undefined;
-
-    if (response.status == 200) {
-      let service = (json.service || []).find(s => s.id == '#atproto_pds');
-      if (service) {
-        return service.serviceEndpoint.replace('https://', '');
-      } else {
-        throw new DIDError("Missing #atproto_pds service definition");
-      }
-    } else {
-      throw new APIError(response.status, json);
-    }
-  }
 
   /**
    * @typedef {object} MiniskyOptions

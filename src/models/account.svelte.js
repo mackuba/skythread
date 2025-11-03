@@ -1,13 +1,6 @@
 import { BlueskyAPI } from '../api/api.js';
 import { Minisky } from '../api/minisky.js';
-
-class LoginError extends Error {
-
-  /** @param {string} message */
-  constructor(message) {
-    super(message);
-  }
-}
+import { pdsEndpointForIdentifier } from '../api/identity.js';
 
 class Account {
 
@@ -52,26 +45,10 @@ class Account {
     return this.#loggedIn;
   }
 
-  /** @param {string} identifier, @returns {Promise<string>} */
-
-  async findPDSEndpoint(identifier) {
-    if (identifier.match(/^did:/)) {
-      return await Minisky.pdsEndpointForDid(identifier);
-    } else if (identifier.match(/^[^@]+@[^@]+$/)) {
-      return 'bsky.social';
-    } else if (identifier.match(/^@?[\w\-]+(\.[\w\-]+)+$/)) {
-      identifier = identifier.replace(/^@/, '');
-      let did = await appView.resolveHandle(identifier);
-      return await Minisky.pdsEndpointForDid(did);
-    } else {
-      throw new LoginError('Please enter your handle or DID.');
-    }
-  }
-
   /** @param {string} identifier, @param {string} password, @returns {Promise<BlueskyAPI>} */
 
   async logIn(identifier, password) {
-    let pdsEndpoint = await this.findPDSEndpoint(identifier);
+    let pdsEndpoint = await pdsEndpointForIdentifier(identifier);
 
     let pds = new BlueskyAPI(pdsEndpoint, true);
     await pds.logIn(identifier, password);
