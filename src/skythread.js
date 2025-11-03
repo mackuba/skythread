@@ -1,6 +1,7 @@
 import * as svelte from 'svelte';
 import AccountMenu from './components/AccountMenu.svelte';
 import BiohazardDialog from './components/BiohazardDialog.svelte';
+import HomeSearch from './components/HomeSearch.svelte';
 import LikeStatsView from './components/LikeStatsView.svelte';
 import LoginDialog from './components/LoginDialog.svelte';
 
@@ -39,7 +40,6 @@ let privateSearchPage;
 
 function init() {
   window.dateLocale = localStorage.getItem('locale') || undefined;
-
   window.avatarPreloader = buildAvatarPreloader();
 
   svelte.mount(AccountMenu, { target: $id('account_menu_wrap') });
@@ -48,11 +48,6 @@ function init() {
   postingStatsPage = new PostingStatsPage();
   notificationsPage = new NotificationsPage();
   privateSearchPage = new PrivateSearchPage();
-
-  $(document.querySelector('#search form')).addEventListener('submit', (e) => {
-    e.preventDefault();
-    submitSearch();
-  });
 
   for (let dialog of document.querySelectorAll('.dialog')) {
     let close = $(dialog.querySelector('.close'));
@@ -138,14 +133,8 @@ function hideLoader() {
 
 function showSearch() {
   let search = $id('search');
-  let searchField = $(search.querySelector('input[type=text]'));
-
+  svelte.mount(HomeSearch, { target: search });
   search.style.visibility = 'visible';
-  searchField.focus();
-}
-
-function hideSearch() {
-  $id('search').style.visibility = 'hidden';
 }
 
 function hideDialog(dialog) {
@@ -255,38 +244,6 @@ async function submitLogin(identifier, password) {
   let page = params.get('page');
   if (page) {
     openPage(page);
-  }
-}
-
-function submitSearch() {
-  let search = $id('search');
-  let searchField = $(search.querySelector('input[name=q]'), HTMLInputElement);
-  let url = searchField.value.trim();
-
-  if (!url) { return }
-
-  if (url.startsWith('at://')) {
-    let target = new URL(getBaseLocation());
-    target.searchParams.set('q', url);
-    location.assign(target.toString());
-    return;
-  }
-
-  if (url.match(/^#?((\p{Letter}|\p{Number})+)$/u)) {
-    let target = new URL(getBaseLocation());
-    target.searchParams.set('hash', encodeURIComponent(url.replace(/^#/, '')));
-    location.assign(target.toString());
-    return;
-  }
-
-  try {
-    let { user, post } = parseBlueskyPostURL(url);
-
-    let newURL = linkToPostById(user, post);
-    location.assign(newURL);
-  } catch (error) {
-    console.log(error);
-    alert(error.message || "This is not a valid URL or hashtag");
   }
 }
 
