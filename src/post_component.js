@@ -3,7 +3,7 @@ import { $tag } from './utils_ts.js';
 import { Post, BlockedPost, MissingPost, DetachedQuotePost } from './models/posts.js';
 import { account } from './models/account.svelte.js';
 import { InlineLinkEmbed } from './models/embeds.js';
-import { APIError } from './api/minisky.js';
+import { APIError } from './api/api.js';
 import { EmbedComponent } from './embed_component.js';
 import { RichText } from '../lib/rich_text_lite.js';
 import { linkToHashtagPage, linkToPostById, linkToPostThread, linkToQuotesPage } from './router.js';

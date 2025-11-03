@@ -1,7 +1,9 @@
-import { AuthError, Minisky } from './minisky.js';
+import { APIError, AuthError, Minisky } from './minisky.js';
 import { atURI, feedPostTime } from '../utils.js';
 import { Post } from '../models/posts.js';
 import { parseBlueskyPostURL } from '../router.js';
+
+export { APIError };
 
 /**
  * Thrown when the response is technically a "success" one, but the returned data is not what it should be.

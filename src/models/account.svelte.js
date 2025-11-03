@@ -1,5 +1,4 @@
 import { BlueskyAPI } from '../api/api.js';
-import { Minisky } from '../api/minisky.js';
 import { pdsEndpointForIdentifier } from '../api/identity.js';
 
 class Account {
