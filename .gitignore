@@ -1,5 +1,6 @@
 Capfile
 config
 debug*
+dist/*.map
 Gemfile*
 node_modules
