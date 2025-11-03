@@ -255,20 +255,14 @@ a:visited {
 #login #cloudy {
   color: hsl(210, 60%, 75%);
   margin: 14px 0px;
-  display: none;
 }
 
 #login .info-box {
-  display: none;
   border: 1px solid hsl(45, 100%, 60%);
   background-color: hsl(50, 100%, 96%);
   width: 360px;
   font-size: 11pt;
   border-radius: 6px;
-}
-
-#login.expanded .info-box {
-  display: block;
 }
 
 #login .info-box p {

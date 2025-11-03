@@ -1,6 +1,7 @@
 import * as svelte from 'svelte';
 import AccountMenu from './components/AccountMenu.svelte';
 import LikeStatsView from './components/LikeStatsView.svelte';
+import LoginDialog from './components/LoginDialog.svelte';
 
 import { $, $id, Paginator } from './utils.js';
 import { $tag } from './utils_ts.js';
@@ -15,10 +16,11 @@ import { PostingStatsPage } from './posting_stats_page.js';
 import { NotificationsPage } from './notifications_page.js';
 import { PrivateSearchPage } from './private_search_page.js';
 
+/** @type {Record<string, any> | undefined} */
+let loginDialog;
+
 function init() {
   window.dateLocale = localStorage.getItem('locale') || undefined;
-
-  window.loginDialog = $(document.querySelector('#login'));
 
   window.avatarPreloader = buildAvatarPreloader();
 
@@ -49,16 +51,6 @@ function init() {
       hideDialog(dialog);
     });
   }
-
-  $(document.querySelector('#login .info a')).addEventListener('click', (e) => {
-    e.preventDefault();
-    toggleLoginInfo();
-  });
-
-  $(document.querySelector('#login form')).addEventListener('submit', (e) => {
-    e.preventDefault();
-    submitLogin();
-  });
 
   $(document.querySelector('#biohazard_show')).addEventListener('click', (e) => {
     e.preventDefault();
@@ -184,6 +176,47 @@ function hideDialog(dialog) {
   }
 }
 
+/** @param {boolean} showClose */
+
+function showLoginDialog(showClose = true) {
+  if (loginDialog) {
+    return;
+  }
+
+  let dialog = $id('login');
+  let props = {};
+
+  if (showClose) {
+    props.onClose = (e) => {
+      e.preventDefault();
+      hideLoginDialog();
+    };
+  }
+
+  dialog.addEventListener('click', (e) => {
+    if (e.target === e.currentTarget && showClose) {
+      hideLoginDialog();
+    } else {
+      e.stopPropagation();
+    }
+  });
+
+  loginDialog = svelte.mount(LoginDialog, { target: dialog, props });
+
+  dialog.style.visibility = 'visible';
+  $id('thread').classList.add('overlay');
+}
+
+function hideLoginDialog() {
+  if (loginDialog) {
+    svelte.unmount(loginDialog);
+    loginDialog = undefined;
+
+    $id('login').style.visibility = 'hidden';
+    $id('thread').classList.remove('overlay');
+  }
+}
+
 function toggleDialog(dialog) {
   if (dialog.style.visibility == 'visible') {
     hideDialog(dialog);
@@ -192,54 +225,21 @@ function toggleDialog(dialog) {
   }
 }
 
-function toggleLoginInfo() {
-  $id('login').classList.toggle('expanded');
-}
+/** @param {string} identifier, @param {string} password, @returns {Promise<void>} */
 
-function submitLogin() {
-  let handleField = $id('login_handle', HTMLInputElement);
-  let passwordField = $id('login_password', HTMLInputElement);
-  let submit = $id('login_submit');
-  let cloudy = $id('cloudy');
-  let close = $(loginDialog.querySelector('.close'));
+async function submitLogin(identifier, password) {
+  let pds = await account.logIn(identifier, password);
 
-  if (submit.style.display == 'none') { return }
+  window.api = pds;
+  window.accountAPI = pds;
 
-  handleField.blur();
-  passwordField.blur();
+  hideLoginDialog();
 
-  submit.style.display = 'none';
-  cloudy.style.display = 'inline-block';
-
-  let handle = handleField.value.trim();
-  let password = passwordField.value.trim();
-
-  account.logIn(handle, password).then((pds) => {
-    window.api = pds;
-    window.accountAPI = pds;
-
-    hideDialog(loginDialog);
-    submit.style.display = 'inline';
-    cloudy.style.display = 'none';
-    close.style.display = 'inline';
-
-    let params = new URLSearchParams(location.search);
-    let page = params.get('page');
-    if (page) {
-      openPage(page);
-    }
-  })
-  .catch((error) => {
-    submit.style.display = 'inline';
-    cloudy.style.display = 'none';
-    console.log(error);
-
-    if (error.code == 401 && error.json.error == 'AuthFactorTokenRequired') {
-      alert("Please log in using an \"app password\" if you have 2FA enabled.");
-    } else {
-      window.setTimeout(() => alert(error), 10);
-    }
-  });
+  let params = new URLSearchParams(location.search);
+  let page = params.get('page');
+  if (page) {
+    openPage(page);
+  }
 }
 
 function submitSearch() {
@@ -278,8 +278,7 @@ function submitSearch() {
 
 function openPage(page) {
   if (!accountAPI.isLoggedIn) {
-    showDialog(loginDialog);
-    $(loginDialog.querySelector('.close')).style.display = 'none';
+    showLoginDialog(false);
     return;
   }
 
@@ -416,4 +415,4 @@ function loadQuotesPage(url) {
 window.init = init;
 window.BlueskyAPI = BlueskyAPI;
 
-export { setPageTitle, showDialog, showLoader, hideLoader };
+export { setPageTitle, showDialog, showLoginDialog, showLoader, hideLoader, submitLogin };

@@ -17,7 +17,7 @@ import { InlineLinkEmbed } from './models/embeds.js';
 import { APIError } from './api/minisky.js';
 import { EmbedComponent } from './embed_component.js';
 import { RichText } from '../lib/rich_text_lite.js';
-import { showDialog } from './skythread.js';
+import { showDialog, showLoginDialog } from './skythread.js';
 
 /**
  * Renders a post/thread view and its subviews.
@@ -804,7 +804,7 @@ export class PostComponent {
           }
         } else {
           // not logged in
-          showDialog(loginDialog);
+          showLoginDialog();
           return;
         }
       }

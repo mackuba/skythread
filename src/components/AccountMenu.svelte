@@ -1,5 +1,5 @@
 <script>
-  import { showDialog } from '../skythread.js';
+  import { showLoginDialog } from '../skythread.js';
   import { account } from '../models/account.svelte.js';
   import AccountMenuButton from './AccountMenuButton.svelte';
   import LoadableImage from './LoadableImage.svelte';
@@ -48,7 +48,7 @@
   function showLoginScreen(e) {
     e.preventDefault();
 
-    showDialog(loginDialog);
+    showLoginDialog();
     menuVisible = false;
   }
 
