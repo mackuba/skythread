@@ -1,5 +1,6 @@
 import * as svelte from 'svelte';
 import AccountMenu from './components/AccountMenu.svelte';
+import BiohazardDialog from './components/BiohazardDialog.svelte';
 import LikeStatsView from './components/LikeStatsView.svelte';
 import LoginDialog from './components/LoginDialog.svelte';
 
@@ -19,6 +20,9 @@ import { PrivateSearchPage } from './private_search_page.js';
 
 /** @type {Record<string, any> | undefined} */
 let loginDialog;
+
+/** @type {Record<string, any> | undefined} */
+let biohazardDialog;
 
 /** @type {ThreadPage} */
 let threadPage;
@@ -65,35 +69,6 @@ function init() {
       hideDialog(dialog);
     });
   }
-
-  $(document.querySelector('#biohazard_show')).addEventListener('click', (e) => {
-    e.preventDefault();
-
-    account.biohazardEnabled = true;
-
-    if (window.loadInfohazard) {
-      window.loadInfohazard();
-      window.loadInfohazard = undefined;
-    }
-
-    let target = $(e.target);
-
-    hideDialog(target.closest('.dialog'));
-  });
-
-  $(document.querySelector('#biohazard_hide')).addEventListener('click', (e) => {
-    e.preventDefault();
-
-    account.biohazardEnabled = false;
-
-    for (let p of document.querySelectorAll('p.hidden-replies, .content > .post.blocked, .blocked > .load-post')) {
-      $(p).style.display = 'none';
-    }
-
-    let target = $(e.target);
-
-    hideDialog(target.closest('.dialog'));
-  });
 
   window.appView = new BlueskyAPI('api.bsky.app', false);
   window.blueAPI = new BlueskyAPI('blue.mackuba.eu', false);
@@ -173,13 +148,6 @@ function hideSearch() {
   $id('search').style.visibility = 'hidden';
 }
 
-function showDialog(dialog) {
-  dialog.style.visibility = 'visible';
-  $id('thread').classList.add('overlay');
-
-  dialog.querySelector('input[type=text]')?.focus();
-}
-
 function hideDialog(dialog) {
   dialog.style.visibility = 'hidden';
   dialog.classList.remove('expanded');
@@ -231,11 +199,45 @@ function hideLoginDialog() {
   }
 }
 
-function toggleDialog(dialog) {
-  if (dialog.style.visibility == 'visible') {
-    hideDialog(dialog);
-  } else {
-    showDialog(dialog);
+/** @param {(() => void)=} onConfirm */
+
+function showBiohazardDialog(onConfirm) {
+  if (biohazardDialog) {
+    return;
+  }
+
+  let dialog = $id('biohazard_dialog');
+
+  dialog.addEventListener('click', (e) => {
+    if (e.target === e.currentTarget) {
+      hideBiohazardDialog();
+    } else {
+      e.stopPropagation();
+    }
+  });
+
+  biohazardDialog = svelte.mount(BiohazardDialog, {
+    target: dialog,
+    props: {
+      onConfirm: onConfirm,
+      onClose: (e) => {
+        e?.preventDefault();
+        hideBiohazardDialog();
+      }
+    }
+  });
+
+  dialog.style.visibility = 'visible';
+  $id('thread').classList.add('overlay');
+}
+
+function hideBiohazardDialog() {
+  if (biohazardDialog) {
+    svelte.unmount(biohazardDialog);
+    biohazardDialog = undefined;
+
+    $id('biohazard_dialog').style.visibility = 'hidden';
+    $id('thread').classList.remove('overlay');
   }
 }
 
@@ -429,4 +431,4 @@ function loadQuotesPage(url) {
 window.init = init;
 window.BlueskyAPI = BlueskyAPI;
 
-export { setPageTitle, showDialog, showLoginDialog, showLoader, hideLoader, submitLogin };
+export { setPageTitle, showLoginDialog, showBiohazardDialog, showLoader, hideLoader, submitLogin };

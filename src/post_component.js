@@ -17,7 +17,7 @@ import { InlineLinkEmbed } from './models/embeds.js';
 import { APIError } from './api/minisky.js';
 import { EmbedComponent } from './embed_component.js';
 import { RichText } from '../lib/rich_text_lite.js';
-import { showDialog, showLoginDialog } from './skythread.js';
+import { showLoginDialog, showBiohazardDialog } from './skythread.js';
 
 /**
  * Renders a post/thread view and its subviews.
@@ -497,8 +497,7 @@ export class PostComponent {
       if (account.biohazardEnabled === true) {
         this.loadHiddenReplies(loadMore);
       } else {
-        window.loadInfohazard = () => this.loadHiddenReplies(loadMore);
-        showDialog($id('biohazard_dialog'));
+        showBiohazardDialog(() => this.loadHiddenReplies(loadMore));
       }
     });
 
