@@ -64,8 +64,8 @@
 
   {#if loginInfoVisible}
     <div class="info-box">
-      <p>Bluesky API currently doesn't allow apps to request fine-grained permissions, only access to the whole account. However, you can generate an "app password" in the Bluesky app settings for this specific app that you can later revoke at any time.</p>
-      <p>The password you enter here is only passed to the Bluesky API and isn't saved anywhere. The returned access token is only stored in your browser's local storage. You can see the complete source code of this app <a href="http://github.com/mackuba/skythread" target="_blank">on GitHub</a>.</p>
+      <p>Skythread doesn't support OAuth yet. For now, you need to use an "app password" here, which you can generate in the Bluesky app settings.</p>
+      <p>The password you enter here is only passed to the Bluesky API (PDS) and isn't saved anywhere. The returned access token is only stored in your browser's local storage. You can see the complete source code of this app <a href="http://tangled.org/@mackuba.eu/skythread" target="_blank">on Tangled</a>.</p>
     </div>
   {/if}
 
