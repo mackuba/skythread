@@ -71,9 +71,77 @@
 
   <p class="submit">
     {#if !submitting}
-      <input id="login_submit" type="submit" value="Log in">
+      <input type="submit" value="Log in">
     {:else}
-      <i id="cloudy" class="fa-solid fa-cloud fa-beat fa-xl"></i>
+      <i class="cloudy fa-solid fa-cloud fa-beat fa-xl"></i>
     {/if}
   </p>
 </form>
+
+<style>
+  .cloudy {
+    color: hsl(210, 60%, 75%);
+    margin: 14px 0px;
+  }
+
+  .info-box {
+    border: 1px solid hsl(45, 100%, 60%);
+    background-color: hsl(50, 100%, 96%);
+    width: 360px;
+    font-size: 11pt;
+    border-radius: 6px;
+  }
+
+  .info-box p {
+    margin: 15px 15px;
+    text-align: left;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    form {
+      border-color: hsl(210, 20%, 40%);
+      background-color: hsl(210, 12%, 25%);
+    }
+
+    .close {
+      color: hsl(210, 20%, 50%);
+      opacity: 0.6;
+    }
+
+    .close:hover {
+      color: hsl(210, 20%, 50%);
+      opacity: 1.0;
+    }
+
+    p.info a {
+      color: #888;
+    }
+
+    input[type="text"], input[type="password"] {
+      border-color: #666;
+    }
+
+    input[type="submit"] {
+      border-color: hsl(210, 15%, 40%);
+      background-color: hsl(210, 12%, 35%);
+    }
+
+    input[type="submit"]:active {
+      border-color: hsl(210, 15%, 35%);
+      background-color: hsl(210, 12%, 30%);
+    }
+
+    .cloudy {
+      color: hsl(210, 60%, 75%);
+    }
+
+    .info-box {
+      border-color: hsl(45, 100%, 45%);
+      background-color: hsl(50, 40%, 30%);
+    }
+
+    .info-box a {
+      color: hsl(45, 100%, 50%);
+    }
+  }
+</style>

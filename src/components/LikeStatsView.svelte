@@ -50,3 +50,27 @@
   <LikeStatsTable cssClass="given-likes" header="❤️ Likes from you:" users={givenLikesUsers} />
   <LikeStatsTable cssClass="received-likes" header="💛 Likes on your posts:" users={receivedLikesUsers} />
 {/if}
+
+<style>
+  input[type="range"] {
+    width: 250px;
+    vertical-align: middle;
+  }
+
+  input[type="submit"] {
+    font-size: 12pt;
+    margin: 5px 0px;
+    padding: 5px 10px;
+  }
+
+  progress {
+    width: 300px;
+    margin-left: 10px;
+    vertical-align: middle;
+    display: none;
+  }
+
+  :global(.scan-result.given-likes) {
+    margin-right: 100px;
+  }
+</style>

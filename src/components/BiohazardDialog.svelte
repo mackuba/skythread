@@ -39,3 +39,20 @@
     <input type="submit" value="Nope, I'd rather not 🙈" onclick={hideBiohazard}>
   </p>
 </form>
+
+<style>
+  form {
+    width: 400px;
+  }
+
+  p.submit {
+    margin-top: 40px;
+    margin-bottom: 20px;
+  }
+
+  input[type="submit"] {
+    width: 180px;
+    margin-left: 5px;
+    margin-right: 5px;
+  }
+</style>

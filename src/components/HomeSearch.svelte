@@ -41,3 +41,33 @@
 <form method="get" {onsubmit}>
   🌤 <input type="text" placeholder="Paste a thread link or type a #hashtag" bind:value={query} bind:this={searchField}>
 </form>
+
+<style>
+  form {
+    border: 2px solid hsl(210, 100%, 80%);
+    border-radius: 10px;
+    padding: 15px 20px;
+    margin-left: 50px;
+  }
+
+  input {
+    font-size: 16pt;
+    width: 600px;
+    border: 0;
+    margin-left: 8px;
+  }
+
+  input:focus {
+    outline: none;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    form {
+      border-color: hsl(210, 40%, 60%);
+    }
+
+    form input {
+      background-color: transparent;
+    }
+  }
+</style>

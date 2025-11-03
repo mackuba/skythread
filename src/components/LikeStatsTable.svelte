@@ -18,3 +18,57 @@
     {/each}
   </tbody>
 </table>
+
+<style>
+  .scan-result {
+    border: 1px solid #333;
+    border-collapse: collapse;
+    display: none;
+    float: left;
+    margin-top: 20px;
+    margin-bottom: 40px;
+  }
+
+  td, th {
+    border: 1px solid #333;
+    padding: 5px 10px;
+  }
+
+  th {
+    text-align: center;
+    background-color: hsl(207, 100%, 86%);
+    padding: 12px 10px;
+  }
+
+  td.no {
+    font-weight: bold;
+    text-align: right;
+  }
+
+  td.handle {
+    width: 280px;
+  }
+
+  td.count {
+    padding: 5px 15px;
+  }
+
+  .avatar {
+    width: 24px;
+    height: 24px;
+    border-radius: 14px;
+    vertical-align: middle;
+    margin-right: 2px;
+    padding: 2px;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    .scan-result, td, th {
+      border-color: #888;
+    }
+
+    th {
+      background-color: hsl(207, 90%, 25%);
+    }
+  }
+</style>

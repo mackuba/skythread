@@ -63,24 +63,6 @@ a:visited {
   padding-bottom: 5%;
 }
 
-#search form {
-  border: 2px solid hsl(210, 100%, 80%);
-  border-radius: 10px;
-  padding: 15px 20px;
-  margin-left: 50px;
-}
-
-#search input {
-  font-size: 16pt;
-  width: 600px;
-  border: 0;
-  margin-left: 8px;
-}
-
-#search input:focus {
-  outline: none;
-}
-
 #account {
   position: fixed;
   top: 10px;
@@ -250,39 +232,6 @@ a:visited {
 .dialog input[type="submit"]:active {
   background-color: hsl(210, 100%, 87%);
   border: 1px solid hsl(210, 90%, 80%);
-}
-
-#login #cloudy {
-  color: hsl(210, 60%, 75%);
-  margin: 14px 0px;
-}
-
-#login .info-box {
-  border: 1px solid hsl(45, 100%, 60%);
-  background-color: hsl(50, 100%, 96%);
-  width: 360px;
-  font-size: 11pt;
-  border-radius: 6px;
-}
-
-#login .info-box p {
-  margin: 15px 15px;
-  text-align: left;
-}
-
-#biohazard_dialog form {
-  width: 400px;
-}
-
-#biohazard_dialog p.submit {
-  margin-top: 40px;
-  margin-bottom: 20px;
-}
-
-#biohazard_dialog input[type="submit"] {
-  width: 180px;
-  margin-left: 5px;
-  margin-right: 5px;
 }
 
 #loader {
@@ -978,70 +927,6 @@ p.back i {
   display: none;
 }
 
-#like_stats_page input[type="range"] {
-  width: 250px;
-  vertical-align: middle;
-}
-
-#like_stats_page input[type="submit"] {
-  font-size: 12pt;
-  margin: 5px 0px;
-  padding: 5px 10px;
-}
-
-#like_stats_page progress {
-  width: 300px;
-  margin-left: 10px;
-  vertical-align: middle;
-  display: none;
-}
-
-#like_stats_page .scan-result {
-  border: 1px solid #333;
-  border-collapse: collapse;
-  display: none;
-  float: left;
-  margin-top: 20px;
-  margin-bottom: 40px;
-}
-
-#like_stats_page .given-likes {
-  margin-right: 100px;
-}
-
-#like_stats_page .scan-result td, #like_stats_page .scan-result th {
-  border: 1px solid #333;
-  padding: 5px 10px;
-}
-
-#like_stats_page .scan-result th {
-  text-align: center;
-  background-color: hsl(207, 100%, 86%);
-  padding: 12px 10px;
-}
-
-#like_stats_page .scan-result td.no {
-  font-weight: bold;
-  text-align: right;
-}
-
-#like_stats_page .scan-result td.handle {
-  width: 280px;
-}
-
-#like_stats_page .scan-result td.count {
-  padding: 5px 15px;
-}
-
-#like_stats_page .scan-result .avatar {
-  width: 24px;
-  height: 24px;
-  border-radius: 14px;
-  vertical-align: middle;
-  margin-right: 2px;
-  padding: 2px;
-}
-
 #private_search_page {
   display: none;
 }
@@ -1140,14 +1025,6 @@ p.back i {
     filter: invert();
   }
 
-  #search form {
-    border-color: hsl(210, 40%, 60%);
-  }
-
-  #search form input {
-    background-color: transparent;
-  }
-
   #account.active {
     color: #333;
   }
@@ -1169,52 +1046,6 @@ p.back i {
 
   #login {
     background-color: rgba(240, 240, 240, 0.15);
-  }
-
-  #login form {
-    border-color: hsl(210, 20%, 40%);
-    background-color: hsl(210, 12%, 25%);
-  }
-
-  #login .close {
-    color: hsl(210, 20%, 50%);
-    opacity: 0.6;
-  }
-
-  #login .close:hover {
-    color: hsl(210, 20%, 50%);
-    opacity: 1.0;
-  }
-
-  #login p.info a {
-    color: #888;
-  }
-
-  #login input[type="text"], #login input[type="password"] {
-    border-color: #666;
-  }
-
-  #login input[type="submit"] {
-    border-color: hsl(210, 15%, 40%);
-    background-color: hsl(210, 12%, 35%);
-  }
-
-  #login input[type="submit"]:active {
-    border-color: hsl(210, 15%, 35%);
-    background-color: hsl(210, 12%, 30%);
-  }
-
-  #login #cloudy {
-    color: hsl(210, 60%, 75%);
-  }
-
-  #login .info-box {
-    border-color: hsl(45, 100%, 45%);
-    background-color: hsl(50, 40%, 30%);
-  }
-
-  #login .info-box a {
-    color: hsl(45, 100%, 50%);
   }
 
   #github {
@@ -1382,14 +1213,6 @@ p.back i {
 
   #posting_stats_page .scan-result tr.total td {
     background-color: hsla(207, 90%, 25%, 0.4);
-  }
-
-  #like_stats_page .scan-result, #like_stats_page .scan-result td, #like_stats_page .scan-result th {
-    border-color: #888;
-  }
-
-  #like_stats_page .scan-result th {
-    background-color: hsl(207, 90%, 25%);
   }
 
   #private_search_page .search-query {
