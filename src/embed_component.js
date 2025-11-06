@@ -361,7 +361,7 @@ export class EmbedComponent {
     return wrapper;
   }
 
-  /** @param {string} uri, @param {HTMLElement} div, @returns Promise<void> */
+  /** @param {string} uri, @param {HTMLElement} div, @returns {Promise<void>} */
 
   async loadQuotedPost(uri, div) {
     let record = await api.loadPostIfExists(uri);

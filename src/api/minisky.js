@@ -116,7 +116,7 @@ export class Minisky {
 
   /**
    * @param {string} method, @param {json | null} [data], @param {MiniskyRequestOptions} [options]
-   * @returns Promise<json>
+   * @returns {Promise<json>}
    */
 
   async postRequest(method, data, options) {

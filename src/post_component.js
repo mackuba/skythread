@@ -613,7 +613,7 @@ export class PostComponent {
     return div;
   }
 
-  /** @param {string} uri, @param {HTMLElement} div, @returns Promise<void> */
+  /** @param {string} uri, @param {HTMLElement} div, @returns {Promise<void>} */
 
   async loadBlockedPost(uri, div) {
     let record = await appView.loadPostIfExists(this.post.uri);
