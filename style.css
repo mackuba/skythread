@@ -1000,7 +1000,7 @@ p.back i {
 
 #private_search_page .results-end {
   font-size: 12pt;
-  color: #333;  
+  color: #333;
 }
 
 #private_search_page .post + .results-end {
@@ -1224,7 +1224,7 @@ p.back i {
   }
 
   #private_search_page .results-end {
-    color: #888;  
+    color: #888;
   }
 
   #private_search_page .results > .post {
