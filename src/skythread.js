@@ -9,7 +9,6 @@ import PostingStatsPage from './pages/PostingStatsPage.svelte';
 import { $, $id } from './utils.js';
 import { $tag } from './utils_ts.js';
 import * as paginator from './utils/paginator.js';
-import { getBaseLocation, linkToPostById, parseBlueskyPostURL } from './router.js';
 import { BlueskyAPI } from './api/api.js';
 import { account } from './models/account.svelte.js';
 import { Post } from './models/posts.js';
