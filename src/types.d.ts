@@ -15,3 +15,4 @@ declare var avatarPreloader: IntersectionObserver;
 type json = Record<string, any>;
 type FetchAllOnPageLoad = (obj: json[]) => { cancel: true } | void;
 type AnyPost = Post | BlockedPost | MissingPost | DetachedQuotePost;
+type PostContext = 'thread' | 'parent' | 'quote' | 'quotes' | 'feed';

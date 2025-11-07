@@ -1,4 +1,5 @@
-import { $, $id, atURI, escapeHTML, sameDay, sanitizeHTML, showError } from './utils.js';
+import * as svelte from 'svelte';
+import { $, $id, atURI, sanitizeHTML, showError } from './utils.js';
 import { $tag } from './utils_ts.js';
 import { Post, BlockedPost, MissingPost, DetachedQuotePost } from './models/posts.js';
 import { account } from './models/account.svelte.js';
@@ -8,6 +9,10 @@ import { EmbedComponent } from './embed_component.js';
 import { RichText } from '../lib/rich_text_lite.js';
 import { linkToHashtagPage, linkToPostById, linkToPostThread, linkToQuotesPage } from './router.js';
 import { showLoginDialog, showBiohazardDialog } from './skythread.js';
+import { PostPresenter } from './utils/post_presenter.js';
+import PostHeader from './components/posts/PostHeader.svelte';
+import PostTagsRow from './components/posts/PostTagsRow.svelte';
+import PostFooter from './components/posts/PostFooter.svelte';
 
 /**
  * Renders a post/thread view and its subviews.
@@ -28,7 +33,6 @@ export class PostComponent {
     - quotes - a post on the quotes page
     - feed - a post on the hashtag feed page
 
-    @typedef {'thread' | 'parent' | 'quote' | 'quotes' | 'feed'} PostContext
     @param {AnyPost} post, @param {PostContext} context
   */
   constructor(post, context) {
@@ -76,30 +80,6 @@ export class PostComponent {
   get didLinkToPost() {
     let { repo, rkey } = atURI(this.post.uri);
     return `https://bsky.app/profile/${repo}/post/${rkey}`;
-  }
-
-  /** @returns {string} */
-  get authorName() {
-    if (this.post.author.displayName) {
-      return this.post.author.displayName;
-    } else if (this.post.author.handle.endsWith('.bsky.social')) {
-      return this.post.author.handle.replace(/\.bsky\.social$/, '');
-    } else {
-      return this.post.author.handle;
-    }
-  }
-
-  /** @returns {json} */
-  get timeFormatForTimestamp() {
-    if (this.context == 'quotes' || this.context == 'feed') {
-      return { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric', hour: 'numeric', minute: 'numeric' };
-    } else if (this.isRoot || this.context != 'thread') {
-      return { day: 'numeric', month: 'short', year: 'numeric', hour: 'numeric', minute: 'numeric' };
-    } else if (this.post.pageRoot && !sameDay(this.post.createdAt, this.post.pageRoot.createdAt)) {
-      return { day: 'numeric', month: 'short', hour: 'numeric', minute: 'numeric' };
-    } else {
-      return { hour: 'numeric', minute: 'numeric' };
-    }
   }
 
   /** @param {HTMLElement} nodeToUpdate */
@@ -166,7 +146,7 @@ export class PostComponent {
     wrapper.appendChild(p);
 
     if (this.post.tags) {
-      let tagsRow = this.buildTagsRow(this.post.tags);
+      let tagsRow = this.buildTagsRow();
       wrapper.appendChild(tagsRow);
     }
 
@@ -226,42 +206,20 @@ export class PostComponent {
   /** @returns {HTMLElement} */
 
   buildPostHeader() {
-    let timeFormat = this.timeFormatForTimestamp;
-    let formattedTime = this.post.createdAt.toLocaleString(window.dateLocale, timeFormat);
-    let isoTime = this.post.createdAt.toISOString();
+    let div = $tag('div.PostHeader');
 
-    let h = $tag('h2');
+    svelte.mount(PostHeader, {
+      target: div,
+      context: new Map(Object.entries({
+        post: {
+          post: this.post,
+          context: this.context,
+          presenter: new PostPresenter(this.post, this.context)
+        }
+      }))
+    });
 
-    h.innerHTML = `${escapeHTML(this.authorName)} `;
-
-    if (this.post.isFediPost) {
-      let handle = `@${this.post.authorFediHandle}`;
-      h.innerHTML += `<a class="handle" href="${this.linkToAuthor}" target="_blank">${handle}</a> ` +
-        `<img src="icons/mastodon.svg" class="mastodon"> `;
-    } else {
-      let handle = (this.post.author.handle != 'handle.invalid') ? `@${this.post.author.handle}` : '[invalid handle]';
-      h.innerHTML += `<a class="handle" href="${this.linkToAuthor}" target="_blank">${handle}</a> `;
-    }
-
-    h.innerHTML += `<span class="separator">&bull;</span> ` +
-      `<a class="time" href="${this.linkToPost}" target="_blank" title="${isoTime}">${formattedTime}</a> `;
-
-    if (this.post.replyCount > 0 && !this.isRoot || ['quote', 'quotes', 'feed'].includes(this.context)) {
-      h.innerHTML +=
-        `<span class="separator">&bull;</span> ` +
-        `<a href="${linkToPostThread(this.post)}" class="action" title="Load this subtree">` +
-        `<i class="fa-solid fa-arrows-split-up-and-left fa-rotate-180"></i></a> `;
-    }
-
-    if (this.post.muted) {
-      h.prepend($tag('i', 'missing fa-regular fa-circle-user fa-2x'));
-    } else if (this.post.author.avatar) {
-      h.prepend(this.buildUserAvatar(this.post.author.avatar));
-    } else {
-      h.prepend($tag('i', 'missing fa-regular fa-face-smile fa-2x'));
-    }
-
-    return h;
+    return div;
   }
 
   buildEdgeMargin() {
@@ -283,15 +241,6 @@ export class PostComponent {
     });
 
     return div;
-  }
-
-  /** @param {string} url, @returns {HTMLImageElement} */
-
-  buildUserAvatar(url) {
-    let avatar = $tag('img.avatar', { loading: 'lazy' }, HTMLImageElement); // needs to be set before src!
-    avatar.src = url;
-    window.avatarPreloader.observe(avatar);
-    return avatar;
   }
 
   /** @returns {HTMLElement} */
@@ -368,80 +317,47 @@ export class PostComponent {
     }
   }
 
-  /** @param {string[]} tags, @returns {HTMLElement} */
+  /** @returns {HTMLElement} */
 
-  buildTagsRow(tags) {
-    let p = $tag('p.tags');
+  buildTagsRow() {
+    let div = $tag('div.PostTagsRow');
 
-    for (let tag of tags) {
-      let tagLink = $tag('a', { href: linkToHashtagPage(tag), text: '# ' + tag });
-      p.append(tagLink);
-    }
+    svelte.mount(PostTagsRow, {
+      target: div,
+      context: new Map(Object.entries({
+        post: {
+          post: this.post
+        }
+      }))
+    });
 
-    return p;
+    return div;
   }
 
   /** @returns {HTMLElement} */
 
   buildStatsFooter() {
-    let stats = $tag('p.stats');
+    let div = $tag('div.PostFooter');
 
-    let span = $tag('span');
-    let heart = $tag('i', 'fa-solid fa-heart ' + (this.post.liked ? 'liked' : ''));
-    heart.addEventListener('click', (e) => this.onHeartClick(heart));
+    svelte.mount(PostFooter, {
+      target: div,
+      context: new Map(Object.entries({
+        post: {
+          post: this.post,
+          context: this.context
+        }
+      }))
+    });
 
-    span.append(heart, ' ', $tag('output', { text: this.post.likeCount }));
-    stats.append(span);
-
-    if (this.post.repostCount > 0) {
-      let span = $tag('span', { html: `<i class="fa-solid fa-retweet"></i> ${this.post.repostCount}` });
-      stats.append(span);
-    }
-
-    if (this.post.replyCount > 0 && (this.context == 'quotes' || this.context == 'feed')) {
-      let pluralizedCount = (this.post.replyCount > 1) ? `${this.post.replyCount} replies` : '1 reply';
-      let span = $tag('span', {
-        html: `<i class="fa-regular fa-message"></i> <a href="${linkToPostThread(this.post)}">${pluralizedCount}</a>`
-      });
-      stats.append(span);
-    }
-
-    if (!this.isRoot && this.context != 'quote' && this.post.quoteCount) {
-      let expanded = this.context == 'quotes' || this.context == 'feed';
-      let quotesLink = this.buildQuotesIconLink(this.post.quoteCount, expanded);
-      stats.append(quotesLink);
-    }
-
-    if (this.context == 'thread' && this.post.isRestrictingReplies) {
-      let span = $tag('span', { html: `<i class="fa-solid fa-ban"></i> Limited replies` });
-      stats.append(span);
-    }
-
-    return stats;
-  }
-
-  /** @param {number} count, @param {boolean} expanded, @returns {HTMLElement} */
-
-  buildQuotesIconLink(count, expanded) {
-    let url = linkToQuotesPage(this.linkToPost);
-    let icon = `<i class="fa-regular fa-comments"></i>`;
-
-    if (expanded) {
-      let span = $tag('span', { html: `${icon} ` });
-      let link = $tag('a', { text: (count > 1) ? `${count} quotes` : '1 quote', href: url });
-      span.append(link);
-      return span;
-    } else {
-      return $tag('a', { html: `${icon} ${count}`, href: url });
-    }
+    return div;
   }
 
   /** @param {number} quoteCount, @param {boolean} expanded */
 
   appendQuotesIconLink(quoteCount, expanded) {
-    let stats = $(this.rootElement.querySelector(':scope > .content > p.stats'));
+    /*let stats = $(this.rootElement.querySelector(':scope > .content > p.stats'));
     let quotesLink = this.buildQuotesIconLink(quoteCount, expanded);
-    stats.append(quotesLink);
+    stats.append(quotesLink);*/
   }
 
   /** @returns {HTMLElement} */
@@ -763,73 +679,5 @@ export class PostComponent {
       this.rootElement.classList.add('collapsed');
       plus.src = 'icons/add-square.png'
     }
-  }
-
-  /** @param {HTMLElement} heart, @returns {Promise<void>} */
-
-  async onHeartClick(heart) {
-    try {
-      if (!this.post.hasViewerInfo) {
-        if (account.loggedIn) {
-          let data = await this.loadViewerInfo();
-
-          if (data) {
-            if (this.post.liked) {
-              heart.classList.add('liked');
-              return;
-            } else {
-              // continue down
-            }
-          } else {
-            this.showPostAsBlocked();
-            return;
-          }
-        } else {
-          // not logged in
-          showLoginDialog();
-          return;
-        }
-      }
-
-      let countField = $(heart.nextElementSibling);
-      let likeCount = parseInt(countField.innerText, 10);
-
-      if (!heart.classList.contains('liked')) {
-        let like = await accountAPI.likePost(this.post);
-        this.post.viewerLike = like.uri;
-        heart.classList.add('liked');
-        countField.innerText = String(likeCount + 1);
-      } else {
-        await accountAPI.removeLike(this.post.viewerLike);
-        this.post.viewerLike = undefined;
-        heart.classList.remove('liked');
-        countField.innerText = String(likeCount - 1);
-      }
-    } catch (error) {
-      showError(error);
-    }
-  }
-
-  showPostAsBlocked() {
-    let stats = $(this.rootElement.querySelector(':scope > .content > p.stats'));
-
-    if (!stats.querySelector('.blocked-info')) {
-      let span = $tag('span.blocked-info', { text: '🚫 Post unavailable' });
-      stats.append(span);
-    }
-  }
-
-  /** @returns {Promise<json | undefined>} */
-
-  async loadViewerInfo() {
-    let data = await accountAPI.loadPostIfExists(this.post.uri);
-
-    if (data) {
-      this.post.author = data.author;
-      this.post.viewerData = data.viewer;
-      this.post.viewerLike = data.viewer?.like;
-    }
-
-    return data;
   }
 }

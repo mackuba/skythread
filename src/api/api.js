@@ -414,6 +414,20 @@ export class BlueskyAPI extends Minisky {
     }
   }
 
+  /** @param {Post} post, @returns {Promise<json | undefined>} */
+
+  async loadPostViewerInfo(post) {
+    let data = await this.loadPostIfExists(post.uri);
+
+    if (data) {
+      post.author = data.author;
+      post.viewerData = data.viewer;
+      post.viewerLike = data.viewer?.like;
+    }
+
+    return data;
+  }
+
   /** @param {Post} post, @returns {Promise<json>} */
 
   async likePost(post) {

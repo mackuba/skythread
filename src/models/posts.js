@@ -309,6 +309,32 @@ export class Post extends ATProtoRecord {
     }
   }
 
+  /** @returns {boolean} */
+  get hasValidHandle() {
+    return this.author.handle != 'handle.invalid';
+  }
+
+  /** @returns {string} */
+  get authorDisplayName() {
+    if (this.author.displayName) {
+      return this.author.displayName;
+    } else if (this.author.handle.endsWith('.bsky.social')) {
+      return this.author.handle.replace(/\.bsky\.social$/, '');
+    } else {
+      return this.author.handle;
+    }
+  }
+
+  /** @returns {string} */
+  get linkToAuthor() {
+    return 'https://bsky.app/profile/' + (this.hasValidHandle ? this.author.handle : this.author.did);
+  }
+
+  /** @returns {string} */
+  get linkToPost() {
+    return this.linkToAuthor + '/post/' + this.rkey;
+  }
+
   /** @returns {string} */
   get text() {
     return this.record.text;
