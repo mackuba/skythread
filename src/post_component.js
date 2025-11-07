@@ -1,5 +1,5 @@
 import * as svelte from 'svelte';
-import { $, $id, atURI, sanitizeHTML, showError } from './utils.js';
+import { $, atURI, sanitizeHTML, showError } from './utils.js';
 import { $tag } from './utils_ts.js';
 import { Post, BlockedPost, MissingPost, DetachedQuotePost } from './models/posts.js';
 import { account } from './models/account.svelte.js';
@@ -7,9 +7,12 @@ import { InlineLinkEmbed } from './models/embeds.js';
 import { APIError } from './api/api.js';
 import { EmbedComponent } from './embed_component.js';
 import { RichText } from '../lib/rich_text_lite.js';
-import { linkToHashtagPage, linkToPostById, linkToPostThread, linkToQuotesPage } from './router.js';
-import { showLoginDialog, showBiohazardDialog } from './skythread.js';
+import { linkToHashtagPage, linkToPostById, linkToPostThread } from './router.js';
+import { showBiohazardDialog } from './skythread.js';
 import { PostPresenter } from './utils/post_presenter.js';
+
+import BlockedPostView from './components/posts/BlockedPostView.svelte';
+import MissingPostView from './components/posts/MissingPostView.svelte';
 import PostHeader from './components/posts/PostHeader.svelte';
 import PostTagsRow from './components/posts/PostTagsRow.svelte';
 import PostFooter from './components/posts/PostFooter.svelte';
@@ -54,32 +57,6 @@ export class PostComponent {
   /** @returns {boolean} */
   get isRoot() {
     return this.post.isRoot;
-  }
-
-  /** @returns {string} */
-  get linkToAuthor() {
-    if (this.post.author.handle != 'handle.invalid') {
-      return 'https://bsky.app/profile/' + this.post.author.handle;
-    } else {
-      return 'https://bsky.app/profile/' + this.post.author.did;
-    }
-  }
-
-  /** @returns {string} */
-  get linkToPost() {
-    return this.linkToAuthor + '/post/' + this.post.rkey;
-  }
-
-  /** @returns {string} */
-  get didLinkToAuthor() {
-    let { repo } = atURI(this.post.uri);
-    return `https://bsky.app/profile/${repo}`;
-  }
-
-  /** @returns {string} */
-  get didLinkToPost() {
-    let { repo, rkey } = atURI(this.post.uri);
-    return `https://bsky.app/profile/${repo}/post/${rkey}`;
   }
 
   /** @param {HTMLElement} nodeToUpdate */
@@ -427,105 +404,60 @@ export class PostComponent {
     }
   }
 
-  /** @param {HTMLLinkElement} authorLink */
-
-  loadReferencedPostAuthor(authorLink) {
-    let did = atURI(this.post.uri).repo;
-
-    api.fetchHandleForDid(did).then(handle => {
-      if (this.post.author) {
-        this.post.author.handle = handle;
-      } else {
-        this.post.author = { did, handle };
-      }
-
-      authorLink.href = this.linkToAuthor;
-      authorLink.innerText = `@${handle}`;
-    });
-  }
-
   /** @param {HTMLElement} div, @returns {HTMLElement} */
 
   buildBlockedPostElement(div) {
-    let p = $tag('p.blocked-header');
-    p.innerHTML = `<i class="fa-solid fa-ban"></i> <span>Blocked post</span>`;
+    div.classList.add('blocked');
 
-    if (account.biohazardEnabled === false) {
-      div.appendChild(p);
-      div.classList.add('blocked');
-      return p;
-    }
-
-    let blockStatus = this.post.blockedByUser ? 'has blocked you' : this.post.blocksUser ? "you've blocked them" : '';
-    blockStatus = blockStatus ? `, ${blockStatus}` : '';
-
-    let authorLink = $tag('a', { href: this.didLinkToAuthor, target: '_blank', text: 'see author' }, HTMLLinkElement);
-    p.append(' (', authorLink, blockStatus, ') ');
-    div.appendChild(p);
-
-    this.loadReferencedPostAuthor(authorLink);
-
-    let loadPost = $tag('p.load-post');
-    let a = $tag('a', { href: '#', text: "Load post…" });
-
-    a.addEventListener('click', (e) => {
-      e.preventDefault();
-      loadPost.innerHTML = '&nbsp;';
-      this.loadBlockedPost(this.post.uri, div);
+    svelte.mount(BlockedPostView, {
+      target: div,
+      context: new Map(Object.entries({
+        post: {
+          post: this.post
+        }
+      })),
+      props: {
+        reason: 'Blocked post'
+      }
     });
 
-    loadPost.appendChild(a);
-    div.appendChild(loadPost);
-    div.classList.add('blocked');
     return div;
   }
 
   /** @param {HTMLElement} div, @returns {HTMLElement} */
 
   buildDetachedQuoteElement(div) {
-    let p = $tag('p.blocked-header');
-    p.innerHTML = `<i class="fa-solid fa-ban"></i> <span>Hidden quote</span>`;
+    div.classList.add('blocked');
 
-    if (account.biohazardEnabled === false) {
-      div.appendChild(p);
-      div.classList.add('blocked');
-      return p;
-    }
-
-    let authorLink = $tag('a', { href: this.didLinkToAuthor, target: '_blank', text: 'see author' }, HTMLLinkElement);
-    p.append(' (', authorLink, ') ');
-    div.appendChild(p);
-
-    this.loadReferencedPostAuthor(authorLink);
-
-    let loadPost = $tag('p.load-post');
-    let a = $tag('a', { href: '#', text: "Load post…" });
-
-    a.addEventListener('click', (e) => {
-      e.preventDefault();
-      loadPost.innerHTML = '&nbsp;';
-      this.loadBlockedPost(this.post.uri, div);
+    svelte.mount(BlockedPostView, {
+      target: div,
+      context: new Map(Object.entries({
+        post: {
+          post: this.post
+        }
+      })),
+      props: {
+        reason: 'Hidden quote'
+      }
     });
 
-    loadPost.appendChild(a);
-    div.appendChild(loadPost);
-    div.classList.add('blocked');
     return div;
   }
 
   /** @param {HTMLElement} div, @returns {HTMLElement} */
 
   buildMissingPostElement(div) {
-    let p = $tag('p.blocked-header');
-    p.innerHTML = `<i class="fa-solid fa-ban"></i> <span>Deleted post</span>`;
-
-    let authorLink = $tag('a', { href: this.didLinkToAuthor, target: '_blank', text: 'see author' }, HTMLLinkElement);
-    p.append(' (', authorLink, ') ');
-
-    this.loadReferencedPostAuthor(authorLink);
-
-    div.appendChild(p);
     div.classList.add('blocked');
+
+    svelte.mount(MissingPostView, {
+      target: div,
+      context: new Map(Object.entries({
+        post: {
+          post: this.post
+        }
+      }))
+    });
+
     return div;
   }
 

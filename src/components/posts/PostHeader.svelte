@@ -38,7 +38,7 @@
   {#if (post.replyCount > 0 && !post.isRoot) || ['quote', 'quotes', 'feed'].includes(context)}
     <span class="separator">&bull;</span>
 
-    <a href="${linkToPostThread(post)}" class="action" title="Load this subtree">
+    <a href="{linkToPostThread(post)}" class="action" title="Load this subtree">
       <i class="fa-solid fa-arrows-split-up-and-left fa-rotate-180"></i>
     </a>
   {/if}

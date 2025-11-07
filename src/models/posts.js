@@ -1,4 +1,4 @@
-import { castToInt } from '../utils.js';
+import { atURI, castToInt } from '../utils.js';
 import { ATProtoRecord, FeedGeneratorRecord, StarterPackRecord, UserListRecord } from './records.js';
 import { Embed } from './embeds.js';
 
@@ -14,11 +14,22 @@ export class PostDataError extends Error {
   }
 }
 
+
+export class BasePost extends ATProtoRecord {
+
+  /** @returns {string} */
+  get didLinkToAuthor() {
+    let { repo } = atURI(this.uri);
+    return `https://bsky.app/profile/${repo}`;
+  }
+}
+
+
 /**
  * Standard Bluesky post record.
  */
 
-export class Post extends ATProtoRecord {
+export class Post extends BasePost {
   /**
    * Post object which is the direct parent of this post.
    * @type {ATProtoRecord | undefined}
@@ -336,6 +347,12 @@ export class Post extends ATProtoRecord {
   }
 
   /** @returns {string} */
+  get didLinkToAuthor() {
+    let { repo } = atURI(this.uri);
+    return `https://bsky.app/profile/${repo}`;
+  }
+
+  /** @returns {string} */
   get text() {
     return this.record.text;
   }
@@ -440,7 +457,7 @@ export class Post extends ATProtoRecord {
  * between the post author and the parent author). It only includes a reference, but no post content.
  */
 
-export class BlockedPost extends ATProtoRecord {
+export class BlockedPost extends BasePost {
 
   /** @param {json} data */
   constructor(data) {
@@ -464,11 +481,11 @@ export class BlockedPost extends ATProtoRecord {
  * Stub of a post which was deleted or hidden.
  */
 
-export class MissingPost extends ATProtoRecord {}
+export class MissingPost extends BasePost {}
 
 
 /**
  * Stub of a quoted post which was un-quoted by the original author.
  */
 
-export class DetachedQuotePost extends ATProtoRecord {}
+export class DetachedQuotePost extends BasePost {}
