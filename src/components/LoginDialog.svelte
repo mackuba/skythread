@@ -9,10 +9,6 @@
   let submitting = $state(false);
   let loginField, passwordField;
 
-  $effect(() => {
-    loginField.focus();
-  });
-
   /** @param {Event} e */
   function toggleLoginInfo(e) {
     e.preventDefault();
@@ -54,9 +50,12 @@
 
   <h2>🌤 Skythread</h2>
 
-  <p><input type="text" id="login_handle" required placeholder="name.bsky.social" bind:value={identifier} bind:this={loginField}></p>
+  <p><input type="text" id="login_handle" required autofocus placeholder="name.bsky.social"
+        bind:value={identifier} bind:this={loginField}></p>
+
   <p><input type="password" id="login_password" required
-       placeholder="&#x2731;&#x2731;&#x2731;&#x2731;&#x2731;&#x2731;&#x2731;&#x2731;" bind:value={password} bind:this={passwordField}></p>
+        placeholder="&#x2731;&#x2731;&#x2731;&#x2731;&#x2731;&#x2731;&#x2731;&#x2731;"
+        bind:value={password} bind:this={passwordField}></p>
 
   <p class="info">
     <a href="#" onclick={toggleLoginInfo}><i class="fa-regular fa-circle-question"></i> Use an "app password" here</a>
