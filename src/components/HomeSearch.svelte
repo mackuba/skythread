@@ -19,7 +19,7 @@
 
     if (q.startsWith('at://')) {
       let target = new URL(getBaseLocation());
-      target.searchParams.set('q', url);
+      target.searchParams.set('q', q);
       location.assign(target.toString());
 
     } else if (q.match(/^#?((\p{Letter}|\p{Number})+)$/u)) {
@@ -33,7 +33,7 @@
       } catch (error) {
         console.log(error);
         alert(error.message || "This is not a valid URL or hashtag");
-      }      
+      }
     }
   }
 </script>
