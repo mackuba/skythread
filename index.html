@@ -45,52 +45,7 @@
   <div id="biohazard_dialog" class="dialog">
   </div>
 
-  <div id="posting_stats_page">
-    <h2>Bluesky posting statistics</h2>
-
-    <form>
-      <p>
-        Scan posts from:
-        <input type="radio" name="scan_type" id="scan_type_timeline" value="home" checked>
-        <label for="scan_type_timeline">Home timeline</label>
-
-        <input type="radio" name="scan_type" id="scan_type_list" value="list">
-        <label for="scan_type_list">List feed</label>
-
-        <input type="radio" name="scan_type" id="scan_type_users" value="users">
-        <label for="scan_type_users">Selected users</label>
-
-        <input type="radio" name="scan_type" id="scan_type_you" value="you">
-        <label for="scan_type_you">Your profile</label>
-      </p>
-
-      <p>
-        Time range: <input type="range" min="1" max="60" value="7"> <label>7 days</label>
-      </p>
-
-      <p class="list-choice">
-        <label>Select list:</label>
-        <select name="scan_list"></select>
-      </p>
-
-      <div class="user-choice">
-        <input type="text" placeholder="Add user" autocomplete="off">
-        <div class="autocomplete"></div>
-        <div class="selected-users"></div>
-      </div>
-
-      <p>
-        <input type="submit" value="Start scan"> <progress></progress>
-      </p>
-    </form>
-
-    <p class="scan-info"></p>
-
-    <table class="scan-result">
-      <thead></thead>
-      <tbody></tbody>
-    </table>
-  </div>
+  <div id="posting_stats_page"></div>
 
   <div id="like_stats_page"></div>
 

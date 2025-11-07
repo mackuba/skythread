@@ -2,8 +2,9 @@ import * as svelte from 'svelte';
 import AccountMenu from './components/AccountMenu.svelte';
 import BiohazardDialog from './components/BiohazardDialog.svelte';
 import HomeSearch from './components/HomeSearch.svelte';
-import LikeStatsView from './components/LikeStatsView.svelte';
 import LoginDialog from './components/LoginDialog.svelte';
+import LikeStatsPage from './pages/LikeStatsPage.svelte';
+import PostingStatsPage from './pages/PostingStatsPage.svelte';
 
 import { $, $id } from './utils.js';
 import { $tag } from './utils_ts.js';
@@ -14,7 +15,6 @@ import { account } from './models/account.svelte.js';
 import { Post } from './models/posts.js';
 import { PostComponent } from './post_component.js';
 import { ThreadPage } from './thread_page.js';
-import { PostingStatsPage } from './posting_stats_page.js';
 import { NotificationsPage } from './notifications_page.js';
 import { PrivateSearchPage } from './private_search_page.js';
 
@@ -26,9 +26,6 @@ let biohazardDialog;
 
 /** @type {ThreadPage} */
 let threadPage;
-
-/** @type {PostingStatsPage} */
-let postingStatsPage;
 
 /** @type {NotificationsPage} */
 let notificationsPage;
@@ -44,7 +41,6 @@ function init() {
   svelte.mount(AccountMenu, { target: $id('account_menu_wrap') });
 
   threadPage = new ThreadPage();
-  postingStatsPage = new PostingStatsPage();
   notificationsPage = new NotificationsPage();
   privateSearchPage = new PrivateSearchPage();
 
@@ -257,10 +253,12 @@ function openPage(page) {
   if (page == 'notif') {
     notificationsPage.show();
   } else if (page == 'posting_stats') {
-    postingStatsPage.show();
+    let div = $id('posting_stats_page');
+    svelte.mount(PostingStatsPage, { target: div });
+    div.style.display = 'block';
   } else if (page == 'like_stats') {
     let div = $id('like_stats_page');
-    svelte.mount(LikeStatsView, { target: div });
+    svelte.mount(LikeStatsPage, { target: div });
     div.style.display = 'block';
   } else if (page == 'search') {
     privateSearchPage.show();

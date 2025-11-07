@@ -1,6 +1,6 @@
 <script>
-  import LikeStatsTable from './LikeStatsTable.svelte';
-  import { LikeStats } from '../tools/like_stats.js';
+  import LikeStatsTable from '../components/LikeStatsTable.svelte';
+  import { LikeStats } from '../services/like_stats.js';
 
   let timeRangeDays = $state(7);
   let progress = $state();

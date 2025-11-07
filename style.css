@@ -760,15 +760,9 @@ p.back i {
   width: 300px;
   margin-left: 10px;
   vertical-align: middle;
-  display: none;
-}
-
-#posting_stats_page .list-choice {
-  display: none;
 }
 
 #posting_stats_page .user-choice {
-  display: none;
   position: relative;
 }
 
@@ -778,7 +772,6 @@ p.back i {
 }
 
 #posting_stats_page .user-choice .autocomplete {
-  display: none;
   position: absolute;
   left: 0;
   top: 0;
@@ -836,7 +829,7 @@ p.back i {
   cursor: pointer;
 }
 
-#posting_stats_page .user-choice .autocomplete .user-row.hover {
+#posting_stats_page .user-choice .autocomplete .user-row.highlighted {
   background-color: hsl(207, 100%, 85%);
 }
 
@@ -860,7 +853,6 @@ p.back i {
 }
 
 #posting_stats_page .scan-info {
-  display: none;
   font-weight: 600;
   line-height: 125%;
   margin: 20px 0px;
@@ -869,7 +861,6 @@ p.back i {
 #posting_stats_page .scan-result {
   border: 1px solid #333;
   border-collapse: collapse;
-  display: none;
 }
 
 #posting_stats_page .scan-result td, #posting_stats_page .scan-result th {
@@ -1190,7 +1181,7 @@ p.back i {
     color: #888;
   }
 
-  #posting_stats_page .user-choice .autocomplete .user-row.hover {
+  #posting_stats_page .user-choice .autocomplete .user-row.highlighted {
     background-color: hsl(207, 90%, 25%);
   }
 
