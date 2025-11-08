@@ -11,6 +11,7 @@ import { showBiohazardDialog } from './skythread.js';
 import { PostPresenter } from './utils/post_presenter.js';
 
 import BlockedPostView from './components/posts/BlockedPostView.svelte';
+import FediSourceLink from './components/posts/FediSourceLink.svelte';
 import MissingPostView from './components/posts/MissingPostView.svelte';
 import PostBody from './components/posts/PostBody.svelte';
 import PostHeader from './components/posts/PostHeader.svelte';
@@ -378,13 +379,15 @@ export class PostComponent {
   /** @param {string} url, @returns {HTMLElement | undefined} */
 
   buildFediSourceLink(url) {
-    try {
-      let hostname = new URL(url).hostname;
-      let a = $tag('a.fedi-link', { href: url, target: '_blank' });
+    let div = $tag('div.FediSourceLink');
 
-      let box = $tag('div', { html: `<i class="fa-solid fa-arrow-up-right-from-square fa-sm"></i> View on ${hostname}` });
-      a.append(box);
-      return a;
+    try {
+      svelte.mount(FediSourceLink, {
+        target: div,
+        props: { url }
+      });
+
+      return div;
     } catch (error) {
       console.log("Invalid Fedi URL:" + error);
       return undefined;
