@@ -1,18 +1,18 @@
 import * as svelte from 'svelte';
-import { $, atURI, sanitizeHTML, showError } from './utils.js';
+import { $, atURI, showError } from './utils.js';
 import { $tag } from './utils_ts.js';
 import { Post, BlockedPost, MissingPost, DetachedQuotePost } from './models/posts.js';
 import { account } from './models/account.svelte.js';
 import { InlineLinkEmbed } from './models/embeds.js';
 import { APIError } from './api/api.js';
 import { EmbedComponent } from './embed_component.js';
-import { RichText } from '../lib/rich_text_lite.js';
-import { linkToHashtagPage, linkToPostById, linkToPostThread } from './router.js';
+import { linkToPostById, linkToPostThread } from './router.js';
 import { showBiohazardDialog } from './skythread.js';
 import { PostPresenter } from './utils/post_presenter.js';
 
 import BlockedPostView from './components/posts/BlockedPostView.svelte';
 import MissingPostView from './components/posts/MissingPostView.svelte';
+import PostBody from './components/posts/PostBody.svelte';
 import PostHeader from './components/posts/PostHeader.svelte';
 import PostTagsRow from './components/posts/PostTagsRow.svelte';
 import PostFooter from './components/posts/PostFooter.svelte';
@@ -223,31 +223,18 @@ export class PostComponent {
   /** @returns {HTMLElement} */
 
   buildPostBody() {
-    if (this.post.originalFediContent) {
-      return $tag('div.body', { html: sanitizeHTML(this.post.originalFediContent) });
-    }
+    let div = $tag('div.PostBody');
 
-    let p = $tag('p.body');
-    let richText = new RichText({ text: this.post.text, facets: this.post.facets });
+    svelte.mount(PostBody, {
+      target: div,
+      context: new Map(Object.entries({
+        post: {
+          post: this.post
+        }
+      }))
+    });
 
-    for (let seg of richText.segments()) {
-      if (seg.mention) {
-        p.append($tag('a', { href: `https://bsky.app/profile/${seg.mention.did}`, text: seg.text }));
-      } else if (seg.link) {
-        p.append($tag('a', { href: seg.link.uri, text: seg.text }));
-      } else if (seg.tag) {
-        let url = linkToHashtagPage(seg.tag.tag);
-        p.append($tag('a', { href: url.toString(), text: seg.text }));
-      } else if (seg.text.includes("\n")) {
-        let span = $tag('span', { text: seg.text });
-        span.innerHTML = span.innerHTML.replaceAll("\n", "<br>");
-        p.append(span);
-      } else {
-        p.append(seg.text);
-      }
-    }
-
-    return p;
+    return div;
   }
 
   /** @param {string[]} terms */
@@ -534,7 +521,6 @@ export class PostComponent {
       showError(error);
     }
   }
-
 
   /** @param {Post} post, @param {HTMLElement} nodeToUpdate, @returns {Promise<void>} */
 
