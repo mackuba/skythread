@@ -213,6 +213,7 @@ export class Post extends BasePost {
    */
   isEmbed;
 
+
   /** @param {json} data, @param {json} [extra] */
 
   constructor(data, extra) {

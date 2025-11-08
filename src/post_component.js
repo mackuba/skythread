@@ -5,13 +5,13 @@ import { Post, BlockedPost, MissingPost, DetachedQuotePost, parseThreadPost } fr
 import { account } from './models/account.svelte.js';
 import { InlineLinkEmbed } from './models/embeds.js';
 import { APIError } from './api/api.js';
-import { EmbedComponent } from './embed_component.js';
 import { linkToPostById, linkToPostThread } from './router.js';
 import { showBiohazardDialog } from './skythread.js';
 import { PostPresenter } from './utils/post_presenter.js';
 
 import BlockedPostView from './components/posts/BlockedPostView.svelte';
 import EdgeMargin from './components/posts/EdgeMargin.svelte';
+import EmbedComponent from './components/embeds/EmbedComponent.svelte';
 import FediSourceLink from './components/posts/FediSourceLink.svelte';
 import MissingPostView from './components/posts/MissingPostView.svelte';
 import PostBody from './components/posts/PostBody.svelte';
@@ -126,14 +126,7 @@ export class PostComponent {
     }
 
     if (this.post.embed) {
-      let embed = new EmbedComponent(this.post, this.post.embed).buildElement();
-      wrapper.appendChild(embed);
-
-      if (this.post.originalFediURL) {
-        if (this.post.embed instanceof InlineLinkEmbed && this.post.embed.title.startsWith('Original post on ')) {
-          embed.remove();
-        }
-      }
+      this.buildEmbedComponent(wrapper);
     }
 
     if (this.post.originalFediURL) {
@@ -172,6 +165,28 @@ export class PostComponent {
     div.appendChild(content);
 
     return div;
+  }
+
+  /** @param {HTMLElement} div */
+
+  buildEmbedComponent(div) {
+    if (this.post.originalFediURL) {
+      if (this.post.embed instanceof InlineLinkEmbed && this.post.embed.title?.startsWith('Original post on ')) {
+        return;
+      }
+    }
+
+    svelte.mount(EmbedComponent, {
+      target: div,
+      context: new Map(Object.entries({
+        post: {
+          post: this.post
+        }
+      })),
+      props: {
+        embed: this.post.embed
+      }
+    });
   }
 
   /** @param {HTMLElement} div */
@@ -461,8 +476,17 @@ export class PostComponent {
     this.buildPostBody(div);
 
     if (this.post.embed) {
-      let embed = new EmbedComponent(this.post, this.post.embed).buildElement();
-      div.appendChild(embed);
+      svelte.mount(EmbedComponent, {
+        target: div,
+        context: new Map(Object.entries({
+          post: {
+            post: this.post
+          }
+        })),
+        props: {
+          embed: this.post.embed
+        }
+      });
 
       // TODO
       Array.from(div.querySelectorAll('a.link-card')).forEach(x => x.remove());

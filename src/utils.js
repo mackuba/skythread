@@ -71,6 +71,18 @@ export function feedPostTime(feedPost) {
   return Date.parse(timestamp);
 }
 
+/** @param {string} url, @returns {boolean} */
+
+export function isValidURL(url) {
+  try {
+    new URL(url);
+    return true;
+  } catch (error) {
+    console.error("Invalid URL: " + error);
+    return false;
+  }
+}
+
 /** @param {string} html, @returns {string} */
 
 export function sanitizeHTML(html) {
@@ -101,4 +113,12 @@ export function sameDay(date1, date2) {
     date1.getMonth() == date2.getMonth() &&
     date1.getFullYear() == date2.getFullYear()
   );
+}
+
+export function truncateText(text, maxLen) {
+  if (text <= maxLen) {
+    return text;
+  } else {
+    return text.slice(0, maxLen - 1) + '…';
+  }
 }
