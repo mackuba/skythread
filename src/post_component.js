@@ -96,14 +96,12 @@ export class PostComponent {
       return div;
     }
 
-    let header = this.buildPostHeader();
-    div.appendChild(header);
+    this.buildPostHeader(div);
 
     let content = $tag('div.content');
 
     if (this.context == 'thread' && !this.isRoot) {
-      let edgeMargin = this.buildEdgeMargin();
-      div.appendChild(edgeMargin);
+      this.buildEdgeMargin(div);
     }
 
     let wrapper;
@@ -121,12 +119,10 @@ export class PostComponent {
       wrapper = content;
     }
 
-    let p = this.buildPostBody();
-    wrapper.appendChild(p);
+    this.buildPostBody(wrapper);
 
     if (this.post.tags) {
-      let tagsRow = this.buildTagsRow();
-      wrapper.appendChild(tagsRow);
+      this.buildTagsRow(wrapper);
     }
 
     if (this.post.embed) {
@@ -141,15 +137,11 @@ export class PostComponent {
     }
 
     if (this.post.originalFediURL) {
-      let link = this.buildFediSourceLink(this.post.originalFediURL);
-      if (link) {
-        wrapper.appendChild(link);
-      }
+      this.buildFediSourceLink(this.post.originalFediURL, wrapper);
     }
 
     if (this.post.likeCount !== undefined && this.post.repostCount !== undefined) {
-      let stats = this.buildStatsFooter();
-      wrapper.appendChild(stats);
+      this.buildStatsFooter(wrapper);
     }
 
     if (this.post.replyCount == 1 && this.post.replies[0]?.author?.did == this.post.author.did) {
@@ -182,11 +174,9 @@ export class PostComponent {
     return div;
   }
 
-  /** @returns {HTMLElement} */
+  /** @param {HTMLElement} div */
 
-  buildPostHeader() {
-    let div = $tag('div.PostHeader');
-
+  buildPostHeader(div) {
     svelte.mount(PostHeader, {
       target: div,
       context: new Map(Object.entries({
@@ -197,28 +187,22 @@ export class PostComponent {
         }
       }))
     });
-
-    return div;
   }
 
-  buildEdgeMargin() {
-    let div = $tag('div.EdgeMargin');
+  /** @param {HTMLElement} div */
 
+  buildEdgeMargin(div) {
     svelte.mount(EdgeMargin, {
       target: div,
       props: {
         onToggle: (val) => this.rootElement.classList.toggle('collapsed', val)
       }
     });
-
-    return div;
   }
 
-  /** @returns {HTMLElement} */
+  /** @param {HTMLElement} div */
 
-  buildPostBody() {
-    let div = $tag('div.PostBody');
-
+  buildPostBody(div) {
     svelte.mount(PostBody, {
       target: div,
       context: new Map(Object.entries({
@@ -227,8 +211,6 @@ export class PostComponent {
         }
       }))
     });
-
-    return div;
   }
 
   /** @param {string[]} terms */
@@ -275,11 +257,9 @@ export class PostComponent {
     }
   }
 
-  /** @returns {HTMLElement} */
+  /** @param {HTMLElement} div */
 
-  buildTagsRow() {
-    let div = $tag('div.PostTagsRow');
-
+  buildTagsRow(div) {
     svelte.mount(PostTagsRow, {
       target: div,
       context: new Map(Object.entries({
@@ -288,15 +268,11 @@ export class PostComponent {
         }
       }))
     });
-
-    return div;
   }
 
-  /** @returns {HTMLElement} */
+  /** @param {HTMLElement} div */
 
-  buildStatsFooter() {
-    let div = $tag('div.PostFooter');
-
+  buildStatsFooter(div) {
     svelte.mount(PostFooter, {
       target: div,
       context: new Map(Object.entries({
@@ -306,8 +282,6 @@ export class PostComponent {
         }
       }))
     });
-
-    return div;
   }
 
   /** @param {number} quoteCount, @param {boolean} expanded */
@@ -369,21 +343,16 @@ export class PostComponent {
     this.loadHiddenSubtree(this.post, this.rootElement);
   }
 
-  /** @param {string} url, @returns {HTMLElement | undefined} */
+  /** @param {string} url, @param {HTMLElement} div */
 
-  buildFediSourceLink(url) {
-    let div = $tag('div.FediSourceLink');
-
+  buildFediSourceLink(url, div) {
     try {
       svelte.mount(FediSourceLink, {
         target: div,
         props: { url }
       });
-
-      return div;
     } catch (error) {
       console.log("Invalid Fedi URL:" + error);
-      return undefined;
     }
   }
 
@@ -489,8 +458,7 @@ export class PostComponent {
       div.appendChild(p);
     }
 
-    let p = this.buildPostBody();
-    div.appendChild(p);
+    this.buildPostBody(div);
 
     if (this.post.embed) {
       let embed = new EmbedComponent(this.post, this.post.embed).buildElement();
