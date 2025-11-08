@@ -11,6 +11,7 @@ import { showBiohazardDialog } from './skythread.js';
 import { PostPresenter } from './utils/post_presenter.js';
 
 import BlockedPostView from './components/posts/BlockedPostView.svelte';
+import EdgeMargin from './components/posts/EdgeMargin.svelte';
 import FediSourceLink from './components/posts/FediSourceLink.svelte';
 import MissingPostView from './components/posts/MissingPostView.svelte';
 import PostBody from './components/posts/PostBody.svelte';
@@ -201,21 +202,13 @@ export class PostComponent {
   }
 
   buildEdgeMargin() {
-    let div = $tag('div.margin');
+    let div = $tag('div.EdgeMargin');
 
-    let edge = $tag('div.edge');
-    let line = $tag('div.line');
-    edge.appendChild(line);
-    div.appendChild(edge);
-
-    let plus = $tag('img.plus', { src: 'icons/subtract-square.png' });
-    div.appendChild(plus);
-
-    [edge, plus].forEach(x => {
-      x.addEventListener('click', (e) => {
-        e.preventDefault();
-        this.toggleSectionFold();
-      });
+    svelte.mount(EdgeMargin, {
+      target: div,
+      props: {
+        onToggle: (val) => this.rootElement.classList.toggle('collapsed', val)
+      }
     });
 
     return div;
@@ -582,23 +575,6 @@ export class PostComponent {
         html: `<i class="fa-solid fa-ban"></i> ${pluralizedCount} missing (likely taken down by moderation)`
       });
       content.append(info);
-    }
-  }
-
-  /** @returns {boolean} */
-  isCollapsed() {
-    return this.rootElement.classList.contains('collapsed');
-  }
-
-  toggleSectionFold() {
-    let plus = $(this.rootElement.querySelector(':scope > .margin .plus'), HTMLImageElement);
-
-    if (this.isCollapsed()) {
-      this.rootElement.classList.remove('collapsed');
-      plus.src = 'icons/subtract-square.png'
-    } else {
-      this.rootElement.classList.add('collapsed');
-      plus.src = 'icons/add-square.png'
     }
   }
 }
