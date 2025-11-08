@@ -15,7 +15,7 @@ class EmbedComponent {
   buildElement() {
     if (this.embed instanceof RawRecordEmbed) {
       let quoteView = this.quotedPostPlaceholder();
-      this.loadQuotedPost(this.embed.record.uri, quoteView);
+      this.loadQuotedPost(this.embed.record, quoteView);
       return quoteView;
 
     } else if (this.embed instanceof RawRecordWithMediaEmbed) {
@@ -23,7 +23,7 @@ class EmbedComponent {
 
       let mediaView = new EmbedComponent(this.post, this.embed.media).buildElement();
       let quoteView = this.quotedPostPlaceholder();
-      this.loadQuotedPost(this.embed.record.uri, quoteView);
+      this.loadQuotedPost(this.embed.record, quoteView);
 
       wrapper.append(mediaView, quoteView);
       return wrapper;
@@ -350,19 +350,35 @@ class EmbedComponent {
     return wrapper;
   }
 
-  /** @param {string} uri, @param {HTMLElement} div, @returns Promise<void> */
+  /** @param {ATProtoRecord} record, @param {HTMLElement} div, @returns Promise<void> */
 
-  async loadQuotedPost(uri, div) {
-    let record = await api.loadPostIfExists(uri);
+  async loadQuotedPost(record, div) {
+    let { repo, collection, rkey } = atURI(record.uri);
 
-    if (record) {
-      let post = new Post(record);
-      let postView = new PostComponent(post, 'quote').buildElement();
-      div.replaceChildren(postView);
+    if (collection == 'app.bsky.feed.post') {
+      let reloaded = await api.loadPostIfExists(record.uri);
+
+      if (reloaded) {
+        let post = new Post(reloaded);
+        let postView = new PostComponent(post, 'quote').buildElement();
+        div.replaceChildren(postView);
+      } else {
+        let post = new MissingPost(record);
+        let postView = new PostComponent(post, 'quote').buildElement();
+        div.replaceChildren(postView);
+      }
     } else {
-      let post = new MissingPost(this.embed.record);
-      let postView = new PostComponent(post, 'quote').buildElement();
-      div.replaceChildren(postView);
+      let reloaded = await api.loadPostIfExists(this.post.uri);
+      let post = reloaded && new Post(reloaded);
+
+      if (post && post.embed) {
+        let embedView = new EmbedComponent(post, post.embed).buildElement();
+        div.replaceWith(embedView);
+      } else {
+        let post = new MissingPost(record);
+        let postView = new PostComponent(post, 'quote').buildElement();
+        div.replaceChildren(postView);
+      }
     }
   }
 }
