@@ -1,7 +1,7 @@
 import * as svelte from 'svelte';
 import { $, atURI, showError } from './utils.js';
 import { $tag } from './utils_ts.js';
-import { Post, BlockedPost, MissingPost, DetachedQuotePost } from './models/posts.js';
+import { Post, BlockedPost, MissingPost, DetachedQuotePost, parseThreadPost } from './models/posts.js';
 import { account } from './models/account.svelte.js';
 import { InlineLinkEmbed } from './models/embeds.js';
 import { APIError } from './api/api.js';
@@ -475,7 +475,7 @@ export class PostComponent {
     try {
       let json = await api.loadThreadByAtURI(post.uri);
 
-      let root = Post.parseThreadPost(json.thread, post.pageRoot, 0, post.absoluteLevel);
+      let root = parseThreadPost(json.thread, post.pageRoot, 0, post.absoluteLevel);
       post.updateDataFromPost(root);
       window.subtreeRoot = post;
 
@@ -524,7 +524,7 @@ export class PostComponent {
     let replies = responses
       .map(r => r.status == 'fulfilled' ? r.value : undefined)
       .filter(v => v)
-      .map(json => Post.parseThreadPost(json.thread, post.pageRoot, 1, post.absoluteLevel + 1));
+      .map(json => parseThreadPost(json.thread, post.pageRoot, 1, post.absoluteLevel + 1));
 
     post.setReplies(replies);
     hiddenRepliesDiv.remove();

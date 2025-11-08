@@ -2,7 +2,7 @@ import { $, $id, feedPostTime } from './utils.js';
 import * as paginator from './utils/paginator.js';
 import { $tag } from './utils_ts.js';
 import { PostComponent } from './post_component.js';
-import { Post } from './models/posts.js';
+import { Post, parseFeedPost } from './models/posts.js';
 import { BlueskyAPI } from './api/api.js';
 
 export class PrivateSearchPage {
@@ -321,7 +321,7 @@ export class PrivateSearchPage {
 
     let matching = this.timelinePosts
       .filter(x => x.post.record.text.toLowerCase().includes(query))
-      .map(x => Post.parseFeedPost(x));
+      .map(x => parseFeedPost(x));
 
     for (let post of matching) {
       let postView = new PostComponent(post, 'feed').buildElement();

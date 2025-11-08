@@ -2,8 +2,8 @@ import { atURI } from './utils.js';
 import { $tag } from './utils_ts.js';
 import { PostComponent } from './post_component.js';
 
-import { FeedGeneratorRecord, StarterPackRecord, UserListRecord } from './models/records.js';
-import { Post, BlockedPost, MissingPost, DetachedQuotePost } from './models/posts.js';
+import { ATProtoRecord, FeedGeneratorRecord, StarterPackRecord, UserListRecord } from './models/records.js';
+import { BasePost, Post, MissingPost } from './models/posts.js';
 import {
   Embed, RawRecordEmbed, RawRecordWithMediaEmbed, RawImageEmbed, RawLinkEmbed, RawVideoEmbed,
   InlineRecordEmbed, InlineRecordWithMediaEmbed, InlineImageEmbed, InlineLinkEmbed, InlineVideoEmbed
@@ -40,13 +40,13 @@ export class EmbedComponent {
       return wrapper;
 
     } else if (this.embed instanceof InlineRecordEmbed) {
-      return this.buildQuotedPostElement(this.embed);
+      return this.buildQuotedPostElement(this.embed.record);
 
     } else if (this.embed instanceof InlineRecordWithMediaEmbed) {
       let wrapper = $tag('div');
 
       let mediaView = new EmbedComponent(this.post, this.embed.media).buildElement();
-      let quoteView = this.buildQuotedPostElement(this.embed);
+      let quoteView = this.buildQuotedPostElement(this.embed.record);
 
       wrapper.append(mediaView, quoteView);
       return wrapper;
@@ -73,26 +73,26 @@ export class EmbedComponent {
     });
   }
 
-  /** @param {InlineRecordEmbed | InlineRecordWithMediaEmbed} embed, @returns {HTMLElement} */
+  /** @param {ATProtoRecord} embeddedRecord, @returns {HTMLElement} */
 
-  buildQuotedPostElement(embed) {
+  buildQuotedPostElement(embeddedRecord) {
     let div = $tag('div.quote-embed');
 
-    if ([Post, BlockedPost, MissingPost, DetachedQuotePost].some(c => embed.post instanceof c)) {
-      let postView = new PostComponent(embed.post, 'quote').buildElement();
+    if (embeddedRecord instanceof BasePost) {
+      let postView = new PostComponent(embeddedRecord, 'quote').buildElement();
       div.appendChild(postView);
 
-    } else if (embed.post instanceof FeedGeneratorRecord) {
-      return this.buildFeedGeneratorView(embed.post);
+    } else if (embeddedRecord instanceof FeedGeneratorRecord) {
+      return this.buildFeedGeneratorView(embeddedRecord);
 
-    } else if (embed.post instanceof UserListRecord) {
-      return this.buildUserListView(embed.post);
+    } else if (embeddedRecord instanceof UserListRecord) {
+      return this.buildUserListView(embeddedRecord);
 
-    } else if (embed.post instanceof StarterPackRecord) {
-      return this.buildStarterPackView(embed.post);
+    } else if (embeddedRecord instanceof StarterPackRecord) {
+      return this.buildStarterPackView(embeddedRecord);
 
     } else {
-      let p = $tag('p', { text: `[${embed.post.type}]` });
+      let p = $tag('p', { text: `[${embeddedRecord.type}]` });
       div.appendChild(p);
     }
 

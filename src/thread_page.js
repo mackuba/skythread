@@ -1,6 +1,6 @@
 import { $, $id, atURI, showError } from './utils.js';
 import { $tag } from './utils_ts.js';
-import { Post, BlockedPost, MissingPost } from './models/posts.js';
+import { Post, BlockedPost, MissingPost, parseThreadPost } from './models/posts.js';
 import { PostComponent } from './post_component.js';
 import { linkToPostById, linkToPostThread } from './router.js';
 import { setPageTitle, hideLoader } from './skythread.js';
@@ -59,7 +59,7 @@ export class ThreadPage {
   /** @param {json} json */
 
   displayThread(json) {
-    let root = Post.parseThreadPost(json.thread);
+    let root = parseThreadPost(json.thread);
     window.root = root;
     window.subtreeRoot = root;
 

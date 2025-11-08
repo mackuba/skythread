@@ -15,12 +15,146 @@ export class PostDataError extends Error {
 }
 
 
+/**
+ * Base class shared by the full Post and post stubs like BlockedPost, MissingPost etc.
+ */
+
 export class BasePost extends ATProtoRecord {
 
   /** @returns {string} */
   get didLinkToAuthor() {
     let { repo } = atURI(this.uri);
     return `https://bsky.app/profile/${repo}`;
+  }
+}
+
+
+/**
+ * View of a post as part of a thread, as returned from getPostThread.
+ * Expected to be #threadViewPost, but may be blocked or missing.
+ *
+ * @param {json} json
+ * @param {Post?} [pageRoot]
+ * @param {number} [level]
+ * @param {number} [absoluteLevel]
+ * @returns {AnyPost}
+ */
+
+export function parseThreadPost(json, pageRoot = null, level = 0, absoluteLevel = 0) {
+  switch (json.$type) {
+  case 'app.bsky.feed.defs#threadViewPost':
+    let post = new Post(json.post, { level: level, absoluteLevel: absoluteLevel });
+
+    post.pageRoot = pageRoot ?? post;
+
+    if (json.replies) {
+      let replies = json.replies.map(x => parseThreadPost(x, post.pageRoot, level + 1, absoluteLevel + 1));
+      post.setReplies(replies);
+    }
+
+    if (absoluteLevel <= 0 && json.parent) {
+      post.parent = parseThreadPost(json.parent, post.pageRoot, level - 1, absoluteLevel - 1);
+    }
+
+    return post;
+
+  case 'app.bsky.feed.defs#notFoundPost':
+    return new MissingPost(json);
+
+  case 'app.bsky.feed.defs#blockedPost':
+    return new BlockedPost(json);
+
+  default:
+    throw new PostDataError(`Unexpected record type: ${json.$type}`);
+  }
+}
+
+/**
+ * View of a post embedded as a quote.
+ * Expected to be app.bsky.embed.record#viewRecord, but may be blocked, missing or a different type of record
+ * (e.g. a list or a feed generator). For unknown record embeds, we fall back to generic ATProtoRecord.
+ *
+ * @param {json} json
+ * @returns {ATProtoRecord}
+ */
+
+export function parseViewRecord(json) {
+  switch (json.$type) {
+  case 'app.bsky.embed.record#viewRecord':
+    return new Post(json, { isEmbed: true });
+
+  case 'app.bsky.embed.record#viewNotFound':
+    return new MissingPost(json);
+
+  case 'app.bsky.embed.record#viewBlocked':
+    return new BlockedPost(json);
+
+  case 'app.bsky.embed.record#viewDetached':
+    return new DetachedQuotePost(json);
+
+  case 'app.bsky.feed.defs#generatorView':
+    return new FeedGeneratorRecord(json);
+
+  case 'app.bsky.graph.defs#listView':
+    return new UserListRecord(json);
+
+  case 'app.bsky.graph.defs#starterPackViewBasic':
+    return new StarterPackRecord(json);
+
+  default:
+    console.warn('Unknown record type:', json.$type);
+    return new ATProtoRecord(json);
+  }
+}
+
+/**
+ * View of a post as part of a feed (e.g. a profile feed, home timeline or a custom feed). It should be an
+ * app.bsky.feed.defs#feedViewPost - blocked or missing posts don't appear here, they just aren't included.
+ *
+ * @param {json} json
+ * @returns {Post}
+ */
+
+export function parseFeedPost(json) {
+  let post = new Post(json.post);
+
+  if (json.reply) {
+    post.parent = parsePostView(json.reply.parent);
+    post.threadRoot = parsePostView(json.reply.root);
+
+    if (json.reply.grandparentAuthor) {
+      post.grandparentAuthor = json.reply.grandparentAuthor;
+    }
+  }
+
+  if (json.reason) {
+    post.reason = json.reason;
+  }
+
+  return post;
+}
+
+/**
+ * Parses a #postView - the inner post object that includes the actual post - but still checks if it's not
+ * a blocked or missing post. The #postView must include a $type.
+ * (This is used for e.g. parent/root of a #feedViewPost.)
+ *
+ * @param {json} json, @returns {AnyPost}
+ */
+
+export function parsePostView(json) {
+  switch (json.$type) {
+  case 'app.bsky.feed.defs#postView':
+    return new Post(json);
+
+  case 'app.bsky.feed.defs#notFoundPost':
+    return new MissingPost(json);
+
+  case 'app.bsky.feed.defs#blockedPost':
+    return new BlockedPost(json);
+
+  default:
+    throw new PostDataError(`Unexpected record type: ${json.$type}`);
   }
 }
 
@@ -78,133 +212,6 @@ export class Post extends BasePost {
    * @type {boolean | undefined}
    */
   isEmbed;
-
-  /**
-   * View of a post as part of a thread, as returned from getPostThread.
-   * Expected to be #threadViewPost, but may be blocked or missing.
-   *
-   * @param {json} json
-   * @param {Post?} [pageRoot]
-   * @param {number} [level]
-   * @param {number} [absoluteLevel]
-   * @returns {AnyPost}
-   */
-
-  static parseThreadPost(json, pageRoot = null, level = 0, absoluteLevel = 0) {
-    switch (json.$type) {
-    case 'app.bsky.feed.defs#threadViewPost':
-      let post = new Post(json.post, { level: level, absoluteLevel: absoluteLevel });
-
-      post.pageRoot = pageRoot ?? post;
-
-      if (json.replies) {
-        let replies = json.replies.map(x => Post.parseThreadPost(x, post.pageRoot, level + 1, absoluteLevel + 1));
-        post.setReplies(replies);
-      }
-
-      if (absoluteLevel <= 0 && json.parent) {
-        post.parent = Post.parseThreadPost(json.parent, post.pageRoot, level - 1, absoluteLevel - 1);
-      }
-
-      return post;
-
-    case 'app.bsky.feed.defs#notFoundPost':
-      return new MissingPost(json);
-
-    case 'app.bsky.feed.defs#blockedPost':
-      return new BlockedPost(json);
-
-    default:
-      throw new PostDataError(`Unexpected record type: ${json.$type}`);
-    }
-  }
-
-  /**
-   * View of a post embedded as a quote.
-   * Expected to be app.bsky.embed.record#viewRecord, but may be blocked, missing or a different type of record
-   * (e.g. a list or a feed generator). For unknown record embeds, we fall back to generic ATProtoRecord.
-   *
-   * @param {json} json, @returns {ATProtoRecord}
-   */
-
-  static parseViewRecord(json) {
-    switch (json.$type) {
-    case 'app.bsky.embed.record#viewRecord':
-      return new Post(json, { isEmbed: true });
-
-    case 'app.bsky.embed.record#viewNotFound':
-      return new MissingPost(json);
-
-    case 'app.bsky.embed.record#viewBlocked':
-      return new BlockedPost(json);
-
-    case 'app.bsky.embed.record#viewDetached':
-      return new DetachedQuotePost(json);
-
-    case 'app.bsky.feed.defs#generatorView':
-      return new FeedGeneratorRecord(json);
-
-    case 'app.bsky.graph.defs#listView':
-      return new UserListRecord(json);
-
-    case 'app.bsky.graph.defs#starterPackViewBasic':
-      return new StarterPackRecord(json);
-
-    default:
-      console.warn('Unknown record type:', json.$type);
-      return new ATProtoRecord(json);
-    }
-  }
-
-  /**
-   * View of a post as part of a feed (e.g. a profile feed, home timeline or a custom feed). It should be an
-   * app.bsky.feed.defs#feedViewPost - blocked or missing posts don't appear here, they just aren't included.
-   *
-   * @param {json} json, @returns {Post}
-   */
-
-  static parseFeedPost(json) {
-    let post = new Post(json.post);
-
-    if (json.reply) {
-      post.parent = Post.parsePostView(json.reply.parent);
-      post.threadRoot = Post.parsePostView(json.reply.root);
-
-      if (json.reply.grandparentAuthor) {
-        post.grandparentAuthor = json.reply.grandparentAuthor;
-      }
-    }
-
-    if (json.reason) {
-      post.reason = json.reason;
-    }
-
-    return post;
-  }
-
- /**
-  * Parses a #postView - the inner post object that includes the actual post - but still checks if it's not
-  * a blocked or missing post. The #postView must include a $type.
-  * (This is used for e.g. parent/root of a #feedViewPost.)
-  *
-  * @param {json} json, @returns {AnyPost}
-  */
-
-  static parsePostView(json) {
-    switch (json.$type) {
-    case 'app.bsky.feed.defs#postView':
-      return new Post(json);
-
-    case 'app.bsky.feed.defs#notFoundPost':
-      return new MissingPost(json);
-
-    case 'app.bsky.feed.defs#blockedPost':
-      return new BlockedPost(json);
-
-    default:
-      throw new PostDataError(`Unexpected record type: ${json.$type}`);
-    }
-  }
 
   /** @param {json} data, @param {json} [extra] */
 

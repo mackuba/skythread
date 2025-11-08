@@ -1,5 +1,5 @@
 import { ATProtoRecord } from './records.js';
-import { Post, PostDataError } from './posts.js';
+import { Post, PostDataError, parseViewRecord } from './posts.js';
 
 /**
  * Base class for embed objects.
@@ -141,7 +141,7 @@ export class InlineRecordEmbed extends Embed {
    */
   constructor(json) {
     super(json);
-    this.post = Post.parseViewRecord(json.record);
+    this.record = parseViewRecord(json.record);
   }
 }
 
@@ -153,7 +153,7 @@ export class InlineRecordWithMediaEmbed extends Embed {
    */
   constructor(json) {
     super(json);
-    this.post = Post.parseViewRecord(json.record.record);
+    this.record = parseViewRecord(json.record.record);
     this.media = Embed.parseInlineEmbed(json.media);
   }
 }
