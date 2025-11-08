@@ -7,6 +7,9 @@ import { Post, PostDataError, parseViewRecord } from './posts.js';
 
 export class Embed {
 
+  /** @type {json} */
+  json;
+
   /**
    * More hydrated view of an embed, taken from a full post view (#postView).
    *
@@ -86,6 +89,9 @@ export class Embed {
 
 export class RawImageEmbed extends Embed {
 
+  /** @type {json[]} */
+  images;
+
   /** @param {json} json */
   constructor(json) {
     super(json);
@@ -94,6 +100,15 @@ export class RawImageEmbed extends Embed {
 }
 
 export class RawLinkEmbed extends Embed {
+
+  /** @type {string | undefined} */
+  url;
+
+  /** @type {string | undefined} */
+  title;
+
+  /** @type {json | undefined} */
+  thumb;
 
   /** @param {json} json */
   constructor(json) {
@@ -107,6 +122,9 @@ export class RawLinkEmbed extends Embed {
 
 export class RawVideoEmbed extends Embed {
 
+  /** @type {json | undefined} */
+  video;
+
   /** @param {json} json */
   constructor(json) {
     super(json);
@@ -115,6 +133,9 @@ export class RawVideoEmbed extends Embed {
 }
 
 export class RawRecordEmbed extends Embed {
+
+  /** @type {ATProtoRecord} */
+  record;
 
   /** @param {json} json */
   constructor(json) {
@@ -125,6 +146,12 @@ export class RawRecordEmbed extends Embed {
 
 export class RawRecordWithMediaEmbed extends Embed {
 
+  /** @type {ATProtoRecord} */
+  record;
+
+  /** @type {Embed} */
+  media;
+
   /** @param {json} json */
   constructor(json) {
     super(json);
@@ -134,6 +161,9 @@ export class RawRecordWithMediaEmbed extends Embed {
 }
 
 export class InlineRecordEmbed extends Embed {
+
+  /** @type {ATProtoRecord} */
+  record;
 
   /**
    * app.bsky.embed.record#view
@@ -147,6 +177,12 @@ export class InlineRecordEmbed extends Embed {
 
 export class InlineRecordWithMediaEmbed extends Embed {
 
+  /** @type {ATProtoRecord} */
+  record;
+
+  /** @type {Embed} */
+  media;
+
   /**
    * app.bsky.embed.recordWithMedia#view
    * @param {json} json
@@ -159,6 +195,18 @@ export class InlineRecordWithMediaEmbed extends Embed {
 }
 
 export class InlineLinkEmbed extends Embed {
+
+  /** @type {string | undefined} */
+  url;
+
+  /** @type {string | undefined} */
+  title;
+
+  /** @type {string | undefined} */
+  description;
+
+  /** @type {json | undefined} */
+  thumb;
 
   /**
    * app.bsky.embed.external#view
@@ -176,6 +224,9 @@ export class InlineLinkEmbed extends Embed {
 
 export class InlineImageEmbed extends Embed {
 
+  /** @type {json[]} */
+  images;
+
   /**
    * app.bsky.embed.images#view
    * @param {json} json
@@ -187,6 +238,12 @@ export class InlineImageEmbed extends Embed {
 }
 
 export class InlineVideoEmbed extends Embed {
+
+  /** @type {string | undefined} */
+  playlistURL;
+
+  /** @type {string | undefined} */
+  alt;
 
   /**
    * app.bsky.embed.video#view
