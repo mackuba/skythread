@@ -1,20 +1,19 @@
 import * as svelte from 'svelte';
 import AccountMenu from './components/AccountMenu.svelte';
 import BiohazardDialog from './components/BiohazardDialog.svelte';
+import HashtagPage from './pages/HashtagPage.svelte';
 import HomeSearch from './components/HomeSearch.svelte';
 import LoginDialog from './components/LoginDialog.svelte';
 import LikeStatsPage from './pages/LikeStatsPage.svelte';
 import LycanSearchPage from './pages/LycanSearchPage.svelte';
 import PostingStatsPage from './pages/PostingStatsPage.svelte';
+import QuotesPage from './pages/QuotesPage.svelte';
 import TimelineSearchPage from './pages/TimelineSearchPage.svelte';
 
 import { $, $id } from './utils.js';
-import { $tag } from './utils_ts.js';
-import * as paginator from './utils/paginator.js';
 import { BlueskyAPI } from './api/api.js';
 import { account } from './models/account.svelte.js';
 import { Post } from './models/posts.js';
-import { PostComponent } from './post_component.js';
 import { ThreadPage } from './thread_page.js';
 import { NotificationsPage } from './notifications_page.js';
 import { Lycan, DevLycan } from './services/lycan.js';
@@ -281,112 +280,19 @@ function setPageTitle(post) {
 /** @param {string} hashtag */
 
 function loadHashtagPage(hashtag) {
-  hashtag = hashtag.replace(/^\#/, '');
-  document.title = `#${hashtag} - Skythread`;
+  let div = $id('thread');
+  div.classList.add('hashtag');
 
-  let isLoading = false;
-  let firstPageLoaded = false;
-  let finished = false;
-  let cursor;
-
-  paginator.loadInPages(() => {
-    if (isLoading || finished) { return; }
-    isLoading = true;
-
-    api.getHashtagFeed(hashtag, cursor).then(data => {
-      let posts = data.posts.map(j => new Post(j));
-
-      if (!firstPageLoaded) {
-        hideLoader();
-
-        let header = $tag('header');
-        let h2 = $tag('h2', {
-          text: (posts.length > 0) ? `Posts tagged: #${hashtag}` : `No posts tagged #${hashtag}.`
-        });
-        header.append(h2);
-
-        $id('thread').appendChild(header);
-        $id('thread').classList.add('hashtag');
-      }
-
-      for (let post of posts) {
-        let postView = new PostComponent(post, 'feed').buildElement();
-        $id('thread').appendChild(postView);
-      }
-
-      isLoading = false;
-      firstPageLoaded = true;
-      cursor = data.cursor;
-
-      if (!cursor || posts.length == 0) {
-        finished = true;
-      }
-    }).catch(error => {
-      hideLoader();
-      console.log(error);
-      isLoading = false;
-    });
-  });
+  svelte.mount(HashtagPage, { target: div, props: { hashtag }});
 }
 
-/** @param {string} url */
+/** @param {string} postURL */
 
-function loadQuotesPage(url) {
-  let isLoading = false;
-  let firstPageLoaded = false;
-  let cursor;
-  let finished = false;
+function loadQuotesPage(postURL) {
+  let div = $id('thread');
+  div.classList.add('quotes');
 
-  paginator.loadInPages(() => {
-    if (isLoading || finished) { return; }
-    isLoading = true;
-
-    blueAPI.getQuotes(url, cursor).then(data => {
-      api.loadPosts(data.posts).then(jsons => {
-        let posts = jsons.map(j => new Post(j));
-
-        if (!firstPageLoaded) {
-          hideLoader();
-
-          let header = $tag('header');
-          let h2;
-
-          if (data.quoteCount > 1) {
-            h2 = $tag('h2', { text: `${data.quoteCount} quotes:` });
-          } else if (data.quoteCount == 1) {
-            h2 = $tag('h2', { text: '1 quote:' });
-          } else {
-            h2 = $tag('h2', { text: 'No quotes found.' });
-          }
-
-          header.append(h2);
-          $id('thread').appendChild(header);
-          $id('thread').classList.add('quotes');
-        }
-
-        for (let post of posts) {
-          let postView = new PostComponent(post, 'quotes').buildElement();
-          $id('thread').appendChild(postView);
-        }
-
-        isLoading = false;
-        firstPageLoaded = true;
-        cursor = data.cursor;
-
-        if (!cursor || posts.length == 0) {
-          finished = true;
-        }
-      }).catch(error => {
-        hideLoader();
-        console.log(error);
-        isLoading = false;
-      })
-    }).catch(error => {
-      hideLoader();
-      console.log(error);
-      isLoading = false;
-    });
-  });
+  svelte.mount(QuotesPage, { target: div, props: { postURL }});
 }
 
 window.init = init;
