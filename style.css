@@ -937,11 +937,6 @@ p.back i {
   width: 300px;
   margin-left: 10px;
   vertical-align: middle;
-  display: none;
-}
-
-#private_search_page .search {
-  display: none;
 }
 
 #private_search_page .search-query {
@@ -957,8 +952,6 @@ p.back i {
 }
 
 #private_search_page .lycan-import {
-  display: none;
-
   margin-top: 30px;
   border-top: 1px solid #ccc;
   padding-top: 5px;

@@ -2,6 +2,7 @@
   import UserAutocomplete from '../components/UserAutocomplete.svelte';
   import PostingStatsTable from '../components/PostingStatsTable.svelte';
   import { PostingStats } from '../services/posting_stats.js';
+  import { numberOfDays } from '../utils.js';
 
   const tabs = [
     { id: 'home',  title: 'Home timeline' },
@@ -114,7 +115,7 @@
 
   <p>
     Time range: <input id="posting_stats_range" type="range" min="1" max="60" bind:value={timeRangeDays}>
-    <label for="posting_stats_range">{timeRangeDays} {timeRangeDays == 1 ? 'day' : 'days'}</label>
+    <label for="posting_stats_range">{numberOfDays(timeRangeDays)}</label>
   </p>
 
   {#if selectedTab == 'list'}

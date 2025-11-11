@@ -83,6 +83,12 @@ export function isValidURL(url) {
   }
 }
 
+/** @param {number} days, @returns {string} */
+
+export function numberOfDays(days) {
+  return (days == 1) ? '1 day' : `${days} days`;
+}
+
 /** @param {string} html, @returns {string} */
 
 export function sanitizeHTML(html) {

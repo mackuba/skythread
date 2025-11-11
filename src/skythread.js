@@ -4,7 +4,9 @@ import BiohazardDialog from './components/BiohazardDialog.svelte';
 import HomeSearch from './components/HomeSearch.svelte';
 import LoginDialog from './components/LoginDialog.svelte';
 import LikeStatsPage from './pages/LikeStatsPage.svelte';
+import LycanSearchPage from './pages/LycanSearchPage.svelte';
 import PostingStatsPage from './pages/PostingStatsPage.svelte';
+import TimelineSearchPage from './pages/TimelineSearchPage.svelte';
 
 import { $, $id } from './utils.js';
 import { $tag } from './utils_ts.js';
@@ -15,7 +17,7 @@ import { Post } from './models/posts.js';
 import { PostComponent } from './post_component.js';
 import { ThreadPage } from './thread_page.js';
 import { NotificationsPage } from './notifications_page.js';
-import { PrivateSearchPage } from './private_search_page.js';
+import { Lycan, DevLycan } from './services/lycan.js';
 
 /** @type {Record<string, any> | undefined} */
 let loginDialog;
@@ -29,9 +31,6 @@ let threadPage;
 /** @type {NotificationsPage} */
 let notificationsPage;
 
-/** @type {PrivateSearchPage} */
-let privateSearchPage;
-
 
 function init() {
   window.dateLocale = localStorage.getItem('locale') || undefined;
@@ -41,7 +40,6 @@ function init() {
 
   threadPage = new ThreadPage();
   notificationsPage = new NotificationsPage();
-  privateSearchPage = new PrivateSearchPage();
 
   for (let dialog of document.querySelectorAll('.dialog')) {
     let close = $(dialog.querySelector('.close'));
@@ -260,7 +258,17 @@ function openPage(page) {
     svelte.mount(LikeStatsPage, { target: div });
     div.style.display = 'block';
   } else if (page == 'search') {
-    privateSearchPage.show();
+    let params = new URLSearchParams(location.search);
+    let div = $id('private_search_page');
+
+    if (params.get('mode') == 'likes') {
+      let lycan = (params.get('lycan') == 'local') ? new DevLycan() : new Lycan();
+      svelte.mount(LycanSearchPage, { target: div, props: { lycan }});
+    } else {
+      svelte.mount(TimelineSearchPage, { target: div });
+    }
+
+    div.style.display = 'block';
   }
 }
 
