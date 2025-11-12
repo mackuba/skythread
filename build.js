@@ -3,6 +3,7 @@ import { SveltePlugin } from 'bun-plugin-svelte';
 
 function buildOptions(devMode) {
   return {
+    conditions: devMode ? [] : ['production'],
     entrypoints: ['src/skythread.js'],
     outdir: 'dist',
     format: 'iife',
