@@ -1,6 +1,7 @@
 <script>
   import { Post } from '../models/posts.js';
   import * as paginator from '../utils/paginator.js';
+  import FeedPostParent from '../components/posts/FeedPostParent.svelte';
   import MainLoader from '../components/MainLoader.svelte';
   import PostWrapper from '../components/posts/PostWrapper.svelte';
 
@@ -58,6 +59,11 @@
   </header>
 
   {#each posts as post}
+    <!-- TODO: #if post.parent -->
+    {#if post.parentReference}
+      <FeedPostParent uri={post.parentReference.uri} />
+    {/if}
+
     <PostWrapper {post} context="quotes" />
   {/each}
 {:else if !loadingFailed}

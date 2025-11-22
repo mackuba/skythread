@@ -9,7 +9,7 @@
 <p class="back">
   <i class="fa-solid fa-reply"></i>
   <a href="{linkToPostById(repo, rkey)}">
-    {#if repo == accountAPI.user.did}
+    {#if accountAPI && repo == accountAPI.user.did}
       Reply to you
     {:else}
       {#await api.fetchHandleForDid(repo)}
