@@ -11,9 +11,7 @@
     let html = document.body.parentNode;
 
     html.addEventListener('click', (e) => {
-      if (menuVisible) {
-        menuVisible = false;
-      }
+      menuVisible = false;
     });
   });
 
