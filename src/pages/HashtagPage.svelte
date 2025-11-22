@@ -44,7 +44,7 @@
 </script>
 
 <svelte:head>
-  <title>#{hashtag} - Skythread"</title>
+  <title>#{hashtag} - Skythread</title>
 </svelte:head>
 
 {#if firstPageLoaded}

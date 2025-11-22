@@ -9,12 +9,12 @@ import LycanSearchPage from './pages/LycanSearchPage.svelte';
 import PostingStatsPage from './pages/PostingStatsPage.svelte';
 import QuotesPage from './pages/QuotesPage.svelte';
 import TimelineSearchPage from './pages/TimelineSearchPage.svelte';
+import ThreadPage from './pages/ThreadPage.svelte';
 
 import { $, $id } from './utils.js';
 import { BlueskyAPI } from './api/api.js';
 import { account } from './models/account.svelte.js';
 import { Post } from './models/posts.js';
-import { ThreadPage } from './thread_page.js';
 import { NotificationsPage } from './notifications_page.js';
 import { Lycan, DevLycan } from './services/lycan.js';
 
@@ -23,9 +23,6 @@ let loginDialog;
 
 /** @type {Record<string, any> | undefined} */
 let biohazardDialog;
-
-/** @type {ThreadPage} */
-let threadPage;
 
 /** @type {NotificationsPage} */
 let notificationsPage;
@@ -37,7 +34,6 @@ function init() {
 
   svelte.mount(AccountMenu, { target: $id('account_menu_wrap') });
 
-  threadPage = new ThreadPage();
   notificationsPage = new NotificationsPage();
 
   for (let dialog of document.querySelectorAll('.dialog')) {
@@ -87,10 +83,10 @@ function parseQueryParams() {
     loadHashtagPage(decodeURIComponent(hash));
   } else if (q) {
     showLoader();
-    threadPage.loadThreadByURL(decodeURIComponent(q));
+    svelte.mount(ThreadPage, { target: $id('thread'), props: { url: q }});
   } else if (author && post) {
     showLoader();
-    threadPage.loadThreadById(decodeURIComponent(author), decodeURIComponent(post));
+    svelte.mount(ThreadPage, { target: $id('thread'), props: { author: author, rkey: post }});
   } else if (page) {
     openPage(page);
   } else {
@@ -271,12 +267,6 @@ function openPage(page) {
   }
 }
 
-/** @param {Post} post */
-
-function setPageTitle(post) {
-  document.title = `${post.author.displayName}: "${post.text}" - Skythread`;
-}
-
 /** @param {string} hashtag */
 
 function loadHashtagPage(hashtag) {
@@ -298,4 +288,4 @@ function loadQuotesPage(postURL) {
 window.init = init;
 window.BlueskyAPI = BlueskyAPI;
 
-export { setPageTitle, showLoginDialog, showBiohazardDialog, showLoader, hideLoader, submitLogin };
+export { showLoginDialog, showBiohazardDialog, showLoader, hideLoader, submitLogin };
