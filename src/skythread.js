@@ -6,6 +6,7 @@ import HomeSearch from './components/HomeSearch.svelte';
 import LoginDialog from './components/LoginDialog.svelte';
 import LikeStatsPage from './pages/LikeStatsPage.svelte';
 import LycanSearchPage from './pages/LycanSearchPage.svelte';
+import NotificationsPage from './pages/NotificationsPage.svelte';
 import PostingStatsPage from './pages/PostingStatsPage.svelte';
 import QuotesPage from './pages/QuotesPage.svelte';
 import TimelineSearchPage from './pages/TimelineSearchPage.svelte';
@@ -15,7 +16,6 @@ import { $, $id } from './utils.js';
 import { BlueskyAPI } from './api/api.js';
 import { account } from './models/account.svelte.js';
 import { Post } from './models/posts.js';
-import { NotificationsPage } from './notifications_page.js';
 import { Lycan, DevLycan } from './services/lycan.js';
 
 /** @type {Record<string, any> | undefined} */
@@ -24,17 +24,12 @@ let loginDialog;
 /** @type {Record<string, any> | undefined} */
 let biohazardDialog;
 
-/** @type {NotificationsPage} */
-let notificationsPage;
-
 
 function init() {
   window.dateLocale = localStorage.getItem('locale') || undefined;
   window.avatarPreloader = buildAvatarPreloader();
 
   svelte.mount(AccountMenu, { target: $id('account_menu_wrap') });
-
-  notificationsPage = new NotificationsPage();
 
   for (let dialog of document.querySelectorAll('.dialog')) {
     let close = $(dialog.querySelector('.close'));
@@ -243,7 +238,10 @@ function openPage(page) {
   }
 
   if (page == 'notif') {
-    notificationsPage.show();
+    showLoader();
+    let div = $id('thread');
+    div.classList.add('notifications');
+    svelte.mount(NotificationsPage, { target: div });
   } else if (page == 'posting_stats') {
     let div = $id('posting_stats_page');
     svelte.mount(PostingStatsPage, { target: div });
@@ -288,4 +286,4 @@ function loadQuotesPage(postURL) {
 window.init = init;
 window.BlueskyAPI = BlueskyAPI;
 
-export { showLoginDialog, showBiohazardDialog, showLoader, hideLoader, submitLogin };
+export { showLoginDialog, showBiohazardDialog, hideLoader, submitLogin };
