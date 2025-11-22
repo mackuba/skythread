@@ -1,12 +1,13 @@
 <script>
-  import { hideLoader } from '../skythread.js';
   import { Post, parseThreadPost } from '../models/posts.js';
   import { showError } from '../utils.js';
+  import MainLoader from '../components/MainLoader.svelte';
   import PostWrapper from '../components/posts/PostWrapper.svelte';
   import ThreadRootParent from '../components/posts/ThreadRootParent.svelte';
 
   let { url = null, author = null, rkey = null } = $props();
   let post = $state();
+  let loadingFailed = $state(false);
 
   let response;
 
@@ -39,10 +40,9 @@
     }
 
     post = root;
-    hideLoader();
   }).catch((error) => {
-    hideLoader();
     showError(error);
+    loadingFailed = true;
   });
 </script>
 
@@ -71,4 +71,6 @@
   {/if}
 
   <PostWrapper {post} context="thread" />
+{:else if !loadingFailed}
+  <MainLoader />
 {/if}

@@ -1,7 +1,7 @@
 <script>
   import { Post } from '../models/posts.js';
-  import { hideLoader } from '../skythread.js';
   import * as paginator from '../utils/paginator.js';
+  import MainLoader from '../components/MainLoader.svelte';
   import PostWrapper from '../components/posts/PostWrapper.svelte';
 
   let { hashtag } = $props();
@@ -9,6 +9,7 @@
 
   let posts = $state([]);
   let firstPageLoaded = $state(false);
+  let loadingFailed = $state(false);
 
   let isLoading = false;
   let finished = false;
@@ -21,11 +22,7 @@
     try {
       let data = await api.getHashtagFeed(hashtag, cursor);
       let batch = data.posts.map(j => new Post(j));
-
-      if (!firstPageLoaded) {
-        hideLoader();
-        firstPageLoaded = true;
-      }
+      firstPageLoaded = true;
 
       posts.splice(posts.length, 0, ...batch);
 
@@ -36,9 +33,9 @@
         finished = true;
       }
     } catch(error) {
-      hideLoader();
       console.log(error);
       isLoading = false;
+      loadingFailed = true;
     }
   });
 </script>
@@ -61,4 +58,6 @@
   {#each posts as post}
     <PostWrapper {post} context="feed" />
   {/each}
+{:else if !loadingFailed}
+  <MainLoader />
 {/if}

@@ -234,23 +234,6 @@ a:visited {
   border: 1px solid hsl(210, 90%, 80%);
 }
 
-#loader {
-  display: none;
-  position: fixed;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  margin: auto;
-  width: 36px;
-  height: 36px;
-}
-
-#loader img {
-  width: 36px;
-  animation: rotation 3s infinite linear;
-}
-
 #thread {
   padding-top: 1px;
 }

@@ -71,16 +71,12 @@ function parseQueryParams() {
   let { q, author, post, quotes, hash, page } = Object.fromEntries(params);
 
   if (quotes) {
-    showLoader();
     loadQuotesPage(decodeURIComponent(quotes));
   } else if (hash) {
-    showLoader();
     loadHashtagPage(decodeURIComponent(hash));
   } else if (q) {
-    showLoader();
     svelte.mount(ThreadPage, { target: $id('thread'), props: { url: q }});
   } else if (author && post) {
-    showLoader();
     svelte.mount(ThreadPage, { target: $id('thread'), props: { author: author, rkey: post }});
   } else if (page) {
     openPage(page);
@@ -103,14 +99,6 @@ function buildAvatarPreloader() {
   }, {
     rootMargin: '1000px 0px'
   });
-}
-
-function showLoader() {
-  $id('loader').style.display = 'block';
-}
-
-function hideLoader() {
-  $id('loader').style.display = 'none';
 }
 
 function showSearch() {
@@ -238,7 +226,6 @@ function openPage(page) {
   }
 
   if (page == 'notif') {
-    showLoader();
     let div = $id('thread');
     div.classList.add('notifications');
     svelte.mount(NotificationsPage, { target: div });
@@ -286,4 +273,4 @@ function loadQuotesPage(postURL) {
 window.init = init;
 window.BlueskyAPI = BlueskyAPI;
 
-export { showLoginDialog, showBiohazardDialog, hideLoader, submitLogin };
+export { showLoginDialog, showBiohazardDialog, submitLogin };

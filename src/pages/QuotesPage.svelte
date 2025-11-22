@@ -1,7 +1,7 @@
 <script>
   import { Post } from '../models/posts.js';
-  import { hideLoader } from '../skythread.js';
   import * as paginator from '../utils/paginator.js';
+  import MainLoader from '../components/MainLoader.svelte';
   import PostWrapper from '../components/posts/PostWrapper.svelte';
 
   let isLoading = false;
@@ -13,6 +13,7 @@
   let posts = $state([]);
   let quoteCount = $state();
   let firstPageLoaded = $derived(quoteCount !== undefined);
+  let loadingFailed = $state(false);
 
   paginator.loadInPages(async () => {
     if (isLoading || finished) { return }
@@ -24,7 +25,6 @@
       let batch = jsons.map(j => new Post(j));
 
       if (!firstPageLoaded) {
-        hideLoader();
         quoteCount = data.quoteCount;
       }
 
@@ -37,9 +37,9 @@
         finished = true;
       }
     } catch(error) {
-      hideLoader();
       console.log(error);
       isLoading = false;
+      loadingFailed = true;
     }
   });
 </script>
@@ -60,4 +60,6 @@
   {#each posts as post}
     <PostWrapper {post} context="quotes" />
   {/each}
+{:else if !loadingFailed}
+  <MainLoader />
 {/if}

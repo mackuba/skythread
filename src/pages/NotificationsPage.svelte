@@ -1,12 +1,13 @@
 <script>
   import { Post } from '../models/posts.js';
-  import { hideLoader } from '../skythread.js';
   import * as paginator from '../utils/paginator.js';
   import FeedPostParent from '../components/posts/FeedPostParent.svelte';
+  import MainLoader from '../components/MainLoader.svelte';
   import PostWrapper from '../components/posts/PostWrapper.svelte';
 
   let posts = $state([]);
   let firstPageLoaded = $state(false);
+  let loadingFailed = $state(false);
 
   let isLoading = false;
   let finished = false;
@@ -21,7 +22,6 @@
       let batch = data.posts.map(x => new Post(x));
 
       if (!firstPageLoaded && batch.length > 0) {
-        hideLoader();
         firstPageLoaded = true;
       }
 
@@ -36,9 +36,9 @@
         next();
       }
     } catch(error) {
-      hideLoader();
       console.log(error);
       isLoading = false;
+      loadingFailed = true;
     }
   });
 </script>
@@ -60,4 +60,6 @@
 
     <PostWrapper {post} context="feed" />
   {/each}
+{:else if !loadingFailed}
+  <MainLoader />
 {/if}
