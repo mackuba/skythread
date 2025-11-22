@@ -36,6 +36,10 @@ async function rebuild() {
   }
 }
 
+rebuild().catch(err => {
+  console.log(err);
+});
+
 Bun.serve({
   routes: {
     '/': {
