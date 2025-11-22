@@ -37,6 +37,10 @@ export function runTypecheck() {
 
   incrementalProgram = program;
 
+  // TODO
+  // https://github.com/microsoft/TypeScript/pull/31432
+  // https://github.com/microsoft/TypeScript/wiki/Using-the-Compiler-API/8e7d4bd1c85622cf078303075cbdf95a0a1bc8ab
+
   let diags = ts
     .getPreEmitDiagnostics(program.getProgram())
     .concat(program.getSemanticDiagnostics?.() ?? []);
