@@ -4,7 +4,7 @@ import { $tag } from './utils_ts.js';
 import { Post, BlockedPost, MissingPost, DetachedQuotePost, parseThreadPost } from './models/posts.js';
 import { account } from './models/account.svelte.js';
 import { InlineLinkEmbed } from './models/embeds.js';
-import { APIError } from './api/api.js';
+import { APIError, HiddenRepliesError } from './api/api.js';
 import { linkToPostById, linkToPostThread } from './router.js';
 import { showBiohazardDialog } from './skythread.js';
 import { PostPresenter } from './utils/post_presenter.js';
@@ -13,6 +13,8 @@ import BlockedPostView from './components/posts/BlockedPostView.svelte';
 import EdgeMargin from './components/posts/EdgeMargin.svelte';
 import EmbedComponent from './components/embeds/EmbedComponent.svelte';
 import FediSourceLink from './components/posts/FediSourceLink.svelte';
+import HiddenRepliesLink from './components/posts/HiddenRepliesLink.svelte';
+import LoadMoreLink from './components/posts/LoadMoreLink.svelte';
 import MissingPostView from './components/posts/MissingPostView.svelte';
 import PostBody from './components/posts/PostBody.svelte';
 import PostHeader from './components/posts/PostHeader.svelte';
@@ -154,8 +156,7 @@ export class PostComponent {
 
     if (this.context == 'thread') {
       if (this.post.hasMoreReplies) {
-        let loadMore = this.buildLoadMoreLink();
-        content.appendChild(loadMore);
+        this.buildLoadMoreLink(content);
       } else if (this.post.hasHiddenReplies && account.biohazardEnabled !== false) {
         let loadMore = this.buildHiddenRepliesLink();
         content.appendChild(loadMore);
@@ -307,55 +308,86 @@ export class PostComponent {
     stats.append(quotesLink);*/
   }
 
-  /** @returns {HTMLElement} */
+  /** @param {HTMLElement} element */
 
-  buildLoadMoreLink() {
-    let loadMore = $tag('p');
+  buildLoadMoreLink(element) {
+    svelte.mount(LoadMoreLink, {
+      target: element,
+      context: new Map(Object.entries({
+        post: {
+          post: this.post,
+          context: this.context
+        }
+      })),
+      props: {
+        onLoad: (newPost) => {
+          this.post.updateDataFromPost(newPost);
 
-    let link = $tag('a', {
-      href: linkToPostThread(this.post),
-      text: "Load more replies…"
+          let component = new PostComponent(this.post, 'thread');
+          component.installIntoElement(this.rootElement);
+        }
+      }
     });
-
-    link.addEventListener('click', (e) => {
-      e.preventDefault();
-      loadMore.innerHTML = `<img class="loader" src="icons/sunny.png">`;
-      this.loadSubtree(this.post, this.rootElement);
-    });
-
-    loadMore.appendChild(link);
-    return loadMore;
   }
 
   /** @returns {HTMLElement} */
 
   buildHiddenRepliesLink() {
-    let loadMore = $tag('p.hidden-replies');
+    let hiddenRepliesDiv = $tag('div');
 
-    let link = $tag('a', {
-      href: linkToPostThread(this.post),
-      text: "Load hidden replies…"
-    });
+    svelte.mount(HiddenRepliesLink, {
+      target: hiddenRepliesDiv,
+      context: new Map(Object.entries({
+        post: {
+          post: this.post,
+          context: this.context
+        }
+      })),
+      props: {
+        onLoad: (repliesData) => {
+          let content = $(this.rootElement.querySelector('.content'));
 
-    link.addEventListener('click', (e) => {
-      e.preventDefault();
+          let replies = repliesData
+            .filter(v => v)
+            .map(json => parseThreadPost(json.thread, this.post.pageRoot, 1, this.post.absoluteLevel + 1));
 
-      if (account.biohazardEnabled === true) {
-        this.loadHiddenReplies(loadMore);
-      } else {
-        showBiohazardDialog(() => this.loadHiddenReplies(loadMore));
+          this.post.setReplies(this.post.replies.concat(replies));
+          hiddenRepliesDiv.remove();
+
+          for (let reply of replies) {
+            let component = new PostComponent(reply, 'thread');
+            let view = component.buildElement();
+            content.append(view);
+          }
+
+          if (replies.length < repliesData.length) {
+            let notFoundCount = repliesData.length - replies.length;
+            let pluralizedCount = (notFoundCount > 1) ? `${notFoundCount} replies are` : '1 reply is';
+
+            let info = $tag('p.missing-replies-info', {
+              html: `<i class="fa-solid fa-ban"></i> ${pluralizedCount} missing (likely taken down by moderation)`
+            });
+            content.append(info);
+          }
+        },
+
+        onError: (error) => {
+          hiddenRepliesDiv.remove();
+
+          if (error instanceof HiddenRepliesError) {
+            let content = $(this.rootElement.querySelector('.content'));
+            let info = $tag('p.missing-replies-info', {
+              html: `<i class="fa-solid fa-ban"></i> Hidden replies not available (post too old)`
+            });
+            content.append(info);
+          } else {
+            setTimeout(() => showError(error), 1);
+          }
+        }
       }
     });
 
-    loadMore.append("☣️ ", link);
-    return loadMore;
-  }
-
-  /** @param {HTMLElement} loadMoreButton */
-
-  loadHiddenReplies(loadMoreButton) {
-    loadMoreButton.innerHTML = `<img class="loader" src="icons/sunny.png">`;
-    this.loadHiddenSubtree(this.post, this.rootElement);
+    return hiddenRepliesDiv;
   }
 
   /** @param {string} url, @param {HTMLElement} div */
@@ -490,83 +522,6 @@ export class PostComponent {
 
       // TODO
       Array.from(div.querySelectorAll('a.link-card')).forEach(x => x.remove());
-    }
-  }
-
-  /** @param {Post} post, @param {HTMLElement} nodeToUpdate, @returns {Promise<void>} */
-
-  async loadSubtree(post, nodeToUpdate) {
-    try {
-      let json = await api.loadThreadByAtURI(post.uri);
-
-      let root = parseThreadPost(json.thread, post.pageRoot, 0, post.absoluteLevel);
-      post.updateDataFromPost(root);
-      window.subtreeRoot = post;
-
-      let component = new PostComponent(post, 'thread');
-      component.installIntoElement(nodeToUpdate);
-    } catch (error) {
-      showError(error);
-    }
-  }
-
-  /** @param {Post} post, @param {HTMLElement} nodeToUpdate, @returns {Promise<void>} */
-
-  async loadHiddenSubtree(post, nodeToUpdate) {
-    let content = $(nodeToUpdate.querySelector('.content'));
-    let hiddenRepliesDiv = $(content.querySelector(':scope > .hidden-replies'));
-
-    try {
-      var expectedReplyURIs = await blueAPI.getReplies(post.uri);
-    } catch (error) {
-      hiddenRepliesDiv.remove();
-
-      if (error instanceof APIError && error.code == 404) {
-        let info = $tag('p.missing-replies-info', {
-          html: `<i class="fa-solid fa-ban"></i> Hidden replies not available (post too old)`
-        });
-        content.append(info);
-      } else {
-        setTimeout(() => showError(error), 1);
-      }
-
-      return;
-    }
-
-    let missingReplyURIs = expectedReplyURIs.filter(r => !post.replies.some(x => x.uri === r));
-    let promises = missingReplyURIs.map(uri => api.loadThreadByAtURI(uri));
-
-    try {
-      // TODO
-      var responses = await Promise.allSettled(promises);
-    } catch (error) {
-      hiddenRepliesDiv.remove();
-      setTimeout(() => showError(error), 1);
-      return;
-    }
-
-    let replies = responses
-      .map(r => r.status == 'fulfilled' ? r.value : undefined)
-      .filter(v => v)
-      .map(json => parseThreadPost(json.thread, post.pageRoot, 1, post.absoluteLevel + 1));
-
-    post.setReplies(replies);
-    hiddenRepliesDiv.remove();
-
-    for (let reply of post.replies) {
-      let component = new PostComponent(reply, 'thread');
-      let view = component.buildElement();
-      content.append(view);
-    }
-
-    if (replies.length < responses.length) {
-      let notFoundCount = responses.length - replies.length;
-      let pluralizedCount = (notFoundCount > 1) ? `${notFoundCount} replies are` : '1 reply is';
-
-      let info = $tag('p.missing-replies-info', {
-        html: `<i class="fa-solid fa-ban"></i> ${pluralizedCount} missing (likely taken down by moderation)`
-      });
-      content.append(info);
     }
   }
 }

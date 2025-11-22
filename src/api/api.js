@@ -24,6 +24,15 @@ export class URLError extends Error {
   }
 }
 
+export class HiddenRepliesError extends Error {
+
+  /** @param {Error} error */
+  constructor(error) {
+    super(error.message);
+    this.originalError = error;
+  }
+}
+
 
 /**
  * Caches the mapping of handles to DIDs to avoid unnecessary API calls to resolveHandle or getProfile.
@@ -289,6 +298,28 @@ export class BlueskyAPI extends Minisky {
     let postGroups = await Promise.all(batches);
 
     return { cursor: response.cursor, posts: postGroups.flat() };
+  }
+
+  /** @param {Post} post, @returns {Promise<(json | undefined)[]>} */
+
+  async loadHiddenReplies(post) {
+    let expectedReplyURIs;
+
+    try {
+      expectedReplyURIs = await blueAPI.getReplies(post.uri);
+    } catch (error) {
+      if (error instanceof APIError && error.code == 404) {
+        throw new HiddenRepliesError(error);
+      } else {
+        throw error;
+      }
+    }
+
+    let missingReplyURIs = expectedReplyURIs.filter(r => !post.replies.some(x => x.uri === r));
+    let promises = missingReplyURIs.map(uri => this.loadThreadByAtURI(uri));
+    let responses = await Promise.allSettled(promises);
+
+    return responses.map(r => (r.status == 'fulfilled') ? r.value : undefined);
   }
 
   /**
