@@ -2,7 +2,7 @@
   import { Post, parseThreadPost } from '../models/posts.js';
   import { showError } from '../utils.js';
   import MainLoader from '../components/MainLoader.svelte';
-  import PostWrapper from '../components/posts/PostWrapper.svelte';
+  import PostComponent from '../components/posts/PostComponent.svelte';
   import ThreadRootParent from '../components/posts/ThreadRootParent.svelte';
 
   let { url = null, author = null, rkey = null } = $props();
@@ -70,7 +70,7 @@
     {/if}
   {/if}
 
-  <PostWrapper {post} context="thread" />
+  <PostComponent {post} context="thread" />
 {:else if !loadingFailed}
   <MainLoader />
 {/if}

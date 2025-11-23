@@ -6,7 +6,7 @@
   import { atURI } from '../../utils.js';
 
   import FeedGeneratorView from '../embeds/FeedGeneratorView.svelte';
-  import PostWrapper from '../posts/PostWrapper.svelte';
+  import PostComponent from '../posts/PostComponent.svelte';
   import StarterPackView from '../embeds/StarterPackView.svelte';
   import UserListView from '../embeds/UserListView.svelte';
 
@@ -56,7 +56,7 @@
 {#snippet quoteContent(record)}
   {#if record instanceof BasePost}
     <div class="quote-embed">
-      <PostWrapper post={record} context="quote" />
+      <PostComponent post={record} context="quote" />
     </div>
 
   {:else if record instanceof FeedGeneratorRecord}

@@ -3,7 +3,7 @@
   import * as paginator from '../utils/paginator.js';
   import FeedPostParent from '../components/posts/FeedPostParent.svelte';
   import MainLoader from '../components/MainLoader.svelte';
-  import PostWrapper from '../components/posts/PostWrapper.svelte';
+  import PostComponent from '../components/posts/PostComponent.svelte';
 
   let isLoading = false;
   let cursor;
@@ -64,7 +64,7 @@
       <FeedPostParent uri={post.parentReference.uri} />
     {/if}
 
-    <PostWrapper {post} context="quotes" />
+    <PostComponent {post} context="quotes" />
   {/each}
 {:else if !loadingFailed}
   <MainLoader />

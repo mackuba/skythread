@@ -1,6 +1,7 @@
 <script>
   import { showBiohazardDialog } from '../../skythread.js';
   import { account } from '../../models/account.svelte.js';
+  import { parseThreadPost } from '../../models/posts.js';
   import { linkToPostThread } from '../../router.js';
   import { getContext } from 'svelte';
 
@@ -24,7 +25,8 @@
     loading = true;
 
     try {
-      let replies = await api.loadHiddenReplies(post);
+      let repliesData = await api.loadHiddenReplies(post);
+      let replies = repliesData.map(x => x && parseThreadPost(x.thread, post.pageRoot, 1, post.absoluteLevel + 1));
       loading = false;
       onLoad(replies);
     } catch (error) {

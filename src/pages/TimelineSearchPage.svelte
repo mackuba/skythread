@@ -1,5 +1,5 @@
 <script>
-  import PostWrapper from '../components/posts/PostWrapper.svelte';
+  import PostComponent from '../components/posts/PostComponent.svelte';
   import { TimelineSearch } from '../services/timeline_search.js';
   import { numberOfDays } from '../utils.js';
 
@@ -78,7 +78,7 @@
 
   <div class="results">
     {#each results as post}
-      <PostWrapper {post} context="feed" />
+      <PostComponent {post} context="feed" />
     {/each}
   </div>
 {/if}

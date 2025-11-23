@@ -1,5 +1,5 @@
 <script>
-  import PostWrapper from '../components/posts/PostWrapper.svelte';
+  import PostComponent from '../components/posts/PostComponent.svelte';
 
   const collections = [
     { id: 'likes',   title: 'Likes' },
@@ -214,7 +214,7 @@
     <p>...</p>
   {:else}
     {#each results as post}
-      <PostWrapper {post} context="feed" />
+      <PostComponent {post} context="feed" />
     {/each}
     {#if finishedPosts}
       <p class="results-end">{results.length > 0 ? "No more results." : "No results."}</p>

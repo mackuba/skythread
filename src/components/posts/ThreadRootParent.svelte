@@ -1,13 +1,13 @@
 <script>
   import { Post, BlockedPost, MissingPost } from '../../models/posts.js';
-  import PostWrapper from './PostWrapper.svelte';
+  import PostComponent from './PostComponent.svelte';
   import { linkToPostThread } from '../../router.js';
 
   let { post } = $props();
 </script>
 
 {#if post instanceof BlockedPost}
-  <PostWrapper {post} context="parent" replaceClass="back" />
+  <PostComponent {post} context="parent" replaceClass="back" />
 
   <!-- TODO
     let span = $(element.querySelector('p.blocked-header span'));

@@ -2,7 +2,7 @@
   import { Post } from '../models/posts.js';
   import * as paginator from '../utils/paginator.js';
   import MainLoader from '../components/MainLoader.svelte';
-  import PostWrapper from '../components/posts/PostWrapper.svelte';
+  import PostComponent from '../components/posts/PostComponent.svelte';
 
   let { hashtag } = $props();
   hashtag = hashtag.replace(/^\#/, '');
@@ -56,7 +56,7 @@
   </header>
 
   {#each posts as post}
-    <PostWrapper {post} context="feed" />
+    <PostComponent {post} context="feed" />
   {/each}
 {:else if !loadingFailed}
   <MainLoader />
