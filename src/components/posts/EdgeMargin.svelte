@@ -1,5 +1,5 @@
 <script>
-  let { collapsed = $bindable(false), onToggle } = $props();
+  let { collapsed = $bindable(false), onToggle = undefined } = $props();
 
   function toggleFold() {
     collapsed = !collapsed;

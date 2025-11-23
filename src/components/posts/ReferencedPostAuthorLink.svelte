@@ -2,7 +2,7 @@
   import { getContext } from 'svelte';
   import { atURI } from '../../utils.js';
 
-  let { status } = $props();
+  let { status = undefined } = $props();
   let { post } = getContext('post');
 
   let handle = $state();

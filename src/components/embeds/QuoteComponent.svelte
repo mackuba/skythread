@@ -1,6 +1,6 @@
 <script>
   import { getContext } from 'svelte';
-  import { BasePost, Post } from '../../models/posts.js';
+  import { BasePost, Post, MissingPost } from '../../models/posts.js';
   import { InlineRecordEmbed, InlineRecordWithMediaEmbed } from '../../models/embeds.js';
   import { ATProtoRecord, FeedGeneratorRecord, StarterPackRecord, UserListRecord } from '../../models/records.js';
   import { atURI } from '../../utils.js';
