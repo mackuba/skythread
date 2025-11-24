@@ -29,7 +29,7 @@
     - feed - a post on the hashtag feed page
   */
 
-  let { post, context, ...props } = $props();
+  let { post, context, highlightedMatches = undefined, ...props } = $props();
 
   let collapsed = $state(false);
   let replies = $state(post.replies);
@@ -92,7 +92,7 @@
 </script>
 
 {#snippet body()}
-  <PostBody />
+  <PostBody {highlightedMatches} />
 
   {#if post.tags}
     <PostTagsRow />

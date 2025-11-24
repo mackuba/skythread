@@ -34,7 +34,7 @@ export class Lycan {
   /**
    * @param {string} collection
    * @param {string} query
-   * @param {{ onPostsLoaded: (posts: Post[]) => void, onFinish?: () => void }} callbacks
+   * @param {{ onPostsLoaded: (data: { posts: Post[], terms: string[] }) => void, onFinish?: () => void }} callbacks
    */
 
   searchPosts(collection, query, callbacks) {
@@ -52,9 +52,7 @@ export class Lycan {
 
       isLoading = false;
 
-      callbacks.onPostsLoaded(posts);
-
-      // component.highlightSearchResults(response.terms);
+      callbacks.onPostsLoaded({ posts: posts, terms: response.terms });
 
       cursor = response.cursor;
 

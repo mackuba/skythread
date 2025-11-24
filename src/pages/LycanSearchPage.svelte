@@ -23,6 +23,7 @@
   let loadingPosts = $state(false);
   let finishedPosts = $state(false);
   let results = $state([]);
+  let highlightedMatches = $state([]);
 
   checkImportStatus();
 
@@ -59,9 +60,10 @@
       finishedPosts = false;
 
       lycan.searchPosts(selectedCollection, q, {
-        onPostsLoaded: (posts) => {
+        onPostsLoaded: ({ posts, terms }) => {
           loadingPosts = false;
           results.splice(results.length, 0, ...posts);
+          highlightedMatches = terms;
         },
         onFinish: () => {
           finishedPosts = true;
@@ -214,7 +216,7 @@
     <p>...</p>
   {:else}
     {#each results as post}
-      <PostComponent {post} context="feed" />
+      <PostComponent {post} context="feed" {highlightedMatches} />
     {/each}
     {#if finishedPosts}
       <p class="results-end">{results.length > 0 ? "No more results." : "No results."}</p>
