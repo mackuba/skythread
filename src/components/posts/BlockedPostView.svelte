@@ -36,7 +36,7 @@
     } else if (post.blocksUser) {
       return "you've blocked them";
     } else {
-      return undefined;
+      return null;
     }
   }
 </script>

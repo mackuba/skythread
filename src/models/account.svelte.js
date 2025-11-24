@@ -12,7 +12,7 @@ class Account {
   constructor() {
     let incognito = localStorage.getItem('incognito');
     let biohazard = JSON.parse(localStorage.getItem('biohazard') ?? 'null');
-    let accountAPI = new BlueskyAPI(undefined, true);
+    let accountAPI = new BlueskyAPI(null, true);
 
     this.#isIncognito = $state(accountAPI.isLoggedIn && !!incognito);
     this.#biohazardEnabled = $state(biohazard);
@@ -37,7 +37,7 @@ class Account {
     location.reload();
   }
 
-  /** @returns {boolean | undefined} */
+  /** @returns {boolean?} */
 
   get biohazardEnabled() {
     return this.#biohazardEnabled;

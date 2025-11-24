@@ -42,8 +42,8 @@ export class Minisky {
    * @prop {json | null | undefined} user
    * @prop {() => void} save
    *
-   * @param {string | undefined} host
-   * @param {MiniskyConfig | null | undefined} [config]
+   * @param {string?} host
+   * @param {MiniskyConfig | undefined} [config]
    * @param {MiniskyOptions} [options]
    */
 
@@ -82,7 +82,7 @@ export class Minisky {
    * @prop {string | boolean} [auth]
    * @prop {Record<string, string>} [headers]
    *
-   * @param {string} method, @param {json | null} [params], @param {MiniskyRequestOptions} [options]
+   * @param {string} method, @param {json?} [params], @param {MiniskyRequestOptions} [options]
    * @returns {Promise<json>}
    */
 
@@ -115,7 +115,7 @@ export class Minisky {
   }
 
   /**
-   * @param {string} method, @param {json | null} [data], @param {MiniskyRequestOptions} [options]
+   * @param {string} method, @param {json?} [data], @param {MiniskyRequestOptions} [options]
    * @returns {Promise<json>}
    */
 

@@ -61,7 +61,7 @@ class LocalStorageConfig {
 
 export class BlueskyAPI extends Minisky {
 
-  /** @param {string | undefined} host, @param {boolean} useAuthentication */
+  /** @param {string?} host, @param {boolean} useAuthentication */
   constructor(host, useAuthentication) {
     super(host, useAuthentication ? new LocalStorageConfig() : undefined);
 
@@ -255,7 +255,7 @@ export class BlueskyAPI extends Minisky {
     return { cursor: response.cursor, posts: postGroups.flat() };
   }
 
-  /** @param {Post} post, @returns {Promise<(json | undefined)[]>} */
+  /** @param {Post} post, @returns {Promise<?json[]>} */
 
   async loadHiddenReplies(post) {
     let expectedReplyURIs;
@@ -274,7 +274,7 @@ export class BlueskyAPI extends Minisky {
     let promises = missingReplyURIs.map(uri => this.loadThreadByAtURI(uri));
     let responses = await Promise.allSettled(promises);
 
-    return responses.map(r => (r.status == 'fulfilled') ? r.value : undefined);
+    return responses.map(r => (r.status == 'fulfilled') ? r.value : null);
   }
 
   /**
@@ -414,7 +414,7 @@ export class BlueskyAPI extends Minisky {
     return data;
   }
 
-  /** @param {string} uri, @returns {Promise<Post | null>} */
+  /** @param {string} uri, @returns {Promise<Post?>} */
 
   async reloadBlockedPost(uri) {
     let { repo } = atURI(uri);

@@ -6,7 +6,7 @@
   import ThreadRootParent from '../components/posts/ThreadRootParent.svelte';
   import ThreadRootParentRaw from '../components/posts/ThreadRootParentRaw.svelte';
 
-  let { url = null, author = null, rkey = null } = $props();
+  let { url = undefined, author = undefined, rkey = undefined } = $props();
   let post = $state();
   let loadingFailed = $state(false);
 

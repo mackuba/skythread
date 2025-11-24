@@ -49,7 +49,7 @@ function init() {
 
   window.appView = new BlueskyAPI('api.bsky.app', false);
   window.blueAPI = new BlueskyAPI('blue.mackuba.eu', false);
-  window.accountAPI = new BlueskyAPI(undefined, true);
+  window.accountAPI = new BlueskyAPI(null, true);
 
   if (accountAPI.isLoggedIn) {
     accountAPI.host = accountAPI.user.pdsEndpoint;

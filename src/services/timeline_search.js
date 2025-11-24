@@ -43,12 +43,12 @@ export class TimelineSearch {
     this.fetchStartTime = undefined;
   }
 
-  /** @param {json[]} dataPage, @param {number} startTime, @returns {number | undefined} */
+  /** @param {json[]} dataPage, @param {number} startTime, @returns {number?} */
 
   calculateProgress(dataPage, startTime) {
     let last = dataPage.at(-1);
 
-    if (!last) { return }
+    if (!last) { return null; }
 
     let lastDate = feedPostTime(last);
     let daysBack = (startTime - lastDate) / 86400 / 1000;

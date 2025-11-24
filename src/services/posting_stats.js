@@ -53,7 +53,7 @@ export class PostingStats {
     }
   }
 
-  /** @param {number} requestedDays, @returns {Promise<PostingStatsResult | undefined>} */
+  /** @param {number} requestedDays, @returns {Promise<PostingStatsResult?>} */
 
   async scanHomeTimeline(requestedDays) {
     let startTime = new Date().getTime();
@@ -67,7 +67,7 @@ export class PostingStats {
     return this.generateResults(posts, requestedDays, startTime);
   }
 
-  /** @param {string} listURI, @param {number} requestedDays, @returns {Promise<PostingStatsResult | undefined>} */
+  /** @param {string} listURI, @param {number} requestedDays, @returns {Promise<PostingStatsResult?>} */
 
   async scanListTimeline(listURI, requestedDays) {
     let startTime = new Date().getTime();
@@ -81,7 +81,7 @@ export class PostingStats {
     return this.generateResults(posts, requestedDays, startTime);
   }
 
-  /** @param {UserWithHandle[]} users, @returns {Promise<PostingStatsResult | undefined>} */
+  /** @param {UserWithHandle[]} users, @returns {Promise<PostingStatsResult?>} */
 
   async scanUserTimelines(users, requestedDays) {
     let startTime = new Date().getTime();
@@ -108,7 +108,7 @@ export class PostingStats {
     return this.generateResults(posts, requestedDays, startTime, { countFetchedDays: false, users: users });
   }
 
-  /** @param {number} requestedDays, @returns {Promise<PostingStatsResult | undefined>} */
+  /** @param {number} requestedDays, @returns {Promise<PostingStatsResult?>} */
 
   async scanYourTimeline(requestedDays) {
     let startTime = new Date().getTime();
@@ -128,7 +128,7 @@ export class PostingStats {
    * @param {number} requestedDays
    * @param {number} startTime
    * @param {{ countFetchedDays?: boolean, users?: UserWithHandle[] }} options
-   * @returns {PostingStatsResult | undefined}
+   * @returns {PostingStatsResult?}
    */
 
   generateResults(posts, requestedDays, startTime, options = {}) {
@@ -136,11 +136,11 @@ export class PostingStats {
 
     if (!last) {
       this.stopScan();
-      return;
+      return null;
     }
 
     if (this.scanStartTime != startTime) {
-      return;
+      return null;
     }
 
     let users = {};
