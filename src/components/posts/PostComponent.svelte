@@ -110,7 +110,7 @@
   <div class="post post-{context} {props.class || ''}" class:muted={post.muted} class:collapsed={collapsed}>
     <PostHeader />
 
-    {#if context == 'thread' && !post.isRoot}
+    {#if context == 'thread' && !post.isPageRoot}
       <EdgeMargin bind:collapsed />
     {/if}
 

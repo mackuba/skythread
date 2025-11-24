@@ -36,7 +36,7 @@ export class PostComponent {
 
   /** @returns {boolean} */
   get isRoot() {
-    return this.post.isRoot;
+    return this.post.isPageRoot;
   }
 
   /** @param {string[]} terms */

@@ -22,7 +22,7 @@ export class PostPresenter {
   get timeFormatForTimestamp() {
     if (this.context == 'quotes' || this.context == 'feed') {
       return { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric', hour: 'numeric', minute: 'numeric' };
-    } else if (this.post.isRoot || this.context != 'thread') {
+    } else if (this.post.isPageRoot || this.context != 'thread') {
       return { day: 'numeric', month: 'short', year: 'numeric', hour: 'numeric', minute: 'numeric' };
     } else if (this.post.pageRoot && !sameDay(this.post.createdAt, this.post.pageRoot.createdAt)) {
       return { day: 'numeric', month: 'short', hour: 'numeric', minute: 'numeric' };

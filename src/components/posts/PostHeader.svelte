@@ -35,7 +35,7 @@
 
   <a class="time" href="{post.linkToPost}" target="_blank" title="{post.createdAt.toISOString()}">{presenter.formattedTimestamp}</a>
 
-  {#if (post.replyCount > 0 && !post.isRoot) || ['quote', 'quotes', 'feed'].includes(context)}
+  {#if (post.replyCount > 0 && !post.isPageRoot) || ['quote', 'quotes', 'feed'].includes(context)}
     <span class="separator">&bull;</span>
 
     <a href="{linkToPostThread(post)}" class="action" title="Load this subtree">

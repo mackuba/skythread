@@ -78,7 +78,7 @@
     </span>
   {/if}
 
-  {#if !post.isRoot && context != 'quote' && post.quoteCount}
+  {#if !post.isPageRoot && context != 'quote' && post.quoteCount}
     {#if context == 'quotes' || context == 'feed'}
       <span>
         <i class="fa-regular fa-comments"></i>

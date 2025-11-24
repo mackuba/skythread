@@ -301,7 +301,7 @@ export class Post extends BasePost {
   }
 
   /** @returns {boolean} */
-  get isRoot() {
+  get isPageRoot() {
     // I AM ROOOT
     return (this.pageRoot === this);
   }
