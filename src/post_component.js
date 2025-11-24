@@ -76,12 +76,4 @@ export class PostComponent {
       $(node.parentNode).replaceChild(markedText, node);
     }
   }
-
-  /** @param {number} quoteCount, @param {boolean} expanded */
-
-  appendQuotesIconLink(quoteCount, expanded) {
-    /*let stats = $(this.rootElement.querySelector(':scope > .content > p.stats'));
-    let quotesLink = this.buildQuotesIconLink(quoteCount, expanded);
-    stats.append(quotesLink);*/
-  }
 }

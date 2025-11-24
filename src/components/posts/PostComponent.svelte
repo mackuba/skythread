@@ -39,6 +39,13 @@
 
   setContext('post', { post, context });
 
+  // TODO: make Post reactive
+  let quoteCount = $state(post.quoteCount);
+
+  export function setQuoteCount(x) {
+    quoteCount = x;
+  }
+
   function shouldRenderReply(reply) {
     if (reply instanceof Post) {
       return true;
@@ -100,7 +107,7 @@
   {/if}
 
   {#if post.likeCount !== undefined || post.repostCount !== undefined}
-    <PostFooter />
+    <PostFooter {quoteCount} />
   {/if}
 {/snippet}
 

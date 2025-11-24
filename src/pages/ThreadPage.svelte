@@ -22,22 +22,21 @@
     throw 'Either url or author & rkey must be set';
   }
 
+  let rootComponent;
+
   response.then((json) => {
     let root = parseThreadPost(json.thread);
     window.root = root;
     window.subtreeRoot = root;
 
     if (root instanceof Post) {
-      /*
-      TODO
+      root.data.quoteCount = undefined;
+
       blueAPI.getQuoteCount(root.uri).then(count => {
-        if (count > 0) {
-          component.appendQuotesIconLink(count, true);
-        }
+        rootComponent.setQuoteCount(count);
       }).catch(error => {
         console.warn("Couldn't load quote count: " + error);
       });
-      */
     }
 
     post = root;
@@ -62,7 +61,7 @@
     {/if}
   {/if}
 
-  <PostComponent {post} context="thread" />
+  <PostComponent {post} context="thread" bind:this={rootComponent} />
 {:else if !loadingFailed}
   <MainLoader />
 {/if}

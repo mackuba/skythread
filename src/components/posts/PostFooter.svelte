@@ -6,6 +6,7 @@
   import { showError } from '../../utils.js';
 
   let { post, context } = getContext('post');
+  let { quoteCount } = $props();
 
   let isLiked = $state(post.liked);
   let likeCount = $state(post.likeCount);
@@ -78,15 +79,15 @@
     </span>
   {/if}
 
-  {#if !post.isPageRoot && context != 'quote' && post.quoteCount}
-    {#if context == 'quotes' || context == 'feed'}
+  {#if quoteCount && context != 'quote'}
+    {#if context == 'quotes' || context == 'feed' || post.isPageRoot}
       <span>
         <i class="fa-regular fa-comments"></i>
-        <a href={linkToQuotesPage(post.linkToPost)}>{post.quoteCount > 1 ? `${post.quoteCount} quotes` : '1 quote'}</a>
+        <a href={linkToQuotesPage(post.linkToPost)}>{quoteCount > 1 ? `${quoteCount} quotes` : '1 quote'}</a>
       </span>
     {:else}
       <a href={linkToQuotesPage(post.linkToPost)}>
-        <i class="fa-regular fa-comments"></i> {post.quoteCount}
+        <i class="fa-regular fa-comments"></i> {quoteCount}
       </a>
     {/if}
   {/if}
