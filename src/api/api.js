@@ -116,12 +116,6 @@ export class BlueskyAPI extends Minisky {
     this.handleCache.setHandleDid(author.handle, author.did);
   }
 
-  /** @param {string} did, @returns {string | undefined} */
-
-  findHandleByDid(did) {
-    return this.handleCache.findHandleByDid(did);
-  }
-
   /** @param {string} did, @returns {Promise<string>} */
 
   async fetchHandleForDid(did) {
@@ -457,6 +451,25 @@ export class BlueskyAPI extends Minisky {
     }
 
     return data;
+  }
+
+  /** @param {string} uri, @returns {Promise<Post | null>} */
+
+  async reloadBlockedPost(uri) {
+    let { repo } = atURI(uri);
+
+    let loadPost = appView.loadPostIfExists(uri);
+    let loadProfile = this.getRequest('app.bsky.actor.getProfile', { actor: repo });
+
+    let data = await loadPost;
+
+    if (!data) {
+      return null;
+    }
+
+    let profile = await loadProfile;
+
+    return new Post(data, { author: profile });
   }
 
   /** @param {Post} post, @returns {Promise<json>} */

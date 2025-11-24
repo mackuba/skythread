@@ -1,18 +1,33 @@
 <script>
   import { getContext } from 'svelte';
   import { account } from '../../models/account.svelte.js';
+
+  import EmbedComponent from '../embeds/EmbedComponent.svelte';
+  import MissingPostView from './MissingPostView.svelte';
+  import PostBody from './PostBody.svelte';
+  import PostSubtreeLink from './PostSubtreeLink.svelte';
   import ReferencedPostAuthorLink from './ReferencedPostAuthorLink.svelte';
+  import ThreadRootParentRaw from './ThreadRootParentRaw.svelte';
 
   let { reason } = $props();
   let { post } = getContext('post');
 
   let biohazardEnabled = $derived(account.biohazardEnabled !== false);
   let loading = $state(false);
+  let postNotFound = $state(false);
+  let reloadedPost = $state();
 
-  function loadPost(e) {
+  async function loadPost(e) {
     e.preventDefault();
     loading = true;
-    // TODO this.loadBlockedPost(this.post.uri, div);
+
+    let result = await api.reloadBlockedPost(post.uri);
+
+    if (result) {
+      reloadedPost = result;
+    } else {
+      postNotFound = true;
+    }
   }
 
   function blockStatus() {
@@ -26,20 +41,47 @@
   }
 </script>
 
-<p class="blocked-header">
-  <i class="fa-solid fa-ban"></i> <span>{reason}</span>
+{#if !postNotFound && !reloadedPost}
+  <p class="blocked-header">
+    <i class="fa-solid fa-ban"></i> <span>{reason}</span>
 
-  {#if biohazardEnabled}
-    <ReferencedPostAuthorLink status={blockStatus()} />
-  {/if}
-</p>
-
-{#if biohazardEnabled}
-  <p class="load-post">
-    {#if !loading}
-      <a href="#" onclick={loadPost}>Load post…</a>
-    {:else}
-      &nbsp;
+    {#if biohazardEnabled}
+      <ReferencedPostAuthorLink status={blockStatus()} />
     {/if}
   </p>
+
+  {#if biohazardEnabled}
+    <p class="load-post">
+      {#if !loading}
+        <a href="#" onclick={loadPost}>Load post…</a>
+      {:else}
+        &nbsp;
+      {/if}
+    </p>
+  {/if}
+{:else if reloadedPost}
+  <p class="blocked-header">
+    <i class="fa-solid fa-ban"></i> <span>{reason}</span>
+
+    <ReferencedPostAuthorLink status={blockStatus()} />
+
+    {#if !(reloadedPost.author.viewer.blockedBy || reloadedPost.author.viewer.blocking)}
+      <span class="separator">&bull;</span>
+
+      <PostSubtreeLink post={reloadedPost} title="Load thread" />
+    {/if}
+  </p>
+
+  {#if post.isPageRoot && post.parentReference}
+    <ThreadRootParentRaw uri={post.parentReference.uri} />
+  {/if}
+
+  <PostBody />
+
+  {#if post.embed}
+    <EmbedComponent embed={post.embed} />
+    <!-- TODO: what embeds to show? -->
+  {/if}
+{:else}
+  <MissingPostView />
 {/if}

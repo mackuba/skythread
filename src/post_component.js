@@ -1,8 +1,7 @@
 import * as svelte from 'svelte';
-import { $, atURI } from './utils.js';
+import { $ } from './utils.js';
 import { $tag } from './utils_ts.js';
-import { Post, MissingPost } from './models/posts.js';
-import { linkToPostById } from './router.js';
+import { Post } from './models/posts.js';
 
 /**
  * Renders a post/thread view and its subviews.
@@ -32,11 +31,6 @@ export class PostComponent {
     }
 
     return this._rootElement;
-  }
-
-  /** @returns {boolean} */
-  get isRoot() {
-    return this.post.isPageRoot;
   }
 
   /** @param {string[]} terms */
@@ -89,70 +83,5 @@ export class PostComponent {
     /*let stats = $(this.rootElement.querySelector(':scope > .content > p.stats'));
     let quotesLink = this.buildQuotesIconLink(quoteCount, expanded);
     stats.append(quotesLink);*/
-  }
-
-  /** @param {string} uri, @param {HTMLElement} div, @returns {Promise<void>} */
-
-  async loadBlockedPost(uri, div) {
-    let record = await appView.loadPostIfExists(this.post.uri);
-
-    if (!record) {
-      let post = new MissingPost({ uri: this.post.uri });
-      let postView = new PostComponent(post, 'quote').buildElement();
-      div.replaceWith(postView);
-      return;
-    }
-
-    this.post = new Post(record);
-
-    let userView = await api.getRequest('app.bsky.actor.getProfile', { actor: this.post.author.did });
-
-    if (!userView.viewer || !(userView.viewer.blockedBy || userView.viewer.blocking)) {
-      let { repo, rkey } = atURI(this.post.uri);
-
-      let a = $tag('a', {
-        href: linkToPostById(repo, rkey),
-        className: 'action',
-        title: "Load thread",
-        html: `<i class="fa-solid fa-arrows-split-up-and-left fa-rotate-180"></i>`
-      });
-
-      let header = $(div.querySelector('p.blocked-header'));
-      let separator = $tag('span.separator', { html: '&bull;' });
-      header.append(separator, ' ', a);
-    }
-
-    let loadPost = $(div.querySelector('p.load-post'));
-    loadPost.remove();
-
-    if (this.isRoot && this.post.parentReference) {
-      let { repo, rkey } = atURI(this.post.parentReference.uri);
-      let url = linkToPostById(repo, rkey);
-
-      let handle = api.findHandleByDid(repo);
-      let link = handle ? `See parent post (@${handle})` : "See parent post";
-
-      let p = $tag('p.back', { html: `<i class="fa-solid fa-reply"></i><a href="${url}">${link}</a>` });
-      div.appendChild(p);
-    }
-
-    this.buildPostBody(div);
-
-    if (this.post.embed) {
-      svelte.mount(EmbedComponent, {
-        target: div,
-        context: new Map(Object.entries({
-          post: {
-            post: this.post
-          }
-        })),
-        props: {
-          embed: this.post.embed
-        }
-      });
-
-      // TODO
-      Array.from(div.querySelectorAll('a.link-card')).forEach(x => x.remove());
-    }
   }
 }
