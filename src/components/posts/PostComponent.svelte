@@ -5,7 +5,6 @@
   import { Post, BlockedPost, DetachedQuotePost } from '../../models/posts.js';
   import { InlineLinkEmbed } from '../../models/embeds.js';
   import { isValidURL, showError } from '../../utils.js';
-  import { PostPresenter } from '../../utils/post_presenter.js';
 
   import BlockedPostView from './BlockedPostView.svelte';
   import EdgeMargin from './EdgeMargin.svelte';
@@ -38,8 +37,7 @@
   let missingHiddenReplies = $state();
   let hiddenRepliesError = $state();
 
-  let presenter = new PostPresenter(post, context);
-  setContext('post', { post, context, presenter });
+  setContext('post', { post, context });
 
   function shouldRenderReply(reply) {
     if (reply instanceof Post) {

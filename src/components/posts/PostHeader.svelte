@@ -1,8 +1,10 @@
 <script>
   import { getContext } from 'svelte';
   import { linkToPostThread } from '../../router.js';
+  import { PostPresenter } from '../../utils/post_presenter.js';
 
-  let { post, context, presenter } = getContext('post');
+  let { post, context } = getContext('post');
+  let presenter = new PostPresenter(post, context);
 
   let avatar;
 
