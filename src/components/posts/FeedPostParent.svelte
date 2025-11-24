@@ -8,17 +8,16 @@
 
 <p class="back">
   <i class="fa-solid fa-reply"></i>
-  <a href="{linkToPostById(repo, rkey)}">
-    {#if accountAPI && repo == accountAPI.user.did}
-      Reply to you
-    {:else}
-      {#await api.fetchHandleForDid(repo)}
-        Reply
-      {:then handle}
-        Reply to @{handle}
-      {:catch error}
-        Reply to {repo}
-      {/await}
-    {/if}
-  </a>
+
+  {#if accountAPI && repo == accountAPI.user.did}
+    <a href="{linkToPostById(repo, rkey)}">Reply to you</a>
+  {:else}
+    {#await api.fetchHandleForDid(repo)}
+      <a href="{linkToPostById(repo, rkey)}">Reply</a>
+    {:then handle}
+      <a href="{linkToPostById(handle, rkey)}">Reply to @{handle}</a>
+    {:catch error}
+      <a href="{linkToPostById(repo, rkey)}">Reply to {repo}</a>
+    {/await}
+  {/if}
 </p>

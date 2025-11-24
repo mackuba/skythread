@@ -4,6 +4,7 @@
   import MainLoader from '../components/MainLoader.svelte';
   import PostComponent from '../components/posts/PostComponent.svelte';
   import ThreadRootParent from '../components/posts/ThreadRootParent.svelte';
+  import ThreadRootParentRaw from '../components/posts/ThreadRootParentRaw.svelte';
 
   let { url = null, author = null, rkey = null } = $props();
   let post = $state();
@@ -56,17 +57,8 @@
   {#if post instanceof Post}
     {#if post.parent}
       <ThreadRootParent post={post.parent} />
-    {:else}
-      <!-- TODO for threadgated parent:
-        let { repo, rkey } = atURI(root.parentReference.uri);
-        let url = linkToPostById(repo, rkey);
-
-        let handle = api.findHandleByDid(repo);
-        let link = handle ? `See parent post (@${handle})` : "See parent post";
-
-        let p = $tag('p.back', { html: `<i class="fa-solid fa-reply"></i><a href="${url}">${link}</a>` });
-        $id('thread').appendChild(p);
-      -->
+    {:else if post.parentReference}
+      <ThreadRootParentRaw uri={post.parentReference.uri} />
     {/if}
   {/if}
 

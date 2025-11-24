@@ -1,0 +1,19 @@
+<script>
+  import { linkToPostById } from '../../router.js';
+  import { atURI } from '../../utils.js';
+
+  let { uri } = $props();
+  let { repo, rkey } = $derived(atURI(uri));
+</script>
+
+<p class="back">
+  <i class="fa-solid fa-reply"></i>
+
+  {#await api.fetchHandleForDid(repo)}
+    <a href="{linkToPostById(repo, rkey)}">See parent post</a>
+  {:then handle}
+    <a href="{linkToPostById(handle, rkey)}">See parent post (@{handle})</a>
+  {:catch error}
+    <a href="{linkToPostById(repo, rkey)}">See parent post</a>
+  {/await}
+</p>
