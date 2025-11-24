@@ -1,7 +1,7 @@
 <script>
   import { getContext } from 'svelte';
-  import { linkToPostThread } from '../../router.js';
   import { PostPresenter } from '../../utils/post_presenter.js';
+  import PostSubtreeLink from './PostSubtreeLink.svelte';
 
   let { post, context } = getContext('post');
   let presenter = new PostPresenter(post, context);
@@ -40,8 +40,10 @@
   {#if (post.replyCount > 0 && !post.isPageRoot) || ['quote', 'quotes', 'feed'].includes(context)}
     <span class="separator">&bull;</span>
 
-    <a href="{linkToPostThread(post)}" class="action" title="Load this subtree">
-      <i class="fa-solid fa-arrows-split-up-and-left fa-rotate-180"></i>
-    </a>
+    {#if ['quote', 'quotes', 'feed'].includes(context)}
+      <PostSubtreeLink {post} title="Load thread" />
+    {:else}
+      <PostSubtreeLink {post} title="Load this subtree" />
+    {/if}
   {/if}
 </h2>
