@@ -130,7 +130,7 @@
         {@render body()}
       {/if}
 
-      {#if post.replyCount == 1 && replies[0] && replies[0].author.did == post.author.did}
+      {#if post.replyCount == 1 && (replies[0] instanceof Post) && replies[0].author.did == post.author.did}
         <PostComponent post={replies[0]} context="thread" class="flat" />
       {:else}
         {#each replies as reply (reply.uri)}

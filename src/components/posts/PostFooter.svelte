@@ -28,7 +28,7 @@
   }
 
   async function checkIfCanBeLiked() {
-    let data = await accountAPI.loadViewerInfo();
+    let data = await accountAPI.loadPostViewerInfo(post);
 
     if (data) {
       if (post.liked) {

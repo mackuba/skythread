@@ -34,7 +34,7 @@
   function showError(error: Error) {
     console.log(error);
 
-    if (error.code == 401 && error.json.error == 'AuthFactorTokenRequired') {
+    if (error instanceof APIError && error.code == 401 && error.json.error == 'AuthFactorTokenRequired') {
       alert(`Please log in using an "app password" if you have 2FA enabled.`);
     } else {
       window.setTimeout(() => alert(error), 10);

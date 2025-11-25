@@ -22,10 +22,10 @@
       if (reloaded) {
         return new Post(reloaded);
       } else {
-        return new MissingPost(reloaded);
+        return new MissingPost(post.data);
       }
     } else {
-      let reloadedPost = await api.loadPostIfExists(post.uri).then(x => new Post(x));
+      let reloadedPost = await api.loadPostIfExists(post.uri).then(x => x && new Post(x));
       let newEmbed = reloadedPost && reloadedPost.embed;
 
       if (newEmbed && (newEmbed instanceof InlineRecordEmbed || newEmbed instanceof InlineRecordWithMediaEmbed)) {

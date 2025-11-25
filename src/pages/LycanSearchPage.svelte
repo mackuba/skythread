@@ -114,7 +114,7 @@
   }
 
   function showImportProgress(info: json) {
-    importProgress = Math.max(0, Math.min(info.progress || 0));
+    importProgress = Math.max(0, Math.min(info.progress || 0, 1));
 
     if (info.progress == 1.0) {
       importStatusLabel = `Import complete ✓`;
