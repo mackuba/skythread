@@ -1,21 +1,16 @@
-/** @type {() => void} */
-let scrollHandler;
+let scrollHandler: (() => void) | undefined;
+let resizeObserver: ResizeObserver | undefined;
 
-/** @type {ResizeObserver} */
-let resizeObserver;
-
-export function loadInPages(callback) {
+export function loadInPages(callback: (next: () => void) => void) {
   if (scrollHandler) {
     document.removeEventListener('scroll', scrollHandler);
   }
 
-  if (resizeObserver) {
-    resizeObserver.disconnect();
-  }
+  resizeObserver?.disconnect();
 
   scrollHandler = () => {
     if (window.pageYOffset + window.innerHeight > document.body.offsetHeight - 500) {
-      callback(scrollHandler);
+      callback(scrollHandler!);
     }
   };
 
