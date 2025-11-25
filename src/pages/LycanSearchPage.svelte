@@ -60,7 +60,7 @@
       lycan.searchPosts(selectedCollection, q, {
         onPostsLoaded: ({ posts, terms }) => {
           loadingPosts = false;
-          results.splice(results.length, 0, ...posts);
+          results.push(...posts);
           highlightedMatches = terms;
         },
         onFinish: () => {

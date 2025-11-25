@@ -28,7 +28,7 @@
         quoteCount = data.quoteCount;
       }
 
-      posts.splice(posts.length, 0, ...batch);
+      posts.push(...batch);
 
       isLoading = false;
       cursor = data.cursor;

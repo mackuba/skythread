@@ -24,7 +24,7 @@
       let batch = data.posts.map(j => new Post(j)) as Post[];
       firstPageLoaded = true;
 
-      posts.splice(posts.length, 0, ...batch);
+      posts.push(...batch);
 
       isLoading = false;
       cursor = data.cursor;
