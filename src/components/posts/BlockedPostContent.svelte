@@ -1,0 +1,23 @@
+<script lang="ts">
+  import { setContext } from 'svelte';
+  import { Post } from '../../models/posts.js';
+
+  import EmbedComponent from '../embeds/EmbedComponent.svelte';
+  import PostBody from './PostBody.svelte';
+  import ThreadRootParentRaw from './ThreadRootParentRaw.svelte';
+
+  let { post, context }: { post: Post, context: PostContext } = $props();
+
+  setContext('post', { post, context });
+</script>
+
+{#if post.isPageRoot && post.parentReference}
+  <ThreadRootParentRaw uri={post.parentReference.uri} />
+{/if}
+
+<PostBody />
+
+{#if post.embed}
+  <EmbedComponent embed={post.embed} />
+  <!-- TODO: what embeds to show? -->
+{/if}

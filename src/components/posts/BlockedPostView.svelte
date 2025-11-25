@@ -3,15 +3,13 @@
   import { account } from '../../models/account.svelte.js';
   import { Post } from '../../models/posts.js';
 
-  import EmbedComponent from '../embeds/EmbedComponent.svelte';
+  import BlockedPostContent from './BlockedPostContent.svelte';
   import MissingPostView from './MissingPostView.svelte';
-  import PostBody from './PostBody.svelte';
   import PostSubtreeLink from './PostSubtreeLink.svelte';
   import ReferencedPostAuthorLink from './ReferencedPostAuthorLink.svelte';
-  import ThreadRootParentRaw from './ThreadRootParentRaw.svelte';
 
   let { reason }: { reason: string } = $props();
-  let { post }: { post: Post } = getContext('post');
+  let { post, context }: { post: Post, context: PostContext } = getContext('post');
 
   let biohazardEnabled = $derived(account.biohazardEnabled !== false);
   let loading = $state(false);
@@ -73,16 +71,7 @@
     {/if}
   </p>
 
-  {#if post.isPageRoot && post.parentReference}
-    <ThreadRootParentRaw uri={post.parentReference.uri} />
-  {/if}
-
-  <PostBody />
-
-  {#if post.embed}
-    <EmbedComponent embed={post.embed} />
-    <!-- TODO: what embeds to show? -->
-  {/if}
+  <BlockedPostContent post={reloadedPost} {context} />
 {:else}
   <MissingPostView />
 {/if}
