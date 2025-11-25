@@ -205,7 +205,7 @@
   {#if loadingPosts}
     <p>...</p>
   {:else}
-    {#each results as post}
+    {#each results as post (post.uri)}
       <PostComponent {post} context="feed" {highlightedMatches} />
     {/each}
     {#if finishedPosts}

@@ -52,7 +52,7 @@
     <h2>Replies & Mentions:</h2>
   </header>
 
-  {#each posts as post}
+  {#each posts as post (post.uri)}
     <!-- TODO: #if post.parent -->
     {#if post.parentReference}
       <FeedPostParent uri={post.parentReference.uri} />

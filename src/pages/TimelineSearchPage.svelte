@@ -78,7 +78,7 @@
   </form>
 
   <div class="results">
-    {#each results as post}
+    {#each results as post (post.uri)}
       <PostComponent {post} context="feed" />
     {/each}
   </div>

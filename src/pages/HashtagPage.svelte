@@ -55,7 +55,7 @@
     </h2>
   </header>
 
-  {#each posts as post}
+  {#each posts as post (post.uri)}
     <PostComponent {post} context="feed" />
   {/each}
 {:else if !loadingFailed}
