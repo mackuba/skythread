@@ -12,34 +12,36 @@ export { APIError };
 
 export class ResponseDataError extends Error {}
 
-
 /**
  * Thrown when the passed URL is not a supported post URL on bsky.app.
  */
 
 export class URLError extends Error {
-
-  /** @param {string} message */
-  constructor(message) {
+  constructor(message: string) {
     super(message);
   }
 }
 
-export class HiddenRepliesError extends Error {
+/**
+ * Thrown when hidden replies couldn't be loaded from the blue.feeds API.
+ */
 
-  /** @param {Error} error */
-  constructor(error) {
+export class HiddenRepliesError extends Error {
+  originalError: Error;
+
+  constructor(error: Error) {
     super(error.message);
     this.originalError = error;
   }
 }
-
 
 /**
  * Stores user's access tokens and data in local storage after they log in.
  */
 
 class LocalStorageConfig {
+  user: json;
+
   constructor() {
     let data = localStorage.getItem('userData');
     this.user = data ? JSON.parse(data) : {};
@@ -54,32 +56,35 @@ class LocalStorageConfig {
   }
 }
 
+type AuthorFeedFilter =
+  | 'posts_with_replies'          // posts, replies and reposts (default)
+  | 'posts_no_replies'            // posts and reposts (no replies)
+  | 'posts_and_author_threads'    // posts, reposts, and replies in your own threads
+  | 'posts_with_media'            // posts and replies, but only with images (no reposts)
+  | 'posts_with_video';           // posts and replies, but only with videos (no reposts)
 
 /**
  * API client for connecting to the Bluesky XRPC API (authenticated or not).
  */
 
 export class BlueskyAPI extends Minisky {
+  handleCache: HandleCache;
+  profiles: Record<string, json>;
 
-  /** @param {string?} host, @param {boolean} useAuthentication */
-  constructor(host, useAuthentication) {
+  constructor(host: string | null, useAuthentication: boolean) {
     super(host, useAuthentication ? new LocalStorageConfig() : undefined);
 
     this.handleCache = new HandleCache();
     this.profiles = {};
   }
 
-  /** @param {json} author */
-
-  cacheProfile(author) {
+  cacheProfile(author: json) {
     this.profiles[author.did] = author;
     this.profiles[author.handle] = author;
     this.handleCache.setHandleDid(author.handle, author.did);
   }
 
-  /** @param {string} did, @returns {Promise<string>} */
-
-  async fetchHandleForDid(did) {
+  async fetchHandleForDid(did: string): Promise<string> {
     let cachedHandle = this.handleCache.findHandleByDid(did);
 
     if (cachedHandle) {
@@ -90,9 +95,7 @@ export class BlueskyAPI extends Minisky {
     }
   }
 
-  /** @param {string} handle, @returns {Promise<string>} */
-
-  async resolveHandle(handle) {
+  async resolveHandle(handle: string): Promise<string> {
     let cachedDid = this.handleCache.getHandleDid(handle);
 
     if (cachedDid) {
@@ -110,30 +113,22 @@ export class BlueskyAPI extends Minisky {
     }
   }
 
-  /** @param {string} url, @returns {Promise<json>} */
-
-  async loadThreadByURL(url) {
+  async loadThreadByURL(url: string): Promise<json> {
     let { user, post } = parseBlueskyPostURL(url);
     return await this.loadThreadById(user, post);
   }
 
-  /** @param {string} author, @param {string} postId, @returns {Promise<json>} */
-
-  async loadThreadById(author, postId) {
+  async loadThreadById(author: string, postId: string): Promise<json> {
     let did = author.startsWith('did:') ? author : await this.resolveHandle(author);
     let postURI = `at://${did}/app.bsky.feed.post/${postId}`;
     return await this.loadThreadByAtURI(postURI);
   }
 
-  /** @param {string} uri, @returns {Promise<json>} */
-
-  async loadThreadByAtURI(uri) {
+  async loadThreadByAtURI(uri: string): Promise<json> {
     return await this.getRequest('app.bsky.feed.getPostThread', { uri: uri, depth: 10 });
   }
 
-  /** @param {string} handle, @returns {Promise<json>} */
-
-  async loadUserProfile(handle) {
+  async loadUserProfile(handle: string): Promise<json> {
     if (this.profiles[handle]) {
       return this.profiles[handle];
     } else {
@@ -143,16 +138,12 @@ export class BlueskyAPI extends Minisky {
     }
   }
 
-  /** @param {string} query, @returns {Promise<json[]>} */
-
-  async autocompleteUsers(query) {
+  async autocompleteUsers(query: string): Promise<json[]> {
     let json = await this.getRequest('app.bsky.actor.searchActorsTypeahead', { q: query });
     return json.actors;
   }
 
-  /** @returns {Promise<json | undefined>} */
-
-  async getCurrentUserAvatar() {
+  async getCurrentUserAvatar(): Promise<json | undefined> {
     let json = await this.getRequest('com.atproto.repo.getRecord', {
       repo: this.user.did,
       collection: 'app.bsky.actor.profile',
@@ -162,9 +153,7 @@ export class BlueskyAPI extends Minisky {
     return json.value.avatar;
   }
 
-  /** @returns {Promise<string?>} */
-
-  async loadCurrentUserAvatar() {
+  async loadCurrentUserAvatar(): Promise<string | null> {
     if (!this.config || !this.config.user) {
       throw new AuthError("User isn't logged in");
     }
@@ -181,24 +170,18 @@ export class BlueskyAPI extends Minisky {
     }
   }
 
-  /** @param {string} uri, @returns {Promise<string[]>} */
-
-  async getReplies(uri) {
+  async getReplies(uri: string): Promise<string[]> {
     let json = await this.getRequest('blue.feeds.post.getReplies', { uri });
     return json.replies;
   }
 
-  /** @param {string} uri, @returns {Promise<number>} */
-
-  async getQuoteCount(uri) {
+  async getQuoteCount(uri: string): Promise<number> {
     let json = await this.getRequest('blue.feeds.post.getQuoteCount', { uri });
     return json.quoteCount;
   }
 
-  /** @param {string} url, @param {string | undefined} cursor, @returns {Promise<json>} */
-
-  async getQuotes(url, cursor = undefined) {
-    let postURI;
+  async getQuotes(url: string, cursor: string | undefined = undefined): Promise<json> {
+    let postURI: string;
 
     if (url.startsWith('at://')) {
       postURI = url;
@@ -208,7 +191,7 @@ export class BlueskyAPI extends Minisky {
       postURI = `at://${did}/app.bsky.feed.post/${post}`;
     }
 
-    let params = { uri: postURI };
+    let params: Record<string, string> = { uri: postURI };
 
     if (cursor) {
       params['cursor'] = cursor;
@@ -217,10 +200,8 @@ export class BlueskyAPI extends Minisky {
     return await this.getRequest('blue.feeds.post.getQuotes', params);
   }
 
-  /** @param {string} hashtag, @param {string | undefined} cursor, @returns {Promise<json>} */
-
-  async getHashtagFeed(hashtag, cursor = undefined) {
-    let params = { q: '#' + hashtag, limit: 50, sort: 'latest' };
+  async getHashtagFeed(hashtag: string, cursor: string | undefined = undefined): Promise<json> {
+    let params: Record<string, any> = { q: '#' + hashtag, limit: 50, sort: 'latest' };
 
     if (cursor) {
       params['cursor'] = cursor;
@@ -229,21 +210,14 @@ export class BlueskyAPI extends Minisky {
     return await this.getRequest('app.bsky.feed.searchPosts', params);
   }
 
-  /** @param {json} [params], @returns {Promise<json>} */
-
-  async loadNotifications(params) {
+  async loadNotifications(params?: json): Promise<json> {
     return await this.getRequest('app.bsky.notification.listNotifications', params || {});
   }
 
-  /**
-   * @param {string} [cursor]
-   * @returns {Promise<{ cursor: string | undefined, posts: json[] }>}
-   */
-
-  async loadMentions(cursor) {
+  async loadMentions(cursor?: string): Promise<{ cursor: string | undefined, posts: json[] }> {
     let response = await this.loadNotifications({ cursor: cursor ?? '', limit: 100, reasons: ['reply', 'mention'] });
-    let uris = response.notifications.map(x => x.uri);
-    let batches = [];
+    let uris = response.notifications.map((x: any) => x.uri);
+    let batches: Promise<json[]>[] = [];
 
     for (let i = 0; i < uris.length; i += 25) {
       let batch = this.loadPosts(uris.slice(i, i + 25));
@@ -255,10 +229,8 @@ export class BlueskyAPI extends Minisky {
     return { cursor: response.cursor, posts: postGroups.flat() };
   }
 
-  /** @param {Post} post, @returns {Promise<(json | null)[]>} */
-
-  async loadHiddenReplies(post) {
-    let expectedReplyURIs;
+  async loadHiddenReplies(post: Post): Promise<(json | null)[]> {
+    let expectedReplyURIs: string[];
 
     try {
       expectedReplyURIs = await blueAPI.getReplies(post.uri);
@@ -277,46 +249,27 @@ export class BlueskyAPI extends Minisky {
     return responses.map(r => (r.status == 'fulfilled') ? r.value : null);
   }
 
-  /**
-   * @param {number} days
-   * @param {{ onPageLoad?: FetchAllOnPageLoad, keepLastPage?: boolean }} [options]
-   * @returns {Promise<json[]>}
-   */
-
-  async loadHomeTimeline(days, options = {}) {
+  async loadHomeTimeline(
+    days: number,
+    options: { onPageLoad?: FetchAllOnPageLoad; keepLastPage?: boolean } = {}
+  ): Promise<json[]> {
     let now = new Date();
     let timeLimit = now.getTime() - days * 86400 * 1000;
 
     return await this.fetchAll('app.bsky.feed.getTimeline', {
       params: { limit: 100 },
       field: 'feed',
-      breakWhen: (x) => (feedPostTime(x) < timeLimit),
+      breakWhen: (x: json) => feedPostTime(x) < timeLimit,
       onPageLoad: options.onPageLoad,
       keepLastPage: options.keepLastPage
     });
   }
 
-  /**
-    @typedef
-    {'posts_with_replies' | 'posts_no_replies' | 'posts_and_author_threads' | 'posts_with_media' | 'posts_with_video'}
-    AuthorFeedFilter
-
-    Filters:
-    - posts_with_replies: posts, replies and reposts (default)
-    - posts_no_replies: posts and reposts (no replies)
-    - posts_and_author_threads: posts, reposts, and replies in your own threads
-    - posts_with_media: posts and replies, but only with images (no reposts)
-    - posts_with_video: posts and replies, but only with videos (no reposts)
-  */
-
-  /**
-   * @param {string} did
-   * @param {number} days
-   * @param {{ filter: AuthorFeedFilter, onPageLoad?: FetchAllOnPageLoad, keepLastPage?: boolean }} options
-   * @returns {Promise<json[]>}
-   */
-
-  async loadUserTimeline(did, days, options) {
+  async loadUserTimeline(
+    did: string,
+    days: number,
+    options: { filter: AuthorFeedFilter, onPageLoad?: FetchAllOnPageLoad, keepLastPage?: boolean }
+  ): Promise<json[]> {
     let now = new Date();
     let timeLimit = now.getTime() - days * 86400 * 1000;
 
@@ -327,15 +280,13 @@ export class BlueskyAPI extends Minisky {
         limit: 100
       },
       field: 'feed',
-      breakWhen: (x) => (feedPostTime(x) < timeLimit),
+      breakWhen: (x: json) => feedPostTime(x) < timeLimit,
       onPageLoad: options.onPageLoad,
       keepLastPage: options.keepLastPage
     });
   }
 
-  /** @returns {Promise<json[]>} */
-
-  async loadUserLists() {
+  async loadUserLists(): Promise<json[]> {
     let lists = await this.fetchAll('app.bsky.graph.getLists', {
       params: {
         actor: this.user.did,
@@ -344,17 +295,14 @@ export class BlueskyAPI extends Minisky {
       field: 'lists'
     });
 
-    return lists.filter(x => x.purpose == "app.bsky.graph.defs#curatelist");
+    return lists.filter((x: json) => x.purpose == 'app.bsky.graph.defs#curatelist');
   }
 
-  /**
-   * @param {string} list
-   * @param {number} days
-   * @param {{ onPageLoad?: FetchAllOnPageLoad, keepLastPage?: boolean }} [options]
-   * @returns {Promise<json[]>}
-   */
-
-  async loadListTimeline(list, days, options = {}) {
+  async loadListTimeline(
+    list: string,
+    days: number,
+    options: { onPageLoad?: FetchAllOnPageLoad, keepLastPage?: boolean } = {}
+  ): Promise<json[]> {
     let now = new Date();
     let timeLimit = now.getTime() - days * 86400 * 1000;
 
@@ -364,15 +312,13 @@ export class BlueskyAPI extends Minisky {
         limit: 100
       },
       field: 'feed',
-      breakWhen: (x) => (feedPostTime(x) < timeLimit),
+      breakWhen: (x: json) => feedPostTime(x) < timeLimit,
       onPageLoad: options.onPageLoad,
       keepLastPage: options.keepLastPage
     });
   }
 
-  /** @param {string} postURI, @returns {Promise<json>} */
-
-  async loadPost(postURI) {
+  async loadPost(postURI: string): Promise<json> {
     let posts = await this.loadPosts([postURI]);
 
     if (posts.length == 1) {
@@ -382,16 +328,12 @@ export class BlueskyAPI extends Minisky {
     }
   }
 
-  /** @param {string} postURI, @returns {Promise<json | undefined>} */
-
-  async loadPostIfExists(postURI) {
+  async loadPostIfExists(postURI: string): Promise<json | undefined> {
     let posts = await this.loadPosts([postURI]);
     return posts[0];
   }
 
-  /** @param {string[]} uris, @returns {Promise<object[]>} */
-
-  async loadPosts(uris) {
+  async loadPosts(uris: string[]): Promise<json[]> {
     if (uris.length > 0) {
       let response = await this.getRequest('app.bsky.feed.getPosts', { uris });
       return response.posts;
@@ -400,9 +342,7 @@ export class BlueskyAPI extends Minisky {
     }
   }
 
-  /** @param {Post} post, @returns {Promise<json | undefined>} */
-
-  async loadPostViewerInfo(post) {
+  async loadPostViewerInfo(post: Post): Promise<json | undefined> {
     let data = await this.loadPostIfExists(post.uri);
 
     if (data) {
@@ -414,9 +354,7 @@ export class BlueskyAPI extends Minisky {
     return data;
   }
 
-  /** @param {string} uri, @returns {Promise<Post?>} */
-
-  async reloadBlockedPost(uri) {
+  async reloadBlockedPost(uri: string): Promise<Post | null> {
     let { repo } = atURI(uri);
 
     let loadPost = appView.loadPostIfExists(uri);
@@ -433,9 +371,7 @@ export class BlueskyAPI extends Minisky {
     return new Post(data, { author: profile });
   }
 
-  /** @param {Post} post, @returns {Promise<json>} */
-
-  async likePost(post) {
+  async likePost(post: Post): Promise<json> {
     return await this.postRequest('com.atproto.repo.createRecord', {
       repo: this.user.did,
       collection: 'app.bsky.feed.like',
@@ -449,9 +385,7 @@ export class BlueskyAPI extends Minisky {
     });
   }
 
-  /** @param {string} uri, @returns {Promise<void>} */
-
-  async removeLike(uri) {
+  async removeLike(uri: string) {
     let { rkey } = atURI(uri);
 
     await this.postRequest('com.atproto.repo.deleteRecord', {
