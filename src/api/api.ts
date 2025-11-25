@@ -1,5 +1,5 @@
 import { HandleCache } from './handle_cache.js';
-import { APIError, AuthError, Minisky } from './minisky.js';
+import { APIError, AuthError, Minisky, FetchAllOnPageLoad } from './minisky.js';
 import { atURI, feedPostTime } from '../utils.js';
 import { Post } from '../models/posts.js';
 import { parseBlueskyPostURL } from '../router.js';

@@ -13,7 +13,6 @@ declare var api: import("./api/api.js").BlueskyAPI;
 declare var avatarPreloader: IntersectionObserver;
 
 type json = Record<string, any>;
-type FetchAllOnPageLoad = (obj: json[]) => { cancel: true } | undefined | void;
 
 type AnyPost = import("./models/posts.js").Post
              | import("./models/posts.js").BlockedPost

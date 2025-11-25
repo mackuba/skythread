@@ -3,9 +3,10 @@
  */
 
 export class APIError extends Error {
+  code: number;
+  json: json;
 
-  /** @param {number} code, @param {json} json */
-  constructor(code, json) {
+  constructor(code: number, json: json) {
     super("APIError status " + code + "\n\n" + JSON.stringify(json));
     this.code = code;
     this.json = json;
@@ -31,27 +32,44 @@ export class AuthError extends Error {}
  * Base API client for connecting to an ATProto XRPC API.
  */
 
+export type MiniskyOptions = {
+  sendAuthHeaders?: boolean;
+  autoManageTokens?: boolean;
+};
+
+export type MiniskyConfig = {
+  user: json | null | undefined;
+  save: () => void;
+};
+
+export type MiniskyRequestOptions = {
+  auth?: string | boolean;
+  headers?: Record<string, string>;
+};
+
+export type FetchAllOnPageLoad = (items: json[]) => { cancel: true } | undefined | void;
+
+export type FetchAllOptions = MiniskyOptions & MiniskyRequestOptions & {
+  field: string;
+  params?: json;
+  breakWhen?: (obj: json) => boolean;
+  keepLastPage?: boolean | undefined;
+  onPageLoad?: FetchAllOnPageLoad | undefined;
+};
+
 export class Minisky {
+  host: string | null;
+  config: MiniskyConfig | null;
+  user: json | null;
+  sendAuthHeaders: boolean;
+  autoManageTokens: boolean;
 
-  /**
-   * @typedef {object} MiniskyOptions
-   * @prop {boolean} [sendAuthHeaders]
-   * @prop {boolean} [autoManageTokens]
-   *
-   * @typedef {object} MiniskyConfig
-   * @prop {json | null | undefined} user
-   * @prop {() => void} save
-   *
-   * @param {string?} host
-   * @param {MiniskyConfig | undefined} [config]
-   * @param {MiniskyOptions} [options]
-   */
-
-  constructor(host, config, options) {
+  constructor(host: string | null, config?: MiniskyConfig | null, options?: MiniskyOptions | null) {
     this.host = host;
-    this.config = config;
-    this.user = /** @type {json} */ (config?.user);
+    this.config = config || null;
+    this.user = config?.user || null;
 
+    // defaults, can be overridden with options
     this.sendAuthHeaders = !!this.user;
     this.autoManageTokens = !!this.user;
 
@@ -60,9 +78,7 @@ export class Minisky {
     }
   }
 
-  /** @returns {string} */
-
-  get baseURL() {
+  get baseURL(): string {
     if (this.host) {
       let host = (this.host.includes('://')) ? this.host : `https://${this.host}`;
       return host + '/xrpc';
@@ -71,22 +87,11 @@ export class Minisky {
     }
   }
 
-  /** @returns {boolean} */
-
-  get isLoggedIn() {
+  get isLoggedIn(): boolean {
     return !!(this.user && this.user.accessToken && this.user.refreshToken && this.user.did && this.user.pdsEndpoint);
   }
 
-  /**
-   * @typedef {object} MiniskyRequestOptions
-   * @prop {string | boolean} [auth]
-   * @prop {Record<string, string>} [headers]
-   *
-   * @param {string} method, @param {json?} [params], @param {MiniskyRequestOptions} [options]
-   * @returns {Promise<json>}
-   */
-
-  async getRequest(method, params, options) {
+  async getRequest(method: string, params?: json | null, options?: MiniskyRequestOptions): Promise<json> {
     let url = new URL(`${this.baseURL}/${method}`);
     let auth = options && ('auth' in options) ? options.auth : this.sendAuthHeaders;
 
@@ -114,12 +119,7 @@ export class Minisky {
     return await this.parseResponse(response);
   }
 
-  /**
-   * @param {string} method, @param {json?} [data], @param {MiniskyRequestOptions} [options]
-   * @returns {Promise<json>}
-   */
-
-  async postRequest(method, data, options) {
+  async postRequest(method: string, data?: json | null, options?: MiniskyRequestOptions): Promise<json> {
     let url = `${this.baseURL}/${method}`;
     let auth = options && ('auth' in options) ? options.auth : this.sendAuthHeaders;
 
@@ -127,7 +127,7 @@ export class Minisky {
       await this.checkAccess();
     }
 
-    let request = { method: 'POST', headers: this.authHeaders(auth) };
+    let request: Record<string, any> = { method: 'POST', headers: this.authHeaders(auth) };
 
     if (data) {
       request.body = JSON.stringify(data);
@@ -142,27 +142,13 @@ export class Minisky {
     return await this.parseResponse(response);
   }
 
-  /**
-   * @typedef {MiniskyOptions & {
-   *   field: string,
-   *   params?: json,
-   *   breakWhen?: (obj: json) => boolean,
-   *   keepLastPage?: boolean | undefined,
-   *   onPageLoad?: FetchAllOnPageLoad | undefined
-   * }} FetchAllOptions
-   *
-   * @param {string} method
-   * @param {FetchAllOptions} [options]
-   * @returns {Promise<json[]>}
-   */
-
-  async fetchAll(method, options) {
+  async fetchAll(method: string, options?: FetchAllOptions): Promise<json[]> {
     if (!options || !options.field) {
       throw new RequestError("'field' option is required");
     }
 
-    let data = [];
-    let reqParams = options.params ?? {};
+    let data: json[] = [];
+    let reqParams: json = options.params ?? {};
     let reqOptions = this.sliceOptions(options, ['auth', 'headers']);
 
     for (;;) {
@@ -174,9 +160,9 @@ export class Minisky {
       if (options.breakWhen) {
         let test = options.breakWhen;
 
-        if (items.some(x => test(x))) {
+        if (items.some((x: json) => test(x))) {
           if (!options.keepLastPage) {
-            items = items.filter(x => !test(x));
+            items = items.filter((x: json) => !test(x));
           }
 
           cursor = null;
@@ -202,9 +188,7 @@ export class Minisky {
     return data;
   }
 
-  /** @param {string | boolean} auth, @returns {Record<string, string>} */
-
-  authHeaders(auth) {
+  authHeaders(auth: string | boolean) {
     if (typeof auth == 'string') {
       return { 'Authorization': `Bearer ${auth}` };
     } else if (auth) {
@@ -218,10 +202,8 @@ export class Minisky {
     }
   }
 
-  /** @param {json} options, @param {string[]} list, @returns {json} */
-
-  sliceOptions(options, list) {
-    let newOptions = {};
+  sliceOptions(options: json, list: string[]): json {
+    let newOptions: any = {};
 
     for (let i of list) {
       if (i in options) {
@@ -232,9 +214,7 @@ export class Minisky {
     return newOptions;
   }
 
-  /** @param {string} token, @returns {number} */
-
-  tokenExpirationTimestamp(token) {
+  tokenExpirationTimestamp(token: string): number {
     let parts = token.split('.');
     if (parts.length != 3) {
       throw new AuthError("Invalid access token format");
@@ -250,15 +230,11 @@ export class Minisky {
     return exp * 1000;
   }
 
-  /** @param {Response} response, @param {json} json, @returns {boolean} */
-
-  isInvalidToken(response, json) {
+  isInvalidToken(response: Response, json: json): boolean {
     return (response.status == 400) && !!json && ['InvalidToken', 'ExpiredToken'].includes(json.error);
   }
 
-  /** @param {Response} response, @returns {Promise<json>} */
-
-  async parseResponse(response) {
+  async parseResponse(response: Response): Promise<json> {
     let text = await response.text();
     let json = text.trim().length > 0 ? JSON.parse(text) : undefined;
 
@@ -268,8 +244,6 @@ export class Minisky {
       throw new APIError(response.status, json);
     }
   }
-
-  /** @returns {Promise<void>} */
 
   async checkAccess() {
     if (!this.isLoggedIn) {
@@ -283,9 +257,7 @@ export class Minisky {
     }
   }
 
-  /** @param {string} handle, @param {string} password, @returns {Promise<json>} */
-
-  async logIn(handle, password) {
+  async logIn(handle: string, password: string): Promise<json> {
     if (!this.config || !this.config.user) {
       throw new AuthError("Missing user configuration object");
     }
@@ -299,7 +271,7 @@ export class Minisky {
 
   /** @returns {Promise<json>} */
 
-  async performTokenRefresh() {
+  async performTokenRefresh(): Promise<json> {
     if (!this.isLoggedIn) {
       throw new AuthError("Not logged in");
     }
@@ -310,9 +282,7 @@ export class Minisky {
     return json;
   }
 
-  /** @param {json} json */
-
-  saveTokens(json) {
+  saveTokens(json: json) {
     if (!this.config || !this.config.user) {
       throw new AuthError("Missing user configuration object");
     }
@@ -322,7 +292,7 @@ export class Minisky {
     this.user.did = json['did'];
 
     if (json.didDoc?.service) {
-      let service = json.didDoc.service.find(s => s.id == '#atproto_pds');
+      let service = json.didDoc.service.find((s: json) => s.id == '#atproto_pds');
       this.host = service.serviceEndpoint.replace('https://', '');
     }
 
