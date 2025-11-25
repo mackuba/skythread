@@ -1,6 +1,6 @@
-<script>
+<script lang="ts">
   import {
-    RawRecordEmbed, RawRecordWithMediaEmbed, RawImageEmbed, RawLinkEmbed, RawVideoEmbed,
+    Embed, RawRecordEmbed, RawRecordWithMediaEmbed, RawImageEmbed, RawLinkEmbed, RawVideoEmbed,
     InlineRecordEmbed, InlineRecordWithMediaEmbed, InlineImageEmbed, InlineLinkEmbed, InlineVideoEmbed
   } from '../../models/embeds.js';
 
@@ -10,7 +10,7 @@
   import QuoteComponent from './QuoteComponent.svelte';
   import VideoComponent from './VideoComponent.svelte';
 
-  let { embed } = $props();
+  let { embed }: { embed: Embed } = $props();
 </script>
 
 {#if embed instanceof RawRecordEmbed || embed instanceof InlineRecordEmbed}

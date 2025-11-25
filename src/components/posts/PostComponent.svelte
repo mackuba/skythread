@@ -1,9 +1,9 @@
-<script>
+<script lang="ts">
   import { setContext } from 'svelte';
   import { HiddenRepliesError } from '../../api/api.js';
   import { account } from '../../models/account.svelte.js';
   import { Post, BlockedPost, DetachedQuotePost } from '../../models/posts.js';
-  import { InlineLinkEmbed } from '../../models/embeds.js';
+  import { Embed, InlineLinkEmbed } from '../../models/embeds.js';
   import { isValidURL, showError } from '../../utils.js';
 
   import BlockedPostView from './BlockedPostView.svelte';
@@ -32,21 +32,21 @@
   let { post, context, highlightedMatches = undefined, ...props } = $props();
 
   let collapsed = $state(false);
-  let replies = $state(post.replies);
+  let replies: AnyPost[] = $state(post.replies);
   let repliesLoaded = $state(false);
-  let missingHiddenReplies = $state();
-  let hiddenRepliesError = $state();
+  let missingHiddenReplies: number | undefined = $state();
+  let hiddenRepliesError: Error | undefined = $state();
 
   setContext('post', { post, context });
 
   // TODO: make Post reactive
-  let quoteCount = $state(post.quoteCount);
+  let quoteCount: number | undefined = $state(post.quoteCount);
 
-  export function setQuoteCount(x) {
+  export function setQuoteCount(x: number) {
     quoteCount = x;
   }
 
-  function shouldRenderReply(reply) {
+  function shouldRenderReply(reply: AnyPost): boolean {
     if (reply instanceof Post) {
       return true;
     } else if (reply instanceof BlockedPost) {
@@ -56,7 +56,7 @@
     }
   }
 
-  function shouldRenderEmbed(embed) {
+  function shouldRenderEmbed(embed: Embed): boolean {
     if (post.originalFediURL) {
       if (embed instanceof InlineLinkEmbed && embed.title && embed.title.startsWith('Original post on ')) {
         return false;
@@ -66,13 +66,13 @@
     return true;
   }
 
-  function onMoreRepliesLoaded(newPost) {
+  function onMoreRepliesLoaded(newPost: Post) {
     replies = post.replies = newPost.replies;
     repliesLoaded = true;
   }
 
-  function onHiddenRepliesLoaded(newReplies) {
-    let okReplies = newReplies.filter(x => x);
+  function onHiddenRepliesLoaded(newReplies: (AnyPost | null)[]) {
+    let okReplies = newReplies.filter(x => x !== null);
     replies.push(...okReplies);
     post.replies = replies;
 
@@ -80,7 +80,7 @@
     repliesLoaded = true;
   }
 
-  function onRepliesLoadingError(error) {
+  function onRepliesLoadingError(error: Error) {
     repliesLoaded = true;
 
     if (error instanceof HiddenRepliesError) {

@@ -1,17 +1,17 @@
-<script>
+<script lang="ts">
   import LikeStatsTable from '../components/LikeStatsTable.svelte';
-  import { LikeStats } from '../services/like_stats.js';
+  import { LikeStats, LikeStat } from '../services/like_stats.js';
   import { numberOfDays } from '../utils.js';
 
   let timeRangeDays = $state(7);
-  let progress = $state();
+  let progress: number | undefined = $state();
   let scanInProgress = $derived(progress !== undefined);
-  let givenLikesUsers = $state();
-  let receivedLikesUsers = $state();
+  let givenLikesUsers: LikeStat[] | undefined = $state();
+  let receivedLikesUsers: LikeStat[] | undefined = $state();
 
   let likeStats = new LikeStats();
 
-  async function startScan(e) {
+  async function startScan(e: Event) {
     e.preventDefault();
 
     if (!scanInProgress) {
@@ -47,7 +47,7 @@
   </p>
 </form>
 
-{#if givenLikesUsers}
+{#if givenLikesUsers && receivedLikesUsers}
   <LikeStatsTable cssClass="given-likes" header="❤️ Likes from you:" users={givenLikesUsers} />
   <LikeStatsTable cssClass="received-likes" header="💛 Likes on your posts:" users={receivedLikesUsers} />
 {/if}

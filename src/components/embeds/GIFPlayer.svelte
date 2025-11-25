@@ -1,5 +1,5 @@
-<script>
-  let { gifURL, staticURL } = $props();
+<script lang="ts">
+  let { gifURL, staticURL }: { gifURL: string, staticURL: string } = $props();
 
   let loaded = $state(false);
   let paused = $state(false);
@@ -7,8 +7,8 @@
   let maxWidth = $state(500);
   let maxHeight = $state(200);
 
-  function onload(e) {
-    let img = e.target;
+  function onload(e: Event) {
+    let img = e.target as HTMLImageElement;
 
     if (img.naturalWidth < img.naturalHeight) {
       maxWidth = 200;

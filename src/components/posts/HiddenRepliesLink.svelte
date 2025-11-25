@@ -1,15 +1,20 @@
-<script>
+<script lang="ts">
   import { showBiohazardDialog } from '../../skythread.js';
   import { account } from '../../models/account.svelte.js';
-  import { parseThreadPost } from '../../models/posts.js';
+  import { Post, parseThreadPost } from '../../models/posts.js';
   import { linkToPostThread } from '../../router.js';
   import { getContext } from 'svelte';
 
-  let { onLoad, onError } = $props();
-  let { post } = getContext('post');
+  type Props = {
+    onLoad: (posts: (AnyPost | null)[]) => void,
+    onError: (error: Error) => void
+  }
+
+  let { onLoad, onError }: Props = $props();
+  let { post }: { post: Post } = getContext('post');
   let loading = $state(false);
 
-  function onLinkClick(e) {
+  function onLinkClick(e: Event) {
     e.preventDefault();
 
     if (account.biohazardEnabled === true) {

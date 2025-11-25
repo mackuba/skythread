@@ -1,22 +1,22 @@
-<script>
+<script lang="ts">
   import { submitLogin } from '../skythread.js';
+  import { APIError } from '../api/minisky.js';
 
-  let { onClose } = $props();
+  let { onClose = undefined }: { onClose?: () => void } = $props();
 
-  let identifier = $state();
-  let password = $state();
+  let identifier: string = $state('');
+  let password: string = $state('');
   let loginInfoVisible = $state(false);
   let submitting = $state(false);
-  let loginField, passwordField;
+  let loginField: HTMLInputElement;
+  let passwordField: HTMLInputElement;
 
-  /** @param {Event} e */
-  function toggleLoginInfo(e) {
+  function toggleLoginInfo(e: Event) {
     e.preventDefault();
     loginInfoVisible = !loginInfoVisible;
   }
 
-  /** @param {Event} e, @returns {Promise<void>} */
-  async function onsubmit(e) {
+  async function onsubmit(e: Event) {
     e.preventDefault();
     submitting = true;
 
@@ -31,8 +31,7 @@
     }
   }
 
-  /** @param {Error} error */
-  function showError(error) {
+  function showError(error: Error) {
     console.log(error);
 
     if (error.code == 401 && error.json.error == 'AuthFactorTokenRequired') {

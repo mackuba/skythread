@@ -1,5 +1,5 @@
-<script>
-  let { url } = $props();
+<script lang="ts">
+  let { url }: { url: string } = $props();
 
   let hostname = $derived(new URL(url).hostname);
 </script>

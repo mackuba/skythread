@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
   import { Post } from '../models/posts.js';
   import * as paginator from '../utils/paginator.js';
   import FeedPostParent from '../components/posts/FeedPostParent.svelte';
@@ -6,14 +6,13 @@
   import PostComponent from '../components/posts/PostComponent.svelte';
 
   let isLoading = false;
-  let cursor;
+  let cursor: string | undefined;
   let finished = false;
 
-  let { postURL } = $props();
+  let { postURL }: { postURL: string } = $props();
 
-  let posts = $state([]);
-  let quoteCount = $state();
-  let firstPageLoaded = $derived(quoteCount !== undefined);
+  let posts: Post[] = $state([]);
+  let quoteCount: number | undefined = $state();
   let loadingFailed = $state(false);
 
   paginator.loadInPages(async () => {
@@ -25,7 +24,7 @@
       let jsons = await api.loadPosts(data.posts);
       let batch = jsons.map(j => new Post(j));
 
-      if (!firstPageLoaded) {
+      if (quoteCount === undefined) {
         quoteCount = data.quoteCount;
       }
 
@@ -45,7 +44,7 @@
   });
 </script>
 
-{#if firstPageLoaded}
+{#if quoteCount !== undefined}
   <header>
     <h2>
       {#if quoteCount > 1}

@@ -1,17 +1,17 @@
-<script>
+<script lang="ts">
   import { Post } from '../models/posts.js';
   import * as paginator from '../utils/paginator.js';
   import FeedPostParent from '../components/posts/FeedPostParent.svelte';
   import MainLoader from '../components/MainLoader.svelte';
   import PostComponent from '../components/posts/PostComponent.svelte';
 
-  let posts = $state([]);
+  let posts: Post[] = $state([]);
   let firstPageLoaded = $state(false);
   let loadingFailed = $state(false);
 
   let isLoading = false;
   let finished = false;
-  let cursor;
+  let cursor: string | undefined;
 
   paginator.loadInPages(async (next) => {
     if (isLoading || finished) { return }

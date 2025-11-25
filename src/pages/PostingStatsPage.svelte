@@ -1,7 +1,7 @@
-<script>
-  import UserAutocomplete from '../components/UserAutocomplete.svelte';
+<script lang="ts">
+  import UserAutocomplete, { AutocompleteUser } from '../components/UserAutocomplete.svelte';
   import PostingStatsTable from '../components/PostingStatsTable.svelte';
-  import { PostingStats } from '../services/posting_stats.js';
+  import { PostingStats, PostingStatsResult } from '../services/posting_stats.js';
   import { numberOfDays } from '../utils.js';
 
   const tabs = [
@@ -11,34 +11,30 @@
     { id: 'you',   title: 'Your profile' }
   ]
 
-  let lists = $state([]);
+  let lists: json[] = $state([]);
 
   let timeRangeDays = $state(7);
   let selectedTab = $state(tabs[0].id);
-  let selectedUsers = $state([]);
-  let selectedList = $state();
+  let selectedUsers: AutocompleteUser[] = $state([]);
+  let selectedList: string | undefined = $state();
 
   let scanInProgress = $state(false);
-  let requestedDays = $state();
-  let progress = $state();
+  let requestedDays: number | undefined = $state();
+  let progress: number | undefined = $state();
   let scanInfo = $state();
 
   let tableOptions = $state({});
-  let results = $state();
+  let results: PostingStatsResult | null = $state(null);
 
-  let scanner = new PostingStats((p) => { progress = Math.max(progress, p) });
+  let scanner = new PostingStats((p) => { progress = Math.max(progress || 0, p) });
 
   $effect(() => {
     fetchLists();
   })
 
-  /** @param {Event} e */
-
-  function onTabChange(e) {
-    results = undefined;
+  function onTabChange(e: Event) {
+    results = null;
   }
-
-  /** @returns {Promise<void>} */
 
   async function fetchLists() {
     let result = await accountAPI.loadUserLists();
@@ -53,7 +49,7 @@
     selectedList = lists[0]?.uri;
   }
 
-  function onsubmit(e) {
+  function onsubmit(e: Event) {
     e.preventDefault();
 
     if (!scanInProgress) {
@@ -70,7 +66,7 @@
     }
 
     scanInfo = undefined;
-    results = undefined;
+    results = null;
     requestedDays = timeRangeDays;
     progress = 0;
     scanInProgress = true;
@@ -88,7 +84,7 @@
       results = await scanner.scanHomeTimeline(requestedDays);
     } else if (selectedTab == 'list') {
       tableOptions = { showReposts: false };
-      results = await scanner.scanListTimeline(selectedList, requestedDays);
+      results = await scanner.scanListTimeline(selectedList!, requestedDays);
     } else if (selectedTab == 'users') {
       results = await scanner.scanUserTimelines(selectedUsers, requestedDays);
       tableOptions = { showTotal: false, showPercentages: false };

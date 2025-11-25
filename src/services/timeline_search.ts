@@ -2,23 +2,14 @@ import { Post, parseFeedPost } from '../models/posts.js';
 import { feedPostTime } from '../utils.js';
 
 export class TimelineSearch {
-
-  /** @type {number | undefined} */
-  fetchStartTime;
-
-  /** @type {json[]} */
-  timelinePosts;
+  fetchStartTime: number | undefined;
+  timelinePosts: json[];
 
   constructor() {
     this.timelinePosts = [];
   }
 
-  /**
-   * @param {number} requestedDays
-   * @param {(progress: number) => void} onProgress
-   */
-
-  async fetchTimeline(requestedDays, onProgress) {
+  async fetchTimeline(requestedDays: number, onProgress: (progress: number) => void) {
     let startTime = new Date().getTime();
     this.fetchStartTime = startTime;
 
@@ -43,9 +34,7 @@ export class TimelineSearch {
     this.fetchStartTime = undefined;
   }
 
-  /** @param {json[]} dataPage, @param {number} startTime, @returns {number?} */
-
-  calculateProgress(dataPage, startTime) {
+  calculateProgress(dataPage: json[], startTime: number) {
     let last = dataPage.at(-1);
 
     if (!last) { return null; }
@@ -55,9 +44,7 @@ export class TimelineSearch {
     return daysBack;
   }
 
-  /** @param {string} query, @returns {Post[]} */
-
-  searchPosts(query) {
+  searchPosts(query: string): Post[] {
     if (query.length == 0) {
       return [];
     }

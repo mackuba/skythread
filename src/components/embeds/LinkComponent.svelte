@@ -1,10 +1,12 @@
-<script>
+<script lang="ts">
   import { getContext } from 'svelte';
   import { isValidURL, truncateText } from '../../utils.js';
   import GIFPlayer from './GIFPlayer.svelte';
+  import { InlineLinkEmbed, RawLinkEmbed } from '../../models/embeds.js';
+  import { Post } from '../../models/posts.js';
 
-  let { embed } = $props();
-  let { post } = getContext('post');
+  let { embed }: { embed: InlineLinkEmbed | RawLinkEmbed } = $props();
+  let { post }: { post: Post } = getContext('post');
 
   let showingGIF = $state(false);
 
@@ -12,7 +14,7 @@
   let isTenorGIF = $derived(hostname == 'media.tenor.com');
   let onclick = $derived(isTenorGIF ? playGIF : undefined);
 
-  function playGIF(e) {
+  function playGIF(e: Event) {
     e.preventDefault();
     showingGIF = true;
   }

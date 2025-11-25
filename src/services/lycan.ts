@@ -2,45 +2,33 @@ import { Post } from '../models/posts.js';
 import * as paginator from '../utils/paginator.js';
 import { BlueskyAPI } from '../api/api.js';
 
+export type OnPostsLoaded = (data: { posts: Post[], terms: string[] }) => void
+export type OnFinish = () => void
+
 export class Lycan {
-
-  /** @returns {json} */
-
   get proxyHeaders() {
     return { 'atproto-proxy': 'did:web:lycan.feeds.blue#lycan' };
   }
-
-  /** @returns {Promise<json>} */
 
   async getImportStatus() {
     return await accountAPI.getRequest('blue.feeds.lycan.getImportStatus', null, { headers: this.proxyHeaders });
   }
 
-  /** @returns {Promise<void>} */
-
   async startImport() {
     await accountAPI.postRequest('blue.feeds.lycan.startImport', null, { headers: this.proxyHeaders });
   }
 
-  /** @returns {Promise<json>} */
-
-  async makeQuery(collection, query, cursor) {
-    let params = { collection, query };
+  async makeQuery(collection: string, query: string, cursor: string | undefined) {
+    let params: Record<string, string> = { collection, query };
     if (cursor) params.cursor = cursor;
 
     return await accountAPI.getRequest('blue.feeds.lycan.searchPosts', params, { headers: this.proxyHeaders });
   }
 
-  /**
-   * @param {string} collection
-   * @param {string} query
-   * @param {{ onPostsLoaded: (data: { posts: Post[], terms: string[] }) => void, onFinish?: () => void }} callbacks
-   */
-
-  searchPosts(collection, query, callbacks) {
+  searchPosts(collection: string, query: string, callbacks: { onPostsLoaded: OnPostsLoaded, onFinish: OnFinish }) {
     let isLoading = false;
     let finished = false;
-    let cursor;
+    let cursor: string | undefined;
 
     paginator.loadInPages(async () => {
       if (isLoading || finished) { return; }
@@ -65,28 +53,23 @@ export class Lycan {
 }
 
 export class DevLycan extends Lycan {
+  localLycan: BlueskyAPI;
 
   constructor() {
     super();
     this.localLycan = new BlueskyAPI('http://localhost:3000', false);
   }
 
-  /** @returns {Promise<json>} */
-
   async getImportStatus() {
     return await this.localLycan.getRequest('blue.feeds.lycan.getImportStatus', { user: accountAPI.user.did });
   }
-
-  /** @returns {Promise<void>} */
 
   async startImport() {
     await this.localLycan.postRequest('blue.feeds.lycan.startImport', { user: accountAPI.user.did });
   }
 
-  /** @returns {Promise<json>} */
-
-  async makeQuery(collection, query, cursor) {
-    let params = { collection, query, user: accountAPI.user.did };
+  async makeQuery(collection: string, query: string, cursor: string | undefined) {
+    let params: Record<string, string> = { collection, query, user: accountAPI.user.did };
     if (cursor) params.cursor = cursor;
 
     return await this.localLycan.getRequest('blue.feeds.lycan.searchPosts', params);

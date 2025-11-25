@@ -1,19 +1,18 @@
-<script>
+<script lang="ts">
   import { getContext } from 'svelte';
   import { sanitizeHTML } from '../../utils.js';
+  import { Post } from '../../models/posts.js';
   import RichTextFromFacets from '../RichTextFromFacets.svelte';
 
-  let { post } = getContext('post');
-  let { highlightedMatches = undefined } = $props();
+  let { post }: { post: Post } = getContext('post');
+  let { highlightedMatches = undefined }: { highlightedMatches?: string[] } = $props();
 
-  let bodyElement;
+  let bodyElement: HTMLElement;
 
-  /** @param {string[]} terms */
-
-  function highlightSearchResults(terms) {
+  function highlightSearchResults(terms: string[]) {
     let regexp = new RegExp(`\\b(${terms.join('|')})\\b`, 'gi');
     let walker = document.createTreeWalker(bodyElement, NodeFilter.SHOW_TEXT);
-    let ranges = [];
+    let ranges: Range[] = [];
 
     while (walker.nextNode()) {
       let node = walker.currentNode;

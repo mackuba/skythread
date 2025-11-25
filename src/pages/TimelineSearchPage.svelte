@@ -1,20 +1,21 @@
-<script>
+<script lang="ts">
   import PostComponent from '../components/posts/PostComponent.svelte';
+  import { Post } from '../models/posts';
   import { TimelineSearch } from '../services/timeline_search.js';
   import { numberOfDays } from '../utils.js';
 
   let timeRangeDays = $state(7);
-  let progressMax = $state();
-  let progress = $state();
+  let progressMax: number | undefined = $state();
+  let progress: number | undefined = $state();
   let fetchInProgress = $derived(progress !== undefined);
-  let daysFetched = $state();
+  let daysFetched: number | undefined = $state();
 
   let query = $state('');
-  let results = $state([]);
+  let results: Post[] = $state([]);
 
   let timelineSearch = new TimelineSearch();
 
-  async function startScan(e) {
+  async function startScan(e: Event) {
     e.preventDefault();
 
     if (!fetchInProgress) {
@@ -31,7 +32,7 @@
     }
   }
 
-  function onKeyPress(e) {
+  function onKeyPress(e: KeyboardEvent) {
     if (e.key == 'Enter') {
       e.preventDefault();
 

@@ -1,10 +1,10 @@
-<script>
+<script lang="ts">
   import { Post, BlockedPost, MissingPost } from '../../models/posts.js';
   import { linkToPostThread } from '../../router.js';
   import { setContext } from 'svelte';
   import BlockedPostView from './BlockedPostView.svelte';
 
-  let { post } = $props();
+  let { post }: { post: AnyPost } = $props();
 
   setContext('post', { post: post, context: 'parent' });
 </script>

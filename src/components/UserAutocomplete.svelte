@@ -1,20 +1,25 @@
-<script>
-  let { selectedUsers = $bindable([]) } = $props();
+<script lang="ts">
+  export type AutocompleteUser = {
+    did: string;
+    handle: string;
+    avatar?: string;
+    displayName?: string;
+  }
+
+  let { selectedUsers = $bindable([]) }: { selectedUsers: AutocompleteUser[] } = $props();
 
   let typedValue = $state('');
-  let autocompleteResults = $state([]);
-  let autocompleteIndex = $state();
+  let autocompleteResults: AutocompleteUser[] = $state([]);
+  let autocompleteIndex = $state(-1);
 
-  let selectedUserDIDs = $derived(selectedUsers.map(u => u.did));
+  let selectedUserDIDs: string[] = $derived(selectedUsers.map(u => u.did));
   let autocompleteVisible = $derived(autocompleteResults.length > 0);
-  let autocompleteVerticalOffset = $state();
-  let autocompleteScroll = $state(0);
+  let autocompleteVerticalOffset = $state(0);
 
-  /** @type {number | undefined} */
-  let autocompleteTimer;
+  let autocompleteTimer: number | undefined;
 
   $effect(() => {
-    let html = /** @type {Element} */ (document.body.parentNode);
+    let html = document.body.parentNode!
     html.addEventListener('click', hideAutocomplete);
 
     return () => {
@@ -37,9 +42,7 @@
     }
   }
 
-  /** @param {KeyboardEvent} e */
-
-  function onKeyPress(e) {
+  function onKeyPress(e: KeyboardEvent) {
     if (e.key == 'Enter') {
       e.preventDefault();
 
@@ -57,10 +60,8 @@
     }
   }
 
-  /** @param {string} query, @returns {Promise<void>} */
-
-  async function fetchAutocomplete(query) {
-    let users = await accountAPI.autocompleteUsers(query);
+  async function fetchAutocomplete(query: string) {
+    let users = await accountAPI.autocompleteUsers(query) as AutocompleteUser[];
 
     let selectedDIDs = new Set(selectedUserDIDs);
     users = users.filter(u => !selectedDIDs.has(u.did));
@@ -80,9 +81,7 @@
     autocompleteIndex = -1;
   }
 
-  /** @param {1|-1} change */
-
-  function moveAutocomplete(change) {
+  function moveAutocomplete(change: 1 | -1) {
     if (autocompleteResults.length == 0) {
       return;
     }
@@ -98,16 +97,12 @@
     autocompleteIndex = newIndex;
   }
 
-  /** @param {MouseEvent} e, @param {number} index */
-
-  function selectAutocomplete(e, index) {
+  function selectAutocomplete(e: MouseEvent, index: number) {
     e.preventDefault();
     selectUser(index);
   }
 
-  /** @param {number} index */
-
-  function selectUser(index) {
+  function selectUser(index: number) {
     let user = autocompleteResults[index];
 
     if (!user) {
@@ -119,9 +114,7 @@
     hideAutocomplete();
   }
 
-  /** @param {MouseEvent} e, @param {number} index */
-
-  function removeUser(e, index) {
+  function removeUser(e: MouseEvent, index: number) {
     e.preventDefault();
     selectedUsers.splice(index, 1);
   }
@@ -153,7 +146,7 @@
   </div>
 </div>
 
-{#snippet userRow(user)}
+{#snippet userRow(user: AutocompleteUser)}
   <img class="avatar" alt="Avatar" src={user.avatar}>
   <span class="name">{user.displayName || '–'}</span>
   <span class="handle">{user.handle}</span>

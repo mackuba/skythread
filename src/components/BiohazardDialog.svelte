@@ -1,28 +1,26 @@
-<script>
+<script lang="ts">
   import { account } from '../models/account.svelte.js';
 
-  let { onConfirm, onClose } = $props();
+  type Props = { onConfirm?: () => void, onClose?: () => void };
+  let { onConfirm = undefined, onClose = undefined }: Props = $props();
 
-  function showBiohazard(e) {
+  function showBiohazard(e: Event) {
     e.preventDefault();
     account.biohazardEnabled = true;
 
-    if (onConfirm) {
-      onConfirm();
-    }
-
-    onClose();
+    onConfirm?.()
+    onClose?.();
   }
 
-  function hideBiohazard(e) {
+  function hideBiohazard(e: Event) {
     e.preventDefault();
     account.biohazardEnabled = false;
 
     for (let p of document.querySelectorAll('p.hidden-replies, .content > .post.blocked, .blocked > .load-post')) {
-      p.style.display = 'none';
+      (p as HTMLElement).style.display = 'none';
     }
 
-    onClose();
+    onClose?.();
   }
 </script>
 

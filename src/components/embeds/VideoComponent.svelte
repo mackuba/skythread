@@ -1,11 +1,13 @@
-<script>
+<script lang="ts">
   import { getContext } from 'svelte';
+  import { InlineVideoEmbed, RawVideoEmbed } from '../../models/embeds';
+  import { Post } from '../../models/posts';
 
-  let { embed } = $props();
-  let { post } = getContext('post');
+  let { embed }: { embed: InlineVideoEmbed | RawVideoEmbed } = $props();
+  let { post }: { post: Post } = getContext('post');
 
-  function videoURL(embed) {
-    if (embed.playlistURL) {
+  function videoURL(embed: InlineVideoEmbed | RawVideoEmbed) {
+    if (embed instanceof InlineVideoEmbed) {
       return embed.playlistURL;
     } else {
       let cid = embed.video.ref['$link'];

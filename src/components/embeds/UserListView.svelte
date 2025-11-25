@@ -1,14 +1,15 @@
-<script>
+<script lang="ts">
   import { atURI } from '../../utils.js';
+  import { UserListRecord } from '../../models/records.js';
 
-  let { list } = $props();
+  let { list }: { list: UserListRecord } = $props();
 
-  function linkToList(list) {
+  function linkToList(list: UserListRecord) {
     let { repo, rkey } = atURI(list.uri);
     return `https://bsky.app/profile/${repo}/lists/${rkey}`;
   }
 
-  function listType(list) {
+  function listType(list: UserListRecord) {
     switch (list.purpose) {
     case 'app.bsky.graph.defs#curatelist':
       return "User list";

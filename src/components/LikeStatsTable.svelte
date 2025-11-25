@@ -1,5 +1,7 @@
-<script>
-  let { cssClass, header, users } = $props();
+<script lang="ts">
+  import { LikeStat } from "../services/like_stats";
+
+  let { cssClass, header, users }: { cssClass: string, header: string, users: LikeStat[] } = $props();
 </script>
 
 <table class="scan-result {cssClass}" style="display: table;">

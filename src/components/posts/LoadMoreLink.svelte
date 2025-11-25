@@ -1,13 +1,18 @@
-<script>
-  import { parseThreadPost } from '../../models/posts.js';
+<script lang="ts">
+  import { Post, parseThreadPost } from '../../models/posts.js';
   import { linkToPostThread } from '../../router.js';
   import { getContext } from 'svelte';
 
-  let { onLoad, onError } = $props();
-  let { post } = getContext('post');
+  type Props = {
+    onLoad: (root: Post) => void,
+    onError: (error: Error) => void
+  }
+
+  let { onLoad, onError }: Props = $props();
+  let { post }: { post: Post } = getContext('post');
   let loading = $state(false);
 
-  async function onLinkClick(e) {
+  async function onLinkClick(e: Event) {
     e.preventDefault();
     loading = true;
 
@@ -17,7 +22,7 @@
 
       loading = false;
       window.subtreeRoot = root;
-      onLoad(root);
+      onLoad(root as Post); // TODO
     } catch (error) {
       loading = false;
       onError(error);

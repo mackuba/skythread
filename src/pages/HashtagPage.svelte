@@ -1,19 +1,19 @@
-<script>
+<script lang="ts">
   import { Post } from '../models/posts.js';
   import * as paginator from '../utils/paginator.js';
   import MainLoader from '../components/MainLoader.svelte';
   import PostComponent from '../components/posts/PostComponent.svelte';
 
-  let { hashtag } = $props();
+  let { hashtag }: { hashtag: string } = $props();
   hashtag = hashtag.replace(/^\#/, '');
 
-  let posts = $state([]);
+  let posts: Post[] = $state([]);
   let firstPageLoaded = $state(false);
   let loadingFailed = $state(false);
 
   let isLoading = false;
   let finished = false;
-  let cursor;
+  let cursor: string | undefined;
 
   paginator.loadInPages(async () => {
     if (isLoading || finished) { return }
@@ -21,7 +21,7 @@
 
     try {
       let data = await api.getHashtagFeed(hashtag, cursor);
-      let batch = data.posts.map(j => new Post(j));
+      let batch = data.posts.map(j => new Post(j)) as Post[];
       firstPageLoaded = true;
 
       posts.splice(posts.length, 0, ...batch);

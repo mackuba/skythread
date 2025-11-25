@@ -255,7 +255,7 @@ export class BlueskyAPI extends Minisky {
     return { cursor: response.cursor, posts: postGroups.flat() };
   }
 
-  /** @param {Post} post, @returns {Promise<?json[]>} */
+  /** @param {Post} post, @returns {Promise<(json | null)[]>} */
 
   async loadHiddenReplies(post) {
     let expectedReplyURIs;

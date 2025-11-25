@@ -1,14 +1,16 @@
-<script>
+<script lang="ts">
   import { getContext } from 'svelte';
+  import { InlineImageEmbed, RawImageEmbed } from '../../models/embeds';
+  import { Post } from '../../models/posts';
 
-  let { embed } = $props();
-  let { post } = getContext('post');
+  let { embed }: { embed: InlineImageEmbed | RawImageEmbed } = $props();
+  let { post }: { post: Post } = getContext('post');
 
-  function imageURL(embed) {
-    if (embed.fullsize) {
-      return embed.fullsize;
+  function imageURL(img: json): string {
+    if (img.fullsize) {
+      return img.fullsize;
     } else {
-      let cid = embed.image.ref['$link'];
+      let cid = img.image.ref['$link'];
       return `https://cdn.bsky.app/img/feed_fullsize/plain/${post.author.did}/${cid}@jpeg`;
     }
   }

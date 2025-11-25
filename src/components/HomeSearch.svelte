@@ -1,14 +1,14 @@
-<script>
+<script lang="ts">
   import { getBaseLocation, linkToHashtagPage, linkToPostById, parseBlueskyPostURL } from '../router.js';
 
-  let query = $state();
-  let searchField;
+  let query = $state('');
+  let searchField: HTMLInputElement;
 
   $effect(() => {
     searchField.focus();
   });
 
-  function onsubmit(e) {
+  function onsubmit(e: Event) {
     e.preventDefault();
 
     let q = query.trim();

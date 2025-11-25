@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
   import { getContext } from 'svelte';
   import { BasePost, Post, MissingPost } from '../../models/posts.js';
   import { InlineRecordEmbed, InlineRecordWithMediaEmbed } from '../../models/embeds.js';
@@ -10,11 +10,11 @@
   import StarterPackView from '../embeds/StarterPackView.svelte';
   import UserListView from '../embeds/UserListView.svelte';
 
-  let { post } = getContext('post');
-  let { record } = $props();
+  let { post }: { post: Post } = getContext('post');
+  let { record }: { record: ATProtoRecord } = $props();
 
-  async function loadQuotedRecord() {
-    let { repo, collection, rkey } = atURI(record.uri);
+  async function loadQuotedRecord(): Promise<ATProtoRecord> {
+    let { collection } = atURI(record.uri);
 
     if (collection == 'app.bsky.feed.post') {
       let reloaded = await api.loadPostIfExists(record.uri);
@@ -53,7 +53,7 @@
   {@render quoteContent(record)}
 {/if}
 
-{#snippet quoteContent(record)}
+{#snippet quoteContent(record: ATProtoRecord)}
   {#if record instanceof BasePost}
     <div class="quote-embed">
       <PostComponent post={record} context="quote" />

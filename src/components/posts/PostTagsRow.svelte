@@ -1,8 +1,9 @@
-<script>
+<script lang="ts">
   import { getContext } from 'svelte';
+  import { Post } from '../../models/posts.js';
   import { linkToHashtagPage } from '../../router.js';
 
-  let { post } = getContext('post');
+  let { post }: { post: Post } = getContext('post');
 </script>
 
 <p class="tags">

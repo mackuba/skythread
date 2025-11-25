@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
   import { showLoginDialog } from '../skythread.js';
   import { account } from '../models/account.svelte.js';
   import { getBaseLocation } from '../router.js';
@@ -8,50 +8,45 @@
   let menuVisible = $state(false);
 
   $effect(() => {
-    let html = document.body.parentNode;
+    let html = document.body.parentNode!
 
     html.addEventListener('click', (e) => {
       menuVisible = false;
     });
   });
 
-  /** @param {Event} e */
-  function toggleMenu(e) {
+  function toggleMenu(e: Event) {
     e.stopPropagation();
     menuVisible = !menuVisible;
   }
 
-  /** @param {Event} e */
-  function toggleBiohazard(e) {
+  function toggleBiohazard(e: Event) {
     e.preventDefault();
 
     let hazards = document.querySelectorAll('p.hidden-replies, .content > .post.blocked, .blocked > .load-post');
 
     if (account.biohazardEnabled === false) {
       account.biohazardEnabled = true;
-      Array.from(hazards).forEach(p => { p.style.display = 'block' });
+      Array.from(hazards).forEach(p => { (p as HTMLElement).style.display = 'block' });
     } else {
       account.biohazardEnabled = false;
-      Array.from(hazards).forEach(p => { p.style.display = 'none' });
+      Array.from(hazards).forEach(p => { (p as HTMLElement).style.display = 'none' });
     }
   }
 
-  /** @param {Event} e */
-  function toggleIncognito(e) {
+  function toggleIncognito(e: Event) {
     e.preventDefault();
     account.toggleIncognitoMode();
   }
 
-  /** @param {Event} e */
-  function showLoginScreen(e) {
+  function showLoginScreen(e: Event) {
     e.preventDefault();
 
     showLoginDialog();
     menuVisible = false;
   }
 
-  /** @param {Event} e */
-  function logOut(e) {
+  function logOut(e: Event) {
     e.preventDefault();
     account.logOut();
   }

@@ -8,11 +8,8 @@ export class DIDError extends Error {}
 
 export class LoginError extends Error {}
 
-
-/** @param {string} did, @returns {Promise<string>} */
-
-export async function pdsEndpointForDID(did) {
-  let documentURL;
+export async function pdsEndpointForDID(did: string): Promise<string> {
+  let documentURL: URL;
 
   if (did.startsWith('did:plc:')) {
     documentURL = new URL(`https://plc.directory/${did}`);
@@ -42,9 +39,7 @@ export async function pdsEndpointForDID(did) {
   }
 }
 
-/** @param {string} identifier, @returns {Promise<string>} */
-
-export async function pdsEndpointForIdentifier(identifier) {
+export async function pdsEndpointForIdentifier(identifier: string): Promise<string> {
   if (identifier.match(/^did:/)) {
     return await pdsEndpointForDID(identifier);
 

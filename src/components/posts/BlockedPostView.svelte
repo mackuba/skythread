@@ -1,6 +1,7 @@
-<script>
+<script lang="ts">
   import { getContext } from 'svelte';
   import { account } from '../../models/account.svelte.js';
+  import { Post } from '../../models/posts.js';
 
   import EmbedComponent from '../embeds/EmbedComponent.svelte';
   import MissingPostView from './MissingPostView.svelte';
@@ -9,15 +10,15 @@
   import ReferencedPostAuthorLink from './ReferencedPostAuthorLink.svelte';
   import ThreadRootParentRaw from './ThreadRootParentRaw.svelte';
 
-  let { reason } = $props();
-  let { post } = getContext('post');
+  let { reason }: { reason: string } = $props();
+  let { post }: { post: Post } = getContext('post');
 
   let biohazardEnabled = $derived(account.biohazardEnabled !== false);
   let loading = $state(false);
   let postNotFound = $state(false);
-  let reloadedPost = $state();
+  let reloadedPost: Post | undefined = $state();
 
-  async function loadPost(e) {
+  async function loadPost(e: Event) {
     e.preventDefault();
     loading = true;
 
@@ -36,7 +37,7 @@
     } else if (post.blocksUser) {
       return "you've blocked them";
     } else {
-      return null;
+      return undefined;
     }
   }
 </script>

@@ -5,47 +5,47 @@ import { feedPostTime } from '../utils.js';
  * Manages the Posting Stats page.
  */
 
+type GenerateResultsOptions = {
+  countFetchedDays?: boolean
+  users?: UserWithHandle[]
+}
+
+export type OnProgress = ((progress: number) => void);
+
+export type UserWithHandle = {
+  did: string,
+  handle: string,
+  avatar?: string
+}
+
+export type PostingStatsResultRow = {
+  handle: string,
+  avatar: string | undefined,
+  own: number,
+  reposts: number,
+  all: number
+}
+
+export type PostingStatsResult = {
+  users: PostingStatsResultRow[],
+  sums: { own: number, reposts: number, all: number },
+  fetchedDays: number,
+  daysBack: number
+}
+
 export class PostingStats {
+  appView: BlueskyAPI;
+  scanStartTime: number | undefined;
+  userProgress: Record<string, { pages: number, progress: number }>;
+  onProgress: OnProgress | undefined;
 
-  /** @type {number | undefined} */
-  scanStartTime;
-
-  /** @type {Record<string, { pages: number, progress: number }>} */
-  userProgress = {};
-
-  /**
-   * @typedef {{
-   *   did: string,
-   *   handle: string,
-   *   avatar?: string
-   * }} UserWithHandle
-   *
-   * @typedef {{
-   *   handle: string,
-   *   avatar: string | undefined,
-   *   own: number,
-   *   reposts: number,
-   *   all: number
-   * }} PostingStatsResultRow
-   *
-   * @typedef {{
-   *   users: PostingStatsResultRow[],
-   *   sums: { own: number, reposts: number, all: number },
-   *   fetchedDays: number,
-   *   daysBack: number
-   * }} PostingStatsResult
-   */
-
-  /** @param {((progress: number) => void)=} onProgress */
-
-  constructor(onProgress) {
+  constructor(onProgress?: OnProgress) {
     this.onProgress = onProgress;
     this.appView = new BlueskyAPI('public.api.bsky.app', false);
+    this.userProgress = {};
   }
 
-  /** @param {json[]} data, @param {number} startTime */
-
-  onPageLoad(data, startTime) {
+  onPageLoad(data: json[], startTime: number): { cancel: true } | undefined {
     if (this.scanStartTime == startTime) {
       this.updateProgress(data, startTime);
     } else {
@@ -53,9 +53,7 @@ export class PostingStats {
     }
   }
 
-  /** @param {number} requestedDays, @returns {Promise<PostingStatsResult?>} */
-
-  async scanHomeTimeline(requestedDays) {
+  async scanHomeTimeline(requestedDays: number): Promise<PostingStatsResult | null> {
     let startTime = new Date().getTime();
     this.scanStartTime = startTime;
 
@@ -67,9 +65,7 @@ export class PostingStats {
     return this.generateResults(posts, requestedDays, startTime);
   }
 
-  /** @param {string} listURI, @param {number} requestedDays, @returns {Promise<PostingStatsResult?>} */
-
-  async scanListTimeline(listURI, requestedDays) {
+  async scanListTimeline(listURI: string, requestedDays: number): Promise<PostingStatsResult | null> {
     let startTime = new Date().getTime();
     this.scanStartTime = startTime;
 
@@ -81,9 +77,7 @@ export class PostingStats {
     return this.generateResults(posts, requestedDays, startTime);
   }
 
-  /** @param {UserWithHandle[]} users, @returns {Promise<PostingStatsResult?>} */
-
-  async scanUserTimelines(users, requestedDays) {
+  async scanUserTimelines(users: UserWithHandle[], requestedDays: number): Promise<PostingStatsResult | null> {
     let startTime = new Date().getTime();
     this.scanStartTime = startTime;
 
@@ -108,9 +102,7 @@ export class PostingStats {
     return this.generateResults(posts, requestedDays, startTime, { countFetchedDays: false, users: users });
   }
 
-  /** @param {number} requestedDays, @returns {Promise<PostingStatsResult?>} */
-
-  async scanYourTimeline(requestedDays) {
+  async scanYourTimeline(requestedDays: number): Promise<PostingStatsResult | null> {
     let startTime = new Date().getTime();
     this.scanStartTime = startTime;
 
@@ -123,15 +115,7 @@ export class PostingStats {
     return this.generateResults(posts, requestedDays, startTime);
   }
 
-  /**
-   * @param {json[]} posts
-   * @param {number} requestedDays
-   * @param {number} startTime
-   * @param {{ countFetchedDays?: boolean, users?: UserWithHandle[] }} options
-   * @returns {PostingStatsResult?}
-   */
-
-  generateResults(posts, requestedDays, startTime, options = {}) {
+  generateResults(posts: json[], requestedDays: number, startTime: number, options: GenerateResultsOptions = {}) {
     let last = posts.at(-1);
 
     if (!last) {
@@ -143,11 +127,11 @@ export class PostingStats {
       return null;
     }
 
-    let users = {};
+    let users: Record<string, PostingStatsResultRow> = {};
 
     let lastDate = feedPostTime(last);
     let fetchedDays = (startTime - lastDate) / 86400 / 1000;
-    let daysBack;
+    let daysBack: number;
 
     if (options.countFetchedDays !== false) {
       daysBack = Math.min(requestedDays, fetchedDays);
@@ -161,7 +145,7 @@ export class PostingStats {
 
     if (options.users) {
       for (let user of options.users) {
-        users[user.handle] = { handle: user.handle, own: 0, reposts: 0, avatar: user.avatar };
+        users[user.handle] = { handle: user.handle, own: 0, reposts: 0, avatar: user.avatar } as PostingStatsResultRow;
       }
     }
 
@@ -199,9 +183,7 @@ export class PostingStats {
     return { users: userRows, sums, fetchedDays, daysBack };
   }
 
-  /** @param {json[]} dataPage, @param {number} startTime */
-
-  updateProgress(dataPage, startTime) {
+  updateProgress(dataPage: json[], startTime: number) {
     let last = dataPage.at(-1);
 
     if (!last) { return }
@@ -212,9 +194,7 @@ export class PostingStats {
     this.onProgress && this.onProgress(daysBack);
   }
 
-  /** @param {string[]} dids */
-
-  resetUserProgress(dids) {
+  resetUserProgress(dids: string[]) {
     this.userProgress = {};
 
     for (let did of dids) {
@@ -222,9 +202,7 @@ export class PostingStats {
     }
   }
 
-  /** @param {string} did, @param {json[]} dataPage, @param {number} startTime, @param {number} requestedDays */
-
-  updateUserProgress(did, dataPage, startTime, requestedDays) {
+  updateUserProgress(did: string, dataPage: json[], startTime: number, requestedDays: number) {
     let last = dataPage.at(-1);
 
     if (!last) { return }

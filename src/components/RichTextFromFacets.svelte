@@ -1,8 +1,8 @@
-<script>
+<script lang="ts">
   import { RichText } from '../../lib/rich_text_lite.js';
   import { linkToHashtagPage } from '../router.js';
 
-  let { text, facets } = $props();
+  let { text, facets }: { text: string, facets: json[] } = $props();
 
   let richText = $derived(new RichText({ text, facets }));
   let segments = $derived(richText.segments());

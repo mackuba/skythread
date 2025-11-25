@@ -1,8 +1,9 @@
-<script>
+<script lang="ts">
   import { getContext } from 'svelte';
+  import { Post } from '../../models/posts';
   import ReferencedPostAuthorLink from './ReferencedPostAuthorLink.svelte';
 
-  let { post } = getContext('post');
+  let { post }: { post: Post } = getContext('post');
 </script>
 
 <p class="blocked-header">

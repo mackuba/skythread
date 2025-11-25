@@ -1,9 +1,15 @@
-<script>
-  let { users, sums, daysBack, showReposts = true, showPercentages = true, showTotal = true } = $props();
+<script lang="ts">
+  import { PostingStatsResult } from "../services/posting_stats";
 
-  /** @param {number} value, @returns {string} */
+  interface Props extends PostingStatsResult {
+    showReposts?: boolean,
+    showPercentages?: boolean,
+    showTotal?: boolean
+  };
 
-  function format(value) {
+  let { users, sums, daysBack, showReposts = true, showPercentages = true, showTotal = true }: Props = $props();
+
+  function format(value: number): string {
     return (value > 0) ? value.toFixed(1) : '–';
   }
 </script>

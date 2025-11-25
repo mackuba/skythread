@@ -1,18 +1,17 @@
-<script>
+<script lang="ts">
   import { getContext } from 'svelte';
   import { linkToPostThread, linkToQuotesPage } from '../../router.js';
   import { account } from '../../models/account.svelte.js';
+  import { Post } from '../../models/posts.js';
   import { showLoginDialog } from '../../skythread.js';
   import { showError } from '../../utils.js';
 
-  let { post, context } = getContext('post');
-  let { quoteCount } = $props();
+  let { post, context }: { post: Post, context: PostContext } = getContext('post');
+  let { quoteCount }: { quoteCount: number | undefined } = $props();
 
   let isLiked = $state(post.liked);
   let likeCount = $state(post.likeCount);
   let isUnavailableForLiking = $state(false);
-
-  /** @returns {Promise<void>} */
 
   async function onHeartClick() {
     try {
@@ -28,8 +27,6 @@
     }
   }
 
-  /** @returns {Promise<void>} */
-
   async function checkIfCanBeLiked() {
     let data = await accountAPI.loadViewerInfo();
 
@@ -43,8 +40,6 @@
       isUnavailableForLiking = true;
     }
   }
-
-  /** @returns {Promise<void>} */
 
   async function likePost() {
     if (!isLiked) {

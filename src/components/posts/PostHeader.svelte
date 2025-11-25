@@ -1,12 +1,13 @@
-<script>
+<script lang="ts">
   import { getContext } from 'svelte';
+  import { Post } from '../../models/posts.js';
   import { PostPresenter } from '../../utils/post_presenter.js';
   import PostSubtreeLink from './PostSubtreeLink.svelte';
 
-  let { post, context } = getContext('post');
+  let { post, context }: { post: Post, context: PostContext } = getContext('post');
   let presenter = new PostPresenter(post, context);
 
-  let avatar;
+  let avatar: HTMLImageElement;
 
   $effect(() => {
     if (avatar) {

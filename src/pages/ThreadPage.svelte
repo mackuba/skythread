@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
   import { Post, parseThreadPost } from '../models/posts.js';
   import { showError } from '../utils.js';
   import MainLoader from '../components/MainLoader.svelte';
@@ -6,23 +6,28 @@
   import ThreadRootParent from '../components/posts/ThreadRootParent.svelte';
   import ThreadRootParentRaw from '../components/posts/ThreadRootParentRaw.svelte';
 
-  let { url = undefined, author = undefined, rkey = undefined } = $props();
-  let post = $state();
+  type Props = { url: string } | { author: string, rkey: string };
+
+  let props: Props = $props();
+  let post: AnyPost | undefined = $state();
   let loadingFailed = $state(false);
 
-  let response;
+  let rootComponent: PostComponent;
+  let response: Promise<json>;
 
-  if (url && url.startsWith('at://')) {
-    response = api.loadThreadByAtURI(url);
-  } else if (url) {
-    response = api.loadThreadByURL(url);
-  } else if (author && rkey) {
-    response = api.loadThreadById(author, rkey);
+  if ('url' in props) {
+    let { url } = props;
+
+    if (url.startsWith('at://')) {
+      response = api.loadThreadByAtURI(url);
+    } else {
+      response = api.loadThreadByURL(url);
+    }
   } else {
-    throw 'Either url or author & rkey must be set';
-  }
+    let { author, rkey } = props;
 
-  let rootComponent;
+    response = api.loadThreadById(author, rkey);
+  }
 
   response.then((json) => {
     let root = parseThreadPost(json.thread);

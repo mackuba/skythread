@@ -1,9 +1,10 @@
-<script>
+<script lang="ts">
   import { atURI } from '../../utils.js';
+  import { StarterPackRecord } from '../../models/records.js';
 
-  let { starterPack } = $props();
+  let { starterPack }: { starterPack: StarterPackRecord } = $props();
 
-  function linkToStarterPack(starterPack) {
+  function linkToStarterPack(starterPack: StarterPackRecord) {
     let { repo, rkey } = atURI(starterPack.uri);
     return `https://bsky.app/starter-pack/${repo}/${rkey}`;
   }

@@ -1,6 +1,6 @@
-<script>
+<script lang="ts">
   let { loading, error, ...props } = $props();
-  let imageState = $state();
+  let imageState: string | undefined = $state();
 
   function onload() {
     imageState = 'loaded';

@@ -1,4 +1,6 @@
-<script>
+<script lang="ts">
+  import { Post } from '../models/posts';
+  import { Lycan } from '../services/lycan';
   import PostComponent from '../components/posts/PostComponent.svelte';
 
   const collections = [
@@ -8,29 +10,27 @@
     { id: 'pins',    title: 'Pins' }
   ]
 
-  let { lycan } = $props();
+  let { lycan }: { lycan: Lycan } = $props();
 
   let isCheckingStatus = $state(false);
-  let importStatus = $state();
-  let importStatusLabel = $state();
-  let importProgress = $state();
+  let importStatus: string | undefined = $state();
+  let importStatusLabel: string | undefined = $state();
+  let importProgress = $state(0);
   let wasImporting = $state(false);
-  let importTimer;
+  let importTimer: number | undefined;
 
   let selectedCollection = $state(collections[0].id);
   let query = $state('');
 
   let loadingPosts = $state(false);
   let finishedPosts = $state(false);
-  let results = $state([]);
-  let highlightedMatches = $state([]);
+  let results: Post[] = $state([]);
+  let highlightedMatches: string[] = $state([]);
 
   checkImportStatus();
 
 
-  /** @param {Event} e */
-
-  function onFormSubmit(e) {
+  function onFormSubmit(e: Event) {
     e.preventDefault();
 
     showImportStatus({ status: 'requested' });
@@ -42,9 +42,7 @@
     });
   }
 
-  /** @param {KeyboardEvent} e */
-
-  function onKeyPress(e) {
+  function onKeyPress(e: KeyboardEvent) {
     if (e.key == 'Enter') {
       e.preventDefault();
 
@@ -72,8 +70,6 @@
     }
   }
 
-  /** @returns {Promise<void>} */
-
   async function checkImportStatus() {
     if (isCheckingStatus) {
       return;
@@ -91,9 +87,7 @@
     }
   }
 
-  /** @param {json} info */
-
-  function showImportStatus(info) {
+  function showImportStatus(info: json) {
     console.log(info);
 
     if (!info.status) {
@@ -119,9 +113,7 @@
     isImporting ? startImportTimer() : stopImportTimer();
   }
 
-  /** @param {json} info */
-
-  function showImportProgress(info) {
+  function showImportProgress(info: json) {
     importProgress = Math.max(0, Math.min(info.progress || 0));
 
     if (info.progress == 1.0) {
@@ -136,9 +128,7 @@
     }
   }
 
-  /** @param {string} message */
-
-  function showImportError(message) {
+  function showImportError(message: string) {
     importStatus = 'error';
     wasImporting = true;
     importStatusLabel = message;

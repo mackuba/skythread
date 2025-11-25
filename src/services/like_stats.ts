@@ -1,10 +1,17 @@
 import { atURI, feedPostTime } from '../utils.js';
 import { BlueskyAPI } from '../api/api.js';
 
-export class LikeStats {
+export type LikeStatsResponse = { givenLikes: LikeStat[], receivedLikes: LikeStat[] }
+export type LikeStat = { handle?: string, did?: string, avatar?: string, count: number }
+export type LikeStatHash = Record<string, LikeStat>
 
-  /** @type {number | undefined} */
-  scanStartTime;
+export class LikeStats {
+  scanStartTime: number | undefined;
+  appView: BlueskyAPI;
+  progressPosts: number;
+  progressLikeRecords: number;
+  progressPostLikes: number;
+  onProgress: ((days: number) => void) | undefined
 
   constructor() {
     this.appView = new BlueskyAPI('public.api.bsky.app', false);
@@ -14,13 +21,7 @@ export class LikeStats {
     this.progressPostLikes = 0;
   }
 
-  /**
-   * @param {number} requestedDays
-   * @param {(days: number) => void} onProgress
-   * @returns {Promise<{ givenLikes: LikeStat[], receivedLikes: LikeStat[] }>}
-   */
-
-  async findLikes(requestedDays, onProgress) {
+  async findLikes(requestedDays: number, onProgress: (days: number) => void): Promise<LikeStatsResponse> {
     this.onProgress = onProgress;
     this.resetProgress();
     this.scanStartTime = new Date().getTime();
@@ -38,7 +39,7 @@ export class LikeStats {
     let profileInfo = await appView.getRequest('app.bsky.actor.getProfiles', { actors: topGiven.map(x => x.did) });
 
     for (let profile of profileInfo.profiles) {
-      let user = /** @type {LikeStat} */ (topGiven.find(x => x.did == profile.did));
+      let user = topGiven.find(x => x.did == profile.did)!;
       user.handle = profile.handle;
       user.avatar = profile.avatar;
     }
@@ -48,10 +49,8 @@ export class LikeStats {
     return { givenLikes: topGiven, receivedLikes: topReceived };
   }
 
-  /** @param {number} requestedDays, @returns {Promise<json[]>} */
-
-  async fetchGivenLikes(requestedDays) {
-    let startTime = /** @type {number} */ (this.scanStartTime);
+  async fetchGivenLikes(requestedDays: number): Promise<json[]> {
+    let startTime = this.scanStartTime!
 
     return await accountAPI.fetchAll('com.atproto.repo.listRecords', {
       params: {
@@ -74,10 +73,8 @@ export class LikeStats {
     });
   }
 
-  /** @param {number} requestedDays, @returns {Promise<json[]>} */
-
-  async fetchReceivedLikes(requestedDays) {
-    let startTime = /** @type {number} */ (this.scanStartTime);
+  async fetchReceivedLikes(requestedDays: number): Promise<json[]> {
+    let startTime = this.scanStartTime!
 
     let myPosts = await this.appView.loadUserTimeline(accountAPI.user.did, requestedDays, {
       filter: 'posts_with_replies',
@@ -95,7 +92,7 @@ export class LikeStats {
 
     let likedPosts = myPosts.filter(x => !x['reason'] && x['post']['likeCount'] > 0);
 
-    let results = [];
+    let results: json[][] = [];
 
     for (let i = 0; i < likedPosts.length; i += 10) {
       let batch = likedPosts.slice(i, i + 10);
@@ -120,16 +117,8 @@ export class LikeStats {
     return results.flat();
   }
 
-  /**
-   * @typedef {{ handle?: string, did?: string, avatar?: string, count: number }} LikeStat
-   * @typedef {Record<string, LikeStat>} LikeStatHash
-   */
-
-  /** @param {json[]} likes, @returns {LikeStatHash} */
-
-  sumUpReceivedLikes(likes) {
-    /** @type {LikeStatHash} */
-    let stats = {};
+  sumUpReceivedLikes(likes: json[]): LikeStatHash {
+    let stats: LikeStatHash = {};
 
     for (let like of likes) {
       let handle = like.actor.handle;
@@ -144,11 +133,8 @@ export class LikeStats {
     return stats;
   }
 
-  /** @param {json[]} likes, @returns {LikeStatHash} */
-
-  sumUpGivenLikes(likes) {
-    /** @type {LikeStatHash} */
-    let stats = {};
+  sumUpGivenLikes(likes: json[]): LikeStatHash {
+    let stats: LikeStatHash = {};
 
     for (let like of likes) {
       let did = atURI(like.value.subject.uri).repo;
@@ -163,9 +149,7 @@ export class LikeStats {
     return stats;
   }
 
-  /** @param {LikeStatHash} counts, @returns {LikeStat[]} */
-
-  getTopEntries(counts) {
+  getTopEntries(counts: LikeStatHash): LikeStat[] {
     return Object.entries(counts).sort(this.sortResults).map(x => x[1]).slice(0, 25);
   }
 
@@ -177,9 +161,7 @@ export class LikeStats {
     this.onProgress && this.onProgress(0);
   }
 
-  /** @param {{ posts?: number, likeRecords?: number, postLikes?: number }} data */
-
-  updateProgress(data) {
+  updateProgress(data: { posts?: number, likeRecords?: number, postLikes?: number }) {
     if (data.posts) {
       this.progressPosts = data.posts;
     }
@@ -201,9 +183,7 @@ export class LikeStats {
     this.onProgress && this.onProgress(totalProgress);
   }
 
-  /** @param {[string, LikeStat]} a, @param {[string, LikeStat]} b, @returns {-1|1|0} */
-
-  sortResults(a, b) {
+  sortResults(a: [string, LikeStat], b: [string, LikeStat]): -1 | 1 | 0 {
     if (a[1].count < b[1].count) {
       return 1;
     } else if (a[1].count > b[1].count) {

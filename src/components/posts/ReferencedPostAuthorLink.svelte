@@ -1,11 +1,12 @@
-<script>
+<script lang="ts">
   import { getContext } from 'svelte';
+  import { Post } from '../../models/posts.js';
   import { atURI } from '../../utils.js';
 
-  let { status = undefined } = $props();
-  let { post } = getContext('post');
+  let { status = undefined }: { status?: string | undefined } = $props();
+  let { post }: { post: Post } = getContext('post');
 
-  let handle = $state();
+  let handle: string | undefined = $state();
 
   $effect(async () => {
     let did = atURI(post.uri).repo;

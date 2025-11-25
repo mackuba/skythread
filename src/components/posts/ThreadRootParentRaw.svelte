@@ -1,8 +1,8 @@
-<script>
+<script lang="ts">
   import { linkToPostById } from '../../router.js';
   import { atURI } from '../../utils.js';
 
-  let { uri } = $props();
+  let { uri }: { uri: string } = $props();
   let { repo, rkey } = $derived(atURI(uri));
 </script>
 

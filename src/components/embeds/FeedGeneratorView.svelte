@@ -1,9 +1,10 @@
-<script>
+<script lang="ts">
   import { atURI } from '../../utils.js';
+  import { FeedGeneratorRecord } from '../../models/records.js';
 
-  let { feed } = $props();
+  let { feed }: { feed: FeedGeneratorRecord } = $props();
 
-  function linkToFeed(feed) {
+  function linkToFeed(feed: FeedGeneratorRecord) {
     let { repo, rkey } = atURI(feed.uri);
     return `https://bsky.app/profile/${repo}/feed/${rkey}`;
   }

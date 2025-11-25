@@ -1,6 +1,8 @@
 import { sameDay } from '../utils.js';
+import { Post } from '../models/posts.js';
 
 export class PostPresenter {
+
   /**
    * Contexts:
    * - thread - a post in the thread tree
@@ -8,18 +10,17 @@ export class PostPresenter {
    * - quote - a quote embed
    * - quotes - a post on the quotes page
    * - feed - a post on the hashtag feed page
-   *
-   * @param {AnyPost} post, @param {PostContext} context
    */
 
-  constructor(post, context) {
+  post: Post;
+  context: PostContext;
+
+  constructor(post: Post, context: PostContext) {
     this.post = post;
     this.context = context;
   }
 
-  /** @returns {json} */
-
-  get timeFormatForTimestamp() {
+  get timeFormatForTimestamp(): Intl.DateTimeFormatOptions {
     if (this.context == 'quotes' || this.context == 'feed') {
       return { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric', hour: 'numeric', minute: 'numeric' };
     } else if (this.post.isPageRoot || this.context != 'thread') {

@@ -1,7 +1,8 @@
-<script>
+<script lang="ts">
   import { linkToPostThread } from '../../router.js';
+  import { Post } from '../../models/posts.js';
 
-  let { post, title = '' } = $props();
+  let { post, title = '' }: { post: Post, title?: string } = $props();
 </script>
 
 <a href="{linkToPostThread(post)}" class="action" {title}>
