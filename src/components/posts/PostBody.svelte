@@ -7,11 +7,11 @@
   let { post }: { post: Post } = getContext('post');
   let { highlightedMatches = undefined }: { highlightedMatches?: string[] } = $props();
 
-  let bodyElement: HTMLElement;
+  let bodyElement: HTMLElement | undefined = $state();
 
   function highlightSearchResults(terms: string[]) {
     let regexp = new RegExp(`\\b(${terms.join('|')})\\b`, 'gi');
-    let walker = document.createTreeWalker(bodyElement, NodeFilter.SHOW_TEXT);
+    let walker = document.createTreeWalker(bodyElement!, NodeFilter.SHOW_TEXT);
     let ranges: Range[] = [];
 
     while (walker.nextNode()) {

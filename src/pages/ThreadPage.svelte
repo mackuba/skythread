@@ -12,7 +12,7 @@
   let post: AnyPost | undefined = $state();
   let loadingFailed = $state(false);
 
-  let rootComponent: PostComponent;
+  let rootComponent: PostComponent | undefined = $state();
   let response: Promise<json>;
 
   if ('url' in props) {
@@ -34,17 +34,17 @@
     window.root = root;
     window.subtreeRoot = root;
 
+    post = root;
+
     if (root instanceof Post) {
       root.data.quoteCount = undefined;
 
       blueAPI.getQuoteCount(root.uri).then(count => {
-        rootComponent.setQuoteCount(count);
+        rootComponent?.setQuoteCount(count);
       }).catch(error => {
         console.warn("Couldn't load quote count: " + error);
       });
     }
-
-    post = root;
   }).catch((error) => {
     showError(error);
     loadingFailed = true;

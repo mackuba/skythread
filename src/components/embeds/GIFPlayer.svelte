@@ -1,5 +1,5 @@
 <script lang="ts">
-  let { gifURL, staticURL }: { gifURL: string, staticURL: string } = $props();
+  let { gifURL, staticURL, alt }: { gifURL: string, staticURL: string, alt: string | undefined } = $props();
 
   let loaded = $state(false);
   let paused = $state(false);
@@ -26,6 +26,7 @@
 <div class="gif">
   <img src={paused ? staticURL : gifURL}
     class={paused ? 'static' : ''}
+    alt={alt ? `Gif: ${alt}` : `Gif animation`}
     {onload}
     {onclick}
     style:opacity={loaded ? 1 : 0}

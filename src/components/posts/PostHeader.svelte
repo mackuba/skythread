@@ -7,7 +7,7 @@
   let { post, context }: { post: Post, context: PostContext } = getContext('post');
   let presenter = new PostPresenter(post, context);
 
-  let avatar: HTMLImageElement;
+  let avatar: HTMLImageElement | undefined = $state();
 
   $effect(() => {
     if (avatar) {

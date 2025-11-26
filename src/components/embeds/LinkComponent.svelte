@@ -29,7 +29,7 @@
 </script>
 
 {#if showingGIF}
-  <GIFPlayer gifURL={embed.url} staticURL={thumbnailURL()} />
+  <GIFPlayer gifURL={embed.url} staticURL={thumbnailURL()} alt={embed.title} />
 {:else}
   {#if isValidURL(embed.url)}
     <a class="link-card" href={embed.url} target="_blank" {onclick}>
