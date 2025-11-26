@@ -4,6 +4,8 @@
   import { Post } from '../../models/posts.js';
   import RichTextFromFacets from '../RichTextFromFacets.svelte';
 
+  const highlightID = 'search-results';
+
   let { post }: { post: Post } = getContext('post');
   let { highlightedMatches = undefined }: { highlightedMatches?: string[] } = $props();
 
@@ -31,14 +33,18 @@
       }
     }
 
-    let highlight = CSS.highlights.get('search-results') || new Highlight();
+    let highlight = CSS.highlights.get(highlightID) || new Highlight();
     ranges.forEach(r => highlight.add(r));
-    CSS.highlights.set('search-results', highlight);
+    CSS.highlights.set(highlightID, highlight);
   }
 
   $effect(() => {
     if (highlightedMatches && highlightedMatches.length > 0) {
       highlightSearchResults(highlightedMatches);
+
+      return () => {
+        CSS.highlights.delete(highlightID);
+      }
     }
   });
 </script>

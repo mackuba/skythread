@@ -12,6 +12,10 @@
   $effect(() => {
     if (avatar) {
       window.avatarPreloader.observe(avatar);
+
+      return () => {
+        window.avatarPreloader.unobserve(avatar);
+      }
     }
   });
 </script>

@@ -8,7 +8,11 @@
 
   let handle: string | undefined = $state();
 
-  $effect(async () => {
+  $effect(() => {
+    loadAuthorHandle(post);
+  });
+
+  async function loadAuthorHandle(post: Post) {
     let did = atURI(post.uri).repo;
     let loadedHandle = await api.fetchHandleForDid(did);
 
@@ -19,7 +23,7 @@
     }
 
     handle = loadedHandle;
-  });
+  }
 </script>
 
 {#if status}

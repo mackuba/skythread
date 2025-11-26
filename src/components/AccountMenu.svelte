@@ -9,11 +9,16 @@
 
   $effect(() => {
     let html = document.body.parentNode!
+    html.addEventListener('click', hideMenu);
 
-    html.addEventListener('click', (e) => {
-      menuVisible = false;
-    });
+    return () => {
+      html.removeEventListener('click', hideMenu);
+    };
   });
+
+  function hideMenu() {
+    menuVisible = false;
+  }
 
   function toggleMenu(e: Event) {
     e.stopPropagation();
