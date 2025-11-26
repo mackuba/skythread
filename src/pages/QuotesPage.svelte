@@ -1,5 +1,6 @@
 <script lang="ts">
   import { Post } from '../models/posts.js';
+  import { showError } from '../utils.js';
   import * as paginator from '../utils/paginator.js';
   import FeedPostParent from '../components/posts/FeedPostParent.svelte';
   import MainLoader from '../components/MainLoader.svelte';
@@ -40,6 +41,7 @@
       console.log(error);
       isLoading = false;
       loadingFailed = true;
+      showError(error);
     }
   });
 </script>
