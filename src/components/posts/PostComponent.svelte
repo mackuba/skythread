@@ -76,7 +76,12 @@
     replies.push(...okReplies);
     post.replies = replies;
 
-    missingHiddenReplies = newReplies.length - okReplies.length;
+    if (okReplies.length === newReplies.length && okReplies.length > 0) {
+      missingHiddenReplies = undefined;
+    } else {
+      missingHiddenReplies = newReplies.length - okReplies.length;
+    }
+
     repliesLoaded = true;
   }
 
@@ -148,10 +153,16 @@
         {/if}
       {/if}
 
-      {#if missingHiddenReplies}
+      {#if missingHiddenReplies !== undefined}
         <p class="missing-replies-info">
           <i class="fa-solid fa-ban"></i>
-          {missingHiddenReplies > 1 ? `${missingHiddenReplies} replies are missing` : '1 reply is missing'}
+          {#if missingHiddenReplies > 1}
+            {missingHiddenReplies} replies are missing
+          {:else if missingHiddenReplies == 1}
+            1 reply is missing
+          {:else}
+            Some replies are missing
+          {/if}
           (likely taken down by moderation)
         </p>
       {/if}
