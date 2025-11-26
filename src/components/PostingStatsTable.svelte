@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { PostingStatsResult } from "../services/posting_stats";
+  import { type PostingStatsResult } from "../services/posting_stats";
 
   interface Props extends PostingStatsResult {
     showReposts?: boolean,

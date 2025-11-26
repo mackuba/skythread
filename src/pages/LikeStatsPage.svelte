@@ -1,6 +1,6 @@
 <script lang="ts">
   import LikeStatsTable from '../components/LikeStatsTable.svelte';
-  import { LikeStats, LikeStat } from '../services/like_stats.js';
+  import { LikeStats, type LikeStat } from '../services/like_stats.js';
   import { numberOfDays } from '../utils.js';
 
   let timeRangeDays = $state(7);

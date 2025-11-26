@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { LikeStat } from "../services/like_stats";
+  import type { LikeStat } from "../services/like_stats";
 
   let { cssClass, header, users }: { cssClass: string, header: string, users: LikeStat[] } = $props();
 </script>
