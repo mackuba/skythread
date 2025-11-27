@@ -1,4 +1,4 @@
-import { BlueskyAPI } from '../api/api.js';
+import { BlueskyAPI } from '../api/bluesky_api.js';
 import { pdsEndpointForIdentifier } from '../api/identity.js';
 
 class Account {

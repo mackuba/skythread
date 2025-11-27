@@ -1,4 +1,4 @@
-import { URLError } from '../api/api.js';
+import { URLError } from '../api/bluesky_api.js';
 
 export class AtURI {
   repo: string;

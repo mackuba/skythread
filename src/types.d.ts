@@ -3,13 +3,13 @@ interface Window {
   root: AnyPost;
   subtreeRoot: AnyPost;
   init: () => void;
-  BlueskyAPI: { new(host: string | null, useAuthentication: boolean): import("./api/api.js").BlueskyAPI };
+  BlueskyAPI: { new(host: string | null, useAuthentication: boolean): import("./api/bluesky_api.js").BlueskyAPI };
 }
 
-declare var accountAPI: import("./api/api.js").BlueskyAPI;
-declare var blueAPI: import("./api/api.js").BlueskyAPI;
-declare var appView: import("./api/api.js").BlueskyAPI;
-declare var api: import("./api/api.js").BlueskyAPI;
+declare var accountAPI: import("./api/bluesky_api.js").BlueskyAPI;
+declare var blueAPI: import("./api/bluesky_api.js").BlueskyAPI;
+declare var appView: import("./api/bluesky_api.js").BlueskyAPI;
+declare var api: import("./api/bluesky_api.js").BlueskyAPI;
 declare var avatarPreloader: IntersectionObserver;
 
 type json = Record<string, any>;
