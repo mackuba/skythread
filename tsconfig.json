@@ -3,11 +3,12 @@
     "target": "es2022",
     "module": "nodenext",
     "moduleResolution": "nodenext",
+    "noEmit": true,
     "checkJs": true,
     "strict": true,
     "noImplicitAny": false,
     "exactOptionalPropertyTypes": true,
     "useUnknownInCatchVariables": false
   },
-  "include": ["src/**/*.js", "src/**/*.ts", "lib/**/*.d.ts", "test/**/*.js"]
+  "include": ["src/**/*.js", "src/**/*.ts", "lib/**/*.d.ts"]
 }

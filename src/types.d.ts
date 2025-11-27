@@ -1,7 +1,7 @@
 interface Window {
   dateLocale: string | undefined;
-  root: import("./models/posts.js").AnyPost;
-  subtreeRoot: import("./models/posts.js").AnyPost;
+  root: AnyPost;
+  subtreeRoot: AnyPost;
   init: () => void;
   BlueskyAPI: { new(host: string | null, useAuthentication: boolean): import("./api/api.js").BlueskyAPI };
 }
