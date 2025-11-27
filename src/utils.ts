@@ -2,8 +2,11 @@ import DOMPurify from 'dompurify';
 import { URLError } from './api/api.js';
 
 export class AtURI {
-  /** @param {string} uri */
-  constructor(uri) {
+  repo: string;
+  collection: string;
+  rkey: string;
+
+  constructor(uri: string) {
     if (!uri.startsWith('at://')) {
       throw new URLError(`Not an at:// URI: ${uri}`);
     }
@@ -20,24 +23,15 @@ export class AtURI {
   }
 }
 
-/**
- * @template {HTMLElement} T
- * @param {string} name
- * @param {new (...args: any[]) => T} [type]
- * @returns {T}
- */
-
-export function $id(name, type) {
-  return /** @type {T} */ (document.getElementById(name));
+export function $id<T>(name: string, type?: new (...args: any[]) => T): T {
+  return document.getElementById(name) as T;
 }
 
-/** @param {string} uri, @returns {AtURI} */
-
-export function atURI(uri) {
+export function atURI(uri: string): AtURI {
   return new AtURI(uri);
 }
 
-export function castToInt(value) {
+export function castToInt(value: any): number | null | undefined {
   if (value === undefined || value === null || typeof value == "number") {
     return value;
   } else {
@@ -45,24 +39,18 @@ export function castToInt(value) {
   }
 }
 
-/** @param {string} html, @returns {string} */
-
-export function escapeHTML(html) {
+export function escapeHTML(html: string): string {
   return html.replace(/&/g, '&amp;')
              .replace(/</g, '&lt;')
              .replace(/>/g,'&gt;');
 }
 
-/** @param {json} feedPost, @returns {number} */
-
-export function feedPostTime(feedPost) {
+export function feedPostTime(feedPost: json): number {
   let timestamp = feedPost.reason ? feedPost.reason.indexedAt : feedPost.post.record.createdAt;
   return Date.parse(timestamp);
 }
 
-/** @param {string} url, @returns {boolean} */
-
-export function isValidURL(url) {
+export function isValidURL(url: string): boolean {
   try {
     new URL(url);
     return true;
@@ -72,15 +60,11 @@ export function isValidURL(url) {
   }
 }
 
-/** @param {number} days, @returns {string} */
-
-export function numberOfDays(days) {
+export function numberOfDays(days: number): string {
   return (days == 1) ? '1 day' : `${days} days`;
 }
 
-/** @param {string} html, @returns {string} */
-
-export function sanitizeHTML(html) {
+export function sanitizeHTML(html: string): string {
   return DOMPurify.sanitize(html, {
     ALLOWED_TAGS: [
       'a', 'b', 'blockquote', 'br', 'code', 'dd', 'del', 'div', 'dl', 'dt', 'em', 'font',
@@ -93,16 +77,12 @@ export function sanitizeHTML(html) {
   });
 }
 
-/** @param {object} error */
-
-export function showError(error) {
+export function showError(error: Error) {
   console.log(error);
   alert(error);
 }
 
-/** @param {Date} date1, @param {Date} date2, @returns {boolean} */
-
-export function sameDay(date1, date2) {
+export function sameDay(date1: Date, date2: Date): boolean {
   return (
     date1.getDate() == date2.getDate() &&
     date1.getMonth() == date2.getMonth() &&
@@ -110,7 +90,7 @@ export function sameDay(date1, date2) {
   );
 }
 
-export function truncateText(text, maxLen) {
+export function truncateText(text: string, maxLen: number): string {
   if (text <= maxLen) {
     return text;
   } else {
