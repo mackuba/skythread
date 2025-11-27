@@ -245,10 +245,22 @@ export class Minisky {
     }
   }
 
-  async checkAccess() {
+  requireUserConfig(): asserts this is { config: MiniskyConfig, user: json } {
+    if (!this.config || !this.config.user) {
+      throw new AuthError("Missing user configuration object");
+    }
+  }
+
+  requireLoggedInUser(): asserts this is { config: MiniskyConfig, user: json } {
+    this.requireUserConfig();
+
     if (!this.isLoggedIn) {
       throw new AuthError("Not logged in");
     }
+  }
+
+  async checkAccess() {
+    this.requireLoggedInUser();
 
     let expirationTimestamp = this.tokenExpirationTimestamp(this.user.accessToken);
 
@@ -258,9 +270,7 @@ export class Minisky {
   }
 
   async logIn(handle: string, password: string): Promise<json> {
-    if (!this.config || !this.config.user) {
-      throw new AuthError("Missing user configuration object");
-    }
+    this.requireUserConfig();
 
     let params = { identifier: handle, password: password };
     let json = await this.postRequest('com.atproto.server.createSession', params, { auth: false });
@@ -269,12 +279,8 @@ export class Minisky {
     return json;
   }
 
-  /** @returns {Promise<json>} */
-
   async performTokenRefresh(): Promise<json> {
-    if (!this.isLoggedIn) {
-      throw new AuthError("Not logged in");
-    }
+    this.requireLoggedInUser();
 
     console.log('Refreshing access token…');
     let json = await this.postRequest('com.atproto.server.refreshSession', null, { auth: this.user.refreshToken });
@@ -283,9 +289,7 @@ export class Minisky {
   }
 
   saveTokens(json: json) {
-    if (!this.config || !this.config.user) {
-      throw new AuthError("Missing user configuration object");
-    }
+    this.requireUserConfig();
 
     this.user.accessToken = json['accessJwt'];
     this.user.refreshToken = json['refreshJwt'];
@@ -301,9 +305,7 @@ export class Minisky {
   }
 
   resetTokens() {
-    if (!this.config || !this.config.user) {
-      throw new AuthError("Missing user configuration object");
-    }
+    this.requireUserConfig();
 
     delete this.user.accessToken;
     delete this.user.refreshToken;
