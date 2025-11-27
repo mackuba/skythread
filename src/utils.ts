@@ -39,12 +39,6 @@ export function castToInt(value: any): number | null | undefined {
   }
 }
 
-export function escapeHTML(html: string): string {
-  return html.replace(/&/g, '&amp;')
-             .replace(/</g, '&lt;')
-             .replace(/>/g,'&gt;');
-}
-
 export function feedPostTime(feedPost: json): number {
   let timestamp = feedPost.reason ? feedPost.reason.indexedAt : feedPost.post.record.createdAt;
   return Date.parse(timestamp);
