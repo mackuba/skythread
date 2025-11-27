@@ -12,7 +12,7 @@ import QuotesPage from './pages/QuotesPage.svelte';
 import TimelineSearchPage from './pages/TimelineSearchPage.svelte';
 import ThreadPage from './pages/ThreadPage.svelte';
 
-import { $, $id } from './utils.js';
+import { $id } from './utils.js';
 import { BlueskyAPI } from './api/api.js';
 import { account } from './models/account.svelte.js';
 import { Post } from './models/posts.js';
@@ -32,7 +32,7 @@ function init() {
   svelte.mount(AccountMenu, { target: $id('account_menu_wrap') });
 
   for (let dialog of document.querySelectorAll('.dialog')) {
-    let close = $(dialog.querySelector('.close'));
+    let close = /** @type HTMLElement */ (dialog.querySelector('.close'));
 
     dialog.addEventListener('click', (e) => {
       if (e.target === e.currentTarget && close && close.offsetHeight > 0) {

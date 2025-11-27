@@ -31,17 +31,6 @@ export function $id(name, type) {
   return /** @type {T} */ (document.getElementById(name));
 }
 
-/**
- * @template {HTMLElement} T
- * @param {Node | EventTarget | null} element
- * @param {new (...args: any[]) => T} [type]
- * @returns {T}
- */
-
-export function $(element, type) {
-  return /** @type {T} */ (element);
-}
-
 /** @param {string} uri, @returns {AtURI} */
 
 export function atURI(uri) {
