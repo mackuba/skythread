@@ -91,7 +91,7 @@ export function sameDay(date1: Date, date2: Date): boolean {
 }
 
 export function truncateText(text: string, maxLen: number): string {
-  if (text <= maxLen) {
+  if (text.length <= maxLen) {
     return text;
   } else {
     return text.slice(0, maxLen - 1) + '…';
