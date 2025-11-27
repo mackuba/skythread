@@ -13,9 +13,9 @@ import TimelineSearchPage from './pages/TimelineSearchPage.svelte';
 import ThreadPage from './pages/ThreadPage.svelte';
 
 import { $id } from './utils.js';
+import { AuthenticatedAPI } from './api/authenticated_api';
 import { BlueskyAPI } from './api/bluesky_api.js';
 import { account } from './models/account.svelte.js';
-import { Post } from './models/posts.js';
 import { Lycan, DevLycan } from './services/lycan.js';
 
 /** @type {Record<string, any> | undefined} */
@@ -47,21 +47,10 @@ function init() {
     });
   }
 
-  window.appView = new BlueskyAPI('api.bsky.app', false);
-  window.blueAPI = new BlueskyAPI('blue.mackuba.eu', false);
-  window.accountAPI = new BlueskyAPI(null, true);
-
-  if (accountAPI.isLoggedIn) {
-    accountAPI.host = accountAPI.user.pdsEndpoint;
-
-    if (!account.isIncognito) {
-      window.api = accountAPI;
-    } else {
-      window.api = appView;
-    }
-  } else {
-    window.api = appView;
-  }
+  window.appView = new BlueskyAPI('api.bsky.app');
+  window.blueAPI = new BlueskyAPI('blue.mackuba.eu');
+  window.accountAPI = new AuthenticatedAPI();
+  window.api = (accountAPI.isLoggedIn && !account.isIncognito) ? accountAPI : appView;
 
   parseQueryParams();
 }

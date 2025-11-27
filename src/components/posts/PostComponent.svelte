@@ -1,6 +1,6 @@
 <script lang="ts">
   import { setContext } from 'svelte';
-  import { HiddenRepliesError } from '../../api/api.js';
+  import { HiddenRepliesError } from '../../api/bluesky_api.js';
   import { account } from '../../models/account.svelte.js';
   import { Post, BlockedPost, DetachedQuotePost } from '../../models/posts.js';
   import { Embed, InlineLinkEmbed } from '../../models/embeds.js';

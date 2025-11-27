@@ -14,7 +14,7 @@ export class LikeStats {
   onProgress: ((days: number) => void) | undefined
 
   constructor() {
-    this.appView = new BlueskyAPI('public.api.bsky.app', false);
+    this.appView = new BlueskyAPI('public.api.bsky.app');
 
     this.progressPosts = 0;
     this.progressLikeRecords = 0;

@@ -3,10 +3,16 @@ interface Window {
   root: AnyPost;
   subtreeRoot: AnyPost;
   init: () => void;
-  BlueskyAPI: { new(host: string | null, useAuthentication: boolean): import("./api/bluesky_api.js").BlueskyAPI };
+  BlueskyAPI: {
+    new(
+      host: string | null,
+      config?: import("./api/minisky.js").MiniskyConfig | null,
+      options?: import("./api/minisky.js").MiniskyOptions | null
+    ): import("./api/bluesky_api.js").BlueskyAPI
+  };
 }
 
-declare var accountAPI: import("./api/bluesky_api.js").BlueskyAPI;
+declare var accountAPI: import("./api/authenticated_api.js").AuthenticatedAPI;
 declare var blueAPI: import("./api/bluesky_api.js").BlueskyAPI;
 declare var appView: import("./api/bluesky_api.js").BlueskyAPI;
 declare var api: import("./api/bluesky_api.js").BlueskyAPI;

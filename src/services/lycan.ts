@@ -57,7 +57,7 @@ export class DevLycan extends Lycan {
 
   constructor() {
     super();
-    this.localLycan = new BlueskyAPI('http://localhost:3000', false);
+    this.localLycan = new BlueskyAPI('http://localhost:3000');
   }
 
   async getImportStatus() {

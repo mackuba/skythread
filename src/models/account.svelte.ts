@@ -1,4 +1,4 @@
-import { BlueskyAPI } from '../api/bluesky_api.js';
+import { AuthenticatedAPI } from '../api/authenticated_api.js';
 import { pdsEndpointForIdentifier } from '../api/identity.js';
 
 class Account {
@@ -12,7 +12,7 @@ class Account {
     let incognito = localStorage.getItem('incognito');
     let biohazard = localStorage.getItem('biohazard');
     let biohazardEnabled = biohazard ? !!JSON.parse(biohazard) : undefined;
-    let accountAPI = new BlueskyAPI(null, true);
+    let accountAPI = new AuthenticatedAPI();
 
     this.#isIncognito = $state(accountAPI.isLoggedIn && !!incognito);
     this.#biohazardEnabled = $state(biohazardEnabled);
@@ -56,10 +56,10 @@ class Account {
     return this.#avatarIsLoading;
   }
 
-  async logIn(identifier: string, password: string): Promise<BlueskyAPI> {
+  async logIn(identifier: string, password: string): Promise<AuthenticatedAPI> {
     let pdsEndpoint = await pdsEndpointForIdentifier(identifier);
 
-    let pdsAPI = new BlueskyAPI(pdsEndpoint, true);
+    let pdsAPI = new AuthenticatedAPI(pdsEndpoint);
     await pdsAPI.logIn(identifier, password);
 
     this.#loggedIn = true;

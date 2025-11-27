@@ -41,7 +41,7 @@ export class PostingStats {
 
   constructor(onProgress?: OnProgress) {
     this.onProgress = onProgress;
-    this.appView = new BlueskyAPI('public.api.bsky.app', false);
+    this.appView = new BlueskyAPI('public.api.bsky.app');
     this.userProgress = {};
   }
 
