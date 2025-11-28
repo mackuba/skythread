@@ -5,6 +5,7 @@
   },
   "devDependencies": {
     "bun-plugin-svelte": "^0.0.6",
+    "svelte-check": "^4.3.4",
     "typescript": "^5.9.3"
   }
 }
