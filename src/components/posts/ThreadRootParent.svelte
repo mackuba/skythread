@@ -6,7 +6,12 @@
   let { post }: { post: AnyPost } = $props();
 </script>
 
-{#if post instanceof BlockedPost}
+{#if post instanceof Post}
+  <p class="back">
+    <i class="fa-solid fa-reply"></i>
+    <a href={linkToPostThread(post)}>See parent post (@{post.author.handle})</a>
+  </p>
+{:else if post instanceof BlockedPost}
   <div class="back">
     <BlockedPostView {post} context="parent" reason="Parent post blocked" />
   </div>
@@ -16,7 +21,6 @@
   </p>
 {:else}
   <p class="back">
-    <i class="fa-solid fa-reply"></i>
-    <a href={linkToPostThread(post)}>See parent post (@{post.author.handle})</a>
+    <i class="fa-solid fa-ban"></i> something went wrong, this shouldn't happen
   </p>
 {/if}

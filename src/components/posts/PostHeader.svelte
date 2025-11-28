@@ -11,10 +11,11 @@
 
   $effect(() => {
     if (avatar) {
-      window.avatarPreloader.observe(avatar);
+      let av = avatar;
+      window.avatarPreloader.observe(av);
 
       return () => {
-        window.avatarPreloader.unobserve(avatar);
+        window.avatarPreloader.unobserve(av);
       }
     }
   });

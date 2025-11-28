@@ -166,13 +166,13 @@ export function parsePostView(json) {
 export class Post extends BasePost {
   /**
    * Post object which is the direct parent of this post.
-   * @type {ATProtoRecord | undefined}
+   * @type {AnyPost | undefined}
    */
   parent;
 
   /**
    * Post object which is the root of the whole thread (as specified in the post record).
-   * @type {ATProtoRecord | undefined}
+   * @type {AnyPost | undefined}
    */
   threadRoot;
 

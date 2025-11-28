@@ -1,7 +1,7 @@
 <script lang="ts">
   import { account } from '../models/account.svelte.js';
 
-  type Props = { onConfirm?: () => void, onClose?: () => void };
+  type Props = { onConfirm?: (() => void) | undefined, onClose?: (() => void) | undefined };
   let { onConfirm = undefined, onClose = undefined }: Props = $props();
 
   function showBiohazard(e: Event) {
