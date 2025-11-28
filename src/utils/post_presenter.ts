@@ -13,17 +13,17 @@ export class PostPresenter {
    */
 
   post: Post;
-  context: PostContext;
+  placement: PostPlacement;
 
-  constructor(post: Post, context: PostContext) {
+  constructor(post: Post, placement: PostPlacement) {
     this.post = post;
-    this.context = context;
+    this.placement = placement;
   }
 
   get timeFormatForTimestamp(): Intl.DateTimeFormatOptions {
-    if (this.context == 'quotes' || this.context == 'feed') {
+    if (this.placement == 'quotes' || this.placement == 'feed') {
       return { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric', hour: 'numeric', minute: 'numeric' };
-    } else if (this.post.isPageRoot || this.context != 'thread') {
+    } else if (this.post.isPageRoot || this.placement != 'thread') {
       return { day: 'numeric', month: 'short', year: 'numeric', hour: 'numeric', minute: 'numeric' };
     } else if (this.post.pageRoot && !sameDay(this.post.createdAt, this.post.pageRoot.createdAt)) {
       return { day: 'numeric', month: 'short', hour: 'numeric', minute: 'numeric' };

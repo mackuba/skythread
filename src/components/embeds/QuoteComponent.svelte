@@ -56,7 +56,7 @@
 {#snippet quoteContent(record: ATProtoRecord)}
   {#if record instanceof BasePost}
     <div class="quote-embed">
-      <PostWrapper post={record} context="quote" />
+      <PostWrapper post={record} placement="quote" />
     </div>
 
   {:else if record instanceof FeedGeneratorRecord}

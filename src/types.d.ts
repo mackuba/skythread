@@ -25,4 +25,4 @@ type AnyPost = import("./models/posts.js").Post
              | import("./models/posts.js").MissingPost
              | import("./models/posts.js").DetachedQuotePost;
 
-type PostContext = 'thread' | 'parent' | 'quote' | 'quotes' | 'feed';
+type PostPlacement = 'thread' | 'parent' | 'quote' | 'quotes' | 'feed';

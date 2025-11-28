@@ -10,10 +10,10 @@
   type Props = {
     reason: string;
     post: BlockedPost | DetachedQuotePost;
-    context: PostContext;
+    placement: PostPlacement;
   }
 
-  let { reason, post, context }: Props = $props();
+  let { reason, post, placement }: Props = $props();
 
   let biohazardEnabled = $derived(account.biohazardEnabled !== false);
   let loading = $state(false);
@@ -77,7 +77,7 @@
     {/if}
   </p>
 
-  <BlockedPostContent post={reloadedPost} {context} />
+  <BlockedPostContent post={reloadedPost} {placement} />
 {:else}
   <MissingPostView post={new MissingPost(post.data)} />
 {/if}

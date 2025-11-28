@@ -6,9 +6,9 @@
   import PostBody from './PostBody.svelte';
   import ThreadRootParentRaw from './ThreadRootParentRaw.svelte';
 
-  let { post, context }: { post: Post, context: PostContext } = $props();
+  let { post, placement }: { post: Post, placement: PostPlacement } = $props();
 
-  setContext('post', { post, context });
+  setContext('post', { post, placement });
 </script>
 
 {#if post.isPageRoot && post.parentReference}

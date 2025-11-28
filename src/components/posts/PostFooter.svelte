@@ -6,7 +6,7 @@
   import { showLoginDialog } from '../../skythread.js';
   import { showError } from '../../utils.js';
 
-  let { post, context }: { post: Post, context: PostContext } = getContext('post');
+  let { post, placement }: { post: Post, placement: PostPlacement } = getContext('post');
   let { quoteCount }: { quoteCount: number | undefined } = $props();
 
   let isLiked = $state(post.liked);
@@ -67,15 +67,15 @@
     <span><i class="fa-solid fa-retweet"></i> {post.repostCount}</span>
   {/if}
 
-  {#if post.replyCount > 0 && (context == 'quotes' || context == 'feed')}
+  {#if post.replyCount > 0 && (placement == 'quotes' || placement == 'feed')}
     <span>
       <i class="fa-regular fa-message"></i>
       <a href="{linkToPostThread(post)}">{post.replyCount > 1 ? `${post.replyCount} replies` : '1 reply'}</a>
     </span>
   {/if}
 
-  {#if quoteCount && context != 'quote'}
-    {#if context == 'quotes' || context == 'feed' || post.isPageRoot}
+  {#if quoteCount && placement != 'quote'}
+    {#if placement == 'quotes' || placement == 'feed' || post.isPageRoot}
       <span>
         <i class="fa-regular fa-comments"></i>
         <a href={linkToQuotesPage(post.linkToPost)}>{quoteCount > 1 ? `${quoteCount} quotes` : '1 quote'}</a>
@@ -87,7 +87,7 @@
     {/if}
   {/if}
 
-  {#if context == 'thread' && post.isRestrictingReplies}
+  {#if placement == 'thread' && post.isRestrictingReplies}
     <span><i class="fa-solid fa-ban"></i> Limited replies</span>
   {/if}
 

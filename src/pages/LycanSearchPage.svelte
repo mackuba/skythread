@@ -206,7 +206,7 @@
     <p>...</p>
   {:else}
     {#each results as post (post.uri)}
-      <PostComponent {post} context="feed" {highlightedMatches} />
+      <PostComponent {post} placement="feed" {highlightedMatches} />
     {/each}
     {#if finishedPosts}
       <p class="results-end">{results.length > 0 ? "No more results." : "No results."}</p>

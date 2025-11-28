@@ -56,7 +56,7 @@
   </header>
 
   {#each posts as post (post.uri)}
-    <PostComponent {post} context="feed" />
+    <PostComponent {post} placement="feed" />
   {/each}
 {:else if !loadingFailed}
   <MainLoader />

@@ -65,7 +65,7 @@
       <FeedPostParent uri={post.parentReference.uri} />
     {/if}
 
-    <PostComponent {post} context="quotes" />
+    <PostComponent {post} placement="quotes" />
   {/each}
 {:else if !loadingFailed}
   <MainLoader />

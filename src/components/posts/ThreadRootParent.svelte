@@ -13,7 +13,7 @@
   </p>
 {:else if post instanceof BlockedPost}
   <div class="back">
-    <BlockedPostView {post} context="parent" reason="Parent post blocked" />
+    <BlockedPostView {post} placement="parent" reason="Parent post blocked" />
   </div>
 {:else if post instanceof MissingPost}
   <p class="back">

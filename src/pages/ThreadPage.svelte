@@ -66,9 +66,9 @@
       <ThreadRootParentRaw uri={post.parentReference.uri} />
     {/if}
 
-    <PostComponent {post} context="thread" bind:this={rootComponent} />
+    <PostComponent {post} placement="thread" bind:this={rootComponent} />
   {:else}
-    <PostWrapper {post} context="thread" />
+    <PostWrapper {post} placement="thread" />
   {/if}
 {:else if !loadingFailed}
   <MainLoader />

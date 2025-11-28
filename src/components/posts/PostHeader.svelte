@@ -4,8 +4,8 @@
   import { PostPresenter } from '../../utils/post_presenter.js';
   import PostSubtreeLink from './PostSubtreeLink.svelte';
 
-  let { post, context }: { post: Post, context: PostContext } = getContext('post');
-  let presenter = new PostPresenter(post, context);
+  let { post, placement }: { post: Post, placement: PostPlacement } = getContext('post');
+  let presenter = new PostPresenter(post, placement);
 
   let avatar: HTMLImageElement | undefined = $state();
 
@@ -43,10 +43,10 @@
 
   <a class="time" href="{post.linkToPost}" target="_blank" title="{post.createdAt.toISOString()}">{presenter.formattedTimestamp}</a>
 
-  {#if (post.replyCount > 0 && !post.isPageRoot) || ['quote', 'quotes', 'feed'].includes(context)}
+  {#if (post.replyCount > 0 && !post.isPageRoot) || ['quote', 'quotes', 'feed'].includes(placement)}
     <span class="separator">&bull;</span>
 
-    {#if ['quote', 'quotes', 'feed'].includes(context)}
+    {#if ['quote', 'quotes', 'feed'].includes(placement)}
       <PostSubtreeLink {post} title="Load thread" />
     {:else}
       <PostSubtreeLink {post} title="Load this subtree" />

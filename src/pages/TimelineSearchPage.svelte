@@ -79,7 +79,7 @@
 
   <div class="results">
     {#each results as post (post.uri)}
-      <PostComponent {post} context="feed" />
+      <PostComponent {post} placement="feed" />
     {/each}
   </div>
 {/if}

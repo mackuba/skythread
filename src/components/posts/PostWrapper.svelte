@@ -14,17 +14,17 @@
     - feed - a post on the hashtag feed page
   */
 
-  let { post, context }: { post: AnyPost, context: PostContext } = $props();
+  let { post, placement }: { post: AnyPost, placement: PostPlacement } = $props();
 </script>
 
 {#if post instanceof Post}
-  <PostComponent {post} {context} />
+  <PostComponent {post} {placement} />
 {:else}
-  <div class="post post-{context} blocked">
+  <div class="post post-{placement} blocked">
     {#if post instanceof BlockedPost}
-      <BlockedPostView {post} {context} reason="Blocked post" />
+      <BlockedPostView {post} {placement} reason="Blocked post" />
     {:else if post instanceof DetachedQuotePost}
-      <BlockedPostView {post} {context} reason="Hidden quote" />
+      <BlockedPostView {post} {placement} reason="Hidden quote" />
     {:else}
       <MissingPostView {post} />
     {/if}

@@ -30,12 +30,12 @@
 
   type Props = {
     post: Post,
-    context: PostContext,
+    placement: PostPlacement,
     highlightedMatches?: string[] | undefined,
     class?: string | undefined
   }
 
-  let { post, context, highlightedMatches = undefined, ...props }: Props = $props();
+  let { post, placement, highlightedMatches = undefined, ...props }: Props = $props();
 
   let collapsed = $state(false);
   let replies: AnyPost[] = $state(post.replies);
@@ -43,7 +43,7 @@
   let missingHiddenReplies: number | undefined = $state();
   let hiddenRepliesError: Error | undefined = $state();
 
-  setContext('post', { post, context });
+  setContext('post', { post, placement });
 
   // TODO: make Post reactive
   let quoteCount: number | undefined = $state(post.quoteCount);
@@ -122,10 +122,10 @@
   {/if}
 {/snippet}
 
-<div class="post post-{context} {props.class || ''}" class:muted={post.muted} class:collapsed={collapsed}>
+<div class="post post-{placement} {props.class || ''}" class:muted={post.muted} class:collapsed={collapsed}>
   <PostHeader />
 
-  {#if context == 'thread' && !post.isPageRoot}
+  {#if placement == 'thread' && !post.isPageRoot}
     <EdgeMargin bind:collapsed />
   {/if}
 
@@ -141,16 +141,16 @@
     {/if}
 
     {#if post.replyCount == 1 && (replies[0] instanceof Post) && replies[0].author.did == post.author.did}
-      <PostComponent post={replies[0]} context="thread" class="flat" />
+      <PostComponent post={replies[0]} placement="thread" class="flat" />
     {:else}
       {#each replies as reply (reply.uri)}
         {#if shouldRenderReply(reply)}
-          <PostWrapper post={reply} context="thread" />
+          <PostWrapper post={reply} placement="thread" />
         {/if}
       {/each}
     {/if}
 
-    {#if context == 'thread' && !repliesLoaded}
+    {#if placement == 'thread' && !repliesLoaded}
       {#if post.hasMoreReplies}
         <LoadMoreLink onLoad={onMoreRepliesLoaded} onError={onRepliesLoadingError} />
       {:else if post.hasHiddenReplies && account.biohazardEnabled !== false}
