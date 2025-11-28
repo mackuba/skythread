@@ -1,9 +1,9 @@
 <script lang="ts">
   import { showBiohazardDialog } from '../../skythread.js';
   import { account } from '../../models/account.svelte.js';
-  import { Post, parseThreadPost } from '../../models/posts.js';
+  import { parseThreadPost } from '../../models/posts.js';
   import { linkToPostThread } from '../../router.js';
-  import { getContext } from 'svelte';
+  import { getPostContext } from './PostComponent.svelte';
 
   type Props = {
     onLoad: (posts: (AnyPost | null)[]) => void,
@@ -11,7 +11,7 @@
   }
 
   let { onLoad, onError }: Props = $props();
-  let { post }: { post: Post } = getContext('post');
+  let { post } = getPostContext();
   let loading = $state(false);
 
   function onLinkClick(e: Event) {

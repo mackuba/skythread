@@ -1,5 +1,9 @@
+<script module lang="ts">
+  export const [getPostContext, setPostContext] = createContext<{ post: Post, placement: PostPlacement}>();
+</script>
+
 <script lang="ts">
-  import { setContext } from 'svelte';
+  import { createContext } from 'svelte';
   import { HiddenRepliesError } from '../../api/bluesky_api.js';
   import { account } from '../../models/account.svelte.js';
   import { Post, BlockedPost } from '../../models/posts.js';
@@ -43,7 +47,7 @@
   let missingHiddenReplies: number | undefined = $state();
   let hiddenRepliesError: Error | undefined = $state();
 
-  setContext('post', { post, placement });
+  setPostContext({ post, placement });
 
   // TODO: make Post reactive
   let quoteCount: number | undefined = $state(post.quoteCount);

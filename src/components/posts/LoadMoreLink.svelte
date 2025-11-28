@@ -1,7 +1,7 @@
 <script lang="ts">
   import { Post, parseThreadPost } from '../../models/posts.js';
   import { linkToPostThread } from '../../router.js';
-  import { getContext } from 'svelte';
+  import { getPostContext } from './PostComponent.svelte';
 
   type Props = {
     onLoad: (root: Post) => void,
@@ -9,7 +9,7 @@
   }
 
   let { onLoad, onError }: Props = $props();
-  let { post }: { post: Post } = getContext('post');
+  let { post } = getPostContext();
   let loading = $state(false);
 
   async function onLinkClick(e: Event) {

@@ -1,12 +1,11 @@
 <script lang="ts">
-  import { getContext } from 'svelte';
+  import { getPostContext } from '../posts/PostComponent.svelte';
   import { isValidURL, truncateText } from '../../utils.js';
   import GIFPlayer from './GIFPlayer.svelte';
   import { InlineLinkEmbed, RawLinkEmbed } from '../../models/embeds.js';
-  import { Post } from '../../models/posts.js';
 
   let { embed }: { embed: InlineLinkEmbed | RawLinkEmbed } = $props();
-  let { post }: { post: Post } = getContext('post');
+  let { post } = getPostContext();
 
   let showingGIF = $state(false);
 

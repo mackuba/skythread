@@ -1,10 +1,9 @@
 <script lang="ts">
-  import { getContext } from 'svelte';
-  import { Post } from '../../models/posts.js';
+  import { getPostContext } from './PostComponent.svelte';
   import { PostPresenter } from '../../utils/post_presenter.js';
   import PostSubtreeLink from './PostSubtreeLink.svelte';
 
-  let { post, placement }: { post: Post, placement: PostPlacement } = getContext('post');
+  let { post, placement } = getPostContext();
   let presenter = new PostPresenter(post, placement);
 
   let avatar: HTMLImageElement | undefined = $state();

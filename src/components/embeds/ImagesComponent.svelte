@@ -1,10 +1,9 @@
 <script lang="ts">
-  import { getContext } from 'svelte';
+  import { getPostContext } from '../posts/PostComponent.svelte';
   import { InlineImageEmbed, RawImageEmbed } from '../../models/embeds';
-  import { Post } from '../../models/posts';
 
   let { embed }: { embed: InlineImageEmbed | RawImageEmbed } = $props();
-  let { post }: { post: Post } = getContext('post');
+  let { post } = getPostContext();
 
   function imageURL(img: json): string {
     if (img.fullsize) {

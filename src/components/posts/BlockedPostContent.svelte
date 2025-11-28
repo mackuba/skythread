@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { setContext } from 'svelte';
+  import { setPostContext } from './PostComponent.svelte';
   import { Post } from '../../models/posts.js';
 
   import EmbedComponent from '../embeds/EmbedComponent.svelte';
@@ -8,7 +8,7 @@
 
   let { post, placement }: { post: Post, placement: PostPlacement } = $props();
 
-  setContext('post', { post, placement });
+  setPostContext({ post, placement });
 </script>
 
 {#if post.isPageRoot && post.parentReference}

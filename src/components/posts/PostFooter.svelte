@@ -1,12 +1,11 @@
 <script lang="ts">
-  import { getContext } from 'svelte';
+  import { getPostContext } from './PostComponent.svelte';
   import { linkToPostThread, linkToQuotesPage } from '../../router.js';
   import { account } from '../../models/account.svelte.js';
-  import { Post } from '../../models/posts.js';
   import { showLoginDialog } from '../../skythread.js';
   import { showError } from '../../utils.js';
 
-  let { post, placement }: { post: Post, placement: PostPlacement } = getContext('post');
+  let { post, placement } = getPostContext();
   let { quoteCount }: { quoteCount: number | undefined } = $props();
 
   let isLiked = $state(post.liked);

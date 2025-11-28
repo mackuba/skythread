@@ -1,12 +1,11 @@
 <script lang="ts">
-  import { getContext } from 'svelte';
+  import { getPostContext } from './PostComponent.svelte';
   import { sanitizeHTML } from '../../utils.js';
-  import { Post } from '../../models/posts.js';
   import RichTextFromFacets from '../RichTextFromFacets.svelte';
 
   const highlightID = 'search-results';
 
-  let { post }: { post: Post } = getContext('post');
+  let { post } = getPostContext();
   let { highlightedMatches = undefined }: { highlightedMatches?: string[] | undefined } = $props();
 
   let bodyElement: HTMLElement | undefined = $state();

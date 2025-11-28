@@ -1,10 +1,9 @@
 <script lang="ts">
-  import { getContext } from 'svelte';
+  import { getPostContext } from '../posts/PostComponent.svelte';
   import { InlineVideoEmbed, RawVideoEmbed } from '../../models/embeds';
-  import { Post } from '../../models/posts';
 
   let { embed }: { embed: InlineVideoEmbed | RawVideoEmbed } = $props();
-  let { post }: { post: Post } = getContext('post');
+  let { post } = getPostContext();
 
   function videoURL(embed: InlineVideoEmbed | RawVideoEmbed) {
     if (embed instanceof InlineVideoEmbed) {
