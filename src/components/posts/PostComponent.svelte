@@ -2,21 +2,20 @@
   import { setContext } from 'svelte';
   import { HiddenRepliesError } from '../../api/bluesky_api.js';
   import { account } from '../../models/account.svelte.js';
-  import { Post, BlockedPost, DetachedQuotePost } from '../../models/posts.js';
+  import { Post, BlockedPost } from '../../models/posts.js';
   import { Embed, InlineLinkEmbed } from '../../models/embeds.js';
   import { isValidURL, showError } from '../../utils.js';
 
-  import BlockedPostView from './BlockedPostView.svelte';
   import EdgeMargin from './EdgeMargin.svelte';
   import FediSourceLink from './FediSourceLink.svelte';
   import HiddenRepliesLink from './HiddenRepliesLink.svelte';
   import LoadMoreLink from './LoadMoreLink.svelte';
-  import MissingPostView from './MissingPostView.svelte';
   import PostBody from './PostBody.svelte';
   import PostComponent from './PostComponent.svelte';
   import PostHeader from './PostHeader.svelte';
   import PostTagsRow from './PostTagsRow.svelte';
   import PostFooter from './PostFooter.svelte';
+  import PostWrapper from './PostWrapper.svelte';
 
   import EmbedComponent from '../embeds/EmbedComponent.svelte';
 
@@ -29,7 +28,14 @@
     - feed - a post on the hashtag feed page
   */
 
-  let { post, context, highlightedMatches = undefined, ...props } = $props();
+  type Props = {
+    post: Post,
+    context: PostContext,
+    highlightedMatches?: string[] | undefined,
+    class?: string | undefined
+  }
+
+  let { post, context, highlightedMatches = undefined, ...props }: Props = $props();
 
   let collapsed = $state(false);
   let replies: AnyPost[] = $state(post.replies);
@@ -116,72 +122,60 @@
   {/if}
 {/snippet}
 
-{#if post instanceof Post}
-  <div class="post post-{context} {props.class || ''}" class:muted={post.muted} class:collapsed={collapsed}>
-    <PostHeader />
+<div class="post post-{context} {props.class || ''}" class:muted={post.muted} class:collapsed={collapsed}>
+  <PostHeader />
 
-    {#if context == 'thread' && !post.isPageRoot}
-      <EdgeMargin bind:collapsed />
-    {/if}
+  {#if context == 'thread' && !post.isPageRoot}
+    <EdgeMargin bind:collapsed />
+  {/if}
 
-    <div class="content">
-      {#if post.muted}
-        <details>
-          <summary>{post.muteList ? `Muted (${post.muteList})` : 'Muted - click to show'}</summary>
+  <div class="content">
+    {#if post.muted}
+      <details>
+        <summary>{post.muteList ? `Muted (${post.muteList})` : 'Muted - click to show'}</summary>
 
-          {@render body()}
-        </details>
-      {:else}
         {@render body()}
-      {/if}
-
-      {#if post.replyCount == 1 && (replies[0] instanceof Post) && replies[0].author.did == post.author.did}
-        <PostComponent post={replies[0]} context="thread" class="flat" />
-      {:else}
-        {#each replies as reply (reply.uri)}
-          {#if shouldRenderReply(reply)}
-            <PostComponent post={reply} context="thread" />
-          {/if}
-        {/each}
-      {/if}
-
-      {#if context == 'thread' && !repliesLoaded}
-        {#if post.hasMoreReplies}
-          <LoadMoreLink onLoad={onMoreRepliesLoaded} onError={onRepliesLoadingError} />
-        {:else if post.hasHiddenReplies && account.biohazardEnabled !== false}
-          <HiddenRepliesLink onLoad={onHiddenRepliesLoaded} onError={onRepliesLoadingError} />
-        {/if}
-      {/if}
-
-      {#if missingHiddenReplies !== undefined}
-        <p class="missing-replies-info">
-          <i class="fa-solid fa-ban"></i>
-          {#if missingHiddenReplies > 1}
-            {missingHiddenReplies} replies are missing
-          {:else if missingHiddenReplies == 1}
-            1 reply is missing
-          {:else}
-            Some replies are missing
-          {/if}
-          (likely taken down by moderation)
-        </p>
-      {/if}
-
-      {#if hiddenRepliesError}
-        <p class="missing-replies-info">
-          <i class="fa-solid fa-ban"></i> Hidden replies not available (post too old)
-        </p>
-      {/if}
-    </div>
-  </div>
-{:else}
-  <div class="post post-{context} blocked">
-    {#if post instanceof BlockedPost}
-      <BlockedPostView reason="Blocked post" />
-    {:else if post instanceof DetachedQuotePost}
-      <BlockedPostView reason="Hidden quote" />
+      </details>
     {:else}
-      <MissingPostView />
+      {@render body()}
+    {/if}
+
+    {#if post.replyCount == 1 && (replies[0] instanceof Post) && replies[0].author.did == post.author.did}
+      <PostComponent post={replies[0]} context="thread" class="flat" />
+    {:else}
+      {#each replies as reply (reply.uri)}
+        {#if shouldRenderReply(reply)}
+          <PostWrapper post={reply} context="thread" />
+        {/if}
+      {/each}
+    {/if}
+
+    {#if context == 'thread' && !repliesLoaded}
+      {#if post.hasMoreReplies}
+        <LoadMoreLink onLoad={onMoreRepliesLoaded} onError={onRepliesLoadingError} />
+      {:else if post.hasHiddenReplies && account.biohazardEnabled !== false}
+        <HiddenRepliesLink onLoad={onHiddenRepliesLoaded} onError={onRepliesLoadingError} />
+      {/if}
+    {/if}
+
+    {#if missingHiddenReplies !== undefined}
+      <p class="missing-replies-info">
+        <i class="fa-solid fa-ban"></i>
+        {#if missingHiddenReplies > 1}
+          {missingHiddenReplies} replies are missing
+        {:else if missingHiddenReplies == 1}
+          1 reply is missing
+        {:else}
+          Some replies are missing
+        {/if}
+        (likely taken down by moderation)
+      </p>
+    {/if}
+
+    {#if hiddenRepliesError}
+      <p class="missing-replies-info">
+        <i class="fa-solid fa-ban"></i> Hidden replies not available (post too old)
+      </p>
     {/if}
   </div>
-{/if}
+</div>

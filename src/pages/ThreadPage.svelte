@@ -3,6 +3,7 @@
   import { showError } from '../utils.js';
   import MainLoader from '../components/MainLoader.svelte';
   import PostComponent from '../components/posts/PostComponent.svelte';
+  import PostWrapper from '../components/posts/PostWrapper.svelte';
   import ThreadRootParent from '../components/posts/ThreadRootParent.svelte';
   import ThreadRootParentRaw from '../components/posts/ThreadRootParentRaw.svelte';
 
@@ -64,9 +65,11 @@
     {:else if post.parentReference}
       <ThreadRootParentRaw uri={post.parentReference.uri} />
     {/if}
-  {/if}
 
-  <PostComponent {post} context="thread" bind:this={rootComponent} />
+    <PostComponent {post} context="thread" bind:this={rootComponent} />
+  {:else}
+    <PostWrapper {post} context="thread" />
+  {/if}
 {:else if !loadingFailed}
   <MainLoader />
 {/if}

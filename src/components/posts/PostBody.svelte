@@ -7,7 +7,7 @@
   const highlightID = 'search-results';
 
   let { post }: { post: Post } = getContext('post');
-  let { highlightedMatches = undefined }: { highlightedMatches?: string[] } = $props();
+  let { highlightedMatches = undefined }: { highlightedMatches?: string[] | undefined } = $props();
 
   let bodyElement: HTMLElement | undefined = $state();
 

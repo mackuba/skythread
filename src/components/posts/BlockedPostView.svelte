@@ -1,15 +1,19 @@
 <script lang="ts">
-  import { getContext } from 'svelte';
   import { account } from '../../models/account.svelte.js';
-  import { Post } from '../../models/posts.js';
+  import { BlockedPost, DetachedQuotePost, MissingPost, Post } from '../../models/posts.js';
 
   import BlockedPostContent from './BlockedPostContent.svelte';
   import MissingPostView from './MissingPostView.svelte';
   import PostSubtreeLink from './PostSubtreeLink.svelte';
   import ReferencedPostAuthorLink from './ReferencedPostAuthorLink.svelte';
 
-  let { reason }: { reason: string } = $props();
-  let { post, context }: { post: Post, context: PostContext } = getContext('post');
+  type Props = {
+    reason: string;
+    post: BlockedPost | DetachedQuotePost;
+    context: PostContext;
+  }
+
+  let { reason, post, context }: Props = $props();
 
   let biohazardEnabled = $derived(account.biohazardEnabled !== false);
   let loading = $state(false);
@@ -30,7 +34,9 @@
   }
 
   function blockStatus() {
-    if (post.blockedByUser) {
+    if (post instanceof DetachedQuotePost) {
+      return undefined;
+    } else if (post.blockedByUser) {
       return "has blocked you";
     } else if (post.blocksUser) {
       return "you've blocked them";
@@ -45,7 +51,7 @@
     <i class="fa-solid fa-ban"></i> <span>{reason}</span>
 
     {#if biohazardEnabled}
-      <ReferencedPostAuthorLink status={blockStatus()} />
+      <ReferencedPostAuthorLink {post} status={blockStatus()} />
     {/if}
   </p>
 
@@ -62,7 +68,7 @@
   <p class="blocked-header">
     <i class="fa-solid fa-ban"></i> <span>{reason}</span>
 
-    <ReferencedPostAuthorLink status={blockStatus()} />
+    <ReferencedPostAuthorLink {post} status={blockStatus()} />
 
     {#if !(reloadedPost.author.viewer.blockedBy || reloadedPost.author.viewer.blocking)}
       <span class="separator">&bull;</span>
@@ -73,5 +79,5 @@
 
   <BlockedPostContent post={reloadedPost} {context} />
 {:else}
-  <MissingPostView />
+  <MissingPostView post={new MissingPost(post.data)} />
 {/if}
