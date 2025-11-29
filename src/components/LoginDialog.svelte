@@ -2,7 +2,7 @@
   import { submitLogin } from '../skythread.js';
   import { APIError } from '../api.js';
 
-  let { onClose = undefined }: { onClose?: () => void } = $props();
+  let { onClose = undefined }: { onClose?: (() => void) | undefined } = $props();
 
   let identifier: string = $state('');
   let password: string = $state('');
@@ -14,6 +14,11 @@
   function toggleLoginInfo(e: Event) {
     e.preventDefault();
     loginInfoVisible = !loginInfoVisible;
+  }
+
+  function onCloseClick(e: Event) {
+    e.preventDefault();
+    onClose?.();
   }
 
   async function onsubmit(e: Event) {
@@ -44,7 +49,7 @@
 
 <form method="get" {onsubmit}>
   {#if onClose}
-    <i class="close fa-circle-xmark fa-regular" onclick={onClose}></i>
+    <i class="close fa-circle-xmark fa-regular" onclick={onCloseClick}></i>
   {/if}
 
   <h2>🌤 Skythread</h2>

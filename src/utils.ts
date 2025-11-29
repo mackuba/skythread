@@ -2,10 +2,6 @@ export * from './utils/at_uri.js';
 export * from './utils/avatar_preloader.js';
 export * from './utils/text.js';
 
-export function $id<T>(name: string, type?: new (...args: any[]) => T): T {
-  return document.getElementById(name) as T;
-}
-
 export function castToInt(value: any): number | null | undefined {
   if (value === undefined || value === null || typeof value == "number") {
     return value;

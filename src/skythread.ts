@@ -12,23 +12,19 @@ import QuotesPage from './pages/QuotesPage.svelte';
 import TimelineSearchPage from './pages/TimelineSearchPage.svelte';
 import ThreadPage from './pages/ThreadPage.svelte';
 
-import { $id } from './utils.js';
 import { BlueskyAPI, accountAPI } from './api.js';
 import { account } from './models/account.svelte.js';
 import { Lycan, DevLycan } from './services/lycan.js';
 
-/** @type {Record<string, any> | undefined} */
-let loginDialog;
-
-/** @type {Record<string, any> | undefined} */
-let biohazardDialog;
+let loginDialog: Record<string, any> | undefined;
+let biohazardDialog: Record<string, any> | undefined;
 
 
 function init() {
-  svelte.mount(AccountMenu, { target: $id('account_menu_wrap') });
+  svelte.mount(AccountMenu, { target: document.getElementById('account_menu_wrap')! });
 
   for (let dialog of document.querySelectorAll('.dialog')) {
-    let close = /** @type HTMLElement */ (dialog.querySelector('.close'));
+    let close = dialog.querySelector('.close') as HTMLElement;
 
     dialog.addEventListener('click', (e) => {
       if (e.target === e.currentTarget && close && close.offsetHeight > 0) {
@@ -55,9 +51,9 @@ function parseQueryParams() {
   } else if (hash) {
     loadHashtagPage(decodeURIComponent(hash));
   } else if (q) {
-    svelte.mount(ThreadPage, { target: $id('thread'), props: { url: q }});
+    svelte.mount(ThreadPage, { target: document.getElementById('thread')!, props: { url: q }});
   } else if (author && post) {
-    svelte.mount(ThreadPage, { target: $id('thread'), props: { author: author, rkey: post }});
+    svelte.mount(ThreadPage, { target: document.getElementById('thread')!, props: { author: author, rkey: post }});
   } else if (page) {
     openPage(page);
   } else {
@@ -66,7 +62,7 @@ function parseQueryParams() {
 }
 
 function showSearch() {
-  let search = $id('search');
+  let search = document.getElementById('search')!
   svelte.mount(HomeSearch, { target: search });
   search.style.visibility = 'visible';
 }
@@ -74,29 +70,23 @@ function showSearch() {
 function hideDialog(dialog) {
   dialog.style.visibility = 'hidden';
   dialog.classList.remove('expanded');
-  $id('thread').classList.remove('overlay');
+  document.getElementById('thread')!.classList.remove('overlay');
 
   for (let field of dialog.querySelectorAll('input[type=text]')) {
     field.value = '';
   }
 }
 
-/** @param {boolean} showClose */
-
-function showLoginDialog(showClose = true) {
+function showLoginDialog(showClose: boolean = true) {
   if (loginDialog) {
     return;
   }
 
-  let dialog = $id('login');
-  let props = {};
+  let dialog = document.getElementById('login')!
 
-  if (showClose) {
-    props.onClose = (e) => {
-      e.preventDefault();
-      hideLoginDialog();
-    };
-  }
+  let props = {
+    onClose: showClose ? hideLoginDialog : undefined
+  };
 
   dialog.addEventListener('click', (e) => {
     if (e.target === e.currentTarget && showClose) {
@@ -109,7 +99,7 @@ function showLoginDialog(showClose = true) {
   loginDialog = svelte.mount(LoginDialog, { target: dialog, props });
 
   dialog.style.visibility = 'visible';
-  $id('thread').classList.add('overlay');
+  document.getElementById('thread')!.classList.add('overlay');
 }
 
 function hideLoginDialog() {
@@ -117,19 +107,17 @@ function hideLoginDialog() {
     svelte.unmount(loginDialog);
     loginDialog = undefined;
 
-    $id('login').style.visibility = 'hidden';
-    $id('thread').classList.remove('overlay');
+    document.getElementById('login')!.style.visibility = 'hidden';
+    document.getElementById('thread')!.classList.remove('overlay');
   }
 }
 
-/** @param {(() => void)=} onConfirm */
-
-function showBiohazardDialog(onConfirm) {
+function showBiohazardDialog(onConfirm?: () => void) {
   if (biohazardDialog) {
     return;
   }
 
-  let dialog = $id('biohazard_dialog');
+  let dialog = document.getElementById('biohazard_dialog')!
 
   dialog.addEventListener('click', (e) => {
     if (e.target === e.currentTarget) {
@@ -143,15 +131,12 @@ function showBiohazardDialog(onConfirm) {
     target: dialog,
     props: {
       onConfirm: onConfirm,
-      onClose: (e) => {
-        e?.preventDefault();
-        hideBiohazardDialog();
-      }
+      onClose: hideBiohazardDialog
     }
   });
 
   dialog.style.visibility = 'visible';
-  $id('thread').classList.add('overlay');
+  document.getElementById('thread')!.classList.add('overlay');
 }
 
 function hideBiohazardDialog() {
@@ -159,14 +144,12 @@ function hideBiohazardDialog() {
     svelte.unmount(biohazardDialog);
     biohazardDialog = undefined;
 
-    $id('biohazard_dialog').style.visibility = 'hidden';
-    $id('thread').classList.remove('overlay');
+    document.getElementById('biohazard_dialog')!.style.visibility = 'hidden';
+    document.getElementById('thread')!.classList.remove('overlay');
   }
 }
 
-/** @param {string} identifier, @param {string} password, @returns {Promise<void>} */
-
-async function submitLogin(identifier, password) {
+async function submitLogin(identifier: string, password: string) {
   await account.logIn(identifier, password);
 
   hideLoginDialog();
@@ -178,29 +161,27 @@ async function submitLogin(identifier, password) {
   }
 }
 
-/** @param {string} page */
-
-function openPage(page) {
+function openPage(page: string) {
   if (!accountAPI.isLoggedIn) {
     showLoginDialog(false);
     return;
   }
 
   if (page == 'notif') {
-    let div = $id('thread');
+    let div = document.getElementById('thread')!
     div.classList.add('notifications');
     svelte.mount(NotificationsPage, { target: div });
   } else if (page == 'posting_stats') {
-    let div = $id('posting_stats_page');
+    let div = document.getElementById('posting_stats_page')!
     svelte.mount(PostingStatsPage, { target: div });
     div.style.display = 'block';
   } else if (page == 'like_stats') {
-    let div = $id('like_stats_page');
+    let div = document.getElementById('like_stats_page')!
     svelte.mount(LikeStatsPage, { target: div });
     div.style.display = 'block';
   } else if (page == 'search') {
     let params = new URLSearchParams(location.search);
-    let div = $id('private_search_page');
+    let div = document.getElementById('private_search_page')!
 
     if (params.get('mode') == 'likes') {
       let lycan = (params.get('lycan') == 'local') ? new DevLycan() : new Lycan();
@@ -213,19 +194,15 @@ function openPage(page) {
   }
 }
 
-/** @param {string} hashtag */
-
-function loadHashtagPage(hashtag) {
-  let div = $id('thread');
+function loadHashtagPage(hashtag: string) {
+  let div = document.getElementById('thread')!
   div.classList.add('hashtag');
 
   svelte.mount(HashtagPage, { target: div, props: { hashtag }});
 }
 
-/** @param {string} postURL */
-
-function loadQuotesPage(postURL) {
-  let div = $id('thread');
+function loadQuotesPage(postURL: string) {
+  let div = document.getElementById('thread')!
   div.classList.add('quotes');
 
   svelte.mount(QuotesPage, { target: div, props: { postURL }});
