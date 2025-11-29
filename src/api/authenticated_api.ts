@@ -1,4 +1,4 @@
-import { BlueskyAPI } from "./bluesky_api";
+import { BlueskyAPI, type TimelineFetchOptions } from "./bluesky_api";
 import { AuthError, type FetchAllOnPageLoad } from './minisky.js';
 import { Post } from '../models/posts.js';
 import { atURI, feedPostTime } from '../utils.js';
@@ -80,10 +80,7 @@ export class AuthenticatedAPI extends BlueskyAPI {
     return { cursor: response.cursor, posts: postGroups.flat() };
   }
 
-  async loadHomeTimeline(
-    days: number,
-    options: { onPageLoad?: FetchAllOnPageLoad; keepLastPage?: boolean } = {}
-  ): Promise<json[]> {
+  async loadHomeTimeline(days: number, options: TimelineFetchOptions = {}): Promise<json[]> {
     let now = new Date();
     let timeLimit = now.getTime() - days * 86400 * 1000;
 
@@ -91,8 +88,7 @@ export class AuthenticatedAPI extends BlueskyAPI {
       params: { limit: 100 },
       field: 'feed',
       breakWhen: (x: json) => feedPostTime(x) < timeLimit,
-      onPageLoad: options.onPageLoad,
-      keepLastPage: options.keepLastPage
+      ...options
     });
   }
 

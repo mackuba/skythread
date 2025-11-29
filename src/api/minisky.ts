@@ -53,8 +53,8 @@ export type FetchAllOptions = MiniskyOptions & MiniskyRequestOptions & {
   field: string;
   params?: json;
   breakWhen?: (obj: json) => boolean;
-  keepLastPage?: boolean | undefined;
-  onPageLoad?: FetchAllOnPageLoad | undefined;
+  keepLastPage?: boolean;
+  onPageLoad?: FetchAllOnPageLoad;
 };
 
 export class Minisky {

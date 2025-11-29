@@ -43,6 +43,11 @@ type AuthorFeedFilter =
   | 'posts_with_media'            // posts and replies, but only with images (no reposts)
   | 'posts_with_video';           // posts and replies, but only with videos (no reposts)
 
+export type TimelineFetchOptions = {
+  onPageLoad?: FetchAllOnPageLoad;
+  keepLastPage?: boolean;
+}
+
 /**
  * API client for connecting to the Bluesky XRPC API (authenticated or not).
  */
@@ -133,7 +138,7 @@ export class BlueskyAPI extends Minisky {
     return json.quoteCount;
   }
 
-  async getQuotes(url: string, cursor: string | undefined = undefined): Promise<json> {
+  async getQuotes(url: string, cursor?: string): Promise<json> {
     let postURI: string;
 
     if (url.startsWith('at://')) {
@@ -153,7 +158,7 @@ export class BlueskyAPI extends Minisky {
     return await this.getRequest('blue.feeds.post.getQuotes', params);
   }
 
-  async getHashtagFeed(hashtag: string, cursor: string | undefined = undefined): Promise<json> {
+  async getHashtagFeed(hashtag: string, cursor?: string): Promise<json> {
     let params: Record<string, any> = { q: '#' + hashtag, limit: 50, sort: 'latest' };
 
     if (cursor) {
@@ -186,29 +191,25 @@ export class BlueskyAPI extends Minisky {
   async loadUserTimeline(
     did: string,
     days: number,
-    options: { filter: AuthorFeedFilter, onPageLoad?: FetchAllOnPageLoad, keepLastPage?: boolean }
+    options: { filter: AuthorFeedFilter } & TimelineFetchOptions
   ): Promise<json[]> {
     let now = new Date();
     let timeLimit = now.getTime() - days * 86400 * 1000;
+    let { filter, ...fetchOptions } = options;
 
     return await this.fetchAll('app.bsky.feed.getAuthorFeed', {
       params: {
         actor: did,
-        filter: options.filter,
+        filter: filter,
         limit: 100
       },
       field: 'feed',
       breakWhen: (x: json) => feedPostTime(x) < timeLimit,
-      onPageLoad: options.onPageLoad,
-      keepLastPage: options.keepLastPage
+      ...fetchOptions
     });
   }
 
-  async loadListTimeline(
-    list: string,
-    days: number,
-    options: { onPageLoad?: FetchAllOnPageLoad, keepLastPage?: boolean } = {}
-  ): Promise<json[]> {
+  async loadListTimeline(list: string, days: number, options: TimelineFetchOptions = {}): Promise<json[]> {
     let now = new Date();
     let timeLimit = now.getTime() - days * 86400 * 1000;
 
@@ -219,8 +220,7 @@ export class BlueskyAPI extends Minisky {
       },
       field: 'feed',
       breakWhen: (x: json) => feedPostTime(x) < timeLimit,
-      onPageLoad: options.onPageLoad,
-      keepLastPage: options.keepLastPage
+      ...options
     });
   }
 
