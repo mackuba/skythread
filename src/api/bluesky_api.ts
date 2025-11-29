@@ -1,4 +1,5 @@
 import { HandleCache } from './handle_cache.js';
+import { blueAPI, appView } from '../api.js';
 import { APIError, Minisky, type FetchAllOnPageLoad, type MiniskyConfig, type MiniskyOptions } from './minisky.js';
 import { atURI, feedPostTime } from '../utils.js';
 import { Post } from '../models/posts.js';

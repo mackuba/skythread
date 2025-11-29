@@ -27,9 +27,9 @@ class LocalStorageConfig {
 export class AuthenticatedAPI extends BlueskyAPI {
   user: json;
 
-  constructor(host?: string | null | undefined) {
+  constructor() {
     let config = new LocalStorageConfig();
-    let pds: string | null = host || config.user.pdsEndpoint || null;
+    let pds: string | null = config.user.pdsEndpoint || null;
     super(pds, config);
     this.user = config.user;
   }

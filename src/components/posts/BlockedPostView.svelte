@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { api } from '../../api.js';
   import { BlockedPost, DetachedQuotePost, MissingPost, Post } from '../../models/posts.js';
   import { settings } from '../../models/settings.svelte.js';
 

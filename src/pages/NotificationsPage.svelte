@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { accountAPI } from '../api.js';
   import { Post } from '../models/posts.js';
   import * as paginator from '../utils/paginator.js';
   import FeedPostParent from '../components/posts/FeedPostParent.svelte';

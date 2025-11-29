@@ -1,5 +1,5 @@
 import { atURI, feedPostTime } from '../utils.js';
-import { BlueskyAPI } from '../api.js';
+import { BlueskyAPI, accountAPI } from '../api.js';
 
 export type LikeStatsResponse = { givenLikes: LikeStat[], receivedLikes: LikeStat[] }
 export type LikeStat = { handle?: string, did?: string, avatar?: string, count: number }
@@ -36,7 +36,7 @@ export class LikeStats {
     let givenStats = this.sumUpGivenLikes(givenLikes);
     let topGiven = this.getTopEntries(givenStats);
 
-    let profileInfo = await appView.getRequest('app.bsky.actor.getProfiles', { actors: topGiven.map(x => x.did) });
+    let profileInfo = await this.appView.getRequest('app.bsky.actor.getProfiles', { actors: topGiven.map(x => x.did) });
 
     for (let profile of profileInfo.profiles) {
       let user = topGiven.find(x => x.did == profile.did)!;

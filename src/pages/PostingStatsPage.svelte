@@ -1,6 +1,7 @@
 <script lang="ts">
   import UserAutocomplete, { type AutocompleteUser } from '../components/UserAutocomplete.svelte';
   import PostingStatsTable from '../components/PostingStatsTable.svelte';
+  import { accountAPI } from '../api.js';
   import { PostingStats, type PostingStatsResult } from '../services/posting_stats.js';
   import { numberOfDays } from '../utils.js';
 

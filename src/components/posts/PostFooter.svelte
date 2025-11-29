@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { accountAPI } from '../../api.js';
   import { getPostContext } from './PostComponent.svelte';
   import { linkToPostThread, linkToQuotesPage } from '../../router.js';
   import { account } from '../../models/account.svelte.js';

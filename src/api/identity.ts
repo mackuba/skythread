@@ -1,3 +1,4 @@
+import { appView } from '../api.js';
 import { APIError } from './minisky.js';
 
 /**

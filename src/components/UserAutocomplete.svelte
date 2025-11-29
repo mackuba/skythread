@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { api } from '../api.js';
+
   export type AutocompleteUser = {
     did: string;
     handle: string;
@@ -61,7 +63,7 @@
   }
 
   async function fetchAutocomplete(query: string) {
-    let users = await accountAPI.autocompleteUsers(query) as AutocompleteUser[];
+    let users = await api.autocompleteUsers(query) as AutocompleteUser[];
 
     let selectedDIDs = new Set(selectedUserDIDs);
     users = users.filter(u => !selectedDIDs.has(u.did));

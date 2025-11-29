@@ -1,6 +1,6 @@
 import { Post } from '../models/posts.js';
 import * as paginator from '../utils/paginator.js';
-import { BlueskyAPI } from '../api.js';
+import { BlueskyAPI, accountAPI } from '../api.js';
 
 export type OnPostsLoaded = (data: { posts: Post[], terms: string[] }) => void
 export type OnFinish = () => void

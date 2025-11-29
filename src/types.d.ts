@@ -5,11 +5,6 @@ interface Window {
   BlueskyAPI: typeof import("./api/bluesky_api.js").BlueskyAPI;
 }
 
-declare var accountAPI: import("./api/authenticated_api.js").AuthenticatedAPI;
-declare var blueAPI: import("./api/bluesky_api.js").BlueskyAPI;
-declare var appView: import("./api/bluesky_api.js").BlueskyAPI;
-declare var api: import("./api/bluesky_api.js").BlueskyAPI;
-
 type json = Record<string, any>;
 
 type AnyPost = import("./models/posts.js").Post

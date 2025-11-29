@@ -1,4 +1,4 @@
-import { BlueskyAPI } from '../api.js';
+import { BlueskyAPI, accountAPI } from '../api.js';
 import { feedPostTime } from '../utils.js';
 
 /**

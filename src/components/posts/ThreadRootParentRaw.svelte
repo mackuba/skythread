@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { api } from '../../api.js';
   import { linkToPostById } from '../../router.js';
   import { atURI } from '../../utils.js';
 

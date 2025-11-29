@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { api } from '../../api.js';
   import { getPostContext } from '../posts/PostComponent.svelte';
   import { BasePost, Post, MissingPost } from '../../models/posts.js';
   import { InlineRecordEmbed, InlineRecordWithMediaEmbed } from '../../models/embeds.js';

@@ -13,7 +13,7 @@ import TimelineSearchPage from './pages/TimelineSearchPage.svelte';
 import ThreadPage from './pages/ThreadPage.svelte';
 
 import { $id } from './utils.js';
-import { AuthenticatedAPI, BlueskyAPI } from './api.js';
+import { BlueskyAPI, accountAPI } from './api.js';
 import { account } from './models/account.svelte.js';
 import { Lycan, DevLycan } from './services/lycan.js';
 
@@ -42,11 +42,6 @@ function init() {
       hideDialog(dialog);
     });
   }
-
-  window.appView = new BlueskyAPI('api.bsky.app');
-  window.blueAPI = new BlueskyAPI('blue.mackuba.eu');
-  window.accountAPI = new AuthenticatedAPI();
-  window.api = (accountAPI.isLoggedIn && !account.isIncognito) ? accountAPI : appView;
 
   parseQueryParams();
 }
@@ -172,10 +167,7 @@ function hideBiohazardDialog() {
 /** @param {string} identifier, @param {string} password, @returns {Promise<void>} */
 
 async function submitLogin(identifier, password) {
-  let pds = await account.logIn(identifier, password);
-
-  window.api = pds;
-  window.accountAPI = pds;
+  await account.logIn(identifier, password);
 
   hideLoginDialog();
 

@@ -1,3 +1,4 @@
+import { accountAPI } from '../api.js';
 import { Post, parseFeedPost } from '../models/posts.js';
 import { feedPostTime } from '../utils.js';
 

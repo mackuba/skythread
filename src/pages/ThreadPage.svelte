@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { api, blueAPI } from '../api.js';
   import { Post, parseThreadPost } from '../models/posts.js';
   import { showError } from '../utils.js';
   import MainLoader from '../components/MainLoader.svelte';

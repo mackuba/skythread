@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { api } from '../../api.js';
   import { showBiohazardDialog } from '../../skythread.js';
   import { settings } from '../../models/settings.svelte.js';
   import { parseThreadPost } from '../../models/posts.js';

@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { api } from '../../api.js';
   import { Post, parseThreadPost } from '../../models/posts.js';
   import { linkToPostThread } from '../../router.js';
   import { getPostContext } from './PostComponent.svelte';

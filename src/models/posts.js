@@ -1,3 +1,4 @@
+import { api } from '../api.js';
 import { atURI, castToInt } from '../utils.js';
 import { ATProtoRecord, FeedGeneratorRecord, StarterPackRecord, UserListRecord } from './records.js';
 import { Embed } from './embeds.js';

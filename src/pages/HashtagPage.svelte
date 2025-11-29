@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { api } from '../api.js';
   import { Post } from '../models/posts.js';
   import * as paginator from '../utils/paginator.js';
   import MainLoader from '../components/MainLoader.svelte';

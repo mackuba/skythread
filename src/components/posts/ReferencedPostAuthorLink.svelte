@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { Post } from '../../models/posts.js';
+  import { api } from '../../api.js';
   import { atURI } from '../../utils.js';
 
   let { post, status = undefined }: { post: AnyPost, status?: string | undefined } = $props();
