@@ -16,10 +16,6 @@
     e.preventDefault();
     settings.biohazardsEnabled = false;
 
-    for (let p of document.querySelectorAll('p.hidden-replies, .content > .post.blocked, .blocked > .load-post')) {
-      (p as HTMLElement).style.display = 'none';
-    }
-
     onClose?.();
   }
 </script>
