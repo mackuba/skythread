@@ -27,9 +27,9 @@
       }
     } else {
       let reloadedPost = await api.loadPostIfExists(post.uri).then(x => x && new Post(x));
-      let newEmbed = reloadedPost && reloadedPost.embed;
+      let newEmbed = reloadedPost?.embed;
 
-      if (newEmbed && (newEmbed instanceof InlineRecordEmbed || newEmbed instanceof InlineRecordWithMediaEmbed)) {
+      if (newEmbed instanceof InlineRecordEmbed || newEmbed instanceof InlineRecordWithMediaEmbed) {
         return newEmbed.record;
       } else {
         return new MissingPost(record);

@@ -166,7 +166,7 @@ export class LikeStats {
     this.progressLikeRecords = 0;
     this.progressPostLikes = 0;
 
-    this.onProgress && this.onProgress(0);
+    this.onProgress?.(0);
   }
 
   updateProgress(data: { posts?: number, likeRecords?: number, postLikes?: number }) {
@@ -188,7 +188,7 @@ export class LikeStats {
       0.25 * this.progressPostLikes
     );
 
-    this.onProgress && this.onProgress(totalProgress);
+    this.onProgress?.(totalProgress);
   }
 
   sortResults(a: [string, LikeStat], b: [string, LikeStat]): -1 | 1 | 0 {

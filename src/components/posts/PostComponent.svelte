@@ -68,7 +68,7 @@
 
   function shouldRenderEmbed(embed: Embed): boolean {
     if (post.originalFediURL) {
-      if (embed instanceof InlineLinkEmbed && embed.title && embed.title.startsWith('Original post on ')) {
+      if (embed instanceof InlineLinkEmbed && embed.title?.startsWith('Original post on ')) {
         return false;
       }
     }

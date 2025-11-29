@@ -175,7 +175,7 @@ export class PostingStats {
     let lastDate = feedPostTime(last);
     let daysBack = (startTime - lastDate) / 86400 / 1000;
 
-    this.onProgress && this.onProgress(daysBack);
+    this.onProgress?.(daysBack);
   }
 
   resetUserProgress(dids: string[]) {
@@ -203,7 +203,7 @@ export class PostingStats {
     let fetchedPages = Object.values(this.userProgress).map(x => x.pages).reduce((a, b) => a + b);
 
     let progress = (fetchedPages / expectedTotalPages) * requestedDays;
-    this.onProgress && this.onProgress(progress);
+    this.onProgress?.(progress);
   }
 
   abortScan() {
