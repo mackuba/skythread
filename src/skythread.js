@@ -26,8 +26,6 @@ let biohazardDialog;
 
 
 function init() {
-  window.avatarPreloader = buildAvatarPreloader();
-
   svelte.mount(AccountMenu, { target: $id('account_menu_wrap') });
 
   for (let dialog of document.querySelectorAll('.dialog')) {
@@ -71,22 +69,6 @@ function parseQueryParams() {
   } else {
     showSearch();
   }
-}
-
-/** @returns {IntersectionObserver} */
-
-function buildAvatarPreloader() {
-  return new IntersectionObserver((entries, observer) => {
-    for (const entry of entries) {
-      if (entry.isIntersecting) {
-        const img = entry.target;
-        img.removeAttribute('lazy');
-        observer.unobserve(img);
-      }
-    }
-  }, {
-    rootMargin: '1000px 0px'
-  });
 }
 
 function showSearch() {

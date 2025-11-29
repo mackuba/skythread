@@ -9,7 +9,6 @@ declare var accountAPI: import("./api/authenticated_api.js").AuthenticatedAPI;
 declare var blueAPI: import("./api/bluesky_api.js").BlueskyAPI;
 declare var appView: import("./api/bluesky_api.js").BlueskyAPI;
 declare var api: import("./api/bluesky_api.js").BlueskyAPI;
-declare var avatarPreloader: IntersectionObserver;
 
 type json = Record<string, any>;
 

@@ -1,5 +1,6 @@
 <script lang="ts">
   import { getPostContext } from './PostComponent.svelte';
+  import { avatarPreloader } from '../../utils.js';
   import { PostPresenter } from '../../utils/post_presenter.js';
   import PostSubtreeLink from './PostSubtreeLink.svelte';
 
@@ -10,11 +11,10 @@
 
   $effect(() => {
     if (avatar) {
-      let av = avatar;
-      window.avatarPreloader.observe(av);
+      avatarPreloader.observe(avatar);
 
       return () => {
-        window.avatarPreloader.unobserve(av);
+        avatar && avatarPreloader.unobserve(avatar);
       }
     }
   });
