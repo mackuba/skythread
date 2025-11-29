@@ -1,5 +1,6 @@
 import { sameDay } from '../utils.js';
 import { Post } from '../models/posts.js';
+import { settings } from '../models/settings.svelte.js';
 
 export class PostPresenter {
 
@@ -34,6 +35,6 @@ export class PostPresenter {
 
   get formattedTimestamp() {
     let timeFormat = this.timeFormatForTimestamp;
-    return this.post.createdAt.toLocaleString(window.dateLocale, timeFormat);
+    return this.post.createdAt.toLocaleString(settings.dateLocale, timeFormat);
   }
 }

@@ -5,7 +5,7 @@
 <script lang="ts">
   import { createContext } from 'svelte';
   import { HiddenRepliesError } from '../../api/bluesky_api.js';
-  import { account } from '../../models/account.svelte.js';
+  import { settings } from '../../models/settings.svelte.js';
   import { Post, BlockedPost } from '../../models/posts.js';
   import { Embed, InlineLinkEmbed } from '../../models/embeds.js';
   import { isValidURL, showError } from '../../utils.js';
@@ -60,7 +60,7 @@
     if (reply instanceof Post) {
       return true;
     } else if (reply instanceof BlockedPost) {
-      return (account.biohazardEnabled !== false);
+      return (settings.biohazardsEnabled !== false);
     } else {
       return false;
     }
@@ -157,7 +157,7 @@
     {#if placement == 'thread' && !repliesLoaded}
       {#if post.hasMoreReplies}
         <LoadMoreLink onLoad={onMoreRepliesLoaded} onError={onRepliesLoadingError} />
-      {:else if post.hasHiddenReplies && account.biohazardEnabled !== false}
+      {:else if post.hasHiddenReplies && settings.biohazardsEnabled !== false}
         <HiddenRepliesLink onLoad={onHiddenRepliesLoaded} onError={onRepliesLoadingError} />
       {/if}
     {/if}

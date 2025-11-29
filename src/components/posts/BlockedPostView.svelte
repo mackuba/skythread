@@ -1,6 +1,6 @@
 <script lang="ts">
-  import { account } from '../../models/account.svelte.js';
   import { BlockedPost, DetachedQuotePost, MissingPost, Post } from '../../models/posts.js';
+  import { settings } from '../../models/settings.svelte.js';
 
   import BlockedPostContent from './BlockedPostContent.svelte';
   import MissingPostView from './MissingPostView.svelte';
@@ -15,7 +15,7 @@
 
   let { reason, post, placement }: Props = $props();
 
-  let biohazardEnabled = $derived(account.biohazardEnabled !== false);
+  let biohazardEnabled = $derived(settings.biohazardsEnabled !== false);
   let loading = $state(false);
   let postNotFound = $state(false);
   let reloadedPost: Post | undefined = $state();

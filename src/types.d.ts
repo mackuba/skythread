@@ -1,5 +1,4 @@
 interface Window {
-  dateLocale: string | undefined;
   root: AnyPost;
   subtreeRoot: AnyPost;
   init: () => void;

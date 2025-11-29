@@ -1,6 +1,6 @@
 <script lang="ts">
   import { showBiohazardDialog } from '../../skythread.js';
-  import { account } from '../../models/account.svelte.js';
+  import { settings } from '../../models/settings.svelte.js';
   import { parseThreadPost } from '../../models/posts.js';
   import { linkToPostThread } from '../../router.js';
   import { getPostContext } from './PostComponent.svelte';
@@ -17,7 +17,7 @@
   function onLinkClick(e: Event) {
     e.preventDefault();
 
-    if (account.biohazardEnabled === true) {
+    if (settings.biohazardsEnabled === true) {
       loadHiddenReplies();
     } else {
       showBiohazardDialog(() => {

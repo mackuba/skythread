@@ -1,5 +1,6 @@
 <script lang="ts">
   import { Post } from '../models/posts';
+  import { settings } from '../models/settings.svelte';
   import { Lycan } from '../services/lycan';
   import PostComponent from '../components/posts/PostComponent.svelte';
 
@@ -119,7 +120,7 @@
     if (info.progress == 1.0) {
       importStatusLabel = `Import complete ✓`;
     } else if (info.position) {
-      let date = new Date(info.position).toLocaleString(window.dateLocale, { day: 'numeric', month: 'short', year: 'numeric' });
+      let date = new Date(info.position).toLocaleString(settings.dateLocale, { day: 'numeric', month: 'short', year: 'numeric' });
       importStatusLabel = `Downloaded data until: ${date}`;
     } else if (info.status == 'requested') {
       importStatusLabel = 'Requesting import…';

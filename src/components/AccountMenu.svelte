@@ -1,6 +1,7 @@
 <script lang="ts">
   import { showLoginDialog } from '../skythread.js';
   import { account } from '../models/account.svelte.js';
+  import { settings } from '../models/settings.svelte.js';
   import { getBaseLocation } from '../router.js';
   import AccountMenuButton from './AccountMenuButton.svelte';
   import LoadableImage from './LoadableImage.svelte';
@@ -28,14 +29,10 @@
   function toggleBiohazard(e: Event) {
     e.preventDefault();
 
-    let hazards = document.querySelectorAll('p.hidden-replies, .content > .post.blocked, .blocked > .load-post');
-
-    if (account.biohazardEnabled === false) {
-      account.biohazardEnabled = true;
-      Array.from(hazards).forEach(p => { (p as HTMLElement).style.display = 'block' });
+    if (settings.biohazardsEnabled === false) {
+      settings.biohazardsEnabled = true;
     } else {
-      account.biohazardEnabled = false;
-      Array.from(hazards).forEach(p => { (p as HTMLElement).style.display = 'none' });
+      settings.biohazardsEnabled = false;
     }
   }
 
@@ -94,7 +91,7 @@
       onclick={toggleBiohazard}
       label="Show infohazards"
       title="Show links to blocked and hidden comments"
-      showCheckmark={account.biohazardEnabled !== false}
+      showCheckmark={settings.biohazardsEnabled !== false}
     />
 
     {#if !account.loggedIn}

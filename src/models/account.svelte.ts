@@ -1,47 +1,27 @@
 import { AuthenticatedAPI } from '../api/authenticated_api.js';
 import { pdsEndpointForIdentifier } from '../api/identity.js';
+import { settings } from './settings.svelte.js';
 
 class Account {
-  #isIncognito: boolean;
-  #biohazardEnabled: boolean | undefined;
   #loggedIn: boolean;
   #avatarURL: string | undefined;
   #avatarIsLoading: boolean;
 
   constructor() {
-    let incognito = localStorage.getItem('incognito');
-    let biohazard = localStorage.getItem('biohazard');
-    let biohazardEnabled = biohazard ? !!JSON.parse(biohazard) : undefined;
     let accountAPI = new AuthenticatedAPI();
 
-    this.#isIncognito = $state(accountAPI.isLoggedIn && !!incognito);
-    this.#biohazardEnabled = $state(biohazardEnabled);
     this.#loggedIn = $state(accountAPI.isLoggedIn);
     this.#avatarURL = $state(accountAPI.isLoggedIn ? accountAPI.user.avatar : undefined);
     this.#avatarIsLoading = $state(false);
   }
 
   get isIncognito(): boolean {
-    return this.#isIncognito;
+    return !!settings.incognitoMode;
   }
 
   toggleIncognitoMode() {
-    if (!this.#isIncognito) {
-      localStorage.setItem('incognito', '1');
-    } else {
-      localStorage.removeItem('incognito');
-    }
-
+    settings.incognitoMode = !this.isIncognito;
     location.reload();
-  }
-
-  get biohazardEnabled(): boolean | undefined {
-    return this.#biohazardEnabled;
-  }
-
-  set biohazardEnabled(value: boolean) {
-    this.#biohazardEnabled = value;
-    localStorage.setItem('biohazard', JSON.stringify(value));
   }
 
   get loggedIn(): boolean {
@@ -78,7 +58,7 @@ class Account {
 
   logOut() {
     window.accountAPI.resetTokens();
-    localStorage.removeItem('incognito');
+    settings.logOut();
     location.reload();
   }
 }

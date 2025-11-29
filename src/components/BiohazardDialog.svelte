@@ -1,12 +1,12 @@
 <script lang="ts">
-  import { account } from '../models/account.svelte.js';
+  import { settings } from '../models/settings.svelte.js';
 
   type Props = { onConfirm?: (() => void) | undefined, onClose?: (() => void) | undefined };
   let { onConfirm = undefined, onClose = undefined }: Props = $props();
 
   function showBiohazard(e: Event) {
     e.preventDefault();
-    account.biohazardEnabled = true;
+    settings.biohazardsEnabled = true;
 
     onConfirm?.()
     onClose?.();
@@ -14,7 +14,7 @@
 
   function hideBiohazard(e: Event) {
     e.preventDefault();
-    account.biohazardEnabled = false;
+    settings.biohazardsEnabled = false;
 
     for (let p of document.querySelectorAll('p.hidden-replies, .content > .post.blocked, .blocked > .load-post')) {
       (p as HTMLElement).style.display = 'none';

@@ -26,7 +26,6 @@ let biohazardDialog;
 
 
 function init() {
-  window.dateLocale = localStorage.getItem('locale') || undefined;
   window.avatarPreloader = buildAvatarPreloader();
 
   svelte.mount(AccountMenu, { target: $id('account_menu_wrap') });
