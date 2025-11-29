@@ -18,17 +18,23 @@
   async function startScan(e: Event) {
     e.preventDefault();
 
-    if (!fetchInProgress) {
-      progressMax = timeRangeDays;
-      progress = 0;
+    try {
+      if (!fetchInProgress) {
+        progressMax = timeRangeDays;
+        progress = 0;
 
-      await timelineSearch.fetchTimeline(timeRangeDays, (p) => { progress = p });
+        await timelineSearch.fetchTimeline(timeRangeDays, (p) => { progress = p });
 
-      daysFetched = progress;
-      progress = undefined;
-    } else {
-      progress = undefined;
-      timelineSearch.stopFetch();
+        daysFetched = progress;
+        progress = undefined;
+      } else {
+        progress = undefined;
+        timelineSearch.abortFetch();
+      }
+    } catch (error) {
+      if (error.name !== 'AbortError') {
+        throw error;
+      }
     }
   }
 

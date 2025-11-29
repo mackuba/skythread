@@ -45,9 +45,10 @@ export type MiniskyConfig = {
 export type MiniskyRequestOptions = {
   auth?: string | boolean;
   headers?: Record<string, string>;
+  abortSignal?: AbortSignal;
 };
 
-export type FetchAllOnPageLoad = (items: json[]) => { cancel: true } | undefined | void;
+export type FetchAllOnPageLoad = (items: json[]) => void;
 
 export type FetchAllOptions = MiniskyOptions & MiniskyRequestOptions & {
   field: string;
@@ -91,7 +92,7 @@ export class Minisky {
     return !!(this.user && this.user.accessToken && this.user.refreshToken && this.user.did && this.user.pdsEndpoint);
   }
 
-  async getRequest(method: string, params?: json | null, options?: MiniskyRequestOptions): Promise<json> {
+  async getRequest(method: string, params?: json | null, options: MiniskyRequestOptions = {}): Promise<json> {
     let url = new URL(`${this.baseURL}/${method}`);
     let auth = options && ('auth' in options) ? options.auth : this.sendAuthHeaders;
 
@@ -109,17 +110,17 @@ export class Minisky {
       }
     }
 
-    let headers = this.authHeaders(auth);
+    let headers: HeadersInit = this.authHeaders(auth);
 
-    if (options && options.headers) {
+    if (options.headers) {
       Object.assign(headers, options.headers);
     }
 
-    let response = await fetch(url, { headers: headers });
+    let response = await fetch(url, { headers: headers, signal: options.abortSignal ?? null });
     return await this.parseResponse(response);
   }
 
-  async postRequest(method: string, data?: json | null, options?: MiniskyRequestOptions): Promise<json> {
+  async postRequest(method: string, data?: json | null, options: MiniskyRequestOptions = {}): Promise<json> {
     let url = `${this.baseURL}/${method}`;
     let auth = options && ('auth' in options) ? options.auth : this.sendAuthHeaders;
 
@@ -127,17 +128,23 @@ export class Minisky {
       await this.checkAccess();
     }
 
-    let request: Record<string, any> = { method: 'POST', headers: this.authHeaders(auth) };
+    let headers: HeadersInit = this.authHeaders(auth);
+    let request: RequestInit = { method: 'POST' };
 
     if (data) {
       request.body = JSON.stringify(data);
-      request.headers['Content-Type'] = 'application/json';
+      headers['Content-Type'] = 'application/json';
     }
 
-    if (options && options.headers) {
-      Object.assign(request.headers, options.headers);
+    if (options.headers) {
+      Object.assign(headers, options.headers);
     }
 
+    if (options.abortSignal) {
+      request.signal = options.abortSignal;
+    }
+
+    request.headers = headers;
     let response = await fetch(url, request);
     return await this.parseResponse(response);
   }
@@ -149,7 +156,7 @@ export class Minisky {
 
     let data: json[] = [];
     let reqParams: json = options.params ?? {};
-    let reqOptions = this.sliceOptions(options, ['auth', 'headers']);
+    let reqOptions = this.sliceOptions(options, ['auth', 'headers', 'abortSignal']) as MiniskyRequestOptions;
 
     for (;;) {
       let response = await this.getRequest(method, reqParams, reqOptions);
@@ -171,14 +178,7 @@ export class Minisky {
 
       data = data.concat(items);
       reqParams.cursor = cursor;
-
-      if (options.onPageLoad) {
-        let result = options.onPageLoad(items);
-
-        if (result?.cancel) {
-          break;
-        }
-      }
+      options.onPageLoad?.(items);
 
       if (!cursor) {
         break;

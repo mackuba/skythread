@@ -46,6 +46,7 @@ type AuthorFeedFilter =
 export type TimelineFetchOptions = {
   onPageLoad?: FetchAllOnPageLoad;
   keepLastPage?: boolean;
+  abortSignal?: AbortSignal;
 }
 
 /**

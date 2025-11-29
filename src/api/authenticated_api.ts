@@ -1,5 +1,5 @@
 import { BlueskyAPI, type TimelineFetchOptions } from "./bluesky_api";
-import { AuthError, type FetchAllOnPageLoad } from './minisky.js';
+import { AuthError } from './minisky.js';
 import { Post } from '../models/posts.js';
 import { atURI, feedPostTime } from '../utils.js';
 

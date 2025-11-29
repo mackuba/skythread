@@ -14,18 +14,24 @@
   async function startScan(e: Event) {
     e.preventDefault();
 
-    if (!scanInProgress) {
-      givenLikesUsers = undefined;
-      receivedLikesUsers = undefined;
+    try {
+      if (!scanInProgress) {
+        givenLikesUsers = undefined;
+        receivedLikesUsers = undefined;
 
-      let result = await likeStats.findLikes(timeRangeDays, (p) => { progress = p });
+        let result = await likeStats.findLikes(timeRangeDays, (p) => { progress = p });
 
-      givenLikesUsers = result.givenLikes;
-      receivedLikesUsers = result.receivedLikes;
-      progress = undefined;
-    } else {
-      likeStats.stopScan();
-      progress = undefined;
+        givenLikesUsers = result.givenLikes;
+        receivedLikesUsers = result.receivedLikes;
+        progress = undefined;
+      } else {
+        likeStats.abortScan();
+        progress = undefined;
+      }
+    } catch (error) {
+      if (error.name !== 'AbortError') {
+        throw error;
+      }
     }
   }
 </script>

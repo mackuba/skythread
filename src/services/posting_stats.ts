@@ -35,9 +35,9 @@ export type PostingStatsResult = {
 
 export class PostingStats {
   appView: BlueskyAPI;
-  scanStartTime: number | undefined;
   userProgress: Record<string, { pages: number, progress: number }>;
   onProgress: OnProgress | undefined;
+  abortController?: AbortController;
 
   constructor(onProgress?: OnProgress) {
     this.onProgress = onProgress;
@@ -45,20 +45,13 @@ export class PostingStats {
     this.userProgress = {};
   }
 
-  onPageLoad(data: json[], startTime: number): { cancel: true } | undefined {
-    if (this.scanStartTime == startTime) {
-      this.updateProgress(data, startTime);
-    } else {
-      return { cancel: true };
-    }
-  }
-
   async scanHomeTimeline(requestedDays: number): Promise<PostingStatsResult | null> {
     let startTime = new Date().getTime();
-    this.scanStartTime = startTime;
+    this.abortController = new AbortController();
 
     let posts = await accountAPI.loadHomeTimeline(requestedDays, {
-      onPageLoad: (d) => this.onPageLoad(d, startTime),
+      onPageLoad: (data) => this.updateProgress(data, startTime),
+      abortSignal: this.abortController.signal,
       keepLastPage: true
     });
 
@@ -67,10 +60,11 @@ export class PostingStats {
 
   async scanListTimeline(listURI: string, requestedDays: number): Promise<PostingStatsResult | null> {
     let startTime = new Date().getTime();
-    this.scanStartTime = startTime;
+    this.abortController = new AbortController();
 
     let posts = await accountAPI.loadListTimeline(listURI, requestedDays, {
-      onPageLoad: (d) => this.onPageLoad(d, startTime),
+      onPageLoad: (data) => this.updateProgress(data, startTime),
+      abortSignal: this.abortController.signal,
       keepLastPage: true
     });
 
@@ -79,20 +73,15 @@ export class PostingStats {
 
   async scanUserTimelines(users: UserWithHandle[], requestedDays: number): Promise<PostingStatsResult | null> {
     let startTime = new Date().getTime();
-    this.scanStartTime = startTime;
-
     let dids = users.map(u => u.did);
     this.resetUserProgress(dids);
+    this.abortController = new AbortController();
 
+    let abortSignal = this.abortController.signal;
     let requests = dids.map(did => this.appView.loadUserTimeline(did, requestedDays, {
       filter: 'posts_and_author_threads',
-      onPageLoad: (data) => {
-        if (this.scanStartTime != startTime) {
-          return { cancel: true };
-        }
-
-        this.updateUserProgress(did, data, startTime, requestedDays);
-      },
+      onPageLoad: (data) => this.updateUserProgress(did, data, startTime, requestedDays),
+      abortSignal: abortSignal,
       keepLastPage: true
     }));
 
@@ -104,11 +93,12 @@ export class PostingStats {
 
   async scanYourTimeline(requestedDays: number): Promise<PostingStatsResult | null> {
     let startTime = new Date().getTime();
-    this.scanStartTime = startTime;
+    this.abortController = new AbortController();
 
     let posts = await accountAPI.loadUserTimeline(accountAPI.user.did, requestedDays, {
       filter: 'posts_no_replies',
-      onPageLoad: (d) => this.onPageLoad(d, startTime),
+      onPageLoad: (data) => this.updateProgress(data, startTime),
+      abortSignal: this.abortController.signal,
       keepLastPage: true
     });
 
@@ -119,11 +109,6 @@ export class PostingStats {
     let last = posts.at(-1);
 
     if (!last) {
-      this.stopScan();
-      return null;
-    }
-
-    if (this.scanStartTime != startTime) {
       return null;
     }
 
@@ -178,7 +163,6 @@ export class PostingStats {
     userRows.sort((a, b) => b.all - a.all);
 
     sums.all = sums.own + sums.reposts;
-    this.scanStartTime = undefined;
 
     return { users: userRows, sums, fetchedDays, daysBack };
   }
@@ -222,7 +206,8 @@ export class PostingStats {
     this.onProgress && this.onProgress(progress);
   }
 
-  stopScan() {
-    this.scanStartTime = undefined;
+  abortScan() {
+    this.abortController?.abort();
+    delete this.abortController;
   }
 }

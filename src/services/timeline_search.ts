@@ -3,8 +3,8 @@ import { Post, parseFeedPost } from '../models/posts.js';
 import { feedPostTime } from '../utils.js';
 
 export class TimelineSearch {
-  fetchStartTime: number | undefined;
   timelinePosts: json[];
+  abortController?: AbortController;
 
   constructor() {
     this.timelinePosts = [];
@@ -12,14 +12,11 @@ export class TimelineSearch {
 
   async fetchTimeline(requestedDays: number, onProgress: (progress: number) => void) {
     let startTime = new Date().getTime();
-    this.fetchStartTime = startTime;
+    this.abortController = new AbortController();
 
     let timeline = await accountAPI.loadHomeTimeline(requestedDays, {
+      abortSignal: this.abortController.signal,
       onPageLoad: (data) => {
-        if (this.fetchStartTime != startTime) {
-          return { cancel: true };
-        }
-
         let progress = this.calculateProgress(data, startTime);
         if (progress) {
           onProgress(progress);
@@ -27,12 +24,7 @@ export class TimelineSearch {
       }
     });
 
-    if (this.fetchStartTime != startTime) {
-      return;
-    }
-
     this.timelinePosts = timeline;
-    this.fetchStartTime = undefined;
   }
 
   calculateProgress(dataPage: json[], startTime: number) {
@@ -57,7 +49,8 @@ export class TimelineSearch {
     return matching;
   }
 
-  stopFetch() {
-    this.fetchStartTime = undefined;
+  abortFetch() {
+    this.abortController?.abort();
+    delete this.abortController;
   }
 }

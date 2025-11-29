@@ -50,18 +50,24 @@
     selectedList = lists[0]?.uri;
   }
 
-  function onsubmit(e: Event) {
+  async function onsubmit(e: Event) {
     e.preventDefault();
 
-    if (!scanInProgress) {
-      startScan();
-    } else {
-      scanInProgress = false;
-      scanner.stopScan();
+    try {
+      if (!scanInProgress) {
+        await runScan();
+      } else {
+        scanInProgress = false;
+        scanner.abortScan();
+      }
+    } catch (error) {
+      if (error.name !== 'AbortError') {
+        throw error;
+      }
     }
   }
 
-  async function startScan() {
+  async function runScan() {
     if ((selectedTab == 'list' && !selectedList) || (selectedTab == 'users' && selectedUsers.length == 0)) {
       return;
     }

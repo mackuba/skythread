@@ -12,6 +12,7 @@ export class LikeStats {
   progressLikeRecords: number;
   progressPostLikes: number;
   onProgress: ((days: number) => void) | undefined
+  abortController?: AbortController;
 
   constructor() {
     this.appView = new BlueskyAPI('public.api.bsky.app');
@@ -25,6 +26,7 @@ export class LikeStats {
     this.onProgress = onProgress;
     this.resetProgress();
     this.scanStartTime = new Date().getTime();
+    this.abortController = new AbortController();
 
     let fetchGivenLikes = this.fetchGivenLikes(requestedDays);
 
@@ -36,7 +38,10 @@ export class LikeStats {
     let givenStats = this.sumUpGivenLikes(givenLikes);
     let topGiven = this.getTopEntries(givenStats);
 
-    let profileInfo = await this.appView.getRequest('app.bsky.actor.getProfiles', { actors: topGiven.map(x => x.did) });
+    let profileInfo = await this.appView.getRequest('app.bsky.actor.getProfiles',
+      { actors: topGiven.map(x => x.did) },
+      { abortSignal: this.abortController!.signal }
+    );
 
     for (let profile of profileInfo.profiles) {
       let user = topGiven.find(x => x.did == profile.did)!;
@@ -69,7 +74,8 @@ export class LikeStats {
         let daysBack = (startTime - lastDate) / 86400 / 1000;
 
         this.updateProgress({ likeRecords: Math.min(1.0, daysBack / requestedDays) });
-      }
+      },
+      abortSignal: this.abortController!.signal
     });
   }
 
@@ -87,7 +93,8 @@ export class LikeStats {
         let daysBack = (startTime - lastDate) / 86400 / 1000;
 
         this.updateProgress({ posts: Math.min(1.0, daysBack / requestedDays) });
-      }
+      },
+      abortSignal: this.abortController!.signal
     });
 
     let likedPosts = myPosts.filter(x => !x['reason'] && x['post']['likeCount'] > 0);
@@ -104,7 +111,8 @@ export class LikeStats {
             uri: x['post']['uri'],
             limit: 100
           },
-          field: 'likes'
+          field: 'likes',
+          abortSignal: this.abortController!.signal
         });
       });
 
@@ -193,8 +201,10 @@ export class LikeStats {
     }
   }
 
-  stopScan() {
+  abortScan() {
     this.scanStartTime = undefined;
     this.onProgress = undefined;
+    this.abortController?.abort();
+    delete this.abortController;
   }
 }
