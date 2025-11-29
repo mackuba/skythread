@@ -4,7 +4,7 @@
 
 <script lang="ts">
   import { createContext } from 'svelte';
-  import { HiddenRepliesError } from '../../api/bluesky_api.js';
+  import { HiddenRepliesError } from '../../api.js';
   import { settings } from '../../models/settings.svelte.js';
   import { Post, BlockedPost } from '../../models/posts.js';
   import { Embed, InlineLinkEmbed } from '../../models/embeds.js';

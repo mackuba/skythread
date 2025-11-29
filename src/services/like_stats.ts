@@ -1,5 +1,5 @@
 import { atURI, feedPostTime } from '../utils.js';
-import { BlueskyAPI } from '../api/bluesky_api.js';
+import { BlueskyAPI } from '../api.js';
 
 export type LikeStatsResponse = { givenLikes: LikeStat[], receivedLikes: LikeStat[] }
 export type LikeStat = { handle?: string, did?: string, avatar?: string, count: number }

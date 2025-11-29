@@ -1,4 +1,4 @@
-import { URLError } from './api/bluesky_api.js';
+import { URLError } from './api.js';
 import { Post } from './models/posts.js';
 
 

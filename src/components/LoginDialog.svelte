@@ -1,6 +1,6 @@
 <script lang="ts">
   import { submitLogin } from '../skythread.js';
-  import { APIError } from '../api/minisky.js';
+  import { APIError } from '../api.js';
 
   let { onClose = undefined }: { onClose?: () => void } = $props();
 

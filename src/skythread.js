@@ -13,8 +13,7 @@ import TimelineSearchPage from './pages/TimelineSearchPage.svelte';
 import ThreadPage from './pages/ThreadPage.svelte';
 
 import { $id } from './utils.js';
-import { AuthenticatedAPI } from './api/authenticated_api';
-import { BlueskyAPI } from './api/bluesky_api.js';
+import { AuthenticatedAPI, BlueskyAPI } from './api.js';
 import { account } from './models/account.svelte.js';
 import { Lycan, DevLycan } from './services/lycan.js';
 
