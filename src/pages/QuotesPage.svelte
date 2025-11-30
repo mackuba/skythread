@@ -48,6 +48,7 @@
 </script>
 
 {#if quoteCount !== undefined}
+  <div id="thread" class="quotes">
   <header>
     <h2>
       {#if quoteCount > 1}
@@ -68,6 +69,7 @@
 
     <PostComponent {post} placement="quotes" />
   {/each}
+  </div>
 {:else if !loadingFailed}
   <MainLoader />
 {/if}

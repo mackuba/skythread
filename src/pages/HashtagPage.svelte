@@ -46,6 +46,7 @@
 </svelte:head>
 
 {#if firstPageLoaded}
+  <div id="thread" class="hashtag">
   <header>
     <h2>
       {#if posts.length > 0}
@@ -59,6 +60,7 @@
   {#each posts as post (post.uri)}
     <PostComponent {post} placement="feed" />
   {/each}
+  </div>
 {:else if !loadingFailed}
   <MainLoader />
 {/if}

@@ -65,3 +65,9 @@ export function parseBlueskyPostURL(string) {
 
   return { user, post };
 }
+
+/** @param {string} urlQuery, @returns {Record<string, string>} */
+
+export function parseURLParams(urlQuery) {
+  return Object.fromEntries(new URLSearchParams(urlQuery));
+}

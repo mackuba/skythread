@@ -38,9 +38,11 @@
   }
 </script>
 
-<form method="get" {onsubmit}>
-  🌤 <input type="text" placeholder="Paste a thread link or type a #hashtag" bind:value={query} bind:this={searchField}>
-</form>
+<div id="search">
+  <form method="get" {onsubmit}>
+    🌤 <input type="text" placeholder="Paste a thread link or type a #hashtag" bind:value={query} bind:this={searchField}>
+  </form>
+</div>
 
 <style>
   form {

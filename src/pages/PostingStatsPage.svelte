@@ -104,6 +104,7 @@
   }
 </script>
 
+<div id="posting_stats_page">
 <h2>Bluesky posting statistics</h2>
 
 <form {onsubmit}>
@@ -152,3 +153,4 @@
 {#if results}
   <PostingStatsTable {...tableOptions} {...results} />
 {/if}
+</div>

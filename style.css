@@ -51,7 +51,6 @@ a:visited {
 }
 
 #search {
-  visibility: hidden;
   position: fixed;
   top: 0;
   bottom: 0;
@@ -701,10 +700,6 @@ p.back i {
   margin-top: 25px;
 }
 
-#posting_stats_page {
-  display: none;
-}
-
 #posting_stats_page input[type="radio"] {
   position: relative;
   top: -1px;
@@ -892,14 +887,6 @@ p.back i {
 
 #posting_stats_page .scan-result td.percent {
   min-width: 70px;
-}
-
-#like_stats_page {
-  display: none;
-}
-
-#private_search_page {
-  display: none;
 }
 
 #private_search_page input[type="range"] {

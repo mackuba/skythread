@@ -48,6 +48,7 @@
   }
 </script>
 
+<div id="private_search_page">
 <h2>Timeline search</h2>
 
 <div class="timeline-search">
@@ -89,3 +90,4 @@
     {/each}
   </div>
 {/if}
+</div>

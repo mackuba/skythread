@@ -1,7 +1,7 @@
 <script lang="ts">
   import { Post } from '../models/posts';
   import { settings } from '../models/settings.svelte';
-  import { Lycan } from '../services/lycan';
+  import { DevLycan, Lycan } from '../services/lycan';
   import PostComponent from '../components/posts/PostComponent.svelte';
 
   const collections = [
@@ -11,7 +11,9 @@
     { id: 'pins',    title: 'Pins' }
   ]
 
-  let { lycan }: { lycan: Lycan } = $props();
+  let { lycan }: { lycan: string } = $props();
+
+  let lycanService = $derived(lycan == 'local' ? new DevLycan() : new Lycan());
 
   let isCheckingStatus = $state(false);
   let importStatus: string | undefined = $state();
@@ -37,7 +39,7 @@
     showImportStatus({ status: 'requested' });
     wasImporting = true;
 
-    lycan.startImport().catch((error) => {
+    lycanService.startImport().catch((error) => {
       console.error('Failed to start Lycan import', error);
       showImportError(`Import failed: ${error}`);
     });
@@ -58,7 +60,7 @@
       loadingPosts = true;
       finishedPosts = false;
 
-      lycan.searchPosts(selectedCollection, q, {
+      lycanService.searchPosts(selectedCollection, q, {
         onPostsLoaded: ({ posts, terms }) => {
           loadingPosts = false;
           results.push(...posts);
@@ -79,7 +81,7 @@
     isCheckingStatus = true;
 
     try {
-      let response = await lycan.getImportStatus();
+      let response = await lycanService.getImportStatus();
       showImportStatus(response);
     } catch (error) {
       showImportError(`Couldn't check import status: ${error}`);
@@ -150,6 +152,7 @@
   }
 </script>
 
+<div id="private_search_page">
 <h2>Archive search</h2>
 
 <form class="search-form">
@@ -213,4 +216,5 @@
       <p class="results-end">{results.length > 0 ? "No more results." : "No results."}</p>
     {/if}
   {/if}
+</div>
 </div>

@@ -49,6 +49,7 @@
 </svelte:head>
 
 {#if firstPageLoaded}
+  <div id="thread" class="notifications">
   <header>
     <h2>Replies & Mentions:</h2>
   </header>
@@ -61,6 +62,7 @@
 
     <PostComponent {post} placement="feed" />
   {/each}
+  </div>
 {:else if !loadingFailed}
   <MainLoader />
 {/if}
