@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { showLoginDialog } from '../skythread.js';
+  import { showLoginDialog } from './Dialogs.svelte';
   import { account } from '../models/account.svelte.js';
   import { settings } from '../models/settings.svelte.js';
   import { getBaseLocation } from '../router.js';
@@ -44,7 +44,7 @@
   function showLoginScreen(e: Event) {
     e.preventDefault();
 
-    showLoginDialog();
+    showLoginDialog({ showClose: true });
     menuVisible = false;
   }
 

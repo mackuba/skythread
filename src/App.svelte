@@ -2,10 +2,10 @@
   import { account } from './models/account.svelte.js';
 
   import AccountMenu from './components/AccountMenu.svelte';
+  import Dialogs, { showLoginDialog } from './components/Dialogs.svelte';
   import HashtagPage from './pages/HashtagPage.svelte';
   import HomeSearch from './components/HomeSearch.svelte';
   import LikeStatsPage from './pages/LikeStatsPage.svelte';
-  import LoginDialog from './components/LoginDialog.svelte';
   import LycanSearchPage from './pages/LycanSearchPage.svelte';
   import NotificationsPage from './pages/NotificationsPage.svelte';
   import PostingStatsPage from './pages/PostingStatsPage.svelte';
@@ -14,9 +14,14 @@
   import TimelineSearchPage from './pages/TimelineSearchPage.svelte';
 
   let { params }: { params: Record<string, string> } = $props();
+
+  if (params.page && !account.loggedIn) {
+    showLoginDialog({ showClose: false });
+  }
 </script>
 
 <AccountMenu />
+<Dialogs />
 
 {#if params.q}
   <ThreadPage url={params.q} />
@@ -29,8 +34,6 @@
 {:else if params.page}
   {#if account.loggedIn}
     {@render page(params.page)}
-  {:else}
-    <LoginDialog />
   {/if}
 {:else}
   <HomeSearch />

@@ -1,6 +1,6 @@
 <script lang="ts">
   import { api } from '../../api.js';
-  import { showBiohazardDialog } from '../../skythread.js';
+  import { showBiohazardDialog } from '../Dialogs.svelte';
   import { settings } from '../../models/settings.svelte.js';
   import { parseThreadPost } from '../../models/posts.js';
   import { linkToPostThread } from '../../router.js';

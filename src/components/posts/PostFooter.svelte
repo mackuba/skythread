@@ -3,7 +3,7 @@
   import { getPostContext } from './PostComponent.svelte';
   import { linkToPostThread, linkToQuotesPage } from '../../router.js';
   import { account } from '../../models/account.svelte.js';
-  import { showLoginDialog } from '../../skythread.js';
+  import { showLoginDialog } from '../Dialogs.svelte';
   import { showError } from '../../utils.js';
 
   let { post, placement } = getPostContext();
@@ -20,7 +20,7 @@
       } else if (account.loggedIn) {
         await checkIfCanBeLiked();
       } else {
-        showLoginDialog();
+        showLoginDialog({ showClose: true });
       }
     } catch (error) {
       showError(error);

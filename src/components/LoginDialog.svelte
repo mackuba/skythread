@@ -1,8 +1,15 @@
 <script lang="ts">
-  import { submitLogin } from '../skythread.js';
   import { APIError } from '../api.js';
+  import { account } from '../models/account.svelte.js';
+  import DialogPanel from './DialogPanel.svelte';
 
-  let { onClose = undefined }: { onClose?: (() => void) | undefined } = $props();
+  type Props = {
+    onLogin?: () => void;
+    onClose?: () => void;
+    showClose: boolean;
+  }
+
+  let { onClose = undefined, onLogin = undefined, showClose }: Props = $props();
 
   let identifier: string = $state('');
   let password: string = $state('');
@@ -11,14 +18,15 @@
   let loginField: HTMLInputElement;
   let passwordField: HTMLInputElement;
 
+  function onOverlayClick() {
+    if (showClose && onClose) {
+      onClose();
+    }
+  }
+
   function toggleLoginInfo(e: Event) {
     e.preventDefault();
     loginInfoVisible = !loginInfoVisible;
-  }
-
-  function onCloseClick(e: Event) {
-    e.preventDefault();
-    onClose?.();
   }
 
   async function onsubmit(e: Event) {
@@ -29,7 +37,9 @@
     passwordField.blur();
 
     try {
-      await submitLogin(identifier.trim(), password.trim());
+      await account.logIn(identifier.trim(), password.trim());
+      onLogin?.();
+      onClose?.();
     } catch (error) {
       submitting = false;
       showError(error);
@@ -47,9 +57,10 @@
   }
 </script>
 
+<DialogPanel onClose={onOverlayClick}>
 <form method="get" {onsubmit}>
-  {#if onClose}
-    <i class="close fa-circle-xmark fa-regular" onclick={onCloseClick}></i>
+  {#if showClose}
+    <i class="close fa-circle-xmark fa-regular" onclick={onClose}></i>
   {/if}
 
   <h2>🌤 Skythread</h2>
@@ -80,6 +91,7 @@
     {/if}
   </p>
 </form>
+</DialogPanel>
 
 <style>
   .cloudy {

@@ -141,7 +141,6 @@ a:visited {
 }
 
 .dialog {
-  visibility: hidden;
   position: fixed;
   top: 0;
   bottom: 0;
@@ -237,7 +236,7 @@ a:visited {
   padding-top: 1px;
 }
 
-#thread.overlay {
+.dialog ~ #thread {
   filter: blur(8px);
 }
 

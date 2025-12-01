@@ -1,8 +1,14 @@
 <script lang="ts">
   import { settings } from '../models/settings.svelte.js';
+  import DialogPanel from './DialogPanel.svelte';
 
-  type Props = { onConfirm?: (() => void) | undefined, onClose?: (() => void) | undefined };
-  let { onConfirm = undefined, onClose = undefined }: Props = $props();
+  type Props = {
+    onConfirm?: () => void;
+    onReject?: () => void;
+    onClose?: () => void;
+  }
+
+  let { onConfirm = undefined, onReject = undefined, onClose = undefined }: Props = $props();
 
   function showBiohazard(e: Event) {
     e.preventDefault();
@@ -16,10 +22,12 @@
     e.preventDefault();
     settings.biohazardsEnabled = false;
 
+    onReject?.();
     onClose?.();
   }
 </script>
 
+<DialogPanel onClose={() => onClose?.()}>
 <form method="get">
   <i class="close fa-circle-xmark fa-regular" onclick={onClose}></i>
   <h2>☣️ Infohazard Warning</h2>
@@ -33,6 +41,7 @@
     <input type="submit" value="Nope, I'd rather not 🙈" onclick={hideBiohazard}>
   </p>
 </form>
+</DialogPanel>
 
 <style>
   form {
