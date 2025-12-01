@@ -1,7 +1,6 @@
 interface Window {
   root: AnyPost;
   subtreeRoot: AnyPost;
-  init: () => void;
 }
 
 type json = Record<string, any>;
