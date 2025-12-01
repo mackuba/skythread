@@ -4,6 +4,12 @@ interface SettingsData {
   biohazard?: boolean;
 }
 
+declare global {
+  interface Window {
+    settings: typeof settings;
+  }
+}
+
 class Settings {
   data: SettingsData;
 
@@ -50,3 +56,4 @@ class Settings {
 }
 
 export const settings = new Settings();
+window.settings = settings;
