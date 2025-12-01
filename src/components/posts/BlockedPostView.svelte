@@ -34,6 +34,18 @@
     }
   }
 
+  function canShowLoadThreadLink(reloadedPost: Post) {
+    let viewerInfo = reloadedPost.author.viewer;
+
+    if (viewerInfo) {
+      // don't show the link if author is blocked/blocking us, since full thread won't load anyway
+      return !(viewerInfo.blockedBy || viewerInfo.blocking);
+    } else {
+      // in incognito mode there will be no author viewer info - but in this case we can always load the thread
+      return true;
+    }
+  }
+
   function blockStatus() {
     if (post instanceof DetachedQuotePost) {
       return undefined;
@@ -71,7 +83,7 @@
 
     <ReferencedPostAuthorLink {post} status={blockStatus()} />
 
-    {#if !(reloadedPost.author.viewer.blockedBy || reloadedPost.author.viewer.blocking)}
+    {#if canShowLoadThreadLink(reloadedPost)}
       <span class="separator">&bull;</span>
 
       <PostSubtreeLink post={reloadedPost} title="Load thread" />
