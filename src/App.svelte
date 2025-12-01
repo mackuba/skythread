@@ -10,6 +10,7 @@
   import NotificationsPage from './pages/NotificationsPage.svelte';
   import PostingStatsPage from './pages/PostingStatsPage.svelte';
   import QuotesPage from './pages/QuotesPage.svelte';
+  import TangledLink from './components/TangledLink.svelte';
   import ThreadPage from './pages/ThreadPage.svelte';
   import TimelineSearchPage from './pages/TimelineSearchPage.svelte';
 
@@ -22,6 +23,7 @@
 
 <AccountMenu />
 <Dialogs />
+<TangledLink />
 
 {#if params.q}
   <ThreadPage url={params.q} />

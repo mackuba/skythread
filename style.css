@@ -34,22 +34,6 @@ a:visited {
   color: rgb(0, 0, 255);
 }
 
-#github {
-  position: fixed;
-  bottom: 10px;
-  right: 10px;
-  z-index: 10;
-}
-
-#github img {
-  width: 20px;
-  opacity: 0.4;
-}
-
-#github a:hover img {
-  opacity: 0.6;
-}
-
 #search {
   position: fixed;
   top: 0;
@@ -996,10 +980,6 @@ p.back i {
 
   #login {
     background-color: rgba(240, 240, 240, 0.15);
-  }
-
-  #github {
-    filter: invert();
   }
 
   .back, .back a {
