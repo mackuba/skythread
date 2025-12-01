@@ -1,5 +1,4 @@
 import * as svelte from 'svelte';
-import { BlueskyAPI } from './api.js';
 import { parseURLParams } from './router.js';
 import App from './App.svelte';
 
@@ -9,4 +8,3 @@ function init() {
 }
 
 window.init = init;
-window.BlueskyAPI = BlueskyAPI;

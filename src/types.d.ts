@@ -2,7 +2,6 @@ interface Window {
   root: AnyPost;
   subtreeRoot: AnyPost;
   init: () => void;
-  BlueskyAPI: typeof import("./api/bluesky_api.js").BlueskyAPI;
 }
 
 type json = Record<string, any>;
