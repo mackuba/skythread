@@ -107,3 +107,78 @@
     <li class="link"><a href="?page=search&mode=likes">Archive search</a></li>
   </ul>
 </div>
+
+<style>
+  #account {
+    position: fixed;
+    top: 10px;
+    left: 10px;
+    line-height: 24px;
+    z-index: 20;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+
+  #account i {
+    opacity: 0.4;
+  }
+
+  #account i:hover {
+    cursor: pointer;
+    opacity: 0.6;
+  }
+
+  #account :global(img.avatar) {
+    width: 24px;
+    height: 24px;
+    border-radius: 13px;
+    box-shadow: 0px 0px 2px black;
+  }
+
+  #account_menu {
+    position: fixed;
+    visibility: hidden;
+    top: 5px;
+    left: 5px;
+    padding-top: 30px;
+    z-index: 15;
+    background: hsl(210, 33.33%, 94.0%);
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+
+  #account_menu ul {
+    list-style-type: none;
+    margin: 0px 0px 10px;
+    padding: 6px 11px;
+  }
+
+  #account_menu :global(li:not(.link) + li.link) {
+    margin-top: 16px;
+    padding-top: 10px;
+    border-top: 1px solid #ccc;
+  }
+
+  li.link {
+    margin-top: 8px;
+    margin-left: 2px;
+  }
+
+  li.link a {
+    font-size: 11pt;
+    color: #333;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    #account.active {
+      color: #333;
+    }
+
+    #account_menu {
+      background: hsl(210, 33.33%, 94.0%);
+      border-color: #ccc;
+    }
+  }
+</style>

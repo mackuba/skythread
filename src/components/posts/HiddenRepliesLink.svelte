@@ -49,3 +49,15 @@
     <img class="loader" src="icons/sunny.png" alt="Loading...">
   {/if}
 </p>
+
+<style>
+  .hidden-replies {
+    margin-top: 20px;
+    font-size: 11pt;
+  }
+
+  .hidden-replies a {
+    font-size: 12pt;
+    color: saddlebrown;
+  }
+</style>

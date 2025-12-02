@@ -3,6 +3,7 @@
   import { settings } from '../models/settings.svelte';
   import { DevLycan, Lycan } from '../services/lycan';
   import PostComponent from '../components/posts/PostComponent.svelte';
+  import SearchPage from './SearchPage.svelte';
 
   const collections = [
     { id: 'likes',   title: 'Likes' },
@@ -152,7 +153,7 @@
   }
 </script>
 
-<div id="private_search_page">
+<SearchPage>
 <h2>Archive search</h2>
 
 <form class="search-form">
@@ -217,4 +218,33 @@
     {/if}
   {/if}
 </div>
-</div>
+</SearchPage>
+
+<style>
+  .search-collections label {
+    vertical-align: middle;
+  }
+
+  .lycan-import {
+    margin-top: 30px;
+    border-top: 1px solid #ccc;
+    padding-top: 5px;
+  }
+
+  .lycan-import form p {
+    line-height: 135%;
+  }
+
+  .import-progress progress {
+    margin-left: 0;
+    margin-right: 6px;
+  }
+
+  .import-progress progress + output {
+    font-size: 11pt;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    .lycan-import { border-top-color: #888; }
+  }
+</style>

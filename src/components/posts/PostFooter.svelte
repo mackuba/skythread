@@ -95,3 +95,60 @@
     <span class="blocked-info">🚫 Post unavailable</span>
   {/if}
 </p>
+
+<style>
+  .stats {
+    font-size: 10pt;
+    color: #666;
+  }
+
+  a {
+    color: #666;
+    text-decoration: none;
+  }
+
+  a:hover {
+    text-decoration: underline;
+  }
+
+  i {
+    font-size: 9pt;
+    color: #888;
+  }
+
+  i.fa-heart {
+    color: #aaa;
+  }
+
+  i.fa-heart.liked {
+    color: #e03030;
+  }
+
+  i.fa-heart:hover {
+    color: #888;
+    cursor: pointer;
+  }
+
+  i.fa-heart.liked:hover {
+    color: #c02020;
+  }
+
+  span {
+    margin-right: 10px;
+  }
+
+  .blocked-info {
+    color: #a02020;
+    font-weight: bold;
+    margin-left: 5px;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    .stats { color: #aaa; }
+    i { color: #888; }
+    i.fa-heart { color: #aaa; }
+    i.fa-heart.liked { color: #f04040; }
+    i.fa-heart:hover { color: #eee; }
+    i.fa-heart.liked:hover { color: #ff7070; }
+  }
+</style>

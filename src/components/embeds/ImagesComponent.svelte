@@ -27,3 +27,24 @@
     {/if}
   {/each}
 </div>
+
+<style>
+  .image-alt {
+    font-size: 11pt;
+    color: #666;
+    margin-bottom: 20px;
+  }
+
+  .image-alt summary {
+    font-size: 11pt;
+    color: #666;
+    margin-bottom: 5px;
+    user-select: none;
+    -webkit-user-select: none;
+    cursor: default;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    .image-alt, .image-alt summary { color: #999; }
+  }
+</style>

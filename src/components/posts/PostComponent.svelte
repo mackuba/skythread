@@ -79,6 +79,7 @@
   function onMoreRepliesLoaded(newPost: Post) {
     replies = post.replies = newPost.replies;
     repliesLoaded = true;
+    // TODO: more replies turning into hidden replies
   }
 
   function onHiddenRepliesLoaded(newReplies: (AnyPost | null)[]) {
@@ -183,3 +184,53 @@
     {/if}
   </div>
 </div>
+
+<style>
+  .post {
+    position: relative;
+    padding-left: 21px;
+    margin-top: 30px;
+  }
+
+  .post.collapsed .content {
+    display: none;
+  }
+
+  .post.flat {
+    padding-left: 0px;
+    margin-top: 25px;
+  }
+
+  .post.muted > :global(h2) {
+    opacity: 0.3;
+    font-weight: 600;
+  }
+
+  .post.muted > :global(.content > details > p), .post.muted > :global(.content > details summary) {
+    opacity: 0.3;
+  }
+
+  details {
+    margin-top: 12px;
+    margin-bottom: 10px;
+  }
+
+  summary {
+    font-size: 10pt;
+    user-select: none;
+    -webkit-user-select: none;
+    cursor: default;
+  }
+
+  .missing-replies-info {
+    font-size: 11pt;
+    color: darkred;
+    margin-top: 25px;
+  }
+
+  .post :global(img.loader) {
+    width: 24px;
+    animation: rotation 3s infinite linear;
+    margin-top: 5px;
+  }
+</style>

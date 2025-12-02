@@ -49,7 +49,7 @@
 </script>
 
 {#if post.originalFediContent}
-  <div class="body" bind:this={bodyElement}>
+  <div class="bridged-body" bind:this={bodyElement}>
     {@html sanitizeHTML(post.originalFediContent)}
   </div>
 {:else}
@@ -57,3 +57,19 @@
     <RichTextFromFacets text={post.text} facets={post.facets} />
   </p>
 {/if}
+
+<style>
+  .bridged-body :global(p + p) {
+    margin-top: 18px;
+  }
+
+  ::highlight(search-results) {
+    background-color: rgba(255, 255, 0, 0.75);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    ::highlight(search-results) {
+      background-color: rgba(255, 255, 0, 0.35);
+    }
+  }
+</style>

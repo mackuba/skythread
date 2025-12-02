@@ -49,7 +49,7 @@
 </svelte:head>
 
 {#if firstPageLoaded}
-  <div id="thread" class="notifications">
+  <main class="notifications">
   <header>
     <h2>Replies & Mentions:</h2>
   </header>
@@ -62,7 +62,32 @@
 
     <PostComponent {post} placement="feed" />
   {/each}
-  </div>
+  </main>
 {:else if !loadingFailed}
   <MainLoader />
 {/if}
+
+<style>
+  .notifications :global {
+    .post {
+      padding-bottom: 4px;
+      border-bottom: 1px solid #ddd;
+      margin-top: 24px;
+    }
+
+    .back {
+      margin-left: 22px;
+      margin-bottom: -12px;
+      margin-top: 15px;
+    }
+
+    .back, .back a {
+      font-size: 10pt;
+    }
+
+    .back i {
+      font-size: 9pt;
+      margin-right: 2px;
+    }
+  }
+</style>

@@ -48,7 +48,7 @@
 </script>
 
 {#if quoteCount !== undefined}
-  <div id="thread" class="quotes">
+  <main class="quotes">
   <header>
     <h2>
       {#if quoteCount > 1}
@@ -69,7 +69,21 @@
 
     <PostComponent {post} placement="quotes" />
   {/each}
-  </div>
+  </main>
 {:else if !loadingFailed}
   <MainLoader />
 {/if}
+
+<style>
+  .quotes :global(.post) {
+    padding-bottom: 5px;
+  }
+
+  .quotes :global(.post-quote .quote-embed) {
+    display: none;
+  }
+
+  .quotes :global(.post-quote p.stats) {
+    display: none;
+  }
+</style>

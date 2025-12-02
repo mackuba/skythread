@@ -153,3 +153,123 @@
   <span class="name">{user.displayName || '–'}</span>
   <span class="handle">{user.handle}</span>
 {/snippet}
+
+<style>
+  .user-choice {
+    position: relative;
+  }
+
+  input {
+    width: 260px;
+    font-size: 11pt;
+  }
+
+  .autocomplete {
+    position: absolute;
+    left: 0;
+    top: 0;
+    margin-top: 4px;
+    width: 350px;
+    max-height: 250px;
+    overflow-y: auto;
+    background-color: white;
+    border: 1px solid #ccc;
+    z-index: 10;
+  }
+
+  .selected-users {
+    width: 275px;
+    height: 150px;
+    overflow-y: auto;
+    border: 1px solid #aaa;
+    padding: 4px;
+    margin-top: 20px;
+  }
+
+  .user-row {
+    position: relative;
+    padding: 2px 4px 2px 37px;
+    cursor: pointer;
+  }
+
+  .user-row .avatar {
+    position: absolute;
+    left: 6px;
+    top: 8px;
+    width: 24px;
+    border-radius: 12px;
+  }
+
+  .user-row span {
+    display: block;
+    overflow-x: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .user-row .name {
+    font-size: 11pt;
+    margin-top: 1px;
+    margin-bottom: 1px;
+  }
+
+  .user-row .handle {
+    font-size: 10pt;
+    margin-bottom: 2px;
+    color: #666;
+  }
+
+  .autocomplete .user-row {
+    cursor: pointer;
+  }
+
+  .autocomplete .user-row.highlighted {
+    background-color: hsl(207, 100%, 85%);
+  }
+
+  .selected-users .user-row span {
+    padding-right: 14px;
+  }
+
+  .selected-users .user-row .remove {
+    position: absolute;
+    right: 4px;
+    top: 11px;
+    padding: 0px 4px;
+    color: #333;
+    line-height: 17px;
+  }
+
+  .selected-users .user-row .remove:hover {
+    text-decoration: none;
+    background-color: #ddd;
+    border-radius: 8px;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    .autocomplete {
+      background-color: hsl(210, 5%, 18%);
+      border-color: #4b4b4b;
+    }
+
+    .selected-users {
+      border-color: #666;
+    }
+
+    .user-row .handle {
+      color: #888;
+    }
+
+    .autocomplete .user-row.highlighted {
+      background-color: hsl(207, 90%, 25%);
+    }
+
+    .selected-users .user-row .remove {
+      color: #aaa;
+    }
+
+    .selected-users .user-row .remove:hover {
+      background-color: #555;
+      color: #bbb;
+    }
+  }
+</style>

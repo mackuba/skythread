@@ -154,3 +154,44 @@
   <PostingStatsTable {...tableOptions} {...results} />
 {/if}
 </div>
+
+<style>
+  input[type="radio"] {
+    position: relative;
+    top: -1px;
+    margin-left: 5px;
+  }
+
+  input[type="radio"] + label {
+    user-select: none;
+    -webkit-user-select: none;
+  }
+
+  input[type="range"] {
+    width: 250px;
+    vertical-align: middle;
+  }
+
+  input[type="submit"] {
+    font-size: 12pt;
+    margin: 5px 0px;
+    padding: 5px 10px;
+  }
+
+  select {
+    font-size: 12pt;
+    margin-left: 5px;
+  }
+
+  progress {
+    width: 300px;
+    margin-left: 10px;
+    vertical-align: middle;
+  }
+
+  .scan-info {
+    font-weight: 600;
+    line-height: 125%;
+    margin: 20px 0px;
+  }
+</style>

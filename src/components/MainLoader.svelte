@@ -18,4 +18,8 @@
     width: 36px;
     animation: rotation 3s infinite linear;
   }
+
+  @media (prefers-color-scheme: dark) {
+    #loader { filter: invert(); }
+  }
 </style>

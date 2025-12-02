@@ -57,7 +57,7 @@
   }
 </script>
 
-<DialogPanel onClose={onOverlayClick}>
+<DialogPanel id="login" class={loginInfoVisible ? 'expanded' : ''} onClose={onOverlayClick}>
 <form method="get" {onsubmit}>
   {#if showClose}
     <i class="close fa-circle-xmark fa-regular" onclick={onClose}></i>
@@ -94,6 +94,14 @@
 </DialogPanel>
 
 <style>
+  p.info {
+    font-size: 9pt;
+  }
+
+  p.info a {
+    color: #666;
+  }
+
   .cloudy {
     color: hsl(210, 60%, 75%);
     margin: 14px 0px;
@@ -113,6 +121,10 @@
   }
 
   @media (prefers-color-scheme: dark) {
+    :global(#login) {
+      background-color: rgba(240, 240, 240, 0.15);
+    }
+
     form {
       border-color: hsl(210, 20%, 40%);
       background-color: hsl(210, 12%, 25%);

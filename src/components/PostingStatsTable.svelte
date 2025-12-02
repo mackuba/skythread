@@ -80,3 +80,75 @@
     {/each}
   </tbody>
 </table>
+
+<style>
+  .scan-result {
+    border: 1px solid #333;
+    border-collapse: collapse;
+  }
+
+  td, th {
+    border: 1px solid #333;
+  }
+
+  td {
+    text-align: right;
+    padding: 5px 8px;
+  }
+
+  th {
+    text-align: center;
+    background-color: hsl(207, 100%, 86%);
+    padding: 7px 10px;
+  }
+
+  td.handle {
+    text-align: left;
+    max-width: 450px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  tr.total td {
+    font-weight: bold;
+    font-size: 11pt;
+    background-color: hsla(207, 100%, 86%, 0.4);
+  }
+
+  tr.total td.handle {
+    text-align: left;
+    padding: 10px 12px;
+  }
+
+  .avatar {
+    width: 24px;
+    height: 24px;
+    border-radius: 14px;
+    vertical-align: middle;
+    margin-right: 2px;
+    padding: 2px;
+  }
+
+  td.no {
+    font-weight: bold;
+  }
+
+  td.percent {
+    min-width: 70px;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    .scan-result, td, th {
+        border-color: #888;
+    }
+
+    th {
+        background-color: hsl(207, 90%, 25%);
+    }
+
+    tr.total td {
+        background-color: hsla(207, 90%, 25%, 0.4);
+    }
+  }
+</style>

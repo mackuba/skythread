@@ -33,3 +33,14 @@
     style:max-width="{maxWidth}px"
     style:max-height="{maxHeight}px">
 </div>
+
+<style>
+  .gif img {
+    user-select: none;
+    -webkit-user-select: none;
+  }
+
+  .gif img.static {
+    opacity: 0.75;
+  }
+</style>

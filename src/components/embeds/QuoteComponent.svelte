@@ -75,3 +75,35 @@
     </div>
   {/if}
 {/snippet}
+
+<style>
+  .quote-embed {
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background-color: #fbfcfd;
+    margin-top: 25px;
+    margin-bottom: 15px;
+    margin-left: 0px;
+    max-width: 800px;
+  }
+
+  .quote-embed :global(.post) {
+    margin-top: 16px;
+    padding-left: 16px;
+    padding-right: 16px;
+    padding-bottom: 5px;
+  }
+
+  .placeholder {
+    font-style: italic;
+    font-size: 11pt;
+    color: #888;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    .quote-embed {
+      background-color: #303030;
+      border-color: #606060;
+    }
+  }
+</style>

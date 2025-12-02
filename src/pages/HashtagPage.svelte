@@ -46,7 +46,7 @@
 </svelte:head>
 
 {#if firstPageLoaded}
-  <div id="thread" class="hashtag">
+  <main class="hashtag">
   <header>
     <h2>
       {#if posts.length > 0}
@@ -60,7 +60,14 @@
   {#each posts as post (post.uri)}
     <PostComponent {post} placement="feed" />
   {/each}
-  </div>
+  </main>
 {:else if !loadingFailed}
   <MainLoader />
 {/if}
+
+<style>
+  .hashtag :global(.post) {
+    padding-bottom: 10px;
+    border-bottom: 1px solid #ddd;
+  }
+</style>

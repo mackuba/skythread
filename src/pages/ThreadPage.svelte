@@ -60,7 +60,7 @@
 </svelte:head>
 
 {#if post}
-  <div id="thread">
+  <main>
   {#if post instanceof Post}
     {#if post.parent}
       <ThreadRootParent post={post.parent} />
@@ -72,7 +72,7 @@
   {:else}
     <PostWrapper {post} placement="thread" />
   {/if}
-  </div>
+  </main>
 {:else if !loadingFailed}
   <MainLoader />
 {/if}

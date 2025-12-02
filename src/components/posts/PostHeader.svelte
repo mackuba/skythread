@@ -22,11 +22,11 @@
 
 <h2>
   {#if post.muted}
-    <i class="missing fa-regular fa-circle-user fa-2x"></i>
+    <i class="muted-avatar fa-regular fa-circle-user fa-2x"></i>
   {:else if post.author.avatar}
     <img class="avatar" alt="Avatar" loading="lazy" src={post.author.avatar} bind:this={avatar}>
   {:else}
-    <i class="missing fa-regular fa-face-smile fa-2x"></i>
+    <i class="no-avatar fa-regular fa-face-smile fa-2x"></i>
   {/if}
 
   {post.authorDisplayName}
@@ -52,3 +52,59 @@
     {/if}
   {/if}
 </h2>
+
+<style>
+  h2 {
+    font-size: 12pt;
+    margin-bottom: 0;
+  }
+
+  .avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 16px;
+    vertical-align: middle;
+    margin-bottom: 3px;
+    margin-right: 8px;
+  }
+
+  .no-avatar, .muted-avatar {
+    color: #aaa;
+    background-color: #eee;
+    border-radius: 16px;
+    vertical-align: middle;
+    margin-right: 8px;
+  }
+
+  .muted-avatar {
+    color: #bbb;
+  }
+
+  .handle {
+    color: #888;
+    font-weight: normal;
+    font-size: 11pt;
+    vertical-align: text-top;
+  }
+
+  .mastodon {
+    width: 15px;
+    position: relative;
+    top: 2px;
+    margin-left: 3px;
+  }
+
+  .time {
+    color: #666;
+    font-weight: normal;
+    font-size: 10pt;
+    vertical-align: text-top;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    .handle { color: #888; }
+    .separator { color: #888; }
+    .time { color: #aaa; }
+    h2 :global(.action) { color: #888; }
+  }
+</style>

@@ -1,5 +1,6 @@
 <script lang="ts">
   import PostComponent from '../components/posts/PostComponent.svelte';
+  import SearchPage from './SearchPage.svelte';
   import { Post } from '../models/posts';
   import { TimelineSearch } from '../services/timeline_search.js';
   import { numberOfDays } from '../utils.js';
@@ -48,7 +49,7 @@
   }
 </script>
 
-<div id="private_search_page">
+<SearchPage>
 <h2>Timeline search</h2>
 
 <div class="timeline-search">
@@ -90,4 +91,11 @@
     {/each}
   </div>
 {/if}
-</div>
+</SearchPage>
+
+<style>
+  input[type="range"] {
+    width: 250px;
+    vertical-align: middle;
+  }
+</style>

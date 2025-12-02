@@ -30,3 +30,44 @@
     {/if}
   </div>
 {/if}
+
+<style>
+  .post.blocked :global {
+    p, a {
+      font-size: 11pt;
+      color: #666;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      p, a { color: #aaa; }
+    }
+  }
+
+  :global {
+    .post p {
+      margin-top: 10px;
+    }
+
+    .post .blocked-header i {
+      margin-right: 2px;
+    }
+
+    .post h2 .separator, .post .blocked-header .separator, .blocked-header .separator {
+      color: #888;
+      font-weight: normal;
+      font-size: 11pt;
+      vertical-align: text-top;
+    }
+
+    .post h2 .action, .post .blocked-header .action, .blocked-header .action {
+      color: #888;
+      font-weight: normal;
+      font-size: 10pt;
+      vertical-align: text-top;
+    }
+
+    .post h2 .action:hover, .post .blocked-header .action:hover, .blocked-header .action:hover {
+      color: #444;
+    }
+  }
+</style>
