@@ -36,7 +36,6 @@
   }
 </script>
 
-<div id="like_stats_page">
 <h2>Like statistics</h2>
 
 <form onsubmit={startScan}>
@@ -58,7 +57,6 @@
   <LikeStatsTable cssClass="given-likes" header="❤️ Likes from you:" users={givenLikesUsers} />
   <LikeStatsTable cssClass="received-likes" header="💛 Likes on your posts:" users={receivedLikesUsers} />
 {/if}
-</div>
 
 <style>
   input[type="range"] {

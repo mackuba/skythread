@@ -154,70 +154,70 @@
 </script>
 
 <SearchPage>
-<h2>Archive search</h2>
+  <h2>Archive search</h2>
 
-<form class="search-form">
-  <p class="search">
-    Search:
-    <input type="text" class="search-query" autocomplete="off"
-      disabled={importStatus != 'finished'} onkeydown={onKeyPress} bind:value={query}>
-  </p>
+  <form class="search-form">
+    <p class="search">
+      Search:
+      <input type="text" class="search-query" autocomplete="off"
+        disabled={importStatus != 'finished'} onkeydown={onKeyPress} bind:value={query}>
+    </p>
 
-  <div class="search-collections">
-    {#each collections as col}
-      <input type="radio" name="collection" value={col.id} id="collection-{col.id}" bind:group={selectedCollection}>
-      <label for="collection-{col.id}">{col.title}</label>
-    {/each}
-  </div>
-</form>
+    <div class="search-collections">
+      {#each collections as col}
+        <input type="radio" name="collection" value={col.id} id="collection-{col.id}" bind:group={selectedCollection}>
+        <label for="collection-{col.id}">{col.title}</label>
+      {/each}
+    </div>
+  </form>
 
-{#if wasImporting || importStatus == 'not_started'}
-  <div class="lycan-import">
-    {#if importStatus == 'not_started'}
-      <form onsubmit={onFormSubmit}>
-        <h4>Data not imported yet</h4>
+  {#if wasImporting || importStatus == 'not_started'}
+    <div class="lycan-import">
+      {#if importStatus == 'not_started'}
+        <form onsubmit={onFormSubmit}>
+          <h4>Data not imported yet</h4>
 
-        <p>
-          In order to search within your likes and bookmarks, the posts you've liked or saved need to be imported into a database.
-          This is a one-time process, but it can take several minutes or more, depending on the age of your account.
-        </p>
-        <p>
-          To start the import, press the button below. You can then wait until it finishes, or close this tab and come back a bit later.
-          After the import is complete, the database will be kept up to date automatically going forward.
-        </p>
-        <p>
-          <input type="submit" value="Start import">
-        </p>
-      </form>
-    {:else}
-      <div class="import-progress">
-        <h4>Import in progress</h4>
-
-        <p class="import-status">{importStatusLabel}</p>
-
-        {#if importStatus != 'error'}
           <p>
-            <progress value={importProgress}></progress>
-            <output>{Math.round(importProgress * 100)}%</output>
+            In order to search within your likes and bookmarks, the posts you've liked or saved need to be imported into a database.
+            This is a one-time process, but it can take several minutes or more, depending on the age of your account.
           </p>
-        {/if}
-      </div>
+          <p>
+            To start the import, press the button below. You can then wait until it finishes, or close this tab and come back a bit later.
+            After the import is complete, the database will be kept up to date automatically going forward.
+          </p>
+          <p>
+            <input type="submit" value="Start import">
+          </p>
+        </form>
+      {:else}
+        <div class="import-progress">
+          <h4>Import in progress</h4>
+
+          <p class="import-status">{importStatusLabel}</p>
+
+          {#if importStatus != 'error'}
+            <p>
+              <progress value={importProgress}></progress>
+              <output>{Math.round(importProgress * 100)}%</output>
+            </p>
+          {/if}
+        </div>
+      {/if}
+    </div>
+  {/if}
+
+  <div class="results">
+    {#if loadingPosts}
+      <p>...</p>
+    {:else}
+      {#each results as post (post.uri)}
+        <PostComponent {post} placement="feed" {highlightedMatches} />
+      {/each}
+      {#if finishedPosts}
+        <p class="results-end">{results.length > 0 ? "No more results." : "No results."}</p>
+      {/if}
     {/if}
   </div>
-{/if}
-
-<div class="results">
-  {#if loadingPosts}
-    <p>...</p>
-  {:else}
-    {#each results as post (post.uri)}
-      <PostComponent {post} placement="feed" {highlightedMatches} />
-    {/each}
-    {#if finishedPosts}
-      <p class="results-end">{results.length > 0 ? "No more results." : "No results."}</p>
-    {/if}
-  {/if}
-</div>
 </SearchPage>
 
 <style>
