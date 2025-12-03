@@ -68,8 +68,6 @@
     let selectedDIDs = new Set(selectedUserDIDs);
     users = users.filter(u => !selectedDIDs.has(u.did));
 
-    // TODO this.autocomplete.scrollTop = 0;
-
     if (users.length > 0) {
       autocompleteResults = users;
       autocompleteIndex = 0;
@@ -124,19 +122,26 @@
 
 <div class="user-choice">
   <input type="text" placeholder="Add user" autocomplete="off" autofocus
-    oninput={onTextInput} onkeydown={onKeyPress} bind:value={typedValue} bind:offsetHeight={autocompleteVerticalOffset}>
+    oninput={onTextInput}
+    onkeydown={onKeyPress}
+    bind:value={typedValue}
+    bind:offsetHeight={autocompleteVerticalOffset}>
 
-  <div class="autocomplete"
-    style="display: {autocompleteVisible ? 'block' : 'none'}; top: {autocompleteVerticalOffset}px;">
+  {#if autocompleteVisible}
+    <div class="autocomplete"
+      style:display={autocompleteVisible ? 'block' : 'none'}
+      style:top="{autocompleteVerticalOffset}px">
 
-    {#each autocompleteResults as user, i (user.did)}
-      <div class="user-row {autocompleteIndex == i ? 'highlighted' : ''}"
-           onmouseenter={(e) => { autocompleteIndex = i }}
-           onmousedown={(e) => { selectAutocomplete(e, i) }}>
-        {@render userRow(user)}
-      </div>
-    {/each}
-  </div>
+      {#each autocompleteResults as user, i (user.did)}
+        <div class="user-row"
+            class:highlighted={autocompleteIndex == i}
+            onmouseenter={(e) => { autocompleteIndex = i }}
+            onmousedown={(e) => { selectAutocomplete(e, i) }}>
+          {@render userRow(user)}
+        </div>
+      {/each}
+    </div>
+  {/if}
 
   <div class="selected-users">
     {#each selectedUsers as user, i (user.did)}
