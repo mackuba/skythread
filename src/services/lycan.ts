@@ -5,9 +5,17 @@ import { BlueskyAPI, accountAPI } from '../api.js';
 export type OnPostsLoaded = (data: { posts: Post[], terms: string[] }) => void
 export type OnFinish = () => void
 
+const DEFAULT_LYCAN = "did:web:lycan.feeds.blue#lycan";
+
 export class Lycan {
+  lycanAddress: string;
+
+  constructor(address?: string) {
+    this.lycanAddress = address ?? DEFAULT_LYCAN;
+  }
+
   get proxyHeaders() {
-    return { 'atproto-proxy': 'did:web:lycan.feeds.blue#lycan' };
+    return { 'atproto-proxy': this.lycanAddress };
   }
 
   async getImportStatus() {
@@ -55,9 +63,9 @@ export class Lycan {
 export class DevLycan extends Lycan {
   localLycan: BlueskyAPI;
 
-  constructor() {
+  constructor(host: string) {
     super();
-    this.localLycan = new BlueskyAPI('http://localhost:3000');
+    this.localLycan = new BlueskyAPI(host);
   }
 
   async getImportStatus() {

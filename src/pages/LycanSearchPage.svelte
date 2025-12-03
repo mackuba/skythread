@@ -12,9 +12,9 @@
     { id: 'pins',    title: 'Pins' }
   ]
 
-  let { lycan }: { lycan: string } = $props();
+  let { lycan }: { lycan: string | undefined } = $props();
 
-  let lycanService = $derived(lycan == 'local' ? new DevLycan() : new Lycan());
+  let lycanService = $derived(createService(lycan));
 
   let isCheckingStatus = $state(false);
   let importStatus: string | undefined = $state();
@@ -33,6 +33,23 @@
 
   checkImportStatus();
 
+
+  function createService(param: string | undefined): Lycan {
+    if (!param) {
+      // default = production instance
+      return new Lycan();
+    } else if (param == 'local' || param == 'localhost') {
+      // ?lycan=local
+      return new DevLycan("http://localhost:3000");
+    } else if (param.startsWith('local:') || param.startsWith('localhost:')) {
+      // ?lycan=local:4000
+      let port = param.split(':')[1];
+      return new DevLycan(`http://localhost:${port}`);
+    } else {
+      // ?lycan=your.instance.org
+      return new Lycan(`did:web:${lycan}#lycan`);
+    }
+  }
 
   function onFormSubmit(e: Event) {
     e.preventDefault();
