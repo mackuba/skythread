@@ -1,11 +1,13 @@
 <script lang="ts">
   import { type PostingStatsResult } from "../services/posting_stats";
 
-  interface Props extends PostingStatsResult {
+  export interface TableOptions {
     showReposts?: boolean,
     showPercentages?: boolean,
     showTotal?: boolean
   };
+
+  type Props = PostingStatsResult & TableOptions;
 
   let { users, sums, daysBack, showReposts = true, showPercentages = true, showTotal = true }: Props = $props();
 

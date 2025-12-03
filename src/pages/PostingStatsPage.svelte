@@ -1,6 +1,6 @@
 <script lang="ts">
   import UserAutocomplete, { type AutocompleteUser } from '../components/UserAutocomplete.svelte';
-  import PostingStatsTable from '../components/PostingStatsTable.svelte';
+  import PostingStatsTable, { type TableOptions } from '../components/PostingStatsTable.svelte';
   import { accountAPI } from '../api.js';
   import { PostingStats, type PostingStatsResult } from '../services/posting_stats.js';
   import { numberOfDays } from '../utils.js';
@@ -10,12 +10,12 @@
     { id: 'list',  title: 'List feed' },
     { id: 'users', title: 'Selected users' },
     { id: 'you',   title: 'Your profile' }
-  ]
+  ] as const;
 
   let lists: json[] = $state([]);
 
   let timeRangeDays = $state(7);
-  let selectedTab = $state(tabs[0].id);
+  let selectedTab: typeof tabs[number]['id'] = $state(tabs[0].id);
   let selectedUsers: AutocompleteUser[] = $state([]);
   let selectedList: string | undefined = $state();
 
@@ -24,7 +24,7 @@
   let progress: number | undefined = $state();
   let scanInfo = $state();
 
-  let tableOptions = $state({});
+  let tableOptions: TableOptions = $state({});
   let results: PostingStatsResult | null = $state(null);
 
   let scanner = new PostingStats((p) => { progress = Math.max(progress || 0, p) });
@@ -78,28 +78,33 @@
     progress = 0;
     scanInProgress = true;
 
-    // TODO
-    // let now = new Date().getTime();
-    //
-    // if (now - startTime < 100) {
-    //   // artificial UI delay in case scan finishes immediately
-    //   await new Promise(resolve => setTimeout(resolve, 100));
-    // }
+    let startTime = new Date().getTime();
+    let data: PostingStatsResult | null;
+    let options: TableOptions;
 
     if (selectedTab == 'home') {
-      tableOptions = {};
-      results = await scanner.scanHomeTimeline(requestedDays);
+      options = {};
+      data = await scanner.scanHomeTimeline(requestedDays);
     } else if (selectedTab == 'list') {
-      tableOptions = { showReposts: false };
-      results = await scanner.scanListTimeline(selectedList!, requestedDays);
+      options = { showReposts: false };
+      data = await scanner.scanListTimeline(selectedList!, requestedDays);
     } else if (selectedTab == 'users') {
-      results = await scanner.scanUserTimelines(selectedUsers, requestedDays);
-      tableOptions = { showTotal: false, showPercentages: false };
-    } else if (selectedTab == 'you') {
-      results = await scanner.scanYourTimeline(requestedDays);
-      tableOptions = { showTotal: false, showPercentages: false };
+      options = { showTotal: false, showPercentages: false };
+      data = await scanner.scanUserTimelines(selectedUsers, requestedDays);
+    } else { // selectedTab == 'you'
+      options = { showTotal: false, showPercentages: false };
+      data = await scanner.scanYourTimeline(requestedDays);
     }
 
+    let now = new Date().getTime();
+
+    if (now - startTime < 150) {
+      // artificial UI delay in case scan finishes immediately
+      await new Promise(resolve => setTimeout(resolve, 150));
+    }
+
+    tableOptions = options;
+    results = data;
     scanInProgress = false;
   }
 </script>
