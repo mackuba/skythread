@@ -4,7 +4,7 @@
   import { linkToPostThread, linkToQuotesPage } from '../../router.js';
   import { account } from '../../models/account.svelte.js';
   import { showLoginDialog } from '../Dialogs.svelte';
-  import { showError } from '../../utils.js';
+  import { showError, pluralize } from '../../utils.js';
 
   let { post, placement } = getPostContext();
   let { quoteCount }: { quoteCount: number | undefined } = $props();
@@ -70,7 +70,7 @@
   {#if post.replyCount > 0 && (placement == 'quotes' || placement == 'feed')}
     <span>
       <i class="fa-regular fa-message"></i>
-      <a href="{linkToPostThread(post)}">{post.replyCount > 1 ? `${post.replyCount} replies` : '1 reply'}</a>
+      <a href="{linkToPostThread(post)}">{pluralize(post.replyCount, 'reply', 'replies')}</a>
     </span>
   {/if}
 
@@ -78,7 +78,7 @@
     {#if placement == 'quotes' || placement == 'feed' || post.isPageRoot}
       <span>
         <i class="fa-regular fa-comments"></i>
-        <a href={linkToQuotesPage(post.linkToPost)}>{quoteCount > 1 ? `${quoteCount} quotes` : '1 quote'}</a>
+        <a href={linkToQuotesPage(post.linkToPost)}>{pluralize(quoteCount, 'quote')}</a>
       </span>
     {:else}
       <a href={linkToQuotesPage(post.linkToPost)}>
