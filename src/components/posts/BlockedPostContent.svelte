@@ -19,5 +19,4 @@
 
 {#if post.embed}
   <EmbedComponent embed={post.embed} />
-  <!-- TODO: what embeds to show? -->
 {/if}

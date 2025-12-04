@@ -55,7 +55,7 @@
   </header>
 
   {#each posts as post (post.uri)}
-    <!-- TODO: #if post.parent -->
+    <!-- note: posts here are loaded via getPosts, so they don't include full parent/thread info -->
     {#if post.parentReference}
       <FeedPostParent uri={post.parentReference.uri} />
     {/if}
