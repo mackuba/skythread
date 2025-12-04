@@ -77,9 +77,8 @@
   }
 
   function onMoreRepliesLoaded(newPost: Post) {
-    replies = post.replies = newPost.replies;
-    repliesLoaded = true;
-    // TODO: more replies turning into hidden replies
+    post.updateDataFromPost(newPost);
+    replies = post.replies;
   }
 
   function onHiddenRepliesLoaded(newReplies: (AnyPost | null)[]) {
@@ -156,11 +155,13 @@
     {/if}
 
     {#if placement == 'thread' && !repliesLoaded}
-      {#if post.hasMoreReplies}
-        <LoadMoreLink onLoad={onMoreRepliesLoaded} onError={onRepliesLoadingError} />
-      {:else if post.hasHiddenReplies && settings.biohazardsEnabled !== false}
-        <HiddenRepliesLink onLoad={onHiddenRepliesLoaded} onError={onRepliesLoadingError} />
-      {/if}
+      {#key replies}
+        {#if post.hasMoreReplies}
+          <LoadMoreLink onLoad={onMoreRepliesLoaded} onError={onRepliesLoadingError} />
+        {:else if post.hasHiddenReplies && settings.biohazardsEnabled !== false}
+          <HiddenRepliesLink onLoad={onHiddenRepliesLoaded} onError={onRepliesLoadingError} />
+        {/if}
+      {/key}
     {/if}
 
     {#if missingHiddenReplies !== undefined}

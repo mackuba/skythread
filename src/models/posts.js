@@ -252,6 +252,19 @@ export class Post extends BasePost {
     }
   }
 
+  /** @param {Post} post */
+
+  updateDataFromPost(post) {
+    this.record = post.record;
+    this.embed = post.embed;
+    this.author = post.author;
+    this.viewerData = post.viewerData;
+    this.viewerLike = post.viewerLike;
+    this.level = post.level;
+    this.absoluteLevel = post.absoluteLevel;
+    this.setReplies(post.replies);
+  }
+
   /** @param {AnyPost[]} replies */
 
   setReplies(replies) {
