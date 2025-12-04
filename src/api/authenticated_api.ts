@@ -25,7 +25,7 @@ class LocalStorageConfig {
 }
 
 export class AuthenticatedAPI extends BlueskyAPI {
-  user: json;
+  override user: json;
 
   constructor() {
     let config = new LocalStorageConfig();
@@ -128,7 +128,7 @@ export class AuthenticatedAPI extends BlueskyAPI {
     });
   }
 
-  resetTokens() {
+  override resetTokens() {
     delete this.user.avatar;
     super.resetTokens();
   }

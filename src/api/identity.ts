@@ -28,7 +28,7 @@ export async function pdsEndpointForDID(did: string): Promise<string> {
   let json = text.trim().length > 0 ? JSON.parse(text) : undefined;
 
   if (response.status == 200) {
-    let service = (json.service || []).find(s => s.id == '#atproto_pds');
+    let service = (json.service || []).find((s: json) => s.id == '#atproto_pds');
 
     if (service) {
       return service.serviceEndpoint.replace('https://', '');

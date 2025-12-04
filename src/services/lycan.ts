@@ -68,15 +68,15 @@ export class DevLycan extends Lycan {
     this.localLycan = new BlueskyAPI(host);
   }
 
-  async getImportStatus() {
+  override async getImportStatus() {
     return await this.localLycan.getRequest('blue.feeds.lycan.getImportStatus', { user: accountAPI.user.did });
   }
 
-  async startImport() {
+  override async startImport() {
     await this.localLycan.postRequest('blue.feeds.lycan.startImport', { user: accountAPI.user.did });
   }
 
-  async makeQuery(collection: string, query: string, cursor: string | undefined) {
+  override async makeQuery(collection: string, query: string, cursor: string | undefined) {
     let params: Record<string, string> = { collection, query, user: accountAPI.user.did };
     if (cursor) params.cursor = cursor;
 

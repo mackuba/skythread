@@ -1,5 +1,5 @@
 import { ATProtoRecord } from './records.js';
-import { Post, PostDataError, parseViewRecord } from './posts.js';
+import { PostDataError, parseViewRecord } from './posts.js';
 
 /**
  * Base class for embed objects.

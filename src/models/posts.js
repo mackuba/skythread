@@ -184,6 +184,12 @@ export class Post extends BasePost {
   pageRoot;
 
   /**
+   * Post's direct replies (if it's displayed in a thread).
+   * @type {AnyPost[]}
+   */
+  replies;
+
+  /**
    * Info about the author of the "grandparent" post. Included only in feedPost views, for the purposes
    * of feed filtering algorithm.
    * @type {json | undefined}
@@ -340,12 +346,6 @@ export class Post extends BasePost {
   /** @returns {string} */
   get linkToPost() {
     return this.linkToAuthor + '/post/' + this.rkey;
-  }
-
-  /** @returns {string} */
-  get didLinkToAuthor() {
-    let { repo } = atURI(this.uri);
-    return `https://bsky.app/profile/${repo}`;
   }
 
   /** @returns {string} */
