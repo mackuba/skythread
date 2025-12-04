@@ -22,8 +22,13 @@
       let root = parseThreadPost(json.thread, post.pageRoot, 0, post.absoluteLevel);
 
       loading = false;
-      window.subtreeRoot = root;
-      onLoad(root as Post); // TODO
+
+      if (root instanceof Post) {
+        window.subtreeRoot = root;
+        onLoad(root);
+      } else {
+        onError(new Error('Post is not available'));
+      }
     } catch (error) {
       loading = false;
       onError(error);
