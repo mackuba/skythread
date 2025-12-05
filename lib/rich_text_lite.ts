@@ -1,7 +1,8 @@
 /*
   Extracted from https://github.com/bluesky-social/atproto/
 
-  Copyright (c) 2022-2024 Bluesky PBC, and Contributors
+  Copyright (c) 2022-2025 Bluesky Social PBC, and Contributors
+
   MIT License
 
   Permission is hereby granted, free of charge, to any person obtaining a copy
