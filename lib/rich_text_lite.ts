@@ -25,59 +25,95 @@
 
 // packages/api/src/rich-text/rich-text.ts
 
-class RichTextSegment {
-  /** @param {string} text, @param {json} [facet] */
-  constructor(text, facet) {
-    this.text = text;
-    this.facet = facet;
+export interface ByteSlice {
+  $type?: 'app.bsky.richtext.facet#byteSlice'
+  byteStart: number
+  byteEnd: number
+}
+
+export interface Facet {
+  $type?: 'app.bsky.richtext.facet'
+  index: ByteSlice
+  features: (FacetMention | FacetLink | FacetTag | { $type: string })[]
+}
+
+export interface FacetTag {
+  $type?: 'app.bsky.richtext.facet#tag'
+  tag: string
+}
+
+export interface FacetLink {
+  $type?: 'app.bsky.richtext.facet#link'
+  uri: string
+}
+
+export interface FacetMention {
+  $type?: 'app.bsky.richtext.facet#mention'
+  did: string
+}
+
+export interface RichTextProps {
+  text: string
+  facets?: Facet[] | undefined
+}
+
+export class RichTextSegment {
+  constructor(public text: string, public facet?: Facet) {}
+
+  get link(): FacetLink | undefined {
+    return this.facet?.features.find(v => v.$type === 'app.bsky.richtext.facet#link') as FacetLink
   }
 
-  /** @returns {object | undefined} */
-  get link() {
-    return this.facet?.features?.find(v => v.$type === 'app.bsky.richtext.facet#link');
+  isLink() {
+    return !!this.link
   }
 
-  /** @returns {object | undefined} */
-  get mention() {
-    return this.facet?.features?.find(v => v.$type === 'app.bsky.richtext.facet#mention');
+  get mention(): FacetMention | undefined {
+    return this.facet?.features.find(v => v.$type === 'app.bsky.richtext.facet#mention') as FacetMention
   }
 
-  /** @returns {object | undefined} */
-  get tag() {
-    return this.facet?.features?.find(v => v.$type === 'app.bsky.richtext.facet#tag');
+  isMention() {
+    return !!this.mention
+  }
+
+  get tag(): FacetTag | undefined {
+    return this.facet?.features.find(v => v.$type === 'app.bsky.richtext.facet#tag') as FacetTag
+  }
+
+  isTag() {
+    return !!this.tag
   }
 }
 
 export class RichText {
-  /** @params {json} props */
-  constructor(props) {
+  unicodeText: UnicodeString
+  facets?: Facet[] | undefined
+
+  constructor(props: RichTextProps) {
     this.unicodeText = new UnicodeString(props.text);
     this.facets = props.facets;
 
     if (this.facets) {
-      this.facets.sort((a, b) => a.index.byteStart - b.index.byteStart);
+      this.facets = this.facets.filter(facetFilter).sort(facetSort)
     }
   }
 
-  /** @returns {string} */
   get text() {
     return this.unicodeText.toString();
   }
 
-  /** @returns {number} */
   get length() {
     return this.unicodeText.length;
   }
 
-  /** @returns {number} */
   get graphemeLength() {
     return this.unicodeText.graphemeLength;
   }
 
-  *segments() {
+  *segments(): Generator<RichTextSegment, void, void> {
     const facets = this.facets || [];
 
-    if (facets.length == 0) {
+    if (!facets.length) {
       yield new RichTextSegment(this.unicodeText.utf16);
       return;
     }
@@ -98,7 +134,8 @@ export class RichText {
       if (currFacet.index.byteStart < currFacet.index.byteEnd) {
         const subtext = this.unicodeText.slice(currFacet.index.byteStart, currFacet.index.byteEnd);
 
-        if (subtext.trim().length == 0) {
+        if (!subtext.trim()) {
+          // dont empty string entities
           yield new RichTextSegment(subtext);
         } else {
           yield new RichTextSegment(subtext, currFacet);
@@ -107,7 +144,6 @@ export class RichText {
 
       textCursor = currFacet.index.byteEnd;
       facetCursor++;
-
     } while (facetCursor < facets.length);
 
     if (textCursor < this.unicodeText.length) {
@@ -115,6 +151,12 @@ export class RichText {
     }
   }
 }
+
+const facetSort = (a: Facet, b: Facet) => a.index.byteStart - b.index.byteStart
+
+const facetFilter = (facet: Facet) =>
+  // discard negative-length facets. zero-length facets are valid
+  facet.index.byteStart <= facet.index.byteEnd
 
 
 // packages/api/src/rich-text/unicode.ts
@@ -128,33 +170,39 @@ export class RichText {
  * and utf16, and that's precisely what this library handles.
  */
 
-class UnicodeString {
-  static encoder = new TextEncoder();
-  static decoder = new TextDecoder();
-  static segmenter = window.Intl && Intl.Segmenter && new Intl.Segmenter();
+const encoder = new TextEncoder()
+const decoder = new TextDecoder()
+const segmenter = new Intl.Segmenter();
 
-  /** @param {string} utf16 */
-  constructor(utf16) {
+export const graphemeLen = (str: string): number => {
+  return Array.from(segmenter.segment(str)).length;
+}
+
+export class UnicodeString {
+  utf16: string
+  utf8: Uint8Array
+  private _graphemeLen?: number | undefined
+
+  constructor(utf16: string) {
     this.utf16 = utf16;
-    this.utf8 = UnicodeString.encoder.encode(utf16);
+    this.utf8 = encoder.encode(utf16);
   }
 
-  /** @returns {number} */
   get length() {
     return this.utf8.byteLength;
   }
 
-  /** @returns {number} */
   get graphemeLength() {
-    return Array.from(UnicodeString.segmenter.segment(this.utf16)).length;
+    if (!this._graphemeLen) {
+      this._graphemeLen = graphemeLen(this.utf16)
+    }
+    return this._graphemeLen;
   }
 
-  /** @param {number} start, @param {number} end, @returns {string} */
-  slice(start, end) {
-    return UnicodeString.decoder.decode(this.utf8.slice(start, end));
+  slice(start?: number, end?: number): string {
+    return decoder.decode(this.utf8.slice(start, end));
   }
 
-  /** @returns {string} */
   toString() {
     return this.utf16;
   }

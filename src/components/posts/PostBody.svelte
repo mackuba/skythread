@@ -1,6 +1,7 @@
 <script lang="ts">
   import { getPostContext } from './PostComponent.svelte';
   import { sanitizeHTML } from '../../utils.js';
+  import { type Facet } from '../../../lib/rich_text_lite.js';
   import RichTextFromFacets from '../RichTextFromFacets.svelte';
 
   const highlightID = 'search-results';
@@ -54,7 +55,7 @@
   </div>
 {:else}
   <p class="body" bind:this={bodyElement}>
-    <RichTextFromFacets text={post.text} facets={post.facets} />
+    <RichTextFromFacets text={post.text} facets={post.facets as Facet[]} />
   </p>
 {/if}
 
