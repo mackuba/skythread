@@ -56,7 +56,7 @@ main header h2 {
 p.back i {
   font-size: 10pt;
   color: #888;
-  margin-right: 5px;
+  margin-right: 3px;
 }
 
 @media (prefers-color-scheme: dark) {

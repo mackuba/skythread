@@ -240,6 +240,7 @@
 <style>
   .search-collections label {
     vertical-align: middle;
+    margin-right: 5px;
   }
 
   .lycan-import {

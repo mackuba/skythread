@@ -86,6 +86,7 @@
       margin-top: 8px;
       margin-bottom: 4px;
       line-height: 135%;
+      white-space: pre-line;
     }
 
     a.link-card.record > div:has(.avatar) {
@@ -98,7 +99,10 @@
 
     a.link-card.record .handle {
       color: #666;
-      margin-left: 5px;
+      margin-left: 1px;
+      font-weight: normal;
+      font-size: 11pt;
+      vertical-align: text-top;
     }
 
     a.link-card.record .avatar {
@@ -114,9 +118,12 @@
     a.link-card.record .stats {
       margin-top: 9px;
       margin-bottom: 1px;
+      font-size: 10pt;
+      color: #666;
     }
 
-    a.link-card.record .stats i.fa-heart:hover {
+    a.link-card.record .stats i.fa-heart {
+      font-size: 9pt;
       color: #aaa;
     }
   }
@@ -151,10 +158,6 @@
 
       a.link-card.record .avatar {
         border-color: #888;
-      }
-
-      a.link-card.record .stats i.fa-heart:hover {
-        color: #eee;
       }
     }
   }

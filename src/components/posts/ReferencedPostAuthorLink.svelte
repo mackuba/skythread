@@ -5,6 +5,7 @@
   let { post, status = undefined }: { post: AnyPost, status?: string | undefined } = $props();
 
   let handle: string | undefined = $state();
+  let handleText = $derived(handle ? `@${handle}` : 'see author');
 
   $effect(() => {
     let did = atURI(post.uri).repo;
@@ -16,7 +17,7 @@
 </script>
 
 {#if status}
-  (<a href="{post.didLinkToAuthor}" target="_blank">{handle ?? 'see author'}</a>, {status})
+  (<a href="{post.didLinkToAuthor}" target="_blank">{handleText}</a>, {status})
 {:else}
-  (<a href="{post.didLinkToAuthor}" target="_blank">{handle ?? 'see author'}</a>)
+  (<a href="{post.didLinkToAuthor}" target="_blank">{handleText}</a>)
 {/if}

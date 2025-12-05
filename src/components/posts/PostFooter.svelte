@@ -134,7 +134,7 @@
   }
 
   span {
-    margin-right: 10px;
+    margin-right: 7px;
   }
 
   .blocked-info {

@@ -65,7 +65,7 @@
     border-radius: 16px;
     vertical-align: middle;
     margin-bottom: 3px;
-    margin-right: 8px;
+    margin-right: 4px;
   }
 
   .no-avatar, .muted-avatar {
@@ -73,7 +73,7 @@
     background-color: #eee;
     border-radius: 16px;
     vertical-align: middle;
-    margin-right: 8px;
+    margin-right: 4px;
   }
 
   .muted-avatar {

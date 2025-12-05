@@ -109,6 +109,7 @@
   }
 </script>
 
+<main>
 <h2>Bluesky posting statistics</h2>
 
 <form {onsubmit}>
@@ -157,6 +158,7 @@
 {#if results}
   <PostingStatsTable {...tableOptions} {...results} />
 {/if}
+</main>
 
 <style>
   input[type="radio"] {
@@ -168,6 +170,7 @@
   input[type="radio"] + label {
     user-select: none;
     -webkit-user-select: none;
+    margin-right: 4px;
   }
 
   input[type="range"] {

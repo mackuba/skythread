@@ -48,12 +48,12 @@
     width: 400px;
   }
 
-  p.submit {
+  :global(.dialog) p.submit {
     margin-top: 40px;
     margin-bottom: 20px;
   }
 
-  input[type="submit"] {
+  :global(.dialog) input[type="submit"] {
     width: 180px;
     margin-left: 5px;
     margin-right: 5px;

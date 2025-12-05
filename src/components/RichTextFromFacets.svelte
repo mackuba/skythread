@@ -19,8 +19,7 @@
     {@const lines = segment.text.split("\n")}
 
     {#each lines as line, i}
-      {#if i > 0}<br>{/if}
-      {line}
+      {#if i > 0}<br>{/if}{line}
     {/each}
   {/if}
 {/each}

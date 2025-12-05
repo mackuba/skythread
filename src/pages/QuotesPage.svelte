@@ -75,6 +75,10 @@
 {/if}
 
 <style>
+  .quotes :global(p.back) {
+    padding-left: 10px;
+  }
+
   .quotes :global(.post) {
     padding-bottom: 5px;
   }

@@ -2,9 +2,9 @@
   let { children } = $props();
 </script>
 
-<div class="search-page">
+<main class="search-page">
   {@render children()}
-</div>
+</main>
 
 <style>
   .search-page :global {

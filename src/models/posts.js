@@ -343,7 +343,7 @@ export class Post extends BasePost {
   /** @returns {string} */
   get authorDisplayName() {
     if (this.author.displayName) {
-      return this.author.displayName;
+      return this.author.displayName.trim();
     } else if (this.author.handle.endsWith('.bsky.social')) {
       return this.author.handle.replace(/\.bsky\.social$/, '');
     } else {

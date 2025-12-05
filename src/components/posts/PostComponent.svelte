@@ -187,7 +187,7 @@
 </div>
 
 <style>
-  .post {
+  :global(.post) {
     position: relative;
     padding-left: 21px;
     margin-top: 30px;

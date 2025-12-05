@@ -66,7 +66,7 @@
 {/if}
 
 <style>
-  .hashtag :global(.post) {
+  .hashtag > :global(.post) {
     padding-bottom: 10px;
     border-bottom: 1px solid #ddd;
   }
