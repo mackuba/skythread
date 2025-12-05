@@ -17,7 +17,7 @@
       <a href="{linkToPostById(repo, rkey)}">Reply</a>
     {:then handle}
       <a href="{linkToPostById(handle, rkey)}">Reply to @{handle}</a>
-    {:catch error}
+    {:catch}
       <a href="{linkToPostById(repo, rkey)}">Reply to {repo}</a>
     {/await}
   {/if}

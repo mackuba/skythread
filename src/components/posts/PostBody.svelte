@@ -44,7 +44,9 @@
 
       return () => {
         CSS.highlights.delete(highlightID);
-      }
+      };
+    } else {
+      return;
     }
   });
 </script>

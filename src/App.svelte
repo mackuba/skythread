@@ -35,13 +35,13 @@
   <HashtagPage hashtag={params.hash} />
 {:else if params.page}
   {#if account.loggedIn}
-    {@render page(params.page)}
+    {@render page()}
   {/if}
 {:else}
   <HomeSearch />
 {/if}
 
-{#snippet page(name)}
+{#snippet page()}
   {#if params.page == 'notif'}
     <NotificationsPage />
   {:else if params.page == 'posting_stats'}

@@ -33,7 +33,7 @@
     fetchLists();
   })
 
-  function onTabChange(e: Event) {
+  function onTabChange() {
     results = null;
   }
 

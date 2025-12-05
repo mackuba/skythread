@@ -14,7 +14,7 @@
     <a href="{linkToPostById(repo, rkey)}">See parent post</a>
   {:then handle}
     <a href="{linkToPostById(handle, rkey)}">See parent post (@{handle})</a>
-  {:catch error}
+  {:catch}
     <a href="{linkToPostById(repo, rkey)}">See parent post</a>
   {/await}
 </p>

@@ -22,7 +22,7 @@
 
     try {
       let data = await api.getHashtagFeed(hashtag, cursor);
-      let batch = data.posts.map(j => new Post(j)) as Post[];
+      let batch = data.posts.map((j: json) => new Post(j)) as Post[];
       firstPageLoaded = true;
 
       posts.push(...batch);

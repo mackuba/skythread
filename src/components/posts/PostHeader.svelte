@@ -12,11 +12,11 @@
   $effect(() => {
     if (avatar) {
       avatarPreloader.observe(avatar);
-
-      return () => {
-        avatar && avatarPreloader.unobserve(avatar);
-      }
     }
+
+    return () => {
+      avatar && avatarPreloader.unobserve(avatar);
+    };
   });
 </script>
 

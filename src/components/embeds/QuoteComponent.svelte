@@ -45,7 +45,7 @@
     </div>
   {:then record}
     {@render quoteContent(record)}
-  {:catch error}
+  {:catch}
     <div class="quote-embed">
       <p class="post placeholder">Error loading quoted post</p>
     </div>

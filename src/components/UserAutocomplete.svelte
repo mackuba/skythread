@@ -135,7 +135,7 @@
       {#each autocompleteResults as user, i (user.did)}
         <div class="user-row"
             class:highlighted={autocompleteIndex == i}
-            onmouseenter={(e) => { autocompleteIndex = i }}
+            onmouseenter={() => { autocompleteIndex = i }}
             onmousedown={(e) => { selectAutocomplete(e, i) }}>
           {@render userRow(user)}
         </div>
