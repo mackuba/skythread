@@ -1,5 +1,5 @@
 import { HandleCache } from './handle_cache.js';
-import { blueAPI, appView } from '../api.js';
+import { appView, constellationAPI } from '../api.js';
 import { APIError, Minisky, type FetchAllOnPageLoad, type MiniskyConfig, type MiniskyOptions } from './minisky.js';
 import { atURI, feedPostTime } from '../utils.js';
 import { Post } from '../models/posts.js';
@@ -20,19 +20,6 @@ export class ResponseDataError extends Error {}
 export class URLError extends Error {
   constructor(message: string) {
     super(message);
-  }
-}
-
-/**
- * Thrown when hidden replies couldn't be loaded from the blue.feeds API.
- */
-
-export class HiddenRepliesError extends Error {
-  originalError: Error;
-
-  constructor(error: Error) {
-    super(error.message);
-    this.originalError = error;
   }
 }
 
@@ -130,8 +117,16 @@ export class BlueskyAPI extends Minisky {
   }
 
   async getReplies(uri: string): Promise<string[]> {
-    let json = await this.getRequest('blue.feeds.post.getReplies', { uri });
-    return json.replies;
+    let results = await this.fetchAll('blue.microcosm.links.getBacklinks', {
+      field: 'records',
+      params: {
+        subject: uri,
+        source: 'app.bsky.feed.post:reply.parent.uri',
+        limit: 100
+      }
+    });
+
+    return results.map((x: json) => `at://${x.did}/${x.collection}/${x.rkey}`);
   }
 
   async getQuoteCount(uri: string): Promise<number> {
@@ -170,18 +165,7 @@ export class BlueskyAPI extends Minisky {
   }
 
   async loadHiddenReplies(post: Post): Promise<(json | null)[]> {
-    let expectedReplyURIs: string[];
-
-    try {
-      expectedReplyURIs = await blueAPI.getReplies(post.uri);
-    } catch (error) {
-      if (error instanceof APIError && error.code == 404) {
-        throw new HiddenRepliesError(error);
-      } else {
-        throw error;
-      }
-    }
-
+    let expectedReplyURIs = await constellationAPI.getReplies(post.uri);
     let missingReplyURIs = expectedReplyURIs.filter(r => !post.replies.some(x => x.uri === r));
     let promises = missingReplyURIs.map(uri => this.loadThreadByAtURI(uri));
     let responses = await Promise.allSettled(promises);

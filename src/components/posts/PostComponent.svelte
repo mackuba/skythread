@@ -4,7 +4,6 @@
 
 <script lang="ts">
   import { createContext } from 'svelte';
-  import { HiddenRepliesError } from '../../api.js';
   import { settings } from '../../models/settings.svelte.js';
   import { Post, BlockedPost } from '../../models/posts.js';
   import { Embed, InlineLinkEmbed } from '../../models/embeds.js';
@@ -45,7 +44,6 @@
   let replies: AnyPost[] = $state(post.replies);
   let repliesLoaded = $state(false);
   let missingHiddenReplies: number | undefined = $state();
-  let hiddenRepliesError: Error | undefined = $state();
 
   setPostContext({ post, placement });
 
@@ -96,13 +94,7 @@
   }
 
   function onRepliesLoadingError(error: Error) {
-    repliesLoaded = true;
-
-    if (error instanceof HiddenRepliesError) {
-      hiddenRepliesError = error;
-    } else {
-      setTimeout(() => showError(error), 1);
-    }
+    showError(error);
   }
 </script>
 
@@ -175,12 +167,6 @@
           Some replies are missing
         {/if}
         (likely taken down by moderation)
-      </p>
-    {/if}
-
-    {#if hiddenRepliesError}
-      <p class="missing-replies-info">
-        <i class="fa-solid fa-ban"></i> Hidden replies not available (post too old)
       </p>
     {/if}
   </div>
