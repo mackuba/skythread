@@ -167,6 +167,13 @@ export class BlueskyAPI extends Minisky {
   async loadHiddenReplies(post: Post): Promise<(json | null)[]> {
     let expectedReplyURIs = await constellationAPI.getReplies(post.uri);
     let missingReplyURIs = expectedReplyURIs.filter(r => !post.replies.some(x => x.uri === r));
+
+    missingReplyURIs.sort((a, b) => {
+      let arkey = a.split('/').at(-1)!
+      let brkey = b.split('/').at(-1)!
+      return arkey.localeCompare(brkey);
+    });
+
     let promises = missingReplyURIs.map(uri => this.loadThreadByAtURI(uri));
     let responses = await Promise.allSettled(promises);
 
