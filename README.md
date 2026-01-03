@@ -59,6 +59,6 @@ If you want to make any changes, you'll need to install [Bun](https://bun.com) a
 
 ## Credits
 
-Copyright © 2025 [Kuba Suder](https://mackuba.eu) (<a href="https://bsky.app/profile/mackuba.eu">@mackuba.eu</a> on Bluesky). Licensed under [zlib license](https://choosealicense.com/licenses/zlib/) (permissive, similar to MIT).
+Copyright © 2025 [Kuba Suder](https://mackuba.eu) (<a href="https://bsky.app/profile/did:plc:oio4hkxaop4ao4wz2pp3f4cr">@mackuba.eu</a> on Bluesky). Licensed under [zlib license](https://choosealicense.com/licenses/zlib/) (permissive, similar to MIT).
 
 Pull requests, bug reports and suggestions are welcome :)
