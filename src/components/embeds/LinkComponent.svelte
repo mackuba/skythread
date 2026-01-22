@@ -43,7 +43,7 @@
     </a>
   {:else}
     <p>
-      [Link: <a href={embed.url}>{embed.title || embed.url}</a>]
+      [Link: {embed.url}]
     </p>
   {/if}
 {/if}
