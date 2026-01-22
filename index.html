@@ -4,248 +4,27 @@
   <meta charset="UTF-8">
   <meta http-equiv="Content-Security-Policy" content="
     default-src 'none';
-    script-src 'self' 'sha256-C5RUxaoIkpRux1/UhIgLL5RalHWo6EOGHzWOhCMr8Fs=';
+    script-src 'self';
     style-src 'self';
     img-src 'self' https:;
     font-src 'self';
     script-src-attr 'none';
     style-src-attr 'none';
-    connect-src https: http://localhost:3000;
+    connect-src http: https:;
     base-uri 'none';
     form-action 'none';">
 
   <title>Skythread</title>
+
   <link href="./fontawesome/fontawesome.min.css" rel="stylesheet">
   <link href="./fontawesome/solid.min.css" rel="stylesheet">
   <link href="./fontawesome/regular.min.css" rel="stylesheet">
   <link href="style.css" rel="stylesheet">
+  <link href="dist/skythread.css" rel="stylesheet">
+  <link rel="preload" href="./fontawesome/fa-regular-400.woff2" as="font" type="font/woff2">
+  <link rel="preload" href="./fontawesome/fa-solid-900.woff2" as="font" type="font/woff2">
 </head>
 <body>
-  <div id="loader"><img src="icons/sunny.png"></div>
-
-  <div id="search">
-    <form method="get">
-      🌤 <input type="text" placeholder="Paste a thread link or type a #hashtag" name="q">
-    </form>
-  </div>
-
-  <div id="github">
-    <a href="https://github.com/mackuba/skythread" target="_blank">
-      <img src="icons/github.png">
-    </a>
-  </div>
-
-  <div id="account">
-    <i class="fa-regular fa-user-circle fa-xl"></i>
-  </div>
-
-  <div id="account_menu">
-    <ul>
-      <li><a href="#" data-action="incognito"
-        title="Temporarily load threads as a logged-out user"><span class="check">✓ </span>Incognito mode</a></li>
-
-      <li><a href="#" data-action="biohazard"
-        title="Show links to blocked and hidden comments"><span class="check">✓ </span>Show infohazards</a></li>
-
-      <li><a href="#" data-action="login">Log in</a></li>
-      <li><a href="#" data-action="logout">Log out</a></li>
-
-      <li class="link"><a href="?">Home</a></li>
-      <li class="link"><a href="?page=posting_stats">Posting stats</a></li>
-      <li class="link"><a href="?page=like_stats">Like stats</a></li>
-      <li class="link"><a href="?page=search">Timeline search</a></li>
-      <li class="link"><a href="?page=search&mode=likes">Archive search</a></li>
-    </ul>
-  </div>
-
-  <div id="thread">
-  </div>
-
-  <div id="login" class="dialog">
-    <form method="get">
-      <i class="close fa-circle-xmark fa-regular"></i>
-      <h2>🌤 Skythread</h2>
-      <p><input type="text" id="login_handle" required placeholder="name.bsky.social"></p>
-      <p><input type="password" id="login_password" required
-           placeholder="&#x2731;&#x2731;&#x2731;&#x2731;&#x2731;&#x2731;&#x2731;&#x2731;"></p>
-      <p class="info"><a href="#"><i class="fa-regular fa-circle-question"></i> Use an "app password" here</a></p>
-      <div class="info-box">
-        <p>Bluesky API currently doesn't allow apps to request fine-grained permissions, only access to the whole account. However, you can generate an "app password" in the Bluesky app settings for this specific app that you can later revoke at any time.</p>
-        <p>The password you enter here is only passed to the Bluesky API and isn't saved anywhere. The returned access token is only stored in your browser's local storage. You can see the complete source code of this app <a href="http://github.com/mackuba/skythread" target="_blank">on GitHub</a>.</p>
-      </div>
-      <p class="submit">
-        <input id="login_submit" type="submit" value="Log in">
-        <i id="cloudy" class="fa-solid fa-cloud fa-beat fa-xl"></i>
-      </p>
-    </form>
-  </div>
-
-  <div id="biohazard_dialog" class="dialog">
-    <form method="get">
-      <i class="close fa-circle-xmark fa-regular"></i>
-      <h2>☣️ Infohazard Warning</h2>
-      <p>&ldquo;<em>This thread is not a place of honor... no highly esteemed post is commemorated here... nothing valued is here.</em>&rdquo;</p>
-      <p>This feature allows access to comments in a thread which were hidden because one of the commenters has blocked another. Bluesky currently hides such comments to avoid escalating conflicts.</p>
-      <p>Are you sure you want to enter?<br>(You can toggle this in the menu in top-left corner.)</p>
-      <p class="submit">
-        <input type="submit" id="biohazard_show" value="Show me the drama 😈">
-        <input type="submit" id="biohazard_hide" value="Nope, I'd rather not 🙈">
-      </p>
-    </form>
-  </div>
-
-  <div id="posting_stats_page">
-    <h2>Bluesky posting statistics</h2>
-
-    <form>
-      <p>
-        Scan posts from:
-        <input type="radio" name="scan_type" id="scan_type_timeline" value="home" checked>
-        <label for="scan_type_timeline">Home timeline</label>
-
-        <input type="radio" name="scan_type" id="scan_type_list" value="list">
-        <label for="scan_type_list">List feed</label>
-
-        <input type="radio" name="scan_type" id="scan_type_users" value="users">
-        <label for="scan_type_users">Selected users</label>
-
-        <input type="radio" name="scan_type" id="scan_type_you" value="you">
-        <label for="scan_type_you">Your profile</label>
-      </p>
-
-      <p>
-        Time range: <input type="range" min="1" max="60" value="7"> <label>7 days</label>
-      </p>
-
-      <p class="list-choice">
-        <label>Select list:</label>
-        <select name="scan_list"></select>
-      </p>
-
-      <div class="user-choice">
-        <input type="text" placeholder="Add user" autocomplete="off">
-        <div class="autocomplete"></div>
-        <div class="selected-users"></div>
-      </div>
-
-      <p>
-        <input type="submit" value="Start scan"> <progress></progress>
-      </p>
-    </form>
-
-    <p class="scan-info"></p>
-
-    <table class="scan-result">
-      <thead></thead>
-      <tbody></tbody>
-    </table>
-  </div>
-
-  <div id="like_stats_page">
-    <h2>Like statistics</h2>
-
-    <form>
-      <p>
-        Time range: <input type="range" min="1" max="60" value="7"> <label>7 days</label>
-      </p>
-
-      <p>
-        <input type="submit" value="Start scan"> <progress></progress>
-      </p>
-    </form>
-
-    <table class="scan-result given-likes">
-      <thead>
-        <tr><th colspan="3">❤️ Likes from you:</th></tr>
-      </thead>
-      <tbody></tbody>
-    </table>
-
-    <table class="scan-result received-likes">
-      <thead>
-        <tr><th colspan="3">💛 Likes on your posts:</th></tr>
-      </thead>
-      <tbody></tbody>
-    </table>
-  </div>
-
-  <div id="private_search_page">
-    <h2>Archive search</h2>
-
-    <div class="timeline-search">
-      <form>
-        <p>
-          Fetch timeline posts: <input type="range" min="1" max="60" value="7"> <label>7 days</label>
-        </p>
-
-        <p>
-          <input type="submit" value="Fetch timeline"> <progress></progress>
-        </p>
-      </form>
-
-      <p class="archive-status"></p>
-
-      <hr>
-    </div>
-
-    <form class="search-form">
-      <p class="search">Search: <input type="text" class="search-query" autocomplete="off"></p>
-
-      <div class="search-collections">
-        <input type="radio" name="collection" value="likes" id="collection-likes" checked> <label for="collection-likes">Likes</label>
-        <input type="radio" name="collection" value="reposts" id="collection-reposts"> <label for="collection-reposts">Reposts</label>
-        <input type="radio" name="collection" value="quotes" id="collection-quotes"> <label for="collection-quotes">Quotes</label>
-        <input type="radio" name="collection" value="pins" id="collection-pins"> <label for="collection-pins">Pins</label>
-      </div>
-    </form>
-
-    <div class="lycan-import">
-      <form>
-        <h4>Data not imported yet</h4>
-
-        <p>
-          In order to search within your likes and bookmarks, the posts you've liked or saved need to be imported into a database.
-          This is a one-time process, but it can take several minutes or more, depending on the age of your account.
-        </p>
-        <p>
-          To start the import, press the button below. You can then wait until it finishes, or close this tab and come back a bit later.
-          After the import is complete, the database will be kept up to date automatically going forward.
-        </p>
-        <p>
-          <input type="submit" value="Start import">
-        </p>
-      </form>
-
-      <div class="import-progress">
-        <h4>Import in progress</h4>
-
-        <p class="import-status"></p>
-        <p><progress></progress> <output></output></p>
-      </div>
-    </div>
-
-    <div class="results">
-    </div>
-  </div>
-
-  <script src="lib/purify.min.js"></script>
-  <script src="minisky.js"></script>
-  <script src="api.js"></script>
-  <script src="utils.js"></script>
-  <script src="rich_text_lite.js"></script>
-  <script src="models.js"></script>
-  <script src="menu.js"></script>
-  <script src="thread_page.js"></script>
-  <script src="posting_stats_page.js"></script>
-  <script src="like_stats_page.js"></script>
-  <script src="notifications_page.js"></script>
-  <script src="private_search_page.js"></script>
-  <script src="embed_component.js"></script>
-  <script src="post_component.js"></script>
-  <script src="skythread.js"></script>
-
-  <script>
-    init();
-  </script>
+  <script src="dist/skythread.js"></script>
 </body>
 </html>
