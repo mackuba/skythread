@@ -44,10 +44,7 @@ Also:
 
 ## Running
 
-You can access Skythread at:
-
-- [skythread.mackuba.eu](https://skythread.mackuba.eu) – new version rewritten in Svelte
-- [blue.mackuba.eu/skythread](https://blue.mackuba.eu/skythread/) – old stable version in vanilla JS
+You can access the public Skythread site at [skythread.mackuba.eu](https://skythread.mackuba.eu).
 
 You can also download a zipped copy of this repo or clone it and use it locally – just open the `index.html` at the root of the project, no need to start any servers!
 
