@@ -79,7 +79,7 @@
     {#if loginInfoVisible}
       <div class="info-box">
         <p>Skythread doesn't support OAuth yet. For now, you need to use an "app password" here, which you can generate in the Bluesky app settings.</p>
-        <p>The password you enter here is only passed to the Bluesky API (PDS) and isn't saved anywhere. The returned access token is only stored in your browser's local storage. You can see the complete source code of this app <a href="http://tangled.org/@mackuba.eu/skythread" target="_blank">on Tangled</a>.</p>
+        <p>The password you enter here is only passed to the Bluesky API (PDS) and isn't saved anywhere. The returned access token is only stored in your browser's local storage. You can see the complete source code of this app <a href="http://tangled.org/mackuba.eu/skythread" target="_blank">on Tangled</a>.</p>
       </div>
     {/if}
 
