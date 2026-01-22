@@ -87,8 +87,12 @@
     {/if}
   {/if}
 
-  {#if placement == 'thread' && post.isRestrictingReplies}
-    <span><i class="fa-solid fa-ban"></i> Limited replies</span>
+  {#if post.isRestrictingReplies}
+    {#if placement == 'thread'}
+      <span><i class="fa-solid fa-ban"></i> Limited replies</span>
+    {:else if placement == 'quotes'}
+      <span><i class="fa-solid fa-ban" title="Limited replies"></i></span>
+    {/if}
   {/if}
 
   {#if isUnavailableForLiking}
