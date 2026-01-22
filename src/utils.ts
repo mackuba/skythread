@@ -17,8 +17,8 @@ export function feedPostTime(feedPost: json): number {
 
 export function isValidURL(url: string): boolean {
   try {
-    new URL(url);
-    return true;
+    let u = new URL(url);
+    return (u.protocol == 'http:' || u.protocol == 'https:');
   } catch (error) {
     console.error("Invalid URL: " + error);
     return false;
