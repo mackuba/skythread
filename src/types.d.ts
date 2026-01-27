@@ -1,6 +1,7 @@
 interface Window {
   root: AnyPost;
   subtreeRoot: AnyPost;
+  _paq?: any[][];
 }
 
 type json = Record<string, any>;

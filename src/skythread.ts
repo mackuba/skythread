@@ -1,6 +1,7 @@
 import { mount } from 'svelte';
 import { parseURLParams } from './router.js';
 import App from './App.svelte';
+import { initAnalytics } from './services/analytics.js';
 
 function init() {
   let params = parseURLParams(location.search);
@@ -8,3 +9,4 @@ function init() {
 }
 
 document.addEventListener("DOMContentLoaded", init);
+initAnalytics();
