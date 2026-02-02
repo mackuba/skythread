@@ -125,14 +125,17 @@ async fn handle_request(
     request: Request<Body>,
     state: AppState,
 ) -> Result<Response<Body>, Infallible> {
+    // we only handle GET / requests
     if request.method() != Method::GET || request.uri().path() != "/" {
         return Ok(response_with_status(StatusCode::NOT_FOUND));
     }
 
     let Some(query) = request.uri().query() else {
+        // if there are no params, return index.html unchanged
         return Ok(html_response(state.index_html.as_str().to_string()));
     };
 
+    // otherwise, we want to at least add a meta robots noindex
     let mut html = add_meta_robots(state.index_html.as_str());
 
     let user_agent = request.headers()
@@ -141,6 +144,7 @@ async fn handle_request(
         .unwrap_or("");
 
     if is_likely_normal_browser(user_agent) {
+        // fast path for browsers, to not make the user wait longer
         return Ok(html_response(html));
     }
 
