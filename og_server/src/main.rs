@@ -133,31 +133,17 @@ async fn handle_request(
 
     if let Some(q) = params.get("q") {
         if let Some((profile, rkey)) = parse_bsky_post_url(q) {
-            if let Ok((handle, text)) = fetch_post_metadata(&state.client, &profile, &rkey).await {
-                let title = format!("Skythread • Post by @{}", handle);
-
-                let og_title = format!(r#"  <meta property="og:title" content="{}">"#,
-                    escape_html_attr(&title));
-                let og_description = format!(r#"  <meta property="og:description" content="{}">"#,
-                    escape_html_attr(&text));
-
-                html = add_meta_after_title(&html, &format!("{}\n{}", og_title, og_description));
+            if let Ok(post) = fetch_post(&state.client, &profile, &rkey).await {
+                html = add_post_meta(&html, post);
             }
         }
 
         return Ok(html_response(html));
     }
 
-    if let (Some(author), Some(post)) = (params.get("author"), params.get("post")) {
-        if let Ok((handle, text)) = fetch_post_metadata(&state.client, author, post).await {
-            let title = format!("Skythread • Post by @{}", handle);
-
-            let og_title = format!(r#"  <meta property="og:title" content="{}">"#,
-                escape_html_attr(&title));
-            let og_description = format!(r#"  <meta property="og:description" content="{}">"#,
-                escape_html_attr(&text));
-
-            html = add_meta_after_title(&html, &format!("{}\n{}", og_title, og_description));
+    if let (Some(profile), Some(rkey)) = (params.get("author"), params.get("post")) {
+        if let Ok(post) = fetch_post(&state.client, profile, rkey).await {
+            html = add_post_meta(&html, post);
         }
 
         return Ok(html_response(html));
@@ -177,8 +163,8 @@ async fn handle_request(
 
     if let Some(quotes) = params.get("quotes") {
         if let Some((profile, rkey)) = parse_bsky_post_url(quotes) {
-            if let Ok((_handle, text)) = fetch_post_metadata(&state.client, &profile, &rkey).await {
-                let description = format!(r#"Quotes of: "{}""#, text);
+            if let Ok(post) = fetch_post(&state.client, &profile, &rkey).await {
+                let description = format!(r#"Quotes of: "{}""#, normalize_text(&post.record.text));
                 html = add_meta_after_title(
                     &html,
                     &format!(
@@ -256,6 +242,17 @@ fn add_meta_after_title(html: &str, meta: &str) -> String {
     html.replacen(TITLE_CLOSE, &insert, 1)
 }
 
+fn add_post_meta(html: &str, post: PostView) -> String {
+    let title = format!("Skythread • Post by @{}", post.author.handle);
+
+    let og_title = format!(r#"  <meta property="og:title" content="{}">"#,
+        escape_html_attr(&title));
+    let og_description = format!(r#"  <meta property="og:description" content="{}">"#,
+        escape_html_attr(&normalize_text(&post.record.text)));
+
+    add_meta_after_title(&*html, &format!("{}\n{}", og_title, og_description))
+}
+
 fn parse_bsky_post_url(url_str: &str) -> Option<(String, String)> {
     let url = Url::parse(url_str).ok()?;
     if url.scheme() != "http" && url.scheme() != "https" {
@@ -274,11 +271,11 @@ fn parse_bsky_post_url(url_str: &str) -> Option<(String, String)> {
     Some((segments[1].to_string(), segments[3].to_string()))
 }
 
-async fn fetch_post_metadata(
+async fn fetch_post(
     client: &Client,
     author_or_did: &str,
     rkey: &str,
-) -> Result<(String, String), ()> {
+) -> Result<PostView, ()> {
     let did = if author_or_did.starts_with("did:") {
         author_or_did.to_string()
     } else {
@@ -299,9 +296,8 @@ async fn fetch_post_metadata(
 
     let body: GetPostsResponse = response.json().await.map_err(|_| ())?;
     let post = body.posts.into_iter().next().ok_or(())?;
-    let text = post.record.text;
 
-    Ok((post.author.handle, normalize_text(&text)))
+    Ok(post)
 }
 
 async fn resolve_handle(client: &Client, handle: &str) -> Result<String, ()> {
