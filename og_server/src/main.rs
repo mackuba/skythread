@@ -1,0 +1,361 @@
+use hyper::header::{HeaderValue, CONTENT_TYPE, USER_AGENT};
+use hyper::service::{make_service_fn, service_fn};
+use hyper::{Body, Method, Request, Response, Server, StatusCode};
+use reqwest::Client;
+use serde::Deserialize;
+use std::collections::HashMap;
+use std::convert::Infallible;
+use std::env;
+use std::net::SocketAddr;
+use std::sync::Arc;
+use std::time::Duration;
+use url::form_urlencoded;
+use url::Url;
+
+const META_CHARSET_LINE: &str = "  <meta charset=\"UTF-8\">";
+const TITLE_OPEN: &str = "<title>";
+const TITLE_CLOSE: &str = "</title>";
+
+#[derive(Clone)]
+struct AppState {
+    index_html: Arc<String>,
+    client: Client,
+}
+
+#[derive(Deserialize)]
+struct ResolveHandleResponse {
+    did: String,
+}
+
+#[derive(Deserialize)]
+struct GetPostsResponse {
+    posts: Vec<Post>,
+}
+
+#[derive(Deserialize)]
+struct Post {
+    author: Author,
+    record: Record,
+}
+
+#[derive(Deserialize)]
+struct Author {
+    handle: String,
+}
+
+#[derive(Deserialize)]
+struct Record {
+    text: Option<String>,
+}
+
+#[tokio::main]
+async fn main() {
+    let port: u16 = env::var("PORT")
+        .ok()
+        .and_then(|value| value.parse().ok())
+        .unwrap_or(3000);
+    let index_path = env::var("INDEX").unwrap_or_else(|_| "./index.html".to_string());
+    let index_html = match std::fs::read_to_string(&index_path) {
+        Ok(contents) => contents,
+        Err(error) => {
+            eprintln!("Failed to read index file {}: {}", index_path, error);
+            std::process::exit(1);
+        }
+    };
+
+    let client = Client::builder()
+        .timeout(Duration::from_secs(5))
+        .build()
+        .expect("Failed to build HTTP client");
+
+    let state = AppState {
+        index_html: Arc::new(index_html),
+        client,
+    };
+
+    let addr = SocketAddr::from(([0, 0, 0, 0], port));
+
+    println!("Starting server on http://localhost:{}", port);
+
+    let make_svc = make_service_fn(move |_| {
+        let state = state.clone();
+        async move {
+            Ok::<_, Infallible>(service_fn(move |request| {
+                handle_request(request, state.clone())
+            }))
+        }
+    });
+
+    let server = Server::bind(&addr).serve(make_svc);
+
+    if let Err(error) = server.with_graceful_shutdown(shutdown_signal()).await {
+        eprintln!("Server error: {}", error);
+    }
+}
+
+async fn shutdown_signal() {
+    let ctrl_c = tokio::signal::ctrl_c();
+
+    #[cfg(unix)]
+    let mut sigterm = tokio::signal::unix::signal(tokio::signal::unix::SignalKind::terminate())
+        .expect("Failed to install SIGTERM handler");
+
+    #[cfg(unix)]
+    tokio::select! {
+        _ = ctrl_c => {},
+        _ = sigterm.recv() => {},
+    }
+
+    #[cfg(not(unix))]
+    {
+        let _ = ctrl_c.await;
+    }
+}
+
+async fn handle_request(
+    request: Request<Body>,
+    state: AppState,
+) -> Result<Response<Body>, Infallible> {
+    if request.method() != Method::GET || request.uri().path() != "/" {
+        return Ok(response_with_status(StatusCode::NOT_FOUND));
+    }
+
+    let query = request.uri().query().unwrap_or("");
+    if query.is_empty() {
+        return Ok(html_response(state.index_html.as_str().to_string()));
+    }
+
+    let mut html = add_meta_robots(state.index_html.as_str());
+
+    let user_agent = request
+        .headers()
+        .get(USER_AGENT)
+        .and_then(|value| value.to_str().ok())
+        .unwrap_or("");
+
+    if is_likely_browser(user_agent) {
+        return Ok(html_response(html));
+    }
+
+    let params = parse_query_params(query);
+
+    if let Some(q) = params.get("q") {
+        if let Some((profile, rkey)) = parse_bsky_post_url(q) {
+            if let Ok((handle, text)) = fetch_post_metadata(&state.client, &profile, &rkey).await {
+                let title = format!("Skythread • Post by @{}", handle);
+                html = add_meta_after_title(
+                    &html,
+                    &format!(
+                        "  <meta property=\"og:title\" content=\"{}\">\n  <meta property=\"og:description\" content=\"{}\">\n",
+                        escape_html_attr(&title),
+                        escape_html_attr(&text)
+                    ),
+                );
+            }
+        }
+
+        return Ok(html_response(html));
+    }
+
+    if let (Some(author), Some(post)) = (params.get("author"), params.get("post")) {
+        if let Ok((handle, text)) = fetch_post_metadata(&state.client, author, post).await {
+            let title = format!("Skythread • Post by @{}", handle);
+            html = add_meta_after_title(
+                &html,
+                &format!(
+                    "  <meta property=\"og:title\" content=\"{}\">\n  <meta property=\"og:description\" content=\"{}\">\n",
+                    escape_html_attr(&title),
+                    escape_html_attr(&text)
+                ),
+            );
+        }
+
+        return Ok(html_response(html));
+    }
+
+    if let Some(hashtag) = params.get("hash") {
+        let description = format!("Posts tagged with #{}", hashtag);
+        html = add_meta_after_title(
+            &html,
+            &format!(
+                "  <meta property=\"og:description\" content=\"{}\">\n",
+                escape_html_attr(&description)
+            ),
+        );
+        return Ok(html_response(html));
+    }
+
+    if let Some(quotes) = params.get("quotes") {
+        if let Some((profile, rkey)) = parse_bsky_post_url(quotes) {
+            if let Ok((_handle, text)) = fetch_post_metadata(&state.client, &profile, &rkey).await {
+                let description = format!("Quotes of: \"{}\"", text);
+                html = add_meta_after_title(
+                    &html,
+                    &format!(
+                        "  <meta property=\"og:description\" content=\"{}\">\n",
+                        escape_html_attr(&description)
+                    ),
+                );
+            }
+        }
+
+        return Ok(html_response(html));
+    }
+
+    if let Some(page) = params.get("page") {
+        let description = match (page.as_str(), params.get("mode").map(String::as_str)) {
+            ("search", Some("likes")) => Some("Archive search"),
+            ("search", _) => Some("Timeline search"),
+            ("posting_stats", _) => Some("Posting stats"),
+            ("like_stats", _) => Some("Like stats"),
+            _ => None,
+        };
+
+        if let Some(description) = description {
+            html = add_meta_after_title(
+                &html,
+                &format!(
+                    "  <meta property=\"og:description\" content=\"{}\">\n",
+                    escape_html_attr(description)
+                ),
+            );
+        }
+
+        return Ok(html_response(html));
+    }
+
+    Ok(html_response(html))
+}
+
+fn response_with_status(status: StatusCode) -> Response<Body> {
+    Response::builder()
+        .status(status)
+        .body(Body::empty())
+        .unwrap_or_else(|_| Response::new(Body::empty()))
+}
+
+fn html_response(body: String) -> Response<Body> {
+    let mut response = Response::new(Body::from(body));
+    response.headers_mut().insert(
+        CONTENT_TYPE,
+        HeaderValue::from_static("text/html; charset=utf-8"),
+    );
+    response
+}
+
+fn parse_query_params(query: &str) -> HashMap<String, String> {
+    form_urlencoded::parse(query.as_bytes())
+        .into_owned()
+        .collect()
+}
+
+fn is_likely_browser(user_agent: &str) -> bool {
+    user_agent.starts_with("Mozilla/5.0")
+        && !user_agent.contains("http:")
+        && !user_agent.contains("https:")
+        && !user_agent.contains("mailto:")
+}
+
+fn add_meta_robots(html: &str) -> String {
+    let insert = format!("{META_CHARSET_LINE}\n  <meta name=\"robots\" content=\"noindex, nofollow\">");
+    html.replacen(META_CHARSET_LINE, &insert, 1)
+}
+
+fn add_meta_after_title(html: &str, meta: &str) -> String {
+    if let Some(start) = html.find(TITLE_OPEN) {
+        if let Some(end) = html[start..].find(TITLE_CLOSE) {
+            let end_index = start + end + TITLE_CLOSE.len();
+            if let Some(newline_index) = html[end_index..].find('\n') {
+                let insert_at = end_index + newline_index + 1;
+                let mut output = String::with_capacity(html.len() + meta.len());
+                output.push_str(&html[..insert_at]);
+                output.push_str(meta);
+                output.push_str(&html[insert_at..]);
+                return output;
+            }
+        }
+    }
+
+    html.to_string()
+}
+
+fn parse_bsky_post_url(url_str: &str) -> Option<(String, String)> {
+    let url = Url::parse(url_str).ok()?;
+    if url.scheme() != "http" && url.scheme() != "https" {
+        return None;
+    }
+
+    let segments: Vec<&str> = url
+        .path_segments()
+        .map(|segments| segments.collect())
+        .unwrap_or_default();
+
+    if segments.len() < 4 || segments[0] != "profile" || segments[2] != "post" {
+        return None;
+    }
+
+    Some((segments[1].to_string(), segments[3].to_string()))
+}
+
+async fn fetch_post_metadata(
+    client: &Client,
+    author_or_did: &str,
+    rkey: &str,
+) -> Result<(String, String), ()> {
+    let did = if author_or_did.starts_with("did:") {
+        author_or_did.to_string()
+    } else {
+        resolve_handle(client, author_or_did).await?
+    };
+
+    let at_uri = format!("at://{}/app.bsky.feed.post/{}", did, rkey);
+    let encoded_uri: String = form_urlencoded::byte_serialize(at_uri.as_bytes()).collect();
+    let request_url = format!(
+        "https://public.api.bsky.app/xrpc/app.bsky.feed.getPosts?uris={}",
+        encoded_uri
+    );
+
+    let response = client.get(request_url).send().await.map_err(|_| ())?;
+    if !response.status().is_success() {
+        return Err(());
+    }
+
+    let body: GetPostsResponse = response.json().await.map_err(|_| ())?;
+    let post = body.posts.into_iter().next().ok_or(())?;
+    let text = post.record.text.ok_or(())?;
+
+    Ok((post.author.handle, normalize_text(&text)))
+}
+
+async fn resolve_handle(client: &Client, handle: &str) -> Result<String, ()> {
+    let encoded_handle: String = form_urlencoded::byte_serialize(handle.as_bytes()).collect();
+    let request_url = format!(
+        "https://public.api.bsky.app/xrpc/com.atproto.identity.resolveHandle?handle={}",
+        encoded_handle
+    );
+    let response = client.get(request_url).send().await.map_err(|_| ())?;
+    if !response.status().is_success() {
+        return Err(());
+    }
+
+    let body: ResolveHandleResponse = response.json().await.map_err(|_| ())?;
+    Ok(body.did)
+}
+
+fn normalize_text(text: &str) -> String {
+    text.replace(['\n', '\r'], " ")
+}
+
+fn escape_html_attr(text: &str) -> String {
+    let mut escaped = String::with_capacity(text.len());
+    for ch in text.chars() {
+        match ch {
+            '&' => escaped.push_str("&amp;"),
+            '"' => escaped.push_str("&quot;"),
+            '<' => escaped.push_str("&lt;"),
+            '>' => escaped.push_str("&gt;"),
+            _ => escaped.push(ch),
+        }
+    }
+    escaped
+}
