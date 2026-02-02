@@ -1,25 +1,27 @@
 use hyper::header::{HeaderValue, CONTENT_TYPE, USER_AGENT};
 use hyper::service::{make_service_fn, service_fn};
 use hyper::{Body, Method, Request, Response, Server, StatusCode};
-use reqwest::Client;
 use serde::Deserialize;
 use std::collections::HashMap;
 use std::convert::Infallible;
 use std::env;
+use std::io::ErrorKind;
 use std::net::SocketAddr;
 use std::sync::Arc;
 use std::time::Duration;
 use url::form_urlencoded;
 use url::Url;
 
+const APP_VIEW: &str = "public.api.bsky.app";
+const DEFAULT_PORT: u16 = 3000;
+
 const META_CHARSET_LINE: &str = r#"<meta charset="UTF-8">"#;
 const TITLE_CLOSE: &str = "</title>";
-const APP_VIEW: &str = "public.api.bsky.app";
 
 #[derive(Clone)]
 struct AppState {
     index_html: Arc<String>,
-    client: Client,
+    http_client: reqwest::Client,
 }
 
 #[derive(Deserialize)]
@@ -53,8 +55,11 @@ async fn main() {
     let port: u16 = env::var("PORT")
         .ok()
         .and_then(|value| value.parse().ok())
-        .unwrap_or(3000);
-    let index_path = env::var("INDEX").unwrap_or_else(|_| "./index.html".to_string());
+        .unwrap_or(DEFAULT_PORT);
+
+    let index_path = env::var("INDEX")
+        .unwrap_or_else(|_| "./index.html".to_string());
+
     let index_html = match std::fs::read_to_string(&index_path) {
         Ok(contents) => contents,
         Err(error) => match error.kind() {
@@ -69,14 +74,14 @@ async fn main() {
         },
     };
 
-    let client = Client::builder()
+    let http_client = reqwest::Client::builder()
         .timeout(Duration::from_secs(5))
         .build()
         .expect("Failed to build HTTP client");
 
     let state = AppState {
         index_html: Arc::new(index_html),
-        client,
+        http_client,
     };
 
     let addr = SocketAddr::from(([127, 0, 0, 1], port));
@@ -124,20 +129,18 @@ async fn handle_request(
         return Ok(response_with_status(StatusCode::NOT_FOUND));
     }
 
-    let query = request.uri().query().unwrap_or("");
-    if query.is_empty() {
+    let Some(query) = request.uri().query() else {
         return Ok(html_response(state.index_html.as_str().to_string()));
-    }
+    };
 
     let mut html = add_meta_robots(state.index_html.as_str());
 
-    let user_agent = request
-        .headers()
+    let user_agent = request.headers()
         .get(USER_AGENT)
         .and_then(|value| value.to_str().ok())
         .unwrap_or("");
 
-    if is_likely_browser(user_agent) {
+    if is_likely_normal_browser(user_agent) {
         return Ok(html_response(html));
     }
 
@@ -145,7 +148,7 @@ async fn handle_request(
 
     if let Some(q) = params.get("q") {
         if let Some((profile, rkey)) = parse_bsky_post_url(q) {
-            if let Ok(post) = fetch_post(&state.client, &profile, &rkey).await {
+            if let Ok(post) = fetch_post(&state.http_client, &profile, &rkey).await {
                 html = add_post_meta(&html, post);
             }
         }
@@ -154,7 +157,7 @@ async fn handle_request(
     }
 
     if let (Some(profile), Some(rkey)) = (params.get("author"), params.get("post")) {
-        if let Ok(post) = fetch_post(&state.client, profile, rkey).await {
+        if let Ok(post) = fetch_post(&state.http_client, profile, rkey).await {
             html = add_post_meta(&html, post);
         }
 
@@ -175,7 +178,7 @@ async fn handle_request(
 
     if let Some(quotes) = params.get("quotes") {
         if let Some((profile, rkey)) = parse_bsky_post_url(quotes) {
-            if let Ok(post) = fetch_post(&state.client, &profile, &rkey).await {
+            if let Ok(post) = fetch_post(&state.http_client, &profile, &rkey).await {
                 let description = format!(r#"Quotes of: "{}""#, normalize_text(&post.record.text));
                 html = add_meta_after_title(
                     &html,
@@ -237,7 +240,7 @@ fn parse_query_params(query: &str) -> HashMap<String, String> {
         .collect()
 }
 
-fn is_likely_browser(user_agent: &str) -> bool {
+fn is_likely_normal_browser(user_agent: &str) -> bool {
     user_agent.starts_with("Mozilla/5.0")
         && !user_agent.contains("http:")
         && !user_agent.contains("https:")
@@ -284,14 +287,14 @@ fn parse_bsky_post_url(url_str: &str) -> Option<(String, String)> {
 }
 
 async fn fetch_post(
-    client: &Client,
-    author_or_did: &str,
+    client: &reqwest::Client,
+    handle_or_did: &str,
     rkey: &str,
 ) -> Result<PostView, ()> {
-    let did = if author_or_did.starts_with("did:") {
-        author_or_did.to_string()
+    let did = if handle_or_did.starts_with("did:") {
+        handle_or_did.to_string()
     } else {
-        resolve_handle(client, author_or_did).await?
+        resolve_handle(client, handle_or_did).await?
     };
 
     let at_uri = format!("at://{}/app.bsky.feed.post/{}", did, rkey);
@@ -312,7 +315,7 @@ async fn fetch_post(
     Ok(post)
 }
 
-async fn resolve_handle(client: &Client, handle: &str) -> Result<String, ()> {
+async fn resolve_handle(client: &reqwest::Client, handle: &str) -> Result<String, ()> {
     let encoded_handle: String = form_urlencoded::byte_serialize(handle.as_bytes()).collect();
     let request_url = format!(
         "https://{APP_VIEW}/xrpc/com.atproto.identity.resolveHandle?handle={}",
