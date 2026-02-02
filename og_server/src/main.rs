@@ -125,6 +125,14 @@ async fn handle_request(
     request: Request<Body>,
     state: AppState,
 ) -> Result<Response<Body>, Infallible> {
+
+    println!(
+        "[{}] {} {}",
+        chrono::Local::now().format("%Y-%m-%d %H:%M:%S"),
+        request.method(),
+        request.uri()
+    );
+
     // we only handle GET / requests
     if request.method() != Method::GET || request.uri().path() != "/" {
         return Ok(response_with_status(StatusCode::NOT_FOUND));
