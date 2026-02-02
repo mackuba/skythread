@@ -12,7 +12,7 @@ use std::time::Duration;
 use url::form_urlencoded;
 use url::Url;
 
-const META_CHARSET_LINE: &str = "<meta charset=\"UTF-8\">";
+const META_CHARSET_LINE: &str = r#"<meta charset="UTF-8">"#;
 const TITLE_CLOSE: &str = "</title>";
 const APP_VIEW: &str = "public.api.bsky.app";
 
@@ -135,14 +135,13 @@ async fn handle_request(
         if let Some((profile, rkey)) = parse_bsky_post_url(q) {
             if let Ok((handle, text)) = fetch_post_metadata(&state.client, &profile, &rkey).await {
                 let title = format!("Skythread • Post by @{}", handle);
-                html = add_meta_after_title(
-                    &html,
-                    &format!(
-                        "  <meta property=\"og:title\" content=\"{}\">\n  <meta property=\"og:description\" content=\"{}\">",
-                        escape_html_attr(&title),
-                        escape_html_attr(&text)
-                    ),
-                );
+
+                let og_title = format!(r#"  <meta property="og:title" content="{}">"#,
+                    escape_html_attr(&title));
+                let og_description = format!(r#"  <meta property="og:description" content="{}">"#,
+                    escape_html_attr(&text));
+
+                html = add_meta_after_title(&html, &format!("{}\n{}", og_title, og_description));
             }
         }
 
@@ -152,14 +151,13 @@ async fn handle_request(
     if let (Some(author), Some(post)) = (params.get("author"), params.get("post")) {
         if let Ok((handle, text)) = fetch_post_metadata(&state.client, author, post).await {
             let title = format!("Skythread • Post by @{}", handle);
-            html = add_meta_after_title(
-                &html,
-                &format!(
-                    "  <meta property=\"og:title\" content=\"{}\">\n  <meta property=\"og:description\" content=\"{}\">",
-                    escape_html_attr(&title),
-                    escape_html_attr(&text)
-                ),
-            );
+
+            let og_title = format!(r#"  <meta property="og:title" content="{}">"#,
+                escape_html_attr(&title));
+            let og_description = format!(r#"  <meta property="og:description" content="{}">"#,
+                escape_html_attr(&text));
+
+            html = add_meta_after_title(&html, &format!("{}\n{}", og_title, og_description));
         }
 
         return Ok(html_response(html));
@@ -170,7 +168,7 @@ async fn handle_request(
         html = add_meta_after_title(
             &html,
             &format!(
-                "  <meta property=\"og:description\" content=\"{}\">",
+                r#"  <meta property="og:description" content="{}">"#,
                 escape_html_attr(&description)
             ),
         );
@@ -180,11 +178,11 @@ async fn handle_request(
     if let Some(quotes) = params.get("quotes") {
         if let Some((profile, rkey)) = parse_bsky_post_url(quotes) {
             if let Ok((_handle, text)) = fetch_post_metadata(&state.client, &profile, &rkey).await {
-                let description = format!("Quotes of: \"{}\"", text);
+                let description = format!(r#"Quotes of: "{}""#, text);
                 html = add_meta_after_title(
                     &html,
                     &format!(
-                        "  <meta property=\"og:description\" content=\"{}\">",
+                        r#"  <meta property="og:description" content="{}">"#,
                         escape_html_attr(&description)
                     ),
                 );
@@ -207,7 +205,7 @@ async fn handle_request(
             html = add_meta_after_title(
                 &html,
                 &format!(
-                    "  <meta property=\"og:description\" content=\"{}\">",
+                    r#"  <meta property="og:description" content="{}">"#,
                     escape_html_attr(description)
                 ),
             );
