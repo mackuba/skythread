@@ -12,9 +12,9 @@ use std::time::Duration;
 use url::form_urlencoded;
 use url::Url;
 
-const META_CHARSET_LINE: &str = "  <meta charset=\"UTF-8\">";
-const TITLE_OPEN: &str = "<title>";
+const META_CHARSET_LINE: &str = "<meta charset=\"UTF-8\">";
 const TITLE_CLOSE: &str = "</title>";
+const APP_VIEW: &str = "public.api.bsky.app";
 
 #[derive(Clone)]
 struct AppState {
@@ -29,23 +29,23 @@ struct ResolveHandleResponse {
 
 #[derive(Deserialize)]
 struct GetPostsResponse {
-    posts: Vec<Post>,
+    posts: Vec<PostView>,
 }
 
 #[derive(Deserialize)]
-struct Post {
-    author: Author,
+struct PostView {
+    author: ProfileViewBasic,
     record: Record,
 }
 
 #[derive(Deserialize)]
-struct Author {
+struct ProfileViewBasic {
     handle: String,
 }
 
 #[derive(Deserialize)]
 struct Record {
-    text: Option<String>,
+    text: String,
 }
 
 #[tokio::main]
@@ -73,8 +73,7 @@ async fn main() {
         client,
     };
 
-    let addr = SocketAddr::from(([0, 0, 0, 0], port));
-
+    let addr = SocketAddr::from(([127, 0, 0, 1], port));
     println!("Starting server on http://localhost:{}", port);
 
     let make_svc = make_service_fn(move |_| {
@@ -96,19 +95,12 @@ async fn main() {
 async fn shutdown_signal() {
     let ctrl_c = tokio::signal::ctrl_c();
 
-    #[cfg(unix)]
     let mut sigterm = tokio::signal::unix::signal(tokio::signal::unix::SignalKind::terminate())
         .expect("Failed to install SIGTERM handler");
 
-    #[cfg(unix)]
     tokio::select! {
         _ = ctrl_c => {},
         _ = sigterm.recv() => {},
-    }
-
-    #[cfg(not(unix))]
-    {
-        let _ = ctrl_c.await;
     }
 }
 
@@ -146,7 +138,7 @@ async fn handle_request(
                 html = add_meta_after_title(
                     &html,
                     &format!(
-                        "  <meta property=\"og:title\" content=\"{}\">\n  <meta property=\"og:description\" content=\"{}\">\n",
+                        "  <meta property=\"og:title\" content=\"{}\">\n  <meta property=\"og:description\" content=\"{}\">",
                         escape_html_attr(&title),
                         escape_html_attr(&text)
                     ),
@@ -163,7 +155,7 @@ async fn handle_request(
             html = add_meta_after_title(
                 &html,
                 &format!(
-                    "  <meta property=\"og:title\" content=\"{}\">\n  <meta property=\"og:description\" content=\"{}\">\n",
+                    "  <meta property=\"og:title\" content=\"{}\">\n  <meta property=\"og:description\" content=\"{}\">",
                     escape_html_attr(&title),
                     escape_html_attr(&text)
                 ),
@@ -178,7 +170,7 @@ async fn handle_request(
         html = add_meta_after_title(
             &html,
             &format!(
-                "  <meta property=\"og:description\" content=\"{}\">\n",
+                "  <meta property=\"og:description\" content=\"{}\">",
                 escape_html_attr(&description)
             ),
         );
@@ -192,7 +184,7 @@ async fn handle_request(
                 html = add_meta_after_title(
                     &html,
                     &format!(
-                        "  <meta property=\"og:description\" content=\"{}\">\n",
+                        "  <meta property=\"og:description\" content=\"{}\">",
                         escape_html_attr(&description)
                     ),
                 );
@@ -215,7 +207,7 @@ async fn handle_request(
             html = add_meta_after_title(
                 &html,
                 &format!(
-                    "  <meta property=\"og:description\" content=\"{}\">\n",
+                    "  <meta property=\"og:description\" content=\"{}\">",
                     escape_html_attr(description)
                 ),
             );
@@ -262,21 +254,8 @@ fn add_meta_robots(html: &str) -> String {
 }
 
 fn add_meta_after_title(html: &str, meta: &str) -> String {
-    if let Some(start) = html.find(TITLE_OPEN) {
-        if let Some(end) = html[start..].find(TITLE_CLOSE) {
-            let end_index = start + end + TITLE_CLOSE.len();
-            if let Some(newline_index) = html[end_index..].find('\n') {
-                let insert_at = end_index + newline_index + 1;
-                let mut output = String::with_capacity(html.len() + meta.len());
-                output.push_str(&html[..insert_at]);
-                output.push_str(meta);
-                output.push_str(&html[insert_at..]);
-                return output;
-            }
-        }
-    }
-
-    html.to_string()
+    let insert = format!("{TITLE_CLOSE}\n{meta}");
+    html.replacen(TITLE_CLOSE, &insert, 1)
 }
 
 fn parse_bsky_post_url(url_str: &str) -> Option<(String, String)> {
@@ -311,7 +290,7 @@ async fn fetch_post_metadata(
     let at_uri = format!("at://{}/app.bsky.feed.post/{}", did, rkey);
     let encoded_uri: String = form_urlencoded::byte_serialize(at_uri.as_bytes()).collect();
     let request_url = format!(
-        "https://public.api.bsky.app/xrpc/app.bsky.feed.getPosts?uris={}",
+        "https://{APP_VIEW}/xrpc/app.bsky.feed.getPosts?uris={}",
         encoded_uri
     );
 
@@ -322,7 +301,7 @@ async fn fetch_post_metadata(
 
     let body: GetPostsResponse = response.json().await.map_err(|_| ())?;
     let post = body.posts.into_iter().next().ok_or(())?;
-    let text = post.record.text.ok_or(())?;
+    let text = post.record.text;
 
     Ok((post.author.handle, normalize_text(&text)))
 }
@@ -330,7 +309,7 @@ async fn fetch_post_metadata(
 async fn resolve_handle(client: &Client, handle: &str) -> Result<String, ()> {
     let encoded_handle: String = form_urlencoded::byte_serialize(handle.as_bytes()).collect();
     let request_url = format!(
-        "https://public.api.bsky.app/xrpc/com.atproto.identity.resolveHandle?handle={}",
+        "https://{APP_VIEW}/xrpc/com.atproto.identity.resolveHandle?handle={}",
         encoded_handle
     );
     let response = client.get(request_url).send().await.map_err(|_| ())?;
