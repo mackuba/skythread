@@ -57,10 +57,16 @@ async fn main() {
     let index_path = env::var("INDEX").unwrap_or_else(|_| "./index.html".to_string());
     let index_html = match std::fs::read_to_string(&index_path) {
         Ok(contents) => contents,
-        Err(error) => {
-            eprintln!("Failed to read index file {}: {}", index_path, error);
-            std::process::exit(1);
-        }
+        Err(error) => match error.kind() {
+            ErrorKind::NotFound => {
+                eprintln!("Error: Index file not found at {}. Create an index.html file, or pass an INDEX=path env var.", index_path);
+                std::process::exit(1);
+            }
+            _ => {
+                eprintln!("Error: Failed to read index file {}: {}", index_path, error);
+                std::process::exit(1);
+            }
+        },
     };
 
     let client = Client::builder()
@@ -85,7 +91,13 @@ async fn main() {
         }
     });
 
-    let server = Server::bind(&addr).serve(make_svc);
+    let server = match Server::try_bind(&addr) {
+        Ok(builder) => builder.serve(make_svc),
+        Err(e) => {
+            eprintln!("Error: failed to start a server: {}", e);
+            std::process::exit(1);
+        }
+    };
 
     if let Err(error) = server.with_graceful_shutdown(shutdown_signal()).await {
         eprintln!("Server error: {}", error);
