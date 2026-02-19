@@ -1,19 +1,19 @@
 <script lang="ts">
-  import { showLoginDialog } from './Dialogs.svelte';
-  import { account } from '../models/account.svelte.js';
-  import { settings } from '../models/settings.svelte.js';
-  import { getBaseLocation } from '../router.js';
-  import AccountMenuButton from './AccountMenuButton.svelte';
-  import LoadableImage from './LoadableImage.svelte';
+  import { showLoginDialog } from "./Dialogs.svelte";
+  import { account } from "../models/account.svelte.js";
+  import { settings } from "../models/settings.svelte.js";
+  import { getBaseLocation } from "../router.js";
+  import AccountMenuButton from "./AccountMenuButton.svelte";
+  import LoadableImage from "./LoadableImage.svelte";
 
   let menuVisible = $state(false);
 
   $effect(() => {
-    let html = document.body.parentNode!
-    html.addEventListener('click', hideMenu);
+    let html = document.body.parentNode!;
+    html.addEventListener("click", hideMenu);
 
     return () => {
-      html.removeEventListener('click', hideMenu);
+      html.removeEventListener("click", hideMenu);
     };
   });
 
@@ -57,10 +57,8 @@
 <div id="account" onclick={toggleMenu} class={{ active: menuVisible }}>
   {#if account.isIncognito}
     <i class="fa-solid fa-user-secret fa-lg"></i>
-
   {:else if !account.loggedIn || account.avatarIsLoading}
     <i class="fa-regular fa-user-circle fa-xl"></i>
-
   {:else if account.loggedIn && account.avatarURL}
     <LoadableImage class="avatar" src={account.avatarURL}>
       {#snippet loading()}
@@ -70,13 +68,16 @@
         <i class="fa-solid fa-user-circle fa-xl"></i>
       {/snippet}
     </LoadableImage>
-
   {:else}
     <i class="fa-solid fa-user-circle fa-xl"></i>
   {/if}
 </div>
 
-<div id="account_menu" style="visibility: {menuVisible ? 'visible' : 'hidden'}" onclick={(e) => e.stopPropagation()}>
+<div
+  id="account_menu"
+  style="visibility: {menuVisible ? 'visible' : 'hidden'}"
+  onclick={(e) => e.stopPropagation()}
+>
   <ul>
     {#if account.loggedIn}
       <AccountMenuButton
@@ -100,7 +101,7 @@
       <AccountMenuButton onclick={logOut} label="Log out" />
     {/if}
 
-    <li class="link"><a href="{getBaseLocation()}">Home</a></li>
+    <li class="link"><a href={getBaseLocation()}>Home</a></li>
     <li class="link"><a href="?page=posting_stats">Posting stats</a></li>
     <li class="link"><a href="?page=like_stats">Like stats</a></li>
     <li class="link"><a href="?page=search">Timeline search</a></li>
@@ -142,7 +143,7 @@
     left: 5px;
     padding-top: 30px;
     z-index: 15;
-    background: hsl(210, 33.33%, 94.0%);
+    background: hsl(210, 33.33%, 94%);
     border: 1px solid #ccc;
     border-radius: 5px;
     user-select: none;
@@ -172,13 +173,17 @@
   }
 
   @media (prefers-color-scheme: dark) {
-    #account.active {
-      color: #333;
+    #account_menu {
+      background: #384047;
+      border-color: #52667a;
     }
 
-    #account_menu {
-      background: hsl(210, 33.33%, 94.0%);
-      border-color: #ccc;
+    li.link a {
+      color: #ccc;
+    }
+
+    #account_menu :global(li:not(.link) + li.link) {
+      border-top-color: #52667a;
     }
   }
 </style>

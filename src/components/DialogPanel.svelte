@@ -4,9 +4,14 @@
     id?: string;
     class?: string;
     onClose?: () => void;
-  }
+  };
 
-  let { children, onClose = undefined, id = undefined, ...props }: Props = $props();
+  let {
+    children,
+    onClose = undefined,
+    id = undefined,
+    ...props
+  }: Props = $props();
 
   function onclick(e: Event) {
     // close the dialog (if it's closable) on click on the overlay, but not on anything inside
@@ -62,7 +67,7 @@
 
     .close:hover {
       color: hsl(210, 100%, 65%);
-      opacity: 1.0;
+      opacity: 1;
     }
 
     p {
@@ -78,7 +83,8 @@
       padding-right: 10px;
     }
 
-    input[type="text"], input[type="password"] {
+    input[type="text"],
+    input[type="password"] {
       width: 200px;
       font-size: 11pt;
       border: 1px solid #d6d6d6;
@@ -108,6 +114,25 @@
     input[type="submit"]:active {
       background-color: hsl(210, 100%, 87%);
       border: 1px solid hsl(210, 90%, 80%);
+    }
+    @media (prefers-color-scheme: dark) {
+      form {
+        background-color: #384047;
+        border-color: #52667a;
+      }
+      input[type="submit"] {
+        background-color: #2a5a8a;
+        border-color: #3a6a9a;
+        color: white;
+      }
+      input[type="submit"]:hover {
+        background-color: #3a6a9a;
+        border-color: #4a7aaa;
+      }
+      input[type="submit"]:active {
+        background-color: #1a4a7a;
+        border-color: #2a5a8a;
+      }
     }
   }
 </style>

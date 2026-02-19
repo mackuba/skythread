@@ -1,17 +1,27 @@
 <script lang="ts">
   type Props = {
-    title?: string,
-    label: string,
-    showCheckmark?: boolean,
-    onclick: (e: Event) => void
-  }
+    title?: string;
+    label: string;
+    showCheckmark?: boolean;
+    onclick: (e: Event) => void;
+  };
 
-  let { title = undefined, label, showCheckmark = false, onclick }: Props = $props();
+  let {
+    title = undefined,
+    label,
+    showCheckmark = false,
+    onclick,
+  }: Props = $props();
 </script>
 
-<li><a class="button" href="#" {onclick} {title}>
-  {#if showCheckmark} <span class="check">✓</span> {/if} {label}
-</a></li>
+<li>
+  <a class="button" href="#" {onclick} {title}>
+    {#if showCheckmark}
+      <span class="check">✓</span>
+    {/if}
+    {label}
+  </a>
+</li>
 
 <style>
   li .button {
@@ -32,13 +42,19 @@
 
   @media (prefers-color-scheme: dark) {
     li .button {
-      color: #333;
-      border-color: #bbb;
-      background-color: hsla(210, 100%, 4%, 0.12);
+      color: #ccc;
+      border-color: #52667a;
+      background-color: hsla(210, 100%, 80%, 0.08);
     }
-
     li .button:hover {
-      background-color: hsla(210, 100%, 4%, 0.2);
+      color: #fff;
+      border-color: #6a80a0;
+      background-color: hsla(210, 100%, 80%, 0.15);
+    }
+    li .button:active {
+      color: #fff;
+      border-color: #3a5068;
+      background-color: hsla(210, 100%, 80%, 0.05);
     }
   }
 </style>
