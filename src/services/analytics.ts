@@ -5,7 +5,7 @@ export function initAnalytics() {
   _paq.push(["setExcludedQueryParams", ['fbclid']]);
   _paq.push(['setTrackerUrl', 'https://mackuba.eu/stat/matomo.php']);
   _paq.push(['setCustomUrl', anonymizeParams(location.href)]);
-  _paq.push(["setRequestMethod", "GET"]);
+  _paq.push(["setRequestMethod", "POST"]);
   _paq.push(['setSiteId', '13']);
   _paq.push(["disableCookies"]);
   _paq.push(["disableAlwaysUseSendBeacon"]);
