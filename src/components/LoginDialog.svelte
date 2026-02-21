@@ -121,41 +121,8 @@
   }
 
   @media (prefers-color-scheme: dark) {
-    :global(#login) {
-      background-color: rgba(240, 240, 240, 0.15);
-    }
-
-    form {
-      border-color: hsl(210, 20%, 40%);
-      background-color: hsl(210, 12%, 25%);
-    }
-
-    .close {
-      color: hsl(210, 20%, 50%);
-      opacity: 0.6;
-    }
-
-    .close:hover {
-      color: hsl(210, 20%, 50%);
-      opacity: 1.0;
-    }
-
     p.info a {
       color: #888;
-    }
-
-    input[type="text"], input[type="password"] {
-      border-color: #666;
-    }
-
-    input[type="submit"] {
-      border-color: hsl(210, 15%, 40%);
-      background-color: hsl(210, 12%, 35%);
-    }
-
-    input[type="submit"]:active {
-      border-color: hsl(210, 15%, 35%);
-      background-color: hsl(210, 12%, 30%);
     }
 
     .cloudy {
