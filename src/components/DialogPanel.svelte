@@ -137,13 +137,18 @@
       }
 
       input[type="submit"] {
-        border-color: hsl(210, 15%, 40%);
-        background-color: hsl(210, 12%, 35%);
+        background-color: hsl(210, 53.33%, 35.29%);
+        border-color: hsl(210, 45.28%, 41.57%);
+      }
+
+      input[type="submit"]:hover {
+        background-color: hsl(210, 45.28%, 41.57%);
+        border-color: hsl(210, 39.34%, 47.84%);
       }
 
       input[type="submit"]:active {
-        border-color: hsl(210, 15%, 35%);
-        background-color: hsl(210, 12%, 30%);
+        border-color: hsl(210, 64.86%, 29.02%);
+        background-color: hsl(210, 53.33%, 35.29%);
       }
     }
   }

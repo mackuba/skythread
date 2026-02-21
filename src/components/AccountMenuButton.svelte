@@ -32,13 +32,21 @@
 
   @media (prefers-color-scheme: dark) {
     li .button {
-      color: #333;
-      border-color: #bbb;
-      background-color: hsla(210, 100%, 4%, 0.12);
+      color: #ccc;
+      border-color: hsl(210, 19.61%, 40%);
+      background-color: hsla(210, 100%, 80%, 0.08);
     }
 
     li .button:hover {
-      background-color: hsla(210, 100%, 4%, 0.2);
+      color: #fff;
+      border-color: hsl(210, 22.13%, 52.16%);
+      background-color: hsla(210, 100%, 80%, 0.15);
+    }
+
+    li .button:active {
+      color: #fff;
+      border-color: hsl(210, 28.4%, 31.76%);
+      background-color: hsla(210, 100%, 80%, 0.05);
     }
   }
 </style>

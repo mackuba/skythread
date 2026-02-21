@@ -100,7 +100,7 @@
       <AccountMenuButton onclick={logOut} label="Log out" />
     {/if}
 
-    <li class="link"><a href="{getBaseLocation()}">Home</a></li>
+    <li class="link"><a href={getBaseLocation()}>Home</a></li>
     <li class="link"><a href="?page=posting_stats">Posting stats</a></li>
     <li class="link"><a href="?page=like_stats">Like stats</a></li>
     <li class="link"><a href="?page=search">Timeline search</a></li>
@@ -172,13 +172,17 @@
   }
 
   @media (prefers-color-scheme: dark) {
-    #account.active {
-      color: #333;
+    #account_menu {
+      background: hsl(210, 11.81%, 24.9%);
+      border-color: hsl(210, 19.61%, 40%);
     }
 
-    #account_menu {
-      background: hsl(210, 33.33%, 94.0%);
-      border-color: #ccc;
+    li.link a {
+      color: #ccc;
+    }
+
+    #account_menu :global(li:not(.link) + li.link) {
+      border-top-color: hsl(210, 19.61%, 40%);
     }
   }
 </style>
