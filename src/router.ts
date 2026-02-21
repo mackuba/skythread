@@ -2,7 +2,7 @@ import { URLError } from './api.js';
 import { Post } from './models/posts.js';
 
 export function getBaseLocation(): string {
-  return location.origin + location.pathname;
+  return location.protocol + '//' + location.host + location.pathname;
 }
 
 export function linkToHashtagPage(hashtag: string): string {
