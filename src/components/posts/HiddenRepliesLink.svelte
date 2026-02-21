@@ -60,4 +60,10 @@
     font-size: 12pt;
     color: saddlebrown;
   }
+
+  @media (prefers-color-scheme: dark) {
+    .hidden-replies a {
+      color: hsl(25, 80%, 35%);
+    }
+  }
 </style>
