@@ -123,12 +123,12 @@
       }
 
       .close {
-        color: hsl(210, 20%, 50%);
+        color: hsl(210, 50%, 65%);
         opacity: 0.6;
       }
 
       .close:hover {
-        color: hsl(210, 20%, 50%);
+        color: hsl(210, 60%, 70%);
         opacity: 1.0;
       }
 
