@@ -58,6 +58,7 @@
       right: 5px;
       color: hsl(210, 100%, 75%);
       opacity: 0.6;
+      cursor: pointer;
     }
 
     .close:hover {
@@ -98,6 +99,7 @@
       background-color: hsl(210, 100%, 92%);
       border-radius: 4px;
       padding: 5px 6px;
+      cursor: pointer;
     }
 
     input[type="submit"]:hover {
