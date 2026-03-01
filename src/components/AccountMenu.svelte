@@ -59,20 +59,20 @@
     <i class="fa-solid fa-user-secret fa-lg"></i>
 
   {:else if !account.loggedIn || account.avatarIsLoading}
-    <i class="fa-regular fa-user-circle fa-xl"></i>
+    <i class="fa-regular fa-circle-user fa-xl"></i>
 
   {:else if account.loggedIn && account.avatarURL}
     <LoadableImage class="avatar" src={account.avatarURL}>
       {#snippet loading()}
-        <i class="fa-regular fa-user-circle fa-xl"></i>
+        <i class="fa-regular fa-circle-user fa-xl"></i>
       {/snippet}
       {#snippet error()}
-        <i class="fa-solid fa-user-circle fa-xl"></i>
+        <i class="fa-solid fa-circle-user fa-xl"></i>
       {/snippet}
     </LoadableImage>
 
   {:else}
-    <i class="fa-solid fa-user-circle fa-xl"></i>
+    <i class="fa-solid fa-circle-user fa-xl"></i>
   {/if}
 </div>
 

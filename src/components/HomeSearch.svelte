@@ -40,7 +40,7 @@
 
 <div id="search">
   <form method="get" {onsubmit}>
-    🌤 <input type="text" placeholder="Paste a thread link or type a #hashtag" bind:value={query} bind:this={searchField}>
+    <i class="fa-solid fa-cloud-sun"></i> <input type="text" placeholder="Paste a thread link or type a #hashtag" bind:value={query} bind:this={searchField}>
   </form>
 </div>
 

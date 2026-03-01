@@ -63,7 +63,7 @@
       <i class="close fa-circle-xmark fa-regular" onclick={onClose}></i>
     {/if}
 
-    <h2>🌤 Skythread</h2>
+    <h2><i class="fa-solid fa-cloud-sun"></i> Skythread</h2>
 
     <p><input type="text" id="login_handle" required autofocus placeholder="name.bsky.social"
           bind:value={identifier} bind:this={loginField}></p>
