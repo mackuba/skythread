@@ -51,7 +51,12 @@ You can also download a zipped copy of this repo or clone it and use it locally 
 
 ## Development
 
-If you want to make any changes, you'll need to install [Bun](https://bun.com) and install the project dependences with `bun install`. Use `bun build.js` or `bun serve.js` to recompile the bundles in `dist`.
+* Install [Bun](https://bun.com).
+* Install dependencies with `bun install`.
+* Start the server with `bun serve.js`.
+  * Alternatively, to just build the project without starting a server, use `bun build.js`.
+* Navigate to `localhost:3000` in your browser.
+* Refresh to see changes.
 
 
 ## Credits
