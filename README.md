@@ -51,10 +51,12 @@ You can also download a zipped copy of this repo or clone it and use it locally 
 
 ## Development
 
+If you want to make any changes, then you do need to use a bundler/server:
+
 * Install [Bun](https://bun.com).
 * Install dependencies with `bun install`.
 * Start the server with `bun serve.js`.
-  * Alternatively, to just build the project without starting a server, use `bun build.js`.
+  - Alternatively, to just build the project without starting a server, use `bun build.js`.
 * Navigate to `localhost:3000` in your browser.
 * Refresh to see changes.
 
