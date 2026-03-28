@@ -24,7 +24,7 @@ export class TimelineSearch {
       }
     });
 
-    this.timelinePosts = timeline;
+    this.timelinePosts = this.deduplicatePosts(timeline);
   }
 
   calculateProgress(dataPage: json[], startTime: number) {
@@ -35,6 +35,16 @@ export class TimelineSearch {
     let lastDate = feedPostTime(last);
     let daysBack = (startTime - lastDate) / 86400 / 1000;
     return daysBack;
+  }
+
+  deduplicatePosts(records: json[]): json[] {
+    let lastIndexMap: Record<string, number> = {};  // reverse-chrono so last is earliest
+
+    for (let [i, record] of records.entries()) {
+      lastIndexMap[record.post.uri] = i;
+    }
+
+    return records.filter((record, i) => lastIndexMap[record.post.uri] === i);
   }
 
   searchPosts(query: string): Post[] {
