@@ -424,6 +424,11 @@ export class Post extends BasePost {
     return !!(this.data.threadgate && this.data.threadgate.record.allow);
   }
 
+  /** @returns {boolean} */
+  get hasDisabledReplies() {
+    return !!(this.data.threadgate && this.data.threadgate.record.allow !== undefined && this.data.threadgate.record.allow.length == 0);
+  }
+
   /** @returns {number} */
   get repostCount() {
     return castToInt(this.data.repostCount);

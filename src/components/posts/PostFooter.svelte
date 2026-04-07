@@ -88,10 +88,12 @@
   {/if}
 
   {#if post.isRestrictingReplies}
+    {@const label = (post.hasDisabledReplies) ? "Disabled replies" : "Limited replies"}
+
     {#if placement == 'thread'}
-      <span><i class="fa-solid fa-ban"></i> Limited replies</span>
+      <span><i class="fa-solid fa-ban"></i> {label}</span>
     {:else if placement == 'quotes'}
-      <span><i class="fa-solid fa-ban" title="Limited replies"></i></span>
+      <span><i class="fa-solid fa-ban" title="{label}"></i></span>
     {/if}
   {/if}
 
