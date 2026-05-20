@@ -1,6 +1,6 @@
 import { HandleCache } from './handle_cache.js';
 import { appView, constellationAPI } from '../api.js';
-import { APIError, Minisky, type FetchAllOnPageLoad, type MiniskyConfig, type MiniskyOptions } from './minisky.js';
+import { APIError, Minisky, type FetchAllOnPageLoad, type MiniskyConfig, type MiniskyOptions, type MiniskyRequestOptions } from './minisky.js';
 import { atURI, feedPostTime } from '../utils.js';
 import { Post } from '../models/posts.js';
 import { parseBlueskyPostURL } from '../router.js';
@@ -101,14 +101,14 @@ export class BlueskyAPI extends Minisky {
     return await this.getRequest('app.bsky.feed.getPostThread', { uri: uri, depth: 10 });
   }
 
-  async loadUserProfile(handle: string): Promise<json> {
-    if (this.profiles[handle]) {
+  async loadUserProfile(handle: string, full: boolean = false, options: MiniskyRequestOptions = {}): Promise<json> {
+    if (this.profiles[handle] && (!full || 'description' in this.profiles[handle])) {
       return this.profiles[handle];
-    } else {
-      let profile = await this.getRequest('app.bsky.actor.getProfile', { actor: handle });
-      this.cacheProfile(profile);
-      return profile;
     }
+
+    let profile = await this.getRequest('app.bsky.actor.getProfile', { actor: handle }, options);
+    this.cacheProfile(profile);
+    return profile;
   }
 
   async autocompleteUsers(query: string): Promise<json[]> {
