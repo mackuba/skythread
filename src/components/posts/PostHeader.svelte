@@ -38,44 +38,44 @@
 </script>
 
 <div class="post-header">
-<h2>
-  <span class="avatar-wrapper" onmouseenter={showPopover} onmouseleave={hidePopover}>
-    {#if post.muted}
-      <i class="muted-avatar fa-regular fa-circle-user fa-2x"></i>
-    {:else if post.author.avatar}
-      <img class="avatar" alt="Avatar" loading="lazy" src={post.author.avatar} bind:this={avatar}>
+  <h2>
+    <span class="avatar-wrapper" onmouseenter={showPopover} onmouseleave={hidePopover}>
+      {#if post.muted}
+        <i class="muted-avatar fa-regular fa-circle-user fa-2x"></i>
+      {:else if post.author.avatar}
+        <img class="avatar" alt="Avatar" loading="lazy" src={post.author.avatar} bind:this={avatar}>
+      {:else}
+        <i class="no-avatar fa-regular fa-face-smile fa-2x"></i>
+      {/if}
+    </span>
+
+    {post.authorDisplayName}
+
+    {#if post.isFediPost}
+      <a class="handle" href="{post.linkToAuthor}" target="_blank" onmouseenter={showPopover} onmouseleave={hidePopover}>@{post.authorFediHandle}</a>
+      <img src="icons/mastodon.svg" class="mastodon" alt="Mastodon logo">
     {:else}
-      <i class="no-avatar fa-regular fa-face-smile fa-2x"></i>
+      <a class="handle" href="{post.linkToAuthor}" target="_blank" onmouseenter={showPopover} onmouseleave={hidePopover}>{post.hasValidHandle ? `@${post.author.handle}` : '[invalid handle]'}</a>
     {/if}
-  </span>
 
-  {post.authorDisplayName}
-
-  {#if post.isFediPost}
-    <a class="handle" href="{post.linkToAuthor}" target="_blank" onmouseenter={showPopover} onmouseleave={hidePopover}>@{post.authorFediHandle}</a>
-    <img src="icons/mastodon.svg" class="mastodon" alt="Mastodon logo">
-  {:else}
-    <a class="handle" href="{post.linkToAuthor}" target="_blank" onmouseenter={showPopover} onmouseleave={hidePopover}>{post.hasValidHandle ? `@${post.author.handle}` : '[invalid handle]'}</a>
-  {/if}
-
-  <span class="separator">&bull;</span>
-
-  <a class="time" href="{post.linkToPost}" target="_blank" title="{post.createdAt.toISOString()}">{presenter.formattedTimestamp}</a>
-
-  {#if (post.replyCount > 0 && !post.isPageRoot) || ['quote', 'quotes', 'feed'].includes(placement)}
     <span class="separator">&bull;</span>
 
-    {#if ['quote', 'quotes', 'feed'].includes(placement)}
-      <PostSubtreeLink {post} title="Load thread" />
-    {:else}
-      <PostSubtreeLink {post} title="Load this subtree" />
-    {/if}
-  {/if}
-</h2>
+    <a class="time" href="{post.linkToPost}" target="_blank" title="{post.createdAt.toISOString()}">{presenter.formattedTimestamp}</a>
 
-{#if activeAnchor}
-  <ProfilePopover did={post.author.did} anchor={activeAnchor} {anchorHovered} onDismissed={unmountPopover} />
-{/if}
+    {#if (post.replyCount > 0 && !post.isPageRoot) || ['quote', 'quotes', 'feed'].includes(placement)}
+      <span class="separator">&bull;</span>
+
+      {#if ['quote', 'quotes', 'feed'].includes(placement)}
+        <PostSubtreeLink {post} title="Load thread" />
+      {:else}
+        <PostSubtreeLink {post} title="Load this subtree" />
+      {/if}
+    {/if}
+  </h2>
+
+  {#if activeAnchor}
+    <ProfilePopover did={post.author.did} anchor={activeAnchor} {anchorHovered} onDismissed={unmountPopover} />
+  {/if}
 </div>
 
 <style>
