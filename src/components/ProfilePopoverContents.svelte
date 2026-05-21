@@ -2,9 +2,11 @@
   type Props = {
     profile: json;
     element?: HTMLDivElement | undefined;
+    onmouseenter?: (event: MouseEvent) => void;
+    onmouseleave?: (event: MouseEvent) => void;
   };
 
-  let { profile, element = $bindable() }: Props = $props();
+  let { profile, element = $bindable(), onmouseenter, onmouseleave }: Props = $props();
 
   let displayName = $derived.by(() => {
     let name = profile.displayName?.trim();
@@ -29,7 +31,7 @@
   });
 </script>
 
-<div popover class="profile-popover" bind:this={element}>
+<div popover class="profile-popover" bind:this={element} {onmouseenter} {onmouseleave}>
   <div class="contents">
     <div class="avatar-column">
       {#if profile.viewer?.muted}

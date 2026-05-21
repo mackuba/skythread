@@ -12,11 +12,20 @@
   import ProfilePopoverContents from './ProfilePopoverContents.svelte';
 
   const hoverDelay = 500;
+  const hideDelay = 120;
 
-  let { did, anchor }: { did: string, anchor: HTMLElement } = $props();
+  type Props = {
+    did: string;
+    anchor: HTMLElement;
+    anchorHovered: boolean;
+    onDismissed: () => void;
+  }
+
+  let { did, anchor, anchorHovered, onDismissed }: Props = $props();
 
   let profile: json | undefined = $state();
   let popover: HTMLDivElement | undefined = $state();
+  let hideTimer: number | undefined;
 
   async function loadProfile(abortSignal: AbortSignal) {
     try {
@@ -36,6 +45,36 @@
     }
   }
 
+  function clearHideTimer() {
+    if (hideTimer) {
+      clearTimeout(hideTimer);
+      hideTimer = undefined;
+    }
+  }
+
+  function hidePopover() {
+    clearHideTimer();
+
+    if (anchorHovered) {
+      return;
+    }
+
+    if (popover?.matches(':popover-open')) {
+      popover.hidePopover();
+    }
+
+    onDismissed();
+  }
+
+  function keepPopoverOpen() {
+    clearHideTimer();
+  }
+
+  function queueHidePopover() {
+    clearHideTimer();
+    hideTimer = setTimeout(hidePopover, hideDelay);
+  }
+
   $effect(() => {
     if (!supportsAnchorPositioning) { return }
 
@@ -44,7 +83,7 @@
     let abortController = new AbortController();
     let loadProfilePromise = loadProfile(abortController.signal);
 
-    let timer = window.setTimeout(async () => {
+    let showTimer = setTimeout(async () => {
       let loadedProfile = await loadProfilePromise;
 
       if (abortController.signal.aborted || !loadedProfile) return;
@@ -55,7 +94,8 @@
 
     return () => {
       abortController.abort();
-      window.clearTimeout(timer);
+      clearTimeout(showTimer);
+      clearHideTimer();
 
       if (popover?.matches(':popover-open')) {
         popover.hidePopover();
@@ -64,8 +104,17 @@
       anchor.style.removeProperty('anchor-name');
     };
   });
+
+  $effect(() => {
+    clearHideTimer();
+
+    if (!anchorHovered) {
+      queueHidePopover();
+    }
+  });
 </script>
 
 {#if profile}
-  <ProfilePopoverContents {profile} bind:element={popover} />
+  <ProfilePopoverContents {profile} bind:element={popover}
+    onmouseenter={keepPopoverOpen} onmouseleave={queueHidePopover} />
 {/if}

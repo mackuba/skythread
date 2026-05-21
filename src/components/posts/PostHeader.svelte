@@ -10,6 +10,7 @@
 
   let avatar: HTMLImageElement | undefined = $state();
   let activeAnchor: HTMLElement | undefined = $state();
+  let anchorHovered = $state(false);
 
   $effect(() => {
     if (avatar) {
@@ -23,10 +24,16 @@
 
   function showPopover(event: MouseEvent) {
     activeAnchor = event.currentTarget as HTMLElement;
+    anchorHovered = true;
   }
 
   function hidePopover() {
+    anchorHovered = false;
+  }
+
+  function unmountPopover() {
     activeAnchor = undefined;
+    anchorHovered = false;
   }
 </script>
 
@@ -67,7 +74,7 @@
 </h2>
 
 {#if activeAnchor}
-  <ProfilePopover did={post.author.did} anchor={activeAnchor} />
+  <ProfilePopover did={post.author.did} anchor={activeAnchor} {anchorHovered} onDismissed={unmountPopover} />
 {/if}
 </div>
 
