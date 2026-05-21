@@ -1,4 +1,6 @@
 <script lang="ts">
+    import RichTextFromFacets from "./RichTextFromFacets.svelte";
+
   type Props = {
     profile: json;
     element?: HTMLDivElement | undefined;
@@ -52,7 +54,7 @@
       {/if}
 
       {#if profile.description}
-        <p>{profile.description}</p>
+        <p><RichTextFromFacets text={profile.description} facets={[]} /></p>
       {/if}
     </div>
   </div>
@@ -61,7 +63,7 @@
 <style>
   .profile-popover {
     position: fixed;
-    width: 360px;
+    width: 400px;
     border: 1px solid #dddddd;
     border-radius: 12px;
     background: #fff;
@@ -78,7 +80,7 @@
   .contents {
     display: flex;
     gap: 15px;
-    padding: 14px 12px 12px 14px;
+    padding: 14px 12px 14px 14px;
   }
 
   .avatar-column {
