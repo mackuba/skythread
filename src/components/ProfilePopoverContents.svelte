@@ -71,6 +71,8 @@
     position-area: bottom center;
     position-try-fallbacks: top center;
     margin: unset;
+    margin-top: 6px;
+    margin-bottom: 6px;
   }
 
   .contents {
