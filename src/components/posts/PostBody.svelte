@@ -77,12 +77,12 @@
     margin-top: 18px;
   }
 
-  ::highlight(search-results) {
+  :global(::highlight(search-results)) {
     background-color: rgba(255, 255, 0, 0.75);
   }
 
   @media (prefers-color-scheme: dark) {
-    ::highlight(search-results) {
+    :global(::highlight(search-results)) {
       background-color: rgba(255, 255, 0, 0.35);
     }
   }
