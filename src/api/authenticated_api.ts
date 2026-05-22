@@ -1,7 +1,9 @@
 import { BlueskyAPI, type TimelineFetchOptions } from "./bluesky_api";
-import { AuthError } from './minisky.js';
+import { AuthError, type MiniskyRequestOptions } from './minisky.js';
 import { Post } from '../models/posts.js';
 import { atURI, feedPostTime } from '../utils.js';
+
+const proxyHeaderName = 'atproto-proxy';
 
 /**
  * Stores user's access tokens and data in local storage after they log in.
@@ -26,12 +28,31 @@ class LocalStorageConfig {
 
 export class AuthenticatedAPI extends BlueskyAPI {
   override user: json;
+  proxiedAppView: string;
 
-  constructor() {
+  constructor(options: { proxiedAppView: string }) {
     let config = new LocalStorageConfig();
     let pds: string | null = config.user.pdsEndpoint || null;
     super(pds, config);
     this.user = config.user;
+    this.proxiedAppView = options.proxiedAppView;
+  }
+
+  get appViewProxyHeader(): string {
+    return `did:web:${this.proxiedAppView}#bsky_appview`;
+  }
+
+  override async getRequest(method: string, params?: json | null, options: MiniskyRequestOptions = {}): Promise<json> {
+    if (this.isLoggedIn && !method.startsWith('com.atproto.')) {
+      options = options ?? {};
+      options.headers = options.headers ?? {};
+
+      if (!options.headers[proxyHeaderName]) {
+        options.headers[proxyHeaderName] = this.appViewProxyHeader;
+      }
+    }
+
+    return super.getRequest(method, params, options);
   }
 
   async getCurrentUserAvatar(): Promise<json | undefined> {

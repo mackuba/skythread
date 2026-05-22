@@ -22,10 +22,12 @@ declare global {
   }
 }
 
-export let appView = new BlueskyAPI('api.bsky.app');
+let appViewHost = 'api.bsky.app';
+
+export let appView = new BlueskyAPI(appViewHost);
 export let blueAPI = new BluefeedsAPI('blue.mackuba.eu');
 export let constellationAPI = new ConstellationAPI('constellation.microcosm.blue');
-export let accountAPI = new AuthenticatedAPI();
+export let accountAPI = new AuthenticatedAPI({ proxiedAppView: appViewHost });
 export let api: BlueskyAPI;
 
 export function setAPI() {
