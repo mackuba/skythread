@@ -116,44 +116,6 @@ export class BlueskyAPI extends Minisky {
     return json.actors;
   }
 
-  async getReplies(uri: string): Promise<string[]> {
-    let results = await this.fetchAll('blue.microcosm.links.getBacklinks', {
-      field: 'records',
-      params: {
-        subject: uri,
-        source: 'app.bsky.feed.post:reply.parent.uri',
-        limit: 100
-      }
-    });
-
-    return results.map((x: json) => `at://${x.did}/${x.collection}/${x.rkey}`);
-  }
-
-  async getQuoteCount(uri: string): Promise<number> {
-    let json = await this.getRequest('blue.feeds.post.getQuoteCount', { uri });
-    return json.quoteCount;
-  }
-
-  async getQuotes(url: string, cursor?: string): Promise<json> {
-    let postURI: string;
-
-    if (url.startsWith('at://')) {
-      postURI = url;
-    } else {
-      let { user, post } = parseBlueskyPostURL(url);
-      let did = user.startsWith('did:') ? user : await appView.resolveHandle(user);
-      postURI = `at://${did}/app.bsky.feed.post/${post}`;
-    }
-
-    let params: Record<string, string> = { uri: postURI };
-
-    if (cursor) {
-      params['cursor'] = cursor;
-    }
-
-    return await this.getRequest('blue.feeds.post.getQuotes', params);
-  }
-
   async getHashtagFeed(hashtag: string, cursor?: string): Promise<json> {
     let params: Record<string, any> = { q: '#' + hashtag, limit: 50, sort: 'latest' };
 

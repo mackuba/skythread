@@ -1,5 +1,7 @@
 import { AuthenticatedAPI } from "./api/authenticated_api";
+import { BluefeedsAPI } from "./api/bluefeeds_api";
 import { BlueskyAPI, URLError } from "./api/bluesky_api";
+import { ConstellationAPI } from "./api/constellation_api";
 import { APIError, Minisky } from "./api/minisky";
 import { settings } from "./models/settings.svelte";
 
@@ -14,15 +16,15 @@ declare global {
 
     api: BlueskyAPI;
     appView: BlueskyAPI;
-    blueAPI: BlueskyAPI;
-    constellationAPI: BlueskyAPI;
+    blueAPI: Minisky;
+    constellationAPI: ConstellationAPI;
     accountAPI: AuthenticatedAPI;
   }
 }
 
 export let appView = new BlueskyAPI('api.bsky.app');
-export let blueAPI = new BlueskyAPI('blue.mackuba.eu');
-export let constellationAPI = new BlueskyAPI('constellation.microcosm.blue');
+export let blueAPI = new BluefeedsAPI('blue.mackuba.eu');
+export let constellationAPI = new ConstellationAPI('constellation.microcosm.blue');
 export let accountAPI = new AuthenticatedAPI();
 export let api: BlueskyAPI;
 
