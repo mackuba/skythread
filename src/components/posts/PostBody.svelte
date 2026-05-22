@@ -9,11 +9,12 @@
   let { post } = getPostContext();
   let { highlightedMatches = undefined }: { highlightedMatches?: string[] | undefined } = $props();
 
-  let bodyElement: HTMLElement | undefined = $state();
+  let mainElement: HTMLElement | undefined = $state();
+  let highlightedRanges: Range[] = $state([]);
 
   function highlightSearchResults(terms: string[]) {
     let regexp = new RegExp(`\\b(${terms.join('|')})\\b`, 'gi');
-    let walker = document.createTreeWalker(bodyElement!, NodeFilter.SHOW_TEXT);
+    let walker = document.createTreeWalker(mainElement!, NodeFilter.SHOW_TEXT);
     let ranges: Range[] = [];
 
     while (walker.nextNode()) {
@@ -36,6 +37,16 @@
     let highlight = CSS.highlights.get(highlightID) || new Highlight();
     ranges.forEach(r => highlight.add(r));
     CSS.highlights.set(highlightID, highlight);
+
+    highlightedRanges = ranges;
+  }
+
+  function removeHighlights() {
+    let highlight = CSS.highlights.get(highlightID) || new Highlight();
+    highlightedRanges.forEach(r => highlight.delete(r));
+    CSS.highlights.set(highlightID, highlight);
+
+    highlightedRanges = [];
   }
 
   $effect(() => {
@@ -43,7 +54,7 @@
       highlightSearchResults(highlightedMatches);
 
       return () => {
-        CSS.highlights.delete(highlightID);
+        removeHighlights();
       };
     } else {
       return;
@@ -52,11 +63,11 @@
 </script>
 
 {#if post.originalFediContent}
-  <div class="bridged-body" bind:this={bodyElement}>
+  <div class="bridged-body" bind:this={mainElement}>
     {@html sanitizeHTML(post.originalFediContent)}
   </div>
 {:else}
-  <p class="body" bind:this={bodyElement}>
+  <p class="body" bind:this={mainElement}>
     <RichTextFromFacets text={post.text} facets={post.facets as Facet[]} />
   </p>
 {/if}

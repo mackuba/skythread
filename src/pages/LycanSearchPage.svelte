@@ -29,7 +29,7 @@
   let loadingPosts = $state(false);
   let finishedPosts = $state(false);
   let results: Post[] = $state([]);
-  let highlightedMatches: string[] = $state([]);
+  let highlightedMatches: string[] | undefined = $state();
 
   checkImportStatus();
 
@@ -77,12 +77,13 @@
       wasImporting = false;
       loadingPosts = true;
       finishedPosts = false;
+      highlightedMatches = undefined;
 
       lycanService.searchPosts(selectedCollection, q, {
         onPostsLoaded: ({ posts, terms }) => {
           loadingPosts = false;
           results.push(...posts);
-          highlightedMatches = terms;
+          highlightedMatches ??= terms;
         },
         onFinish: () => {
           finishedPosts = true;
