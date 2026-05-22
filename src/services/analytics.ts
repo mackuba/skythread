@@ -8,7 +8,6 @@ export function initAnalytics() {
   _paq.push(["setRequestMethod", "POST"]);
   _paq.push(['setSiteId', '13']);
   _paq.push(["disableCookies"]);
-  _paq.push(["disableAlwaysUseSendBeacon"]);
   _paq.push(['trackPageView']);
 }
 
