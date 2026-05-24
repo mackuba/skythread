@@ -1,5 +1,5 @@
 import { HandleCache } from './handle_cache.js';
-import { appView, constellationAPI, slingshotAPI } from '../api.js';
+import { appView, blueAPI, constellationAPI, slingshotAPI } from '../api.js';
 import { APIError, Minisky, type FetchAllOnPageLoad, type MiniskyConfig, type MiniskyOptions, type MiniskyRequestOptions } from './minisky.js';
 import { atURI, feedPostTime } from '../utils.js';
 import { Post } from '../models/posts.js';
@@ -127,8 +127,14 @@ export class BlueskyAPI extends Minisky {
   }
 
   async loadHiddenReplyURIs(post: Post): Promise<string[]> {
-    let expectedReplyURIs = await constellationAPI.getReplies(post.uri);
-    let missingReplyURIs = expectedReplyURIs.filter(r => !post.replies.find(x => x.uri === r));
+    let [constellationReplies, blueReplies] = await Promise.all([
+      constellationAPI.getReplies(post.uri),
+      blueAPI.getReplies(post.uri).catch(() => [])
+    ]);
+
+    let expectedReplyURIs = Array.from(new Set(constellationReplies.concat(blueReplies)));
+    let existingReplies = new Set(post.replies.map(x => x.uri));
+    let missingReplyURIs = expectedReplyURIs.filter(r => !existingReplies.has(r));
 
     missingReplyURIs.sort((a, b) => {
       let arkey = a.split('/').at(-1)!

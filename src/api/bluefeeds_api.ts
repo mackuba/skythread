@@ -36,4 +36,9 @@ export class BluefeedsAPI extends Minisky {
 
     return await this.getRequest('blue.feeds.post.getQuotes', params);
   }
+
+  async getReplies(uri: string): Promise<string[]> {
+    let json = await this.getRequest('blue.feeds.post.getReplies', { uri });
+    return json.replies;
+  }
 }
