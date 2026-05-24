@@ -33,6 +33,7 @@
       if (r.status == 'fulfilled') {
         let json = r.value;
         let subthread = parseThreadPost(json.thread, post.pageRoot, 1, post.absoluteLevel + 1);
+        subthread.isHiddenReply = true;
         return [subthread];
       } else {
         return [];

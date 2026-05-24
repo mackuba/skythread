@@ -22,6 +22,12 @@ export class PostDataError extends Error {
 
 export class BasePost extends ATProtoRecord {
 
+  /**
+   * Set to true if the post was loaded from the "hidden replies" link (as a direct descendant).
+   * @type {boolean}
+   */
+  isHiddenReply = false;
+
   /** @returns {string} */
   get didLinkToAuthor() {
     let { repo } = atURI(this.uri);
