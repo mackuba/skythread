@@ -28,6 +28,12 @@ export class BasePost extends ATProtoRecord {
    */
   isHiddenReply = false;
 
+  /**
+   * Set to true if the author of the post has the 'needs-review' label.
+   * @type {boolean}
+   */
+  labelledNeedsReview = false;
+
   /** @returns {string} */
   get didLinkToAuthor() {
     let { repo } = atURI(this.uri);

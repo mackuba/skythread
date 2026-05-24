@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { api } from '../../api.js';
+  import { api, appView } from '../../api.js';
   import { showBiohazardDialog } from '../Dialogs.svelte';
   import { settings } from '../../models/settings.svelte.js';
   import { parseThreadPost } from '../../models/posts.js';
@@ -28,19 +28,6 @@
     }
   }
 
-  function threadsFromPromises(responses: PromiseSettledResult<json>[]): AnyPost[] {
-    return responses.flatMap(r => {
-      if (r.status == 'fulfilled') {
-        let json = r.value;
-        let subthread = parseThreadPost(json.thread, post.pageRoot, 1, post.absoluteLevel + 1);
-        subthread.isHiddenReply = true;
-        return [subthread];
-      } else {
-        return [];
-      }
-    });
-  }
-
   async function loadHiddenReplies() {
     loading = true;
 
@@ -49,7 +36,20 @@
 
       let promises = missingReplyURIs.map(uri => api.loadThreadByAtURI(uri));
       let responses = await Promise.allSettled(promises);
-      let replies = threadsFromPromises(responses);
+      let jsons = responses.flatMap(r => (r.status == 'fulfilled') ? [r.value.thread] : []);
+      let replies = jsons.map(json => parseThreadPost(json, post.pageRoot, 1, post.absoluteLevel + 1));
+      replies.forEach(x => { x.isHiddenReply = true });
+
+      if (jsons.length <= 10) {
+        // sanity check - sometimes hidden replies are a big part of a large thread that got truncated
+
+        for (let [i, json] of jsons.entries()) {
+          if (json.parent) {
+            let did = json.post.author.did;
+            replies[i].labelledNeedsReview = await appView.checkIfProfileHasNeedsReview(did);
+          }
+        }
+      }
 
       let unavailableURIs = missingReplyURIs.filter(x => !replies.find(r => r.uri == x));
       let unavailablePromises = unavailableURIs.map(uri => api.loadMiniDocWithStatus(atURI(uri).repo));

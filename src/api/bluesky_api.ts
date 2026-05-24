@@ -7,6 +7,8 @@ import { parseBlueskyPostURL } from '../router.js';
 
 export { APIError };
 
+export const blueskyLabellerDID = 'did:plc:ar7c4by46qjdydhdevvrndac';
+
 /**
  * Thrown when the response is technically a "success" one, but the returned data is not what it should be.
  */
@@ -124,6 +126,14 @@ export class BlueskyAPI extends Minisky {
     }
 
     return await this.getRequest('app.bsky.feed.searchPosts', params);
+  }
+
+  async checkIfProfileHasNeedsReview(did: string): Promise<boolean> {
+    let profile = await this.getRequest('app.bsky.actor.getProfile', { actor: did },
+      { headers: { 'atproto-accept-labelers': blueskyLabellerDID }}
+    );
+
+    return profile.labels?.some((x: json) => (x.src == blueskyLabellerDID && x.val == 'needs-review'));
   }
 
   async loadHiddenReplyURIs(post: Post): Promise<string[]> {

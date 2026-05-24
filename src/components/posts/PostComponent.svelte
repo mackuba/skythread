@@ -143,6 +143,10 @@
     <EdgeMargin bind:collapsed />
   {/if}
 
+  {#if post.labelledNeedsReview}
+    <p class="needs-review">⚠️ account labelled &lsquo;needs-review&rsquo;</p>
+  {/if}
+
   <div class="content">
     {#if post.muted}
       <details>
@@ -252,6 +256,16 @@
 
   .missing-replies-links li {
     margin-block: 5px;
+  }
+
+  .needs-review {
+    font-size: 11pt;
+    border: 1px solid #ff8888;
+    display: inline-block;
+    padding: 3px 4px;
+    border-radius: 8px;
+    background-color: rgba(255, 0, 0, 0.1);
+    margin-bottom: 0;
   }
 
   .post :global(img.loader) {
