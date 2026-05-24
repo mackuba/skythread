@@ -5,9 +5,10 @@
   import { parseThreadPost } from '../../models/posts.js';
   import { linkToPostThread } from '../../router.js';
   import { getPostContext } from './PostComponent.svelte';
+  import { atURI } from '../../utils.js';
 
   type Props = {
-    onLoad: (posts: (AnyPost | null)[]) => void,
+    onLoad: (posts: AnyPost[], missing: [string, json][]) => void,
     onError: (error: Error) => void
   }
 
@@ -27,14 +28,34 @@
     }
   }
 
+  function threadsFromPromises(responses: PromiseSettledResult<json>[]): AnyPost[] {
+    return responses.flatMap(r => {
+      if (r.status == 'fulfilled') {
+        let json = r.value;
+        let subthread = parseThreadPost(json.thread, post.pageRoot, 1, post.absoluteLevel + 1);
+        return [subthread];
+      } else {
+        return [];
+      }
+    });
+  }
+
   async function loadHiddenReplies() {
     loading = true;
 
     try {
-      let repliesData = await api.loadHiddenReplies(post);
-      let replies = repliesData.map(x => x && parseThreadPost(x.thread, post.pageRoot, 1, post.absoluteLevel + 1));
+      let missingReplyURIs = await api.loadHiddenReplyURIs(post);
+
+      let promises = missingReplyURIs.map(uri => api.loadThreadByAtURI(uri));
+      let responses = await Promise.allSettled(promises);
+      let replies = threadsFromPromises(responses);
+
+      let unavailableURIs = missingReplyURIs.filter(x => !replies.find(r => r.uri == x));
+      let unavailablePromises = unavailableURIs.map(uri => api.loadMiniDocWithStatus(atURI(uri).repo));
+      let unavailableResponses = await Promise.all(unavailablePromises);
+
       loading = false;
-      onLoad(replies);
+      onLoad(replies, unavailableResponses.map((v, i) => [unavailableURIs[i], v]));
     } catch (error) {
       loading = false;
       onError(error);

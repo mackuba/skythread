@@ -43,7 +43,7 @@
   let collapsed = $state(false);
   let replies: AnyPost[] = $state(post.replies);
   let repliesLoaded = $state(false);
-  let missingHiddenReplies: number | undefined = $state();
+  let missingHiddenReplies: [string, json][] | undefined = $state();
 
   setPostContext({ post, placement });
 
@@ -79,18 +79,36 @@
     replies = post.replies;
   }
 
-  function onHiddenRepliesLoaded(newReplies: (AnyPost | null)[]) {
-    let okReplies = newReplies.filter(x => x !== null);
-    replies.push(...okReplies);
+  function onHiddenRepliesLoaded(newReplies: AnyPost[], missingData: [string, json][]) {
+    replies.push(...newReplies);
     post.replies = replies;
 
-    if (okReplies.length === newReplies.length && okReplies.length > 0) {
+    if (newReplies.length > 0 && missingData.length === 0) {
+      // there were some hidden replies but we loaded them, everything is ok
       missingHiddenReplies = undefined;
+    } else if (newReplies.length === 0 && missingData.length === 0) {
+      // we didn't get any URIs at all, something is sus
+      missingHiddenReplies = [];
     } else {
-      missingHiddenReplies = newReplies.length - okReplies.length;
+      // we got some info about the unavailable replies
+      missingHiddenReplies = missingData;
     }
 
     repliesLoaded = true;
+  }
+
+  function missingReplyStatus(data: json) {
+    if (data.profile) {
+      return "account is active";
+    } else if (data.pdsError) {
+      return "PDS unavailable";
+    } else if (data.active) {
+      return "account active on its PDS";
+    } else if (data.status == "takendown") {
+      return "account taken down";
+    } else {
+      return `account ${data.status}`;
+    }
   }
 
   function onRepliesLoadingError(error: Error) {
@@ -157,17 +175,27 @@
     {/if}
 
     {#if missingHiddenReplies !== undefined}
-      <p class="missing-replies-info">
-        <i class="fa-solid fa-ban"></i>
-        {#if missingHiddenReplies > 1}
-          {missingHiddenReplies} replies are missing
-        {:else if missingHiddenReplies == 1}
-          1 reply is missing
-        {:else}
-          Some replies are missing
-        {/if}
-        (likely taken down by moderation)
-      </p>
+      {#if missingHiddenReplies.length > 0}
+        <p class="missing-replies-info">
+          <i class="fa-solid fa-ban"></i>
+          {#if missingHiddenReplies.length > 1}
+            {missingHiddenReplies.length} replies are unavailable:
+          {:else if missingHiddenReplies.length == 1}
+            1 reply is unavailable:
+          {/if}
+        </p>
+
+        <ul class="missing-replies-links">
+          {#each missingHiddenReplies as [uri, data]}
+            <li>&ndash; from <a href="https://pdsls.dev/{uri}" target="_blank">@{data.handle}</a>
+              ({missingReplyStatus(data)})</li>
+          {/each}
+        </ul>
+      {:else}
+        <p class="missing-replies-info">
+          <i class="fa-solid fa-ban"></i> Some replies are missing (might be taken down by moderation)
+        </p>
+      {/if}
     {/if}
   </div>
 </div>
@@ -213,6 +241,17 @@
     font-size: 11pt;
     color: darkred;
     margin-top: 25px;
+  }
+
+  .missing-replies-links {
+    padding-left: 10px;
+    list-style-type: none;
+    font-size: 11pt;
+    color: #666;
+  }
+
+  .missing-replies-links li {
+    margin-block: 5px;
   }
 
   .post :global(img.loader) {

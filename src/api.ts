@@ -18,6 +18,7 @@ declare global {
     appView: BlueskyAPI;
     blueAPI: Minisky;
     constellationAPI: ConstellationAPI;
+    slingshotAPI: Minisky;
     accountAPI: AuthenticatedAPI;
   }
 }
@@ -27,6 +28,8 @@ let appViewHost = 'api.bsky.app';
 export let appView = new BlueskyAPI(appViewHost);
 export let blueAPI = new BluefeedsAPI('blue.mackuba.eu');
 export let constellationAPI = new ConstellationAPI('constellation.microcosm.blue');
+export let slingshotAPI = new Minisky("slingshot.microcosm.blue");
+
 export let accountAPI = new AuthenticatedAPI({ proxiedAppView: appViewHost });
 export let api: BlueskyAPI;
 
@@ -45,3 +48,4 @@ window.appView = appView;
 window.blueAPI = blueAPI;
 window.accountAPI = accountAPI;
 window.constellationAPI = constellationAPI;
+window.slingshotAPI = slingshotAPI;

@@ -1,5 +1,5 @@
 import { HandleCache } from './handle_cache.js';
-import { appView, constellationAPI } from '../api.js';
+import { appView, constellationAPI, slingshotAPI } from '../api.js';
 import { APIError, Minisky, type FetchAllOnPageLoad, type MiniskyConfig, type MiniskyOptions, type MiniskyRequestOptions } from './minisky.js';
 import { atURI, feedPostTime } from '../utils.js';
 import { Post } from '../models/posts.js';
@@ -126,9 +126,9 @@ export class BlueskyAPI extends Minisky {
     return await this.getRequest('app.bsky.feed.searchPosts', params);
   }
 
-  async loadHiddenReplies(post: Post): Promise<(json | null)[]> {
+  async loadHiddenReplyURIs(post: Post): Promise<string[]> {
     let expectedReplyURIs = await constellationAPI.getReplies(post.uri);
-    let missingReplyURIs = expectedReplyURIs.filter(r => !post.replies.some(x => x.uri === r));
+    let missingReplyURIs = expectedReplyURIs.filter(r => !post.replies.find(x => x.uri === r));
 
     missingReplyURIs.sort((a, b) => {
       let arkey = a.split('/').at(-1)!
@@ -136,10 +136,31 @@ export class BlueskyAPI extends Minisky {
       return arkey.localeCompare(brkey);
     });
 
-    let promises = missingReplyURIs.map(uri => this.loadThreadByAtURI(uri));
-    let responses = await Promise.allSettled(promises);
+    return missingReplyURIs;
+  }
 
-    return responses.map(r => (r.status == 'fulfilled') ? r.value : null);
+  async loadMiniDocWithStatus(did: string): Promise<json> {
+    let doc = await slingshotAPI.getRequest("blue.microcosm.identity.resolveMiniDoc", { identifier: did });
+
+    try {
+      let pds = new Minisky(doc.pds);
+
+      let loadInfo = pds.getRequest('com.atproto.sync.getRepoStatus', { did: did });
+      let loadProfile = appView.loadUserProfile(did).catch(() => null);
+
+      let [info, profile] = await Promise.all([loadInfo, loadProfile]);
+
+      doc.active = info.active;
+      doc.status = info.status;
+
+      if (profile) {
+        doc.profile = profile;
+      }
+    } catch (error) {
+      doc.pdsError = error;
+    }
+
+    return doc;
   }
 
   async loadUserTimeline(
