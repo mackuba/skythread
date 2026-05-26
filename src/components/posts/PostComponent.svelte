@@ -191,7 +191,8 @@
 
         <ul class="missing-replies-links">
           {#each missingHiddenReplies as [uri, data]}
-            <li>&ndash; from <a href="https://pdsls.dev/{uri}" target="_blank">@{data.handle}</a>
+            <li>&ndash; from
+              <a href="https://pdsls.dev/{uri}" target="_blank">{data.handle ? `@${data.handle}` : data.did}</a>
               ({missingReplyStatus(data)})</li>
           {/each}
         </ul>

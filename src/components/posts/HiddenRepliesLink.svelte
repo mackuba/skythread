@@ -52,7 +52,11 @@
       }
 
       let unavailableURIs = missingReplyURIs.filter(x => !replies.find(r => r.uri == x));
-      let unavailablePromises = unavailableURIs.map(uri => api.loadMiniDocWithStatus(atURI(uri).repo));
+      let unavailablePromises = unavailableURIs.map(uri => {
+        let did = atURI(uri).repo;
+        return api.loadMiniDocWithStatus(did).catch(() => ({ did }));
+      });
+
       let unavailableResponses = await Promise.all(unavailablePromises);
 
       loading = false;

@@ -4,6 +4,7 @@ import { APIError, Minisky, type FetchAllOnPageLoad, type MiniskyConfig, type Mi
 import { atURI, feedPostTime } from '../utils.js';
 import { Post } from '../models/posts.js';
 import { parseBlueskyPostURL } from '../router.js';
+import { pdsEndpointForDID } from './identity.js';
 
 export { APIError };
 
@@ -156,7 +157,14 @@ export class BlueskyAPI extends Minisky {
   }
 
   async loadMiniDocWithStatus(did: string): Promise<json> {
-    let doc = await slingshotAPI.getRequest("blue.microcosm.identity.resolveMiniDoc", { identifier: did });
+    let doc: json;
+
+    try {
+      doc = await slingshotAPI.getRequest("blue.microcosm.identity.resolveMiniDoc", { identifier: did });
+    } catch (error) {
+      let pds = await pdsEndpointForDID(did);
+      doc = { did, pds };
+    }
 
     try {
       let pds = new Minisky(doc.pds);
