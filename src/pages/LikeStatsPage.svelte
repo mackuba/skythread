@@ -55,8 +55,14 @@
 </form>
 
 {#if givenLikesUsers && receivedLikesUsers}
-  <LikeStatsTable cssClass="given-likes" header="❤️ Likes from you:" users={givenLikesUsers} />
-  <LikeStatsTable cssClass="received-likes" header="💛 Likes on your posts:" users={receivedLikesUsers} />
+  <div class="like-stats-results">
+    <div class="table-pane">
+      <LikeStatsTable cssClass="given-likes" header="❤️ Likes from you:" users={givenLikesUsers} />
+    </div>
+    <div class="table-pane">
+      <LikeStatsTable cssClass="received-likes" header="💛 Likes on your posts:" users={receivedLikesUsers} />
+    </div>
+  </div>
 {/if}
 </main>
 
@@ -79,7 +85,15 @@
     display: none;
   }
 
-  :global(.scan-result.given-likes) {
-    margin-right: 100px;
+  .like-stats-results {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 100px;
+    width: 100%;
+  }
+
+  .table-pane {
+    min-width: 0;
+    overflow-x: auto;
   }
 </style>

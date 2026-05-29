@@ -4,7 +4,7 @@
   let { cssClass, header, users }: { cssClass: string, header: string, users: LikeStat[] } = $props();
 </script>
 
-<table class="scan-result {cssClass}" style="display: table;">
+<table class="scan-result {cssClass}">
   <thead>
     <tr><th colspan="3">{header}</th></tr>
   </thead>
@@ -25,10 +25,10 @@
   .scan-result {
     border: 1px solid #333;
     border-collapse: collapse;
-    display: none;
-    float: left;
+    margin: 20px auto 40px;
+    width: 100%;
     margin-top: 20px;
-    margin-bottom: 40px;
+    margin-bottom: 20px;
   }
 
   td, th {
@@ -48,7 +48,9 @@
   }
 
   td.handle {
-    width: 280px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 
   td.count {
