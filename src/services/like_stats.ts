@@ -1,9 +1,11 @@
 import { atURI, feedPostTime } from '../utils.js';
 import { BlueskyAPI, accountAPI } from '../api.js';
 
-export type LikeStatsResponse = { givenLikes: LikeStat[], receivedLikes: LikeStat[] }
+export type LikeStatsResponse = { givenLikes: LikeStat[], receivedLikes: LikeStat[], total: number }
 export type LikeStat = { handle?: string, did?: string, avatar?: string, count: number }
 export type LikeStatHash = Record<string, LikeStat>
+
+const pageSize = 25;
 
 export class LikeStats {
   scanStartTime: number | undefined;
@@ -13,6 +15,9 @@ export class LikeStats {
   progressPostLikes: number;
   onProgress: ((days: number) => void) | undefined
   abortController?: AbortController;
+  sortedGiven?: LikeStat[];
+  sortedReceived?: LikeStat[];
+  loadedOffset?: number;
 
   constructor() {
     this.appView = new BlueskyAPI('public.api.bsky.app');
@@ -32,26 +37,43 @@ export class LikeStats {
 
     let receivedLikes = await this.fetchReceivedLikes(requestedDays);
     let receivedStats = this.sumUpReceivedLikes(receivedLikes);
-    let topReceived = this.getTopEntries(receivedStats);
+    let sortedReceived = this.getSortedEntries(receivedStats);
 
     let givenLikes = await fetchGivenLikes;
     let givenStats = this.sumUpGivenLikes(givenLikes);
-    let topGiven = this.getTopEntries(givenStats);
+    let sortedGiven = this.getSortedEntries(givenStats);
 
-    let profileInfo = await this.appView.getRequest('app.bsky.actor.getProfiles',
-      { actors: topGiven.map(x => x.did) },
-      { abortSignal: this.abortController!.signal }
-    );
+    let topReceived = sortedReceived.slice(0, pageSize);
+    let topGiven = sortedGiven.slice(0, pageSize);
+    let total = Math.min(sortedGiven.length, sortedReceived.length);
 
-    for (let profile of profileInfo.profiles) {
-      let user = topGiven.find(x => x.did == profile.did)!;
-      user.handle = profile.handle;
-      user.avatar = profile.avatar;
-    }
+    await this.fetchProfileInfoForGivenLikes(topGiven);
 
     this.scanStartTime = undefined;
+    this.sortedReceived = sortedReceived;
+    this.sortedGiven = sortedGiven;
+    this.loadedOffset = pageSize;
 
-    return { givenLikes: topGiven, receivedLikes: topReceived };
+    return { givenLikes: topGiven, receivedLikes: topReceived, total };
+  }
+
+  async loadMore(): Promise<LikeStatsResponse> {
+    if (!(this.sortedReceived && this.sortedGiven && this.loadedOffset)) {
+      throw "Initial fetch not executed yet";
+    }
+
+    let nextReceived = this.sortedReceived.slice(this.loadedOffset, this.loadedOffset + pageSize);
+    let nextGiven = this.sortedGiven.slice(this.loadedOffset, this.loadedOffset + pageSize);
+    let total = Math.min(this.sortedGiven.length, this.sortedReceived.length);
+
+    let sharedLength = Math.min(nextReceived.length, nextGiven.length);
+    nextReceived = nextReceived.slice(0, sharedLength);
+    nextGiven = nextGiven.slice(0, sharedLength);
+    this.loadedOffset += sharedLength;
+
+    await this.fetchProfileInfoForGivenLikes(nextGiven);
+
+    return { givenLikes: nextGiven, receivedLikes: nextReceived, total };
   }
 
   async fetchGivenLikes(requestedDays: number): Promise<json[]> {
@@ -157,8 +179,21 @@ export class LikeStats {
     return stats;
   }
 
-  getTopEntries(counts: LikeStatHash): LikeStat[] {
-    return Object.entries(counts).sort(this.sortResults).map(x => x[1]).slice(0, 25);
+  getSortedEntries(counts: LikeStatHash): LikeStat[] {
+    return Object.entries(counts).sort(this.sortResults).map(x => x[1]);
+  }
+
+  async fetchProfileInfoForGivenLikes(given: LikeStat[]) {
+    let profileInfo = await this.appView.getRequest('app.bsky.actor.getProfiles',
+      { actors: given.map(x => x.did) },
+      { abortSignal: this.abortController!.signal }
+    );
+
+    for (let profile of profileInfo.profiles) {
+      let user = given.find(x => x.did == profile.did)!;
+      user.handle = profile.handle;
+      user.avatar = profile.avatar;
+    }
   }
 
   resetProgress() {

@@ -8,6 +8,7 @@
   let scanInProgress = $derived(progress !== undefined);
   let givenLikesUsers: LikeStat[] | undefined = $state();
   let receivedLikesUsers: LikeStat[] | undefined = $state();
+  let showLoadMore = $state(false);
 
   let likeStats = new LikeStats();
 
@@ -23,6 +24,7 @@
 
         givenLikesUsers = result.givenLikes;
         receivedLikesUsers = result.receivedLikes;
+        showLoadMore = (result.total > givenLikesUsers.length);
         progress = undefined;
       } else {
         likeStats.abortScan();
@@ -33,6 +35,19 @@
         throw error;
       }
     }
+  }
+
+  async function loadMore(e: Event) {
+    e.preventDefault();
+
+    if (!(givenLikesUsers && receivedLikesUsers)) { return }
+
+    showLoadMore = false;
+    let result = await likeStats.loadMore();
+
+    givenLikesUsers.push(...result.givenLikes);
+    receivedLikesUsers.push(...result.receivedLikes);
+    showLoadMore = (result.total > givenLikesUsers.length);
   }
 </script>
 
@@ -63,6 +78,10 @@
         <LikeStatsTable cssClass="received-likes" header="💛 Likes on your posts:" users={receivedLikesUsers} />
       </div>
     </div>
+
+    <p class="load-more" style:visibility={showLoadMore ? 'visible' : 'hidden'}>
+      <a href="#" onclick={loadMore}>Load more</a>
+    </p>
   {/if}
 </main>
 
@@ -95,5 +114,9 @@
   .table-pane {
     min-width: 0;
     overflow-x: auto;
+  }
+
+  .load-more {
+    text-align: center;
   }
 </style>
