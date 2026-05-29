@@ -5,6 +5,11 @@
 </script>
 
 <table class="scan-result {cssClass}">
+  <colgroup>
+    <col class="col-no">
+    <col class="col-handle">
+    <col class="col-count">
+  </colgroup>
   <thead>
     <tr><th colspan="3">{header}</th></tr>
   </thead>
@@ -12,10 +17,8 @@
     {#each users as user, i}
       <tr>
         <td class="no">{i + 1}</td>
-        <td class="handle"><div class="handle-content">
-          <img class="avatar" alt="Avatar" src="{user.avatar}">
-          <a class="handle-link" href="https://bsky.app/profile/{user.handle}" target="_blank">{user.handle}</a>
-        </div>
+        <td class="handle"><img class="avatar" alt="Avatar" src="{user.avatar}">
+          <a href="https://bsky.app/profile/{user.handle}" target="_blank">{user.handle}</a>
         </td>
         <td class="count">{user.count}</td>
       </tr>
@@ -25,10 +28,21 @@
 
 <style>
   .scan-result {
+    table-layout: fixed;
     border: 1px solid #333;
     border-collapse: collapse;
     margin: 20px auto 40px;
     width: 100%;
+    margin-top: 20px;
+    margin-bottom: 20px;
+  }
+
+  .col-no {
+    width: 3.25em;
+  }
+
+  .col-count {
+    width: 3.5em;
   }
 
   td, th {
@@ -48,29 +62,21 @@
   }
 
   td.handle {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 
   td.count {
     padding: 5px 15px;
-  }
-
-  .handle-content {
-    align-items: center;
-    display: grid;
-    grid-template-columns: auto minmax(0, 1fr);
-    max-width: 100%;
-  }
-
-  .handle-link {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+    text-align: right;
   }
 
   .avatar {
     width: 24px;
     height: 24px;
     border-radius: 14px;
+    vertical-align: middle;
     margin-right: 2px;
     padding: 2px;
   }
