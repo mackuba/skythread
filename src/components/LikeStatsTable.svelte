@@ -12,8 +12,10 @@
     {#each users as user, i}
       <tr>
         <td class="no">{i + 1}</td>
-        <td class="handle"><img class="avatar" alt="Avatar" src="{user.avatar}">
-          <a href="https://bsky.app/profile/{user.handle}" target="_blank">{user.handle}</a>
+        <td class="handle"><div class="handle-content">
+          <img class="avatar" alt="Avatar" src="{user.avatar}">
+          <a class="handle-link" href="https://bsky.app/profile/{user.handle}" target="_blank">{user.handle}</a>
+        </div>
         </td>
         <td class="count">{user.count}</td>
       </tr>
@@ -27,8 +29,6 @@
     border-collapse: collapse;
     margin: 20px auto 40px;
     width: 100%;
-    margin-top: 20px;
-    margin-bottom: 20px;
   }
 
   td, th {
@@ -48,20 +48,29 @@
   }
 
   td.handle {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
   }
 
   td.count {
     padding: 5px 15px;
   }
 
+  .handle-content {
+    align-items: center;
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    max-width: 100%;
+  }
+
+  .handle-link {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
   .avatar {
     width: 24px;
     height: 24px;
     border-radius: 14px;
-    vertical-align: middle;
     margin-right: 2px;
     padding: 2px;
   }

@@ -113,7 +113,6 @@
 
   .table-pane {
     min-width: 0;
-    overflow-x: auto;
   }
 
   .load-more {
