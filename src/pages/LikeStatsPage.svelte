@@ -37,33 +37,33 @@
 </script>
 
 <main>
-<h2>Like statistics</h2>
+  <h2>Like statistics</h2>
 
-<form onsubmit={startScan}>
-  <p>
-    Time range: <input id="like_stats_range" type="range" min="1" max="60" bind:value={timeRangeDays}>
-    <label for="like_stats_range">{numberOfDays(timeRangeDays)}</label>
-  </p>
+  <form onsubmit={startScan}>
+    <p>
+      Time range: <input id="like_stats_range" type="range" min="1" max="60" bind:value={timeRangeDays}>
+      <label for="like_stats_range">{numberOfDays(timeRangeDays)}</label>
+    </p>
 
-  <p>
-    <input type="submit" value="{scanInProgress ? 'Cancel' : 'Start scan'}">
+    <p>
+      <input type="submit" value="{scanInProgress ? 'Cancel' : 'Start scan'}">
 
-    {#if scanInProgress}
-      <progress value={progress} style="display: inline;"></progress>
-    {/if}
-  </p>
-</form>
+      {#if scanInProgress}
+        <progress value={progress} style="display: inline;"></progress>
+      {/if}
+    </p>
+  </form>
 
-{#if givenLikesUsers && receivedLikesUsers}
-  <div class="like-stats-results">
-    <div class="table-pane">
-      <LikeStatsTable cssClass="given-likes" header="❤️ Likes from you:" users={givenLikesUsers} />
+  {#if givenLikesUsers && receivedLikesUsers}
+    <div class="like-stats-results">
+      <div class="table-pane">
+        <LikeStatsTable cssClass="given-likes" header="❤️ Likes from you:" users={givenLikesUsers} />
+      </div>
+      <div class="table-pane">
+        <LikeStatsTable cssClass="received-likes" header="💛 Likes on your posts:" users={receivedLikesUsers} />
+      </div>
     </div>
-    <div class="table-pane">
-      <LikeStatsTable cssClass="received-likes" header="💛 Likes on your posts:" users={receivedLikesUsers} />
-    </div>
-  </div>
-{/if}
+  {/if}
 </main>
 
 <style>
