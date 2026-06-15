@@ -1,8 +1,8 @@
 <script lang="ts">
   import { getPostContext } from '../posts/PostComponent.svelte';
-  import { InlineImageEmbed, RawImageEmbed } from '../../models/embeds';
+  import { InlineGalleryEmbed, InlineImageEmbed, RawGalleryEmbed, RawImageEmbed } from '../../models/embeds';
 
-  let { embed }: { embed: InlineImageEmbed | RawImageEmbed } = $props();
+  let { embed }: { embed: InlineImageEmbed | RawImageEmbed | InlineGalleryEmbed | RawGalleryEmbed } = $props();
   let { post } = getPostContext();
 
   function imageURL(img: json): string {

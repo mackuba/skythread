@@ -1,7 +1,7 @@
 <script lang="ts">
   import {
-    Embed, RawRecordEmbed, RawRecordWithMediaEmbed, RawImageEmbed, RawLinkEmbed, RawVideoEmbed,
-    InlineRecordEmbed, InlineRecordWithMediaEmbed, InlineImageEmbed, InlineLinkEmbed, InlineVideoEmbed
+    Embed, RawRecordEmbed, RawRecordWithMediaEmbed, RawImageEmbed, RawGalleryEmbed, RawLinkEmbed, RawVideoEmbed,
+    InlineRecordEmbed, InlineRecordWithMediaEmbed, InlineImageEmbed, InlineGalleryEmbed, InlineLinkEmbed, InlineVideoEmbed
   } from '../../models/embeds.js';
 
   import EmbedComponent from './EmbedComponent.svelte';
@@ -23,7 +23,7 @@
     <QuoteComponent record={embed.record} />
   </div>
 
-{:else if embed instanceof RawImageEmbed || embed instanceof InlineImageEmbed}
+{:else if embed instanceof RawImageEmbed || embed instanceof InlineImageEmbed || embed instanceof RawGalleryEmbed || embed instanceof InlineGalleryEmbed}
   <ImagesComponent {embed} />
 
 {:else if embed instanceof RawLinkEmbed || embed instanceof InlineLinkEmbed}

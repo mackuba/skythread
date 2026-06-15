@@ -27,6 +27,9 @@ export class Embed {
     case 'app.bsky.embed.images#view':
       return new InlineImageEmbed(json);
 
+    case 'app.bsky.embed.gallery#view':
+      return new InlineGalleryEmbed(json);
+
     case 'app.bsky.embed.external#view':
       return new InlineLinkEmbed(json);
 
@@ -60,6 +63,9 @@ export class Embed {
     case 'app.bsky.embed.images':
       return new RawImageEmbed(json);
 
+    case 'app.bsky.embed.gallery':
+      return new RawGalleryEmbed(json);
+
     case 'app.bsky.embed.external':
       return new RawLinkEmbed(json);
 
@@ -87,6 +93,22 @@ export class Embed {
   }
 }
 
+/**
+ * @param {json[] | undefined} items
+ * @param {string} imageType
+ * @returns {json[]}
+ */
+function filterGalleryItems(items, imageType) {
+  return (items ?? []).filter(item => {
+    if (item.$type == imageType) {
+      return true;
+    } else {
+      console.error('Unexpected gallery item type:', item.$type);
+      return false;
+    }
+  });
+}
+
 export class RawImageEmbed extends Embed {
 
   /** @type {json[]} */
@@ -96,6 +118,18 @@ export class RawImageEmbed extends Embed {
   constructor(json) {
     super(json);
     this.images = json.images;
+  }
+}
+
+export class RawGalleryEmbed extends Embed {
+
+  /** @type {json[]} */
+  images;
+
+  /** @param {json} json */
+  constructor(json) {
+    super(json);
+    this.images = filterGalleryItems(json.items, 'app.bsky.embed.gallery#image');
   }
 }
 
@@ -234,6 +268,21 @@ export class InlineImageEmbed extends Embed {
   constructor(json) {
     super(json);
     this.images = json.images;
+  }
+}
+
+export class InlineGalleryEmbed extends Embed {
+
+  /** @type {json[]} */
+  images;
+
+  /**
+   * app.bsky.embed.gallery#view
+   * @param {json} json
+   */
+  constructor(json) {
+    super(json);
+    this.images = filterGalleryItems(json.items, 'app.bsky.embed.gallery#viewImage');
   }
 }
 
