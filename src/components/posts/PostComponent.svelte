@@ -123,6 +123,13 @@
     <PostTagsRow />
   {/if}
 
+  {#if post.hasBeenEdited}
+    <details class="original-text">
+      <summary>Edited – show original text:</summary>
+      <p class="body original-body">{post.originalText}</p>
+    </details>
+  {/if}
+
   {#if post.embed && shouldRenderEmbed(post.embed)}
     <EmbedComponent embed={post.embed} />
   {/if}
@@ -240,6 +247,20 @@
     user-select: none;
     -webkit-user-select: none;
     cursor: default;
+  }
+
+  .original-text {
+    margin-top: 20px;
+    margin-bottom: 20px;
+  }
+
+  .original-text summary {
+    font-size: 11pt;
+    color: #e06000;
+  }
+
+  .original-body {
+    font-size: 11pt;
   }
 
   .missing-replies-info {

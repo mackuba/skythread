@@ -441,6 +441,16 @@ export class Post extends BasePost {
     return !!(this.data.threadgate && this.data.threadgate.record.allow !== undefined && this.data.threadgate.record.allow.length == 0);
   }
 
+  /** @returns {boolean} */
+  get hasBeenEdited() {
+    return !!(this.record.originalText);
+  }
+
+  /** @returns {string | undefined} */
+  get originalText() {
+    return this.record.originalText;
+  }
+
   /** @returns {number} */
   get repostCount() {
     return castToInt(this.data.repostCount);
