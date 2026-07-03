@@ -115,6 +115,17 @@ export class BlueskyAPI extends Minisky {
   }
 
   async autocompleteUsers(query: string): Promise<json[]> {
+    if (query.match(/^did:(plc|web):/)) {
+      try {
+        let profile = await this.loadUserProfile(query);
+        return [profile];
+      } catch (error) {
+        if (!(error instanceof APIError && error.code == 400)) {
+          throw error;
+        }
+      }
+    }
+
     let json = await this.getRequest('app.bsky.actor.searchActorsTypeahead', { q: query });
     return json.actors;
   }
