@@ -2,10 +2,20 @@
   import { RichText, type Facet } from '../../lib/rich_text_lite.js';
   import { linkToHashtagPage } from '../router.js';
   import { isValidURL } from '../utils.js';
+  import { CodeMarkupParser } from '../utils/code_markup_parser.js';
+  import PlainTextWithCode from './PlainTextWithCode.svelte';
 
-  let { text, facets }: { text: string, facets: Facet[] } = $props();
+  type Props = {
+    text: string;
+    facets: Facet[] | undefined;
+    renderCode?: boolean;
+  }
 
-  let richText = $derived(new RichText({ text, facets }));
+  let { text, facets, renderCode = false }: Props = $props();
+
+  let parser = $derived(new CodeMarkupParser(text));
+  let filteredFacets = $derived(renderCode ? parser.removeFacetsInCodeSegments(facets) : facets);
+  let richText = $derived(new RichText({ text, facets: filteredFacets }));
   let segments = $derived(richText.segments());
 </script>
 
@@ -21,10 +31,6 @@
   {:else if segment.tag}
     <a href={linkToHashtagPage(segment.tag.tag)}>{segment.text}</a>
   {:else}
-    {@const lines = segment.text.split("\n")}
-
-    {#each lines as line, i}
-      {#if i > 0}<br>{/if}{line}
-    {/each}
+    <PlainTextWithCode text={segment.text} {renderCode} />
   {/if}
 {/each}

@@ -67,12 +67,17 @@
     {@html sanitizeHTML(post.originalFediContent)}
   </div>
 {:else}
-  <p class="body" bind:this={mainElement}>
-    <RichTextFromFacets text={post.text} facets={post.facets as Facet[]} />
-  </p>
+  <div class="body" bind:this={mainElement}>
+    <RichTextFromFacets text={post.text} facets={post.facets as Facet[] | undefined} renderCode={true} />
+  </div>
 {/if}
 
 <style>
+  div.body {
+    margin-top: 10px;
+    margin-bottom: 1em;
+  }
+
   .bridged-body :global(p + p) {
     margin-top: 18px;
   }
