@@ -1,6 +1,6 @@
 import type { ByteSlice, Facet } from '../../lib/rich_text_lite.js';
 
-type Segment = {
+export type Segment = {
   kind: 'text' | 'inlineCode' | 'codeBlock';
   text: string;
   start: number;
@@ -16,7 +16,7 @@ type Line = {
 }
 
 const encoder = new TextEncoder();
-const codeBlockOpen = /^```([A-Za-z0-9\+\.\-]+)?$/;
+const codeBlockOpen = /^```([A-Za-z0-9\+\.\-#]+)?$/;
 const codeBlockClose = /^```$/;
 
 export class CodeMarkupParser {

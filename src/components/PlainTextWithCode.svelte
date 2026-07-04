@@ -1,10 +1,16 @@
 <script lang="ts">
-  import { CodeMarkupParser } from '../utils/code_markup_parser.js';
+  import { sanitizeHTML } from '../utils.js';
+  import { highlightCodeBlock } from '../utils/code_highlighter.js';
+  import { CodeMarkupParser, type Segment } from '../utils/code_markup_parser.js';
 
   let { text, renderCode = false }: { text: string, renderCode?: boolean } = $props();
 
   let parser = $derived(new CodeMarkupParser(text));
   let segments = $derived(renderCode ? parser.segments() : [parser.asSingleSegment()]);
+
+  function codeBlockClass(segment: Segment): string {
+    return segment.language ? `language-${segment.language}` : "";
+  }
 </script>
 
 {#each segments as segment}
@@ -17,7 +23,13 @@
   {:else if segment.kind == 'inlineCode'}
     <code>{segment.text}</code>
   {:else}
-    <pre><code class={segment.language ? `language-${segment.language}` : undefined}>{segment.text}</code></pre>
+    {@const result = highlightCodeBlock(segment.text, segment.language)}
+
+    {#if result.kind == 'highlighted'}
+      <pre><code class={codeBlockClass(segment)}>{@html sanitizeHTML(result.html)}</code></pre>
+    {:else}
+      <pre><code>{result.text}</code></pre>
+    {/if}
   {/if}
 {/each}
 
@@ -47,6 +59,41 @@
     white-space: pre;
   }
 
+  pre code :global(.hljs-keyword),
+  pre code :global(.hljs-selector-tag),
+  pre code :global(.hljs-title.function_) {
+    color: #9d174d;
+  }
+
+  pre code :global(.hljs-built_in),
+  pre code :global(.hljs-title.class_),
+  pre code :global(.hljs-type) {
+    color: #7c3aed;
+  }
+
+  pre code :global(.hljs-string),
+  pre code :global(.hljs-attr),
+  pre code :global(.hljs-symbol) {
+    color: #047857;
+  }
+
+  pre code :global(.hljs-number),
+  pre code :global(.hljs-literal) {
+    color: #b45309;
+  }
+
+  pre code :global(.hljs-comment),
+  pre code :global(.hljs-quote) {
+    color: #6b7280;
+    font-style: italic;
+  }
+
+  pre code :global(.hljs-meta),
+  pre code :global(.hljs-tag),
+  pre code :global(.hljs-name) {
+    color: #0369a1;
+  }
+
   @media (prefers-color-scheme: dark) {
     code {
       background-color: rgba(255, 255, 255, 0.12);
@@ -54,6 +101,40 @@
 
     pre {
       background-color: rgba(255, 255, 255, 0.1);
+    }
+
+    pre code :global(.hljs-keyword),
+    pre code :global(.hljs-selector-tag),
+    pre code :global(.hljs-title.function_) {
+      color: #f472b6;
+    }
+
+    pre code :global(.hljs-built_in),
+    pre code :global(.hljs-title.class_),
+    pre code :global(.hljs-type) {
+      color: #c4b5fd;
+    }
+
+    pre code :global(.hljs-string),
+    pre code :global(.hljs-attr),
+    pre code :global(.hljs-symbol) {
+      color: #6ee7b7;
+    }
+
+    pre code :global(.hljs-number),
+    pre code :global(.hljs-literal) {
+      color: #fbbf24;
+    }
+
+    pre code :global(.hljs-comment),
+    pre code :global(.hljs-quote) {
+      color: #9ca3af;
+    }
+
+    pre code :global(.hljs-meta),
+    pre code :global(.hljs-tag),
+    pre code :global(.hljs-name) {
+      color: #7dd3fc;
     }
   }
 </style>
