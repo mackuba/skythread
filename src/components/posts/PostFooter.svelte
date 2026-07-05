@@ -88,7 +88,7 @@
   {/if}
 
   {#if post.isRestrictingReplies}
-    {@const label = (post.hasDisabledReplies) ? "Disabled replies" : "Limited replies"}
+    {let label = (post.hasDisabledReplies) ? "Disabled replies" : "Limited replies"}
 
     {#if placement == 'thread'}
       <span><i class="fa-solid fa-ban"></i> {label}</span>

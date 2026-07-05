@@ -10,7 +10,7 @@
 
 {#each segments as segment}
   {#if segment.kind == 'text'}
-    {@const lines = segment.text.split("\n")}
+    {let lines = segment.text.split("\n")}
 
     {#each lines as line, i}
       {#if i > 0}<br>{/if}{line}
