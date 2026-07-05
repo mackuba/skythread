@@ -1,6 +1,6 @@
 import type { ByteSlice, Facet } from '../../lib/rich_text_lite.js';
 
-export type Segment = {
+type Segment = {
   kind: 'text' | 'inlineCode' | 'codeBlock';
   text: string;
   start: number;
