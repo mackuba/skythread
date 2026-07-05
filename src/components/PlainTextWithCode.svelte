@@ -1,15 +1,37 @@
 <script lang="ts">
   import { sanitizeHTML } from '../utils.js';
-  import { highlightCodeBlock } from '../utils/code_highlighter.js';
   import { CodeMarkupParser, type Segment } from '../utils/code_markup_parser.js';
 
   let { text, renderCode = false }: { text: string, renderCode?: boolean } = $props();
 
   let parser = $derived(new CodeMarkupParser(text));
   let segments = $derived(renderCode ? parser.segments() : [parser.asSingleSegment()]);
+  let highlighterLoaded = $state(window.Highlighter != null);
+
+  $effect(() => {
+    function onHighlighterLoaded() {
+      highlighterLoaded = true;
+    }
+
+    window.addEventListener('highlighter-loaded', onHighlighterLoaded);
+    return () => window.removeEventListener('highlighter-loaded', onHighlighterLoaded);
+  });
 
   function codeBlockClass(segment: Segment): string {
     return segment.language ? `language-${segment.language}` : "";
+  }
+
+  function highlightCodeBlock(segment: Segment): CodeHighlightResult {
+    if (segment.kind == 'codeBlock') {
+      highlighterLoaded;
+
+      return window.Highlighter?.highlightCodeBlock(segment.text, segment.language) ?? {
+        kind: 'plain',
+        text: segment.text
+      };
+    } else {
+      return { kind: 'plain', text: segment.text };
+    }
   }
 </script>
 
@@ -23,7 +45,7 @@
   {:else if segment.kind == 'inlineCode'}
     <code>{segment.text}</code>
   {:else}
-    {@const result = highlightCodeBlock(segment.text, segment.language)}
+    {@const result = highlightCodeBlock(segment)}
 
     {#if result.kind == 'highlighted'}
       <pre><code class={codeBlockClass(segment)}>{@html sanitizeHTML(result.html)}</code></pre>
