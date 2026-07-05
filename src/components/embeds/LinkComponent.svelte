@@ -4,6 +4,8 @@
   import GIFPlayer from './GIFPlayer.svelte';
   import { InlineLinkEmbed, RawLinkEmbed } from '../../models/embeds.js';
 
+  const GIF_DOMAINS = ['media.tenor.com', 'static.klipy.com', 'media.giphy.com'];
+
   let { embed }: { embed: InlineLinkEmbed | RawLinkEmbed } = $props();
   let { post } = getPostContext();
 
@@ -23,7 +25,7 @@
   });
 
   function onClick(e: Event, url: URL) {
-    if (url.hostname == 'media.tenor.com' && thumbnailURL) {
+    if (GIF_DOMAINS.includes(url.hostname) && thumbnailURL) {
       e.preventDefault();
       displayedGIF = { gif: url.href, thumb: thumbnailURL };
     }
