@@ -15,14 +15,17 @@ export function feedPostTime(feedPost: json): number {
   return Date.parse(timestamp);
 }
 
-export function isValidURL(url: string): boolean {
+export function parseHTTPURL(url: string): URL | undefined {
   try {
     let u = new URL(url);
-    return (u.protocol == 'http:' || u.protocol == 'https:');
-  } catch (error) {
-    console.error("Invalid URL: " + error);
-    return false;
+    return (u.protocol == 'http:' || u.protocol == 'https:') ? u : undefined;
+  } catch {
+    return undefined;
   }
+}
+
+export function isValidURL(url: string): boolean {
+  return parseHTTPURL(url) !== undefined;
 }
 
 export function sameDay(date1: Date, date2: Date): boolean {

@@ -144,6 +144,9 @@ export class RawLinkEmbed extends Embed {
   /** @type {json | undefined} */
   thumb;
 
+  /** @type {string | undefined} */
+  description;
+
   /** @param {json} json */
   constructor(json) {
     super(json);
@@ -151,6 +154,7 @@ export class RawLinkEmbed extends Embed {
     this.url = json.external.uri;
     this.title = json.external.title;
     this.thumb = json.external.thumb;
+    this.description = json.external.description;
   }
 }
 
@@ -159,10 +163,14 @@ export class RawVideoEmbed extends Embed {
   /** @type {json | undefined} */
   video;
 
+  /** @type {string | undefined} */
+  alt;
+
   /** @param {json} json */
   constructor(json) {
     super(json);
     this.video = json.video;
+    this.alt = json.alt;
   }
 }
 
@@ -239,7 +247,7 @@ export class InlineLinkEmbed extends Embed {
   /** @type {string | undefined} */
   description;
 
-  /** @type {json | undefined} */
+  /** @type {string | undefined} */
   thumb;
 
   /**

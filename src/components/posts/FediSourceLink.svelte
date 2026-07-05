@@ -1,14 +1,18 @@
 <script lang="ts">
+  import { parseHTTPURL } from '../../utils.js';
+
   let { url }: { url: string } = $props();
 
-  let hostname = $derived(new URL(url).hostname);
+  let parsedURL = $derived(parseHTTPURL(url));
 </script>
 
-<a class="fedi-link" href={url} target="_blank">
-  <div>
-    <i class="fa-solid fa-arrow-up-right-from-square fa-sm"></i> View on {hostname}
-  </div>
-</a>
+{#if parsedURL}
+  <a class="fedi-link" href={parsedURL.href} target="_blank" rel="noopener noreferrer">
+    <div>
+      <i class="fa-solid fa-arrow-up-right-from-square fa-sm"></i> View on {parsedURL.hostname}
+    </div>
+  </a>
+{/if}
 
 <style>
   .fedi-link {
