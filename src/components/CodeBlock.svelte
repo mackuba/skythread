@@ -35,21 +35,22 @@
 <style>
   pre {
     overflow-x: auto;
-    max-width: 100%;
-    margin: 10px 0;
+    max-width: 60em;
     padding: 8px 10px;
     border-radius: 6px;
-    background-color: rgba(0, 0, 0, 0.07);
+    background-color: rgba(0, 0, 0, 0.06);
+    border: 1px solid rgba(0, 0, 0, 0.06);
   }
 
   code {
     display: block;
-    font-family: ui-monospace, "SFMono-Regular", "SF Mono", Consolas, "Liberation Mono", Menlo, monospace;
-    font-size: 0.92em;
+    font-family: ui-monospace, "Consolas", "Liberation Mono", "Menlo", monospace;
+    font-size: 0.88em;
     background-color: transparent;
     border-radius: 0;
     padding: 0;
     white-space: pre;
+    line-height: 150%;
   }
 
   code :global(.hljs-keyword),
@@ -90,6 +91,7 @@
   @media (prefers-color-scheme: dark) {
     pre {
       background-color: rgba(255, 255, 255, 0.1);
+      border-color: rgba(255, 255, 255, 0.1);
     }
 
     code :global(.hljs-keyword),

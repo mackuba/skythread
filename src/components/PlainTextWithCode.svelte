@@ -24,16 +24,19 @@
 
 <style>
   code {
-    font-family: ui-monospace, "SFMono-Regular", "SF Mono", Consolas, "Liberation Mono", Menlo, monospace;
-    font-size: 0.92em;
-    background-color: rgba(0, 0, 0, 0.07);
+    font-family: ui-monospace, "Consolas", "Liberation Mono", "Menlo", monospace;
+    font-size: 0.88em;
+    background-color: rgba(0, 0, 0, 0.06);
+    border: 1px solid rgba(0, 0, 0, 0.06);
     border-radius: 4px;
     padding: 1px 3px;
+    margin-inline: 2px;
   }
 
   @media (prefers-color-scheme: dark) {
     code {
       background-color: rgba(255, 255, 255, 0.12);
+      border-color: rgba(255, 255, 255, 0.1);
     }
   }
 </style>
