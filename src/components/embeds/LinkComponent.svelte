@@ -9,9 +9,8 @@
   let { embed }: { embed: InlineLinkEmbed | RawLinkEmbed } = $props();
   let { post } = getPostContext();
 
-  let displayedGIF: { gif: string, thumb: string} | undefined = $state();
-
   let parsedURL = $derived(embed.url ? parseHTTPURL(embed.url) : undefined);
+  let isGIF = $derived(parsedURL ? GIF_DOMAINS.includes(parsedURL.hostname) : false);
 
   let thumbnailURL = $derived.by(() => {
     if (embed instanceof RawLinkEmbed && embed.thumb) {
@@ -23,20 +22,13 @@
 
     return undefined;
   });
-
-  function onClick(e: Event, url: URL) {
-    if (GIF_DOMAINS.includes(url.hostname) && thumbnailURL) {
-      e.preventDefault();
-      displayedGIF = { gif: url.href, thumb: thumbnailURL };
-    }
-  }
 </script>
 
-{#if displayedGIF}
-  <GIFPlayer gifURL={displayedGIF.gif} staticURL={displayedGIF.thumb} alt={embed.title} />
-{:else}
-  {#if parsedURL}
-    <a class="link-card" href={parsedURL.href} target="_blank" rel="noopener" onclick={(e) => onClick(e, parsedURL)}>
+{#if parsedURL}
+  {#if isGIF && thumbnailURL}
+    <GIFPlayer gifURL={parsedURL.href} staticURL={thumbnailURL} title={embed.title} description={embed.description} />
+  {:else}
+    <a class="link-card" href={parsedURL.href} target="_blank" rel="noopener">
       <div>
         <p class="domain">{parsedURL.hostname}</p>
         <h2>{embed.title || embed.url}</h2>
@@ -46,9 +38,9 @@
         {/if}
       </div>
     </a>
-  {:else}
-    <p>
-      [Link: {embed.url}]
-    </p>
   {/if}
+{:else}
+  <p>
+    [Link: {embed.url}]
+  </p>
 {/if}
