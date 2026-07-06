@@ -1,6 +1,4 @@
 <script lang="ts">
-  import { truncateText } from '../../utils.js';
-
   type Props = {
     gifURL: string;
     staticURL: string;
@@ -16,6 +14,14 @@
 
   let maxWidth = $state(500);
   let maxHeight = $state(200);
+
+  let altText = $derived.by(() => {
+    if (description && description.match(/^alt: /i) && description.slice(5) != title) {
+      return description.slice(5);
+    } else {
+      return title;
+    }
+  });
 
   function showGIF() {
     showsPlaceholder = false;
@@ -50,68 +56,54 @@
     </button>
   </div>
 {:else}
-  <button class="gif-card" type="button" onclick={showGIF}>
-    <div>
-      <h2>{title}</h2>
-
-      {#if description}
-        <p class="description">{truncateText(description, 300)}</p>
-      {/if}
-    </div>
+  <button class="placeholder" type="button" onclick={showGIF}>
+    <h2>GIF</h2>
+    <p class="alt">{altText}</p>
   </button>
 {/if}
 
 <style>
-  .gif-toggle {
+  .placeholder {
     appearance: none;
-    background: none;
-    border: 0;
-    padding: 0;
-    cursor: pointer;
-  }
-
-  .gif-card {
-    appearance: none;
-    text-align: left;
     display: block;
-    background: none;
-    border: 0;
-    padding: 0;
-    max-width: 500px;
+    width: 250px;
+    padding: 25px 20px;
+    min-height: 125px;
     margin-bottom: 12px;
     cursor: pointer;
-  }
-
-  .gif-card > div {
     background-color: #fcfcfd;
     border: 1px solid #d8d8d8;
     border-radius: 8px;
-    padding: 11px 15px;
   }
 
-  .gif-card:hover > div {
+  .placeholder:hover {
     background-color: #f6f7f8;
     border: 1px solid #c8c8c8;
   }
 
-  .gif-card > div:not(:has(p.description)) {
-    padding-bottom: 14px;
-  }
-
-  .gif-card h2 {
-    color: #333;
-    font-size: 12pt;
+  .placeholder h2 {
+    color: #666;
+    font-size: 11pt;
     margin-top: 0;
     margin-bottom: 0;
+    font-weight: 600;
   }
 
-  .gif-card p.description {
+  .placeholder p.alt {
     color: #666;
     font-size: 11pt;
     margin-top: 8px;
     margin-bottom: 4px;
     line-height: 135%;
     white-space: pre-line;
+  }
+
+  .gif-toggle {
+    appearance: none;
+    background: none;
+    border: 0;
+    padding: 0;
+    cursor: pointer;
   }
 
   .gif img {
@@ -124,21 +116,21 @@
   }
 
   @media (prefers-color-scheme: dark) {
-    .gif-card > div {
+    .placeholder {
       background-color: #303030;
       border-color: #606060;
     }
 
-    .gif-card:hover > div {
+    .placeholder:hover {
       background-color: #383838;
       border-color: #707070;
     }
 
-    .gif-card h2 {
-      color: #ccc;
+    .placeholder h2 {
+      color: #bbb;
     }
 
-    .gif-card p.description {
+    .placeholder p.alt {
       color: #888;
     }
   }
