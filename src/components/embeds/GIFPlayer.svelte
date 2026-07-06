@@ -43,26 +43,33 @@
   }
 </script>
 
-{#if !showsPlaceholder}
-  <div class="gif">
-    <button class="gif-toggle" type="button" aria-label={paused ? 'Play GIF' : 'Pause GIF'} {onclick}>
+<div class="gif-player">
+  {#if showsPlaceholder || !loaded}
+    <button type="button" onclick={showGIF} class="placeholder {showsPlaceholder ? '' : 'loading'}">
+      <h2>GIF</h2>
+      <p class="alt">{altText}</p>
+    </button>
+  {/if}
+
+  {#if !showsPlaceholder}
+    <button type="button" class="gif-wrapper" class:loading={!loaded} {onclick}
+      aria-label={paused ? 'Play GIF' : 'Pause GIF'}>
+
       <img src={paused ? staticURL : gifURL}
         class={paused ? 'static' : ''}
         alt={title ? `GIF: ${title}` : "GIF animation"}
         {onload}
-        style:opacity={loaded ? 1 : 0}
         style:max-width="{maxWidth}px"
         style:max-height="{maxHeight}px">
     </button>
-  </div>
-{:else}
-  <button class="placeholder" type="button" onclick={showGIF}>
-    <h2>GIF</h2>
-    <p class="alt">{altText}</p>
-  </button>
-{/if}
+  {/if}
+</div>
 
 <style>
+  .gif-player {
+    position: relative;
+  }
+
   .placeholder {
     appearance: none;
     display: block;
@@ -79,6 +86,10 @@
   .placeholder:hover {
     background-color: #f6f7f8;
     border: 1px solid #c8c8c8;
+  }
+
+  .placeholder.loading {
+    visibility: hidden;
   }
 
   .placeholder h2 {
@@ -98,7 +109,7 @@
     white-space: pre-line;
   }
 
-  .gif-toggle {
+  .gif-wrapper {
     appearance: none;
     background: none;
     border: 0;
@@ -106,13 +117,18 @@
     cursor: pointer;
   }
 
-  .gif img {
+  .gif-wrapper.loading {
+    position: absolute;
+    opacity: 0;
+  }
+
+  .gif-wrapper img {
     user-select: none;
     -webkit-user-select: none;
   }
 
-  .gif img.static {
-    opacity: 0.75;
+  .gif-wrapper img.static {
+    opacity: 0.8;
   }
 
   @media (prefers-color-scheme: dark) {
