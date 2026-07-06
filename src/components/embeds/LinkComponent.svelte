@@ -4,13 +4,13 @@
   import GIFPlayer from './GIFPlayer.svelte';
   import { InlineLinkEmbed, RawLinkEmbed } from '../../models/embeds.js';
 
-  const GIF_DOMAINS = ['media.tenor.com', 'static.klipy.com', 'media.giphy.com'];
+  const GIF_DOMAINS = [/^media\.tenor\.com$/, /^static\.klipy\.com$/, /^media[0-9]?\.giphy\.com/];
 
   let { embed }: { embed: InlineLinkEmbed | RawLinkEmbed } = $props();
   let { post } = getPostContext();
 
   let parsedURL = $derived(embed.url ? parseHTTPURL(embed.url) : undefined);
-  let isGIF = $derived(parsedURL ? GIF_DOMAINS.includes(parsedURL.hostname) : false);
+  let isGIF = $derived(parsedURL ? GIF_DOMAINS.some(d => d.test(parsedURL.hostname)) : false);
 
   let thumbnailURL = $derived.by(() => {
     if (embed instanceof RawLinkEmbed && embed.thumb) {
