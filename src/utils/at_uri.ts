@@ -1,4 +1,4 @@
-import { URLError } from '../api.js';
+import { URLError } from '../api/errors.js';
 
 export class AtURI {
   repo: string;

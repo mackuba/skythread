@@ -1,6 +1,6 @@
 <script lang="ts">
   import { getPostContext } from './PostComponent.svelte';
-  import { sanitizeHTML } from '../../utils.js';
+  import { sanitizeHTML } from '../../utils/sanitize.js';
   import { type Facet } from '../../../lib/rich_text_lite.js';
   import RichTextFromFacets from '../RichTextFromFacets.svelte';
 

@@ -1,7 +1,8 @@
 import { AuthenticatedAPI } from "./api/authenticated_api";
 import { BluefeedsAPI } from "./api/bluefeeds_api";
-import { BlueskyAPI, URLError } from "./api/bluesky_api";
+import { BlueskyAPI } from "./api/bluesky_api";
 import { ConstellationAPI } from "./api/constellation_api";
+import { URLError } from "./api/errors";
 import { APIError, Minisky } from "./api/minisky";
 import { settings } from "./models/settings.svelte";
 

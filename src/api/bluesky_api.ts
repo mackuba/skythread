@@ -1,12 +1,14 @@
 import { HandleCache } from './handle_cache.js';
 import { appView, blueAPI, constellationAPI, slingshotAPI } from '../api.js';
 import { APIError, Minisky, type FetchAllOnPageLoad, type MiniskyConfig, type MiniskyOptions, type MiniskyRequestOptions } from './minisky.js';
+import { URLError } from './errors.js';
 import { atURI, feedPostTime } from '../utils.js';
 import { Post } from '../models/posts.js';
 import { parseBlueskyPostURL } from '../router.js';
 import { pdsEndpointForDID } from './identity.js';
 
 export { APIError };
+export { URLError };
 
 export const blueskyLabellerDID = 'did:plc:ar7c4by46qjdydhdevvrndac';
 
@@ -15,16 +17,6 @@ export const blueskyLabellerDID = 'did:plc:ar7c4by46qjdydhdevvrndac';
  */
 
 export class ResponseDataError extends Error {}
-
-/**
- * Thrown when the passed URL is not a supported post URL on bsky.app.
- */
-
-export class URLError extends Error {
-  constructor(message: string) {
-    super(message);
-  }
-}
 
 type AuthorFeedFilter =
   | 'posts_with_replies'          // posts, replies and reposts (default)

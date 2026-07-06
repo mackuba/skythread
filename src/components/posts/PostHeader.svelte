@@ -1,6 +1,6 @@
 <script lang="ts">
   import { getPostContext } from './PostComponent.svelte';
-  import { avatarPreloader } from '../../utils.js';
+  import { avatarPreloader } from '../../utils/avatar_preloader.js';
   import { PostPresenter } from '../../utils/post_presenter.js';
   import PostSubtreeLink from './PostSubtreeLink.svelte';
   import ProfilePopover from '../ProfilePopover.svelte';

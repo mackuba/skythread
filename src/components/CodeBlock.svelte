@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { sanitizeHTML } from '../utils.js';
+  import { sanitizeHTML } from '../utils/sanitize.js';
 
   let { text, language }: { text: string, language?: string | undefined } = $props();
 
