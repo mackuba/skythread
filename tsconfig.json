@@ -20,5 +20,5 @@
     "noUnusedParameters": true,
     "useUnknownInCatchVariables": false,
   },
-  "include": ["src/**/*.js", "src/**/*.ts", "lib/**/*.d.ts"]
+  "include": ["src/**/*.js", "src/**/*.ts", "lib/**/*.d.ts", "tests/**/*.ts"]
 }
