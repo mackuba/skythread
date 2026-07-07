@@ -517,7 +517,13 @@ export class BlockedPost extends BasePost {
  * Stub of a post which was deleted or hidden.
  */
 
-export class MissingPost extends BasePost {}
+export class MissingPost extends BasePost {
+
+  /** @returns {boolean} */
+  get isBskyPost() {
+    return atURI(this.uri).collection == 'app.bsky.feed.post';
+  }
+}
 
 
 /**

@@ -6,6 +6,6 @@
 </script>
 
 <p class="blocked-header">
-  <i class="fa-solid fa-ban"></i> <span>Deleted post</span>
+  <i class="fa-solid fa-ban"></i> <span>Deleted {post.isBskyPost ? 'post' : 'record'}</span>
   <ReferencedPostAuthorLink {post} />
 </p>
