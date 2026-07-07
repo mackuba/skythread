@@ -23,7 +23,7 @@
       if (reloaded) {
         return new Post(reloaded);
       } else {
-        return new MissingPost(post.data);
+        return new MissingPost(record.data);
       }
     } else {
       let reloadedPost = await api.loadPostIfExists(post.uri).then(x => x && new Post(x));
