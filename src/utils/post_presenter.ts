@@ -35,6 +35,7 @@ export class PostPresenter {
 
   get formattedTimestamp() {
     let timeFormat = this.timeFormatForTimestamp;
-    return this.post.createdAt.toLocaleString(settings.dateLocale, timeFormat);
+    let formatted = this.post.createdAt.toLocaleString(settings.dateLocale, timeFormat);
+    return formatted.replace(/(\d) (am|pm)$/i, "$1 $2");
   }
 }
