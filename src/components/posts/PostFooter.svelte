@@ -42,6 +42,10 @@
   }
 
   async function likePost() {
+    if (likeCount === null || likeCount === undefined) {
+      throw 'Missing current like status';
+    }
+
     if (!isLiked) {
       let like = await accountAPI.likePost(post);
       post.viewerLike = like.uri;
@@ -49,6 +53,8 @@
       isLiked = true;
       likeCount += 1;
     } else {
+      if (!post.viewerLike) { throw 'Missing current like status'; }
+
       await accountAPI.removeLike(post.viewerLike);
       post.viewerLike = undefined;
 
@@ -63,11 +69,11 @@
     <i class="fa-solid fa-heart {isLiked ? 'liked' : ''}" onclick={onHeartClick}></i> <output>{likeCount}</output>
   </span>
 
-  {#if post.repostCount > 0}
+  {#if post.repostCount && post.repostCount > 0}
     <span><i class="fa-solid fa-retweet"></i> {post.repostCount}</span>
   {/if}
 
-  {#if post.replyCount > 0 && (placement == 'quotes' || placement == 'feed')}
+  {#if post.replyCount && post.replyCount > 0 && (placement == 'quotes' || placement == 'feed')}
     <span>
       <i class="fa-regular fa-message"></i>
       <a href="{linkToPostThread(post)}">{pluralize(post.replyCount, 'reply', 'replies')}</a>

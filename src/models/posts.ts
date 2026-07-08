@@ -8,13 +8,10 @@ import { Embed } from './embeds.js';
  */
 
 export class PostDataError extends Error {
-
-  /** @param {string} message */
-  constructor(message) {
+  constructor(message: string) {
     super(message);
   }
 }
-
 
 /**
  * Base class shared by the full Post and post stubs like BlockedPost, MissingPost etc.
@@ -22,38 +19,24 @@ export class PostDataError extends Error {
 
 export class BasePost extends ATProtoRecord {
 
-  /**
-   * Set to true if the post was loaded from the "hidden replies" link (as a direct descendant).
-   * @type {boolean}
-   */
+  // Set to true if the post was loaded from the "hidden replies" link (as a direct descendant)
   isHiddenReply = false;
 
-  /**
-   * Set to true if the author of the post has the 'needs-review' label.
-   * @type {boolean}
-   */
+  // Set to true if the author of the post has the 'needs-review' label
   labelledNeedsReview = false;
 
-  /** @returns {string} */
-  get didLinkToAuthor() {
+  get didLinkToAuthor(): string {
     let { repo } = atURI(this.uri);
     return `https://bsky.app/profile/${repo}`;
   }
 }
 
-
 /**
  * View of a post as part of a thread, as returned from getPostThread.
  * Expected to be #threadViewPost, but may be blocked or missing.
- *
- * @param {json} json
- * @param {Post?} [pageRoot]
- * @param {number} [level]
- * @param {number} [absoluteLevel]
- * @returns {AnyPost}
  */
 
-export function parseThreadPost(json, pageRoot = null, level = 0, absoluteLevel = 0) {
+export function parseThreadPost(json: json, pageRoot: Post | null = null, level = 0, absoluteLevel = 0): AnyPost {
   switch (json.$type) {
   case 'app.bsky.feed.defs#threadViewPost':
     let post = new Post(json.post, { level: level, absoluteLevel: absoluteLevel });
@@ -61,7 +44,7 @@ export function parseThreadPost(json, pageRoot = null, level = 0, absoluteLevel 
     post.pageRoot = pageRoot ?? post;
 
     if (json.replies) {
-      let replies = json.replies.map(x => parseThreadPost(x, post.pageRoot, level + 1, absoluteLevel + 1));
+      let replies = json.replies.map((x: json) => parseThreadPost(x, post.pageRoot, level + 1, absoluteLevel + 1));
       post.setReplies(replies);
     }
 
@@ -86,12 +69,9 @@ export function parseThreadPost(json, pageRoot = null, level = 0, absoluteLevel 
  * View of a post embedded as a quote.
  * Expected to be app.bsky.embed.record#viewRecord, but may be blocked, missing or a different type of record
  * (e.g. a list or a feed generator). For unknown record embeds, we fall back to generic ATProtoRecord.
- *
- * @param {json} json
- * @returns {ATProtoRecord}
  */
 
-export function parseViewRecord(json) {
+export function parseViewRecord(json: json): ATProtoRecord {
   switch (json.$type) {
   case 'app.bsky.embed.record#viewRecord':
     return new Post(json, { isEmbed: true });
@@ -123,12 +103,9 @@ export function parseViewRecord(json) {
 /**
  * View of a post as part of a feed (e.g. a profile feed, home timeline or a custom feed). It should be an
  * app.bsky.feed.defs#feedViewPost - blocked or missing posts don't appear here, they just aren't included.
- *
- * @param {json} json
- * @returns {Post}
  */
 
-export function parseFeedPost(json) {
+export function parseFeedPost(json: json): Post {
   let post = new Post(json.post);
 
   if (json.reply) {
@@ -151,11 +128,9 @@ export function parseFeedPost(json) {
  * Parses a #postView - the inner post object that includes the actual post - but still checks if it's not
  * a blocked or missing post. The #postView must include a $type.
  * (This is used for e.g. parent/root of a #feedViewPost.)
- *
- * @param {json} json, @returns {AnyPost}
  */
 
-export function parsePostView(json) {
+export function parsePostView(json: json): AnyPost {
   switch (json.$type) {
   case 'app.bsky.feed.defs#postView':
     return new Post(json);
@@ -177,65 +152,40 @@ export function parsePostView(json) {
  */
 
 export class Post extends BasePost {
-  /**
-   * Post object which is the direct parent of this post.
-   * @type {AnyPost | undefined}
-   */
-  parent;
+  // Post object which is the direct parent of this post
+  parent: AnyPost | undefined;
 
-  /**
-   * Post object which is the root of the whole thread (as specified in the post record).
-   * @type {AnyPost | undefined}
-   */
-  threadRoot;
+  // Post object which is the root of the whole thread (as specified in the post record)
+  threadRoot: AnyPost | undefined;
 
-  /**
-   * Post which is at the top of the (sub)thread currently loaded on the page (might not be the same as threadRoot).
-   * @type {Post | undefined}
-   */
-  pageRoot;
+  // Post which is at the top of the (sub)thread currently loaded on the page (might not be the same as threadRoot)
+  pageRoot: Post | undefined;
 
-  /**
-   * Post's direct replies (if it's displayed in a thread).
-   * @type {AnyPost[]}
-   */
-  replies;
+  // Post's direct replies (if it's displayed in a thread)
+  replies: AnyPost[];
 
-  /**
-   * Info about the author of the "grandparent" post. Included only in feedPost views, for the purposes
-   * of feed filtering algorithm.
-   * @type {json | undefined}
-   */
-  grandparentAuthor;
+  // Info about the author of the "grandparent" post. Included only in feedPost views, for the purposes of feed filtering algorithm
+  grandparentAuthor: json | undefined;
 
-  /**
-   * Depth of the post in the getPostThread response it was loaded from, starting from 0. May be negative.
-   * @type {number | undefined}
-   */
-  level;
+  // Depth of the post in the getPostThread response it was loaded from, starting from 0. May be negative.
+  level: number | undefined;
 
-  /**
-   * Depth of the post in the whole tree visible on the page (pageRoot's absoluteLevel is 0). May be negative.
-   * @type {number | undefined}
-   */
-  absoluteLevel;
+  // Depth of the post in the whole tree visible on the page (pageRoot's absoluteLevel is 0). May be negative.
+  absoluteLevel: number | undefined;
 
-  /**
-   * For posts in feeds and timelines - specifies e.g. that a post was reposted by someone.
-   * @type {object | undefined}
-   */
-  reason;
+  // For posts in feeds and timelines - specifies e.g. that a post was reposted by someone
+  reason: object | undefined;
 
-  /**
-   * True if the post was extracted from inner embed of a quote, not from a #postView.
-   * @type {boolean | undefined}
-   */
-  isEmbed;
+  // True if the post was extracted from inner embed of a quote, not from a #postView
+  isEmbed: boolean | undefined;
 
+  record: json;
+  embed: Embed | undefined;
+  viewerData: json | undefined;
+  viewerLike: string | undefined;
+  _lowercaseText: string | undefined;
 
-  /** @param {json} data, @param {json} [extra] */
-
-  constructor(data, extra) {
+  constructor(data: json, extra?: json) {
     super(data);
     Object.assign(this, extra ?? {});
 
@@ -264,9 +214,7 @@ export class Post extends BasePost {
     }
   }
 
-  /** @param {Post} post */
-
-  updateDataFromPost(post) {
+  updateDataFromPost(post: Post) {
     this.record = post.record;
     this.embed = post.embed;
     this.author = post.author;
@@ -277,16 +225,12 @@ export class Post extends BasePost {
     this.setReplies(post.replies);
   }
 
-  /** @param {AnyPost[]} replies */
-
-  setReplies(replies) {
+  setReplies(replies: AnyPost[]) {
     this.replies = replies;
     this.replies.sort(this.sortReplies.bind(this));
   }
 
-  /** @param {AnyPost} a, @param {AnyPost} b, @returns {-1 | 0 | 1} */
-
-  sortReplies(a, b) {
+  sortReplies(a: AnyPost, b: AnyPost): -1 | 0 | 1 {
     if (a instanceof Post && b instanceof Post) {
       if (a.author.did == this.author.did && b.author.did != this.author.did) {
         return -1;
@@ -312,34 +256,28 @@ export class Post extends BasePost {
     }
   }
 
-  /** @returns {boolean} */
-  get isPostView() {
+  get isPostView(): boolean {
     return !this.isEmbed;
   }
 
-  /** @returns {boolean} */
-  get isFediPost() {
+  get isFediPost(): boolean {
     return this.author?.handle.endsWith('.ap.brid.gy');
   }
 
-  /** @returns {string | undefined} */
-  get originalFediContent() {
+  get originalFediContent(): string | undefined {
     return this.record.bridgyOriginalText;
   }
 
-  /** @returns {string | undefined} */
-  get originalFediURL() {
+  get originalFediURL(): string | undefined {
     return this.record.bridgyOriginalUrl;
   }
 
-  /** @returns {boolean} */
-  get isPageRoot() {
+  get isPageRoot(): boolean {
     // I AM ROOOT
     return (this.pageRoot === this);
   }
 
-  /** @returns {string} */
-  get authorFediHandle() {
+  get authorFediHandle(): string {
     if (this.isFediPost) {
       return this.author.handle.replace(/\.ap\.brid\.gy$/, '').replace('.', '@');
     } else {
@@ -347,13 +285,11 @@ export class Post extends BasePost {
     }
   }
 
-  /** @returns {boolean} */
-  get hasValidHandle() {
+  get hasValidHandle(): boolean {
     return this.author.handle != 'handle.invalid';
   }
 
-  /** @returns {string} */
-  get authorDisplayName() {
+  get authorDisplayName(): string {
     if (this.author.displayName) {
       return this.author.displayName.trim();
     } else if (this.author.handle.endsWith('.bsky.social')) {
@@ -363,126 +299,103 @@ export class Post extends BasePost {
     }
   }
 
-  /** @returns {string} */
-  get linkToAuthor() {
+  get linkToAuthor(): string {
     return 'https://bsky.app/profile/' + (this.hasValidHandle ? this.author.handle : this.author.did);
   }
 
-  /** @returns {string} */
-  get linkToPost() {
+  get linkToPost(): string {
     return this.linkToAuthor + '/post/' + this.rkey;
   }
 
-  /** @returns {string} */
-  get text() {
+  get text(): string {
     return this.record.text;
   }
 
-  /** @returns {string} */
-  get lowercaseText() {
+  get lowercaseText(): string {
     if (!this._lowercaseText) {
       this._lowercaseText = this.record.text.toLowerCase();
     }
 
-    return this._lowercaseText;
+    return this._lowercaseText!;
   }
 
-  /** @returns {json} */
-  get facets() {
+  get facets(): json {
     return this.record.facets;
   }
 
-  /** @returns {string[] | undefined} */
-  get tags() {
+  get tags(): string[] | undefined {
     return this.record.tags;
   }
 
-  /** @returns {Date} */
-  get createdAt() {
+  get createdAt(): Date {
     return new Date(this.record.createdAt);
   }
 
-  /** @returns {number} */
-  get likeCount() {
+  get likeCount(): number | null | undefined {
     return castToInt(this.data.likeCount);
   }
 
-  /** @returns {number} */
-  get replyCount() {
+  get replyCount(): number | null | undefined {
     return castToInt(this.data.replyCount);
   }
 
-  /** @returns {number} */
-  get quoteCount() {
+  get quoteCount(): number | null | undefined {
     return castToInt(this.data.quoteCount);
   }
 
-  /** @returns {boolean} */
-  get hasMoreReplies() {
-    let shouldHaveMoreReplies = (this.replyCount !== undefined && this.replyCount > this.replies.length);
+  get hasMoreReplies(): boolean {
+    let shouldHaveMoreReplies = (this.replyCount != null && this.replyCount > this.replies.length);
 
     return shouldHaveMoreReplies && (this.replies.length === 0) && (this.level !== undefined && this.level > 4);
   }
 
-  /** @returns {boolean} */
-  get hasHiddenReplies() {
-    let shouldHaveMoreReplies = (this.replyCount !== undefined && this.replyCount > this.replies.length);
+  get hasHiddenReplies(): boolean {
+    let shouldHaveMoreReplies = (this.replyCount != null && this.replyCount > this.replies.length);
 
     return shouldHaveMoreReplies && (this.replies.length > 0 || (this.level !== undefined && this.level <= 4));
   }
 
-  /** @returns {boolean} */
-  get isRestrictingReplies() {
+  get isRestrictingReplies(): boolean {
     return !!(this.data.threadgate && this.data.threadgate.record.allow);
   }
 
-  /** @returns {boolean} */
-  get hasDisabledReplies() {
+  get hasDisabledReplies(): boolean {
     return !!(this.data.threadgate && this.data.threadgate.record.allow !== undefined && this.data.threadgate.record.allow.length == 0);
   }
 
-  /** @returns {boolean} */
-  get hasBeenEdited() {
+  get hasBeenEdited(): boolean {
     return !!(this.record.originalText);
   }
 
-  /** @returns {string | undefined} */
-  get originalText() {
+  get originalText(): string | undefined {
     return this.record.originalText;
   }
 
-  /** @returns {number} */
-  get repostCount() {
+  get repostCount(): number | null | undefined {
     return castToInt(this.data.repostCount);
   }
 
-  /** @returns {boolean} */
-  get liked() {
+  get liked(): boolean {
     return (this.viewerLike !== undefined);
   }
 
-  /** @returns {boolean | undefined} */
-  get muted() {
+  get muted(): boolean | undefined {
     return this.author.viewer?.muted;
   }
 
-  /** @returns {string | undefined} */
-  get muteList() {
+  get muteList(): string | undefined {
     return this.author.viewer?.mutedByList?.name;
   }
 
-  /** @returns {boolean} */
-  get hasViewerInfo() {
+  get hasViewerInfo(): boolean {
     return (this.viewerData !== undefined);
   }
 
-  /** @returns {ATProtoRecord | undefined} */
-  get parentReference() {
+  get parentReference(): ATProtoRecord | undefined {
     return this.record.reply?.parent && new ATProtoRecord(this.record.reply?.parent);
   }
 
-  /** @returns {ATProtoRecord | undefined} */
-  get rootReference() {
+  get rootReference(): ATProtoRecord | undefined {
     return this.record.reply?.root && new ATProtoRecord(this.record.reply?.root);
   }
 }
@@ -495,19 +408,16 @@ export class Post extends BasePost {
 
 export class BlockedPost extends BasePost {
 
-  /** @param {json} data */
-  constructor(data) {
+  constructor(data: json) {
     super(data);
     this.author = data.author;
   }
 
-  /** @returns {boolean} */
-  get blocksUser() {
+  get blocksUser(): boolean {
     return !!this.author.viewer?.blocking;
   }
 
-  /** @returns {boolean} */
-  get blockedByUser() {
+  get blockedByUser(): boolean {
     return this.author.viewer?.blockedBy;
   }
 }
@@ -518,9 +428,7 @@ export class BlockedPost extends BasePost {
  */
 
 export class MissingPost extends BasePost {
-
-  /** @returns {boolean} */
-  get isBskyPost() {
+  get isBskyPost(): boolean {
     return atURI(this.uri).collection == 'app.bsky.feed.post';
   }
 }

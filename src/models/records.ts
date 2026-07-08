@@ -5,122 +5,105 @@ import { atURI, castToInt } from '../utils.js';
  */
 
 export class ATProtoRecord {
+  data: json;
 
-  /** @param {json} data, @param {json} [extra] */
-  constructor(data, extra) {
+  constructor(data: json, extra?: json) {
     this.data = data;
     Object.assign(this, extra ?? {});
   }
 
-  /** @returns {string} */
-  get uri() {
+  get uri(): string {
     return this.data.uri;
   }
 
-  /** @returns {string} */
-  get cid() {
+  get cid(): string {
     return this.data.cid;
   }
 
-  /** @returns {string} */
-  get rkey() {
+  get rkey(): string {
     return atURI(this.uri).rkey;
   }
 
-  /** @returns {string} */
-  get type() {
+  get type(): string {
     return this.data.$type;
   }
 }
-
 
 /**
  * Record representing a feed generator.
  */
 
 export class FeedGeneratorRecord extends ATProtoRecord {
+  author: json;
 
-  /** @param {json} data */
-  constructor(data) {
+  constructor(data: json) {
     super(data);
     this.author = data.creator;
   }
 
-  /** @returns {string | undefined} */
-  get title() {
+  get title(): string | undefined {
     return this.data.displayName;
   }
 
-  /** @returns {string | undefined} */
-  get description() {
+  get description(): string | undefined {
     return this.data.description;
   }
 
-  /** @returns {number} */
-  get likeCount() {
+  get likeCount(): number | null | undefined {
     return castToInt(this.data.likeCount);
   }
 
-  /** @returns {string | undefined} */
-  get avatar() {
+  get avatar(): string | undefined {
     return this.data.avatar;
   }
 }
-
 
 /**
  * Record representing a user list or moderation list.
  */
 
 export class UserListRecord extends ATProtoRecord {
+  author: json;
 
-  /** @param {json} data */
-  constructor(data) {
+  constructor(data: json) {
     super(data);
     this.author = data.creator;
   }
 
-  /** @returns {string | undefined} */
-  get title() {
+  get title(): string | undefined {
     return this.data.name;
   }
 
-  /** @returns {string | undefined} */
-  get purpose() {
+  get purpose(): string | undefined {
     return this.data.purpose;
   }
 
-  /** @returns {string | undefined} */
-  get description() {
+  get description(): string | undefined {
     return this.data.description;
   }
 
-  /** @returns {string | undefined} */
-  get avatar() {
+  get avatar(): string | undefined {
     return this.data.avatar;
   }
 }
-
 
 /**
  * Record representing a starter pack.
  */
 
 export class StarterPackRecord extends ATProtoRecord {
+  author: json;
 
-  /** @param {json} data */
-  constructor(data) {
+  constructor(data: json) {
     super(data);
     this.author = data.creator;
   }
 
-  /** @returns {string | undefined} */
-  get title() {
+  get title(): string | undefined {
     return this.data.record.name;
   }
 
-  /** @returns {string | undefined} */
-  get description() {
+  get description(): string | undefined {
     return this.data.record.description;
   }
 }

@@ -62,7 +62,7 @@
 
     <a class="time" href="{post.linkToPost}" target="_blank" title="{post.createdAt.toISOString()}">{presenter.formattedTimestamp}</a>
 
-    {#if (post.replyCount > 0 && !post.isPageRoot) || ['quote', 'quotes', 'feed'].includes(placement)}
+    {#if (post.replyCount && post.replyCount > 0 && !post.isPageRoot) || ['quote', 'quotes', 'feed'].includes(placement)}
       <span class="separator">&bull;</span>
 
       {#if ['quote', 'quotes', 'feed'].includes(placement)}

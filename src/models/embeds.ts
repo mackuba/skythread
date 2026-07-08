@@ -6,17 +6,11 @@ import { PostDataError, parseViewRecord } from './posts.js';
  */
 
 export class Embed {
+  json: json;
 
-  /** @type {json} */
-  json;
+  /** More hydrated view of an embed, taken from a full post view (#postView) */
 
-  /**
-   * More hydrated view of an embed, taken from a full post view (#postView).
-   *
-   * @param {json} json, @returns {Embed}
-   */
-
-  static parseInlineEmbed(json) {
+  static parseInlineEmbed(json: json): Embed {
     switch (json.$type) {
     case 'app.bsky.embed.record#view':
       return new InlineRecordEmbed(json);
@@ -46,13 +40,9 @@ export class Embed {
     }
   }
 
-  /**
-    * Raw embed extracted from raw record data of a post. Does not include quoted post contents.
-    *
-    * @param {json} json, @returns {Embed}
-    */
+  /** Raw embed extracted from raw record data of a post. Does not include quoted post contents */
 
-  static parseRawEmbed(json) {
+  static parseRawEmbed(json: json): Embed {
     switch (json.$type) {
     case 'app.bsky.embed.record':
       return new RawRecordEmbed(json);
@@ -82,23 +72,16 @@ export class Embed {
     }
   }
 
-  /** @param {json} json */
-  constructor(json) {
+  constructor(json: json) {
     this.json = json;
   }
 
-  /** @returns {string} */
-  get type() {
+  get type(): string {
     return this.json.$type;
   }
 }
 
-/**
- * @param {json[] | undefined} items
- * @param {string} imageType
- * @returns {json[]}
- */
-function filterGalleryItems(items, imageType) {
+function filterGalleryItems(items: json[] | undefined, imageType: string): json[] {
   return (items ?? []).filter(item => {
     if (item.$type == imageType) {
       return true;
@@ -110,45 +93,30 @@ function filterGalleryItems(items, imageType) {
 }
 
 export class RawImageEmbed extends Embed {
+  images: json[];
 
-  /** @type {json[]} */
-  images;
-
-  /** @param {json} json */
-  constructor(json) {
+  constructor(json: json) {
     super(json);
     this.images = json.images;
   }
 }
 
 export class RawGalleryEmbed extends Embed {
+  images: json[];
 
-  /** @type {json[]} */
-  images;
-
-  /** @param {json} json */
-  constructor(json) {
+  constructor(json: json) {
     super(json);
     this.images = filterGalleryItems(json.items, 'app.bsky.embed.gallery#image');
   }
 }
 
 export class RawLinkEmbed extends Embed {
+  url: string | undefined;
+  title: string | undefined;
+  thumb: json | undefined;
+  description: string | undefined;
 
-  /** @type {string | undefined} */
-  url;
-
-  /** @type {string | undefined} */
-  title;
-
-  /** @type {json | undefined} */
-  thumb;
-
-  /** @type {string | undefined} */
-  description;
-
-  /** @param {json} json */
-  constructor(json) {
+  constructor(json: json) {
     super(json);
 
     this.url = json.external.uri;
@@ -159,15 +127,10 @@ export class RawLinkEmbed extends Embed {
 }
 
 export class RawVideoEmbed extends Embed {
+  video: json | undefined;
+  alt: string | undefined;
 
-  /** @type {json | undefined} */
-  video;
-
-  /** @type {string | undefined} */
-  alt;
-
-  /** @param {json} json */
-  constructor(json) {
+  constructor(json: json) {
     super(json);
     this.video = json.video;
     this.alt = json.alt;
@@ -175,27 +138,19 @@ export class RawVideoEmbed extends Embed {
 }
 
 export class RawRecordEmbed extends Embed {
+  record: ATProtoRecord;
 
-  /** @type {ATProtoRecord} */
-  record;
-
-  /** @param {json} json */
-  constructor(json) {
+  constructor(json: json) {
     super(json);
     this.record = new ATProtoRecord(json.record);
   }
 }
 
 export class RawRecordWithMediaEmbed extends Embed {
+  record: ATProtoRecord;
+  media: Embed;
 
-  /** @type {ATProtoRecord} */
-  record;
-
-  /** @type {Embed} */
-  media;
-
-  /** @param {json} json */
-  constructor(json) {
+  constructor(json: json) {
     super(json);
     this.record = new ATProtoRecord(json.record.record);
     this.media = Embed.parseRawEmbed(json.media);
@@ -203,33 +158,21 @@ export class RawRecordWithMediaEmbed extends Embed {
 }
 
 export class InlineRecordEmbed extends Embed {
+  record: ATProtoRecord;
 
-  /** @type {ATProtoRecord} */
-  record;
-
-  /**
-   * app.bsky.embed.record#view
-   * @param {json} json
-   */
-  constructor(json) {
+  /** app.bsky.embed.record#view */
+  constructor(json: json) {
     super(json);
     this.record = parseViewRecord(json.record);
   }
 }
 
 export class InlineRecordWithMediaEmbed extends Embed {
+  record: ATProtoRecord;
+  media: Embed;
 
-  /** @type {ATProtoRecord} */
-  record;
-
-  /** @type {Embed} */
-  media;
-
-  /**
-   * app.bsky.embed.recordWithMedia#view
-   * @param {json} json
-   */
-  constructor(json) {
+  /** app.bsky.embed.recordWithMedia#view */
+  constructor(json: json) {
     super(json);
     this.record = parseViewRecord(json.record.record);
     this.media = Embed.parseInlineEmbed(json.media);
@@ -237,24 +180,13 @@ export class InlineRecordWithMediaEmbed extends Embed {
 }
 
 export class InlineLinkEmbed extends Embed {
+  url: string | undefined;
+  title: string | undefined;
+  description: string | undefined;
+  thumb: string | undefined;
 
-  /** @type {string | undefined} */
-  url;
-
-  /** @type {string | undefined} */
-  title;
-
-  /** @type {string | undefined} */
-  description;
-
-  /** @type {string | undefined} */
-  thumb;
-
-  /**
-   * app.bsky.embed.external#view
-   * @param {json} json
-   */
-  constructor(json) {
+  /** app.bsky.embed.external#view */
+  constructor(json: json) {
     super(json);
 
     this.url = json.external.uri;
@@ -265,48 +197,31 @@ export class InlineLinkEmbed extends Embed {
 }
 
 export class InlineImageEmbed extends Embed {
+  images: json[];
 
-  /** @type {json[]} */
-  images;
-
-  /**
-   * app.bsky.embed.images#view
-   * @param {json} json
-   */
-  constructor(json) {
+  /** app.bsky.embed.images#view */
+  constructor(json: json) {
     super(json);
     this.images = json.images;
   }
 }
 
 export class InlineGalleryEmbed extends Embed {
+  images: json[];
 
-  /** @type {json[]} */
-  images;
-
-  /**
-   * app.bsky.embed.gallery#view
-   * @param {json} json
-   */
-  constructor(json) {
+  /** app.bsky.embed.gallery#view */
+  constructor(json: json) {
     super(json);
     this.images = filterGalleryItems(json.items, 'app.bsky.embed.gallery#viewImage');
   }
 }
 
 export class InlineVideoEmbed extends Embed {
+  playlistURL: string | undefined;
+  alt: string | undefined;
 
-  /** @type {string | undefined} */
-  playlistURL;
-
-  /** @type {string | undefined} */
-  alt;
-
-  /**
-   * app.bsky.embed.video#view
-   * @param {json} json
-   */
-  constructor(json) {
+  /** app.bsky.embed.video#view */
+  constructor(json: json) {
     super(json);
     this.playlistURL = json.playlist;
     this.alt = json.alt;

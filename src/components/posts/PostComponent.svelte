@@ -48,7 +48,7 @@
   setPostContext({ post, placement });
 
   // TODO: make Post reactive
-  let quoteCount: number | undefined = $state(post.quoteCount);
+  let quoteCount: number | undefined = $state(post.quoteCount ?? undefined);
 
   export function setQuoteCount(x: number) {
     quoteCount = x;
