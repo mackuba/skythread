@@ -28,7 +28,7 @@
   {#if isGIF && thumbnailURL}
     <GIFPlayer gifURL={parsedURL.href} staticURL={thumbnailURL} title={embed.title} description={embed.description} />
   {:else}
-    <a class="link-card" href={parsedURL.href} target="_blank" rel="noopener">
+    <a class="link-card" href={parsedURL.href} target="_blank">
       <div>
         <p class="domain">{parsedURL.hostname}</p>
         <h2>{embed.title || embed.url}</h2>

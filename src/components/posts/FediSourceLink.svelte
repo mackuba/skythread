@@ -7,7 +7,7 @@
 </script>
 
 {#if parsedURL}
-  <a class="fedi-link" href={parsedURL.href} target="_blank" rel="noopener noreferrer">
+  <a class="fedi-link" href={parsedURL.href} target="_blank">
     <div>
       <i class="fa-solid fa-arrow-up-right-from-square fa-sm"></i> View on {parsedURL.hostname}
     </div>
