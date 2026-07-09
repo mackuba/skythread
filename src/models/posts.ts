@@ -180,6 +180,7 @@ export class Post extends BasePost {
   isEmbed: boolean | undefined;
 
   record: json;
+  author: json;
   embed: Embed | undefined;
   viewerData: json | undefined;
   viewerLike: string | undefined;
@@ -391,6 +392,14 @@ export class Post extends BasePost {
     return (this.viewerData !== undefined);
   }
 
+  get authorIsBot(): boolean {
+    return this.author.labels?.some((x: json) => (
+      x.src == this.author.did
+      && x.uri == `at://${x.src}/app.bsky.actor.profile/self`
+      && x.val == 'bot'
+    ));
+  }
+
   get parentReference(): ATProtoRecord | undefined {
     return this.record.reply?.parent && new ATProtoRecord(this.record.reply?.parent);
   }
@@ -407,6 +416,8 @@ export class Post extends BasePost {
  */
 
 export class BlockedPost extends BasePost {
+
+  author: json;
 
   constructor(data: json) {
     super(data);

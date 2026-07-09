@@ -56,6 +56,9 @@
       <img src="icons/mastodon.svg" class="mastodon" alt="Mastodon logo">
     {:else}
       <a class="handle" href="{post.linkToAuthor}" target="_blank" onmouseenter={showPopover} onmouseleave={hidePopover}>{post.hasValidHandle ? `@${post.author.handle}` : '[invalid handle]'}</a>
+      {#if post.authorIsBot}
+        <i class="is-bot fa-solid fa-robot fa-sm" title="Automated account"></i>
+      {/if}
     {/if}
 
     <span class="separator">&bull;</span>
@@ -120,6 +123,12 @@
     width: 15px;
     position: relative;
     top: 2px;
+    margin-left: 3px;
+  }
+
+  .is-bot {
+    color: #888;
+    vertical-align: 2px;
     margin-left: 3px;
   }
 
