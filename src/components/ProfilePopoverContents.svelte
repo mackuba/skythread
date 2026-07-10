@@ -3,12 +3,13 @@
 
   type Props = {
     profile: json;
+    pds: string | undefined;
     element?: HTMLDivElement | undefined;
     onmouseenter?: (event: MouseEvent) => void;
     onmouseleave?: (event: MouseEvent) => void;
   };
 
-  let { profile, element = $bindable(), onmouseenter, onmouseleave }: Props = $props();
+  let { profile, pds, element = $bindable(), onmouseenter, onmouseleave }: Props = $props();
 
   let displayName = $derived.by(() => {
     let name = profile.displayName?.trim();
@@ -47,10 +48,12 @@
 
     <div class="main-column">
       <h3>{displayName}</h3>
-      <div class="handle">{handle}</div>
+      <div class="handle">{handle}
+        {#if profile.pronouns}<span class="pronouns">• {profile.pronouns}</span>{/if}
+      </div>
 
-      {#if profile.pronouns}
-        <div class="pronouns">{profile.pronouns}</div>
+      {#if pds && !pds.endsWith('.bsky.network')}
+        <div class="pds">{pds}</div>
       {/if}
 
       {#if profile.description}
@@ -105,9 +108,19 @@
   }
 
   .handle {
-    margin-top: 2px;
+    margin-top: 4px;
     color: #666;
     font-size: 11pt;
+  }
+
+  .pds {
+    display: inline-block;
+    margin-top: 8px;
+    border: 1px solid #aaa;
+    border-radius: 10px;
+    color: #666;
+    font-size: 9pt;
+    padding: 1px 6px 2px;
   }
 
   .main-column p {
@@ -118,9 +131,9 @@
   }
 
   .pronouns {
-    margin-top: 4px;
     color: #9a9a9a;
     font-size: 10.5pt;
+    vertical-align: 0.5px;
   }
 
   .no-avatar, .muted-avatar {
@@ -142,6 +155,7 @@
     }
 
     .handle { color: #aaa; }
+    .pds { color: #999; }
     .pronouns { color: #7f7f7f; }
     .main-column p { color: #ddd; }
   }

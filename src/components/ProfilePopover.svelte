@@ -9,6 +9,7 @@
 <script lang="ts">
   import { tick } from 'svelte';
   import { api } from '../api.js';
+  import { pdsEndpointForDID } from '../api/identity.js';
   import ProfilePopoverContents from './ProfilePopoverContents.svelte';
 
   const hoverDelay = 500;
@@ -24,15 +25,24 @@
   let { did, anchor, anchorHovered, onDismissed }: Props = $props();
 
   let profile: json | undefined = $state();
+  let pds: string | undefined = $state();
   let popover: HTMLDivElement | undefined = $state();
   let hideTimer: number | undefined;
 
   async function loadProfile(abortSignal: AbortSignal) {
     try {
-      let loadedProfile = await api.loadUserProfile(did, true, { abortSignal });
+      let [loadedProfile, pdsHost] = await Promise.all([
+        api.loadUserProfile(did, true, { abortSignal }),
+
+        pdsEndpointForDID(did).catch(error => {
+          console.warn('Could not load PDS for profile popover:', error);
+          return undefined;
+        })
+      ]);
 
       if (!abortSignal.aborted) {
         profile = loadedProfile;
+        pds = pdsHost;
       }
 
       return loadedProfile;
@@ -115,6 +125,6 @@
 </script>
 
 {#if profile}
-  <ProfilePopoverContents {profile} bind:element={popover}
+  <ProfilePopoverContents {profile} {pds} bind:element={popover}
     onmouseenter={keepPopoverOpen} onmouseleave={queueHidePopover} />
 {/if}
