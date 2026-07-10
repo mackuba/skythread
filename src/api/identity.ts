@@ -30,8 +30,8 @@ export async function pdsEndpointForDID(did: string): Promise<string> {
   if (response.status == 200) {
     let service = (json.service || []).find((s: json) => s.id == '#atproto_pds');
 
-    if (service) {
-      return service.serviceEndpoint.replace('https://', '');
+    if (service && service.serviceEndpoint) {
+      return new URL(service.serviceEndpoint).host;
     } else {
       throw new DIDError("Missing #atproto_pds service definition");
     }
