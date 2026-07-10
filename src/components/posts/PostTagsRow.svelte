@@ -26,4 +26,16 @@
     text-decoration: none;
     background-color: hsl(210, 90%, 93%);
   }
+
+  @media (prefers-color-scheme: dark) {
+    a {
+      color: #eee;
+      background-color: hsl(215, 30%, 25%);
+      border: 1px solid hsl(215, 40%, 40%);
+    }
+
+    a:hover {
+      background-color: hsl(215, 40%, 30%);
+    }
+  }
 </style>
