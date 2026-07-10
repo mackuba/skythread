@@ -82,7 +82,7 @@
 
   function queueHidePopover() {
     clearHideTimer();
-    hideTimer = setTimeout(hidePopover, hideDelay);
+    hideTimer = window.setTimeout(hidePopover, hideDelay);
   }
 
   $effect(() => {
@@ -93,7 +93,7 @@
     let abortController = new AbortController();
     let loadProfilePromise = loadProfile(abortController.signal);
 
-    let showTimer = setTimeout(async () => {
+    let showTimer = window.setTimeout(async () => {
       let loadedProfile = await loadProfilePromise;
 
       if (abortController.signal.aborted || !loadedProfile) return;

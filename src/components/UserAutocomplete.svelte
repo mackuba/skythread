@@ -37,7 +37,7 @@
     let query = typedValue.trim();
 
     if (query.length > 0) {
-      autocompleteTimer = setTimeout(() => fetchAutocomplete(query), 100);
+      autocompleteTimer = window.setTimeout(() => fetchAutocomplete(query), 100);
     } else {
       hideAutocomplete();
       autocompleteTimer = undefined;
