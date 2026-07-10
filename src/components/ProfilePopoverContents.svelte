@@ -1,4 +1,5 @@
 <script lang="ts">
+    import { settings } from "../models/settings.svelte";
     import RichTextFromFacets from "./RichTextFromFacets.svelte";
 
   type Props = {
@@ -32,6 +33,25 @@
       return `@${profile.handle}`;
     }
   });
+
+  let joinedLabel = $derived.by(() => {
+    if (!profile.createdAt) { return undefined; }
+
+    let joined = new Date(profile.createdAt);
+    let now = new Date();
+
+    let joinedMonth = joined.getFullYear() * 12 + joined.getMonth();
+    let currentMonth = now.getFullYear() * 12 + now.getMonth();
+    let format: Intl.DateTimeFormatOptions;
+
+    if (joinedMonth < currentMonth - 1) {
+      format = { month: 'long', year: 'numeric' };
+      return "Joined " + joined.toLocaleDateString(settings.dateLocale, format);
+    } else {
+      format = { day: 'numeric', month: 'short', year: 'numeric' };
+      return "🌤️ Joined " + joined.toLocaleDateString(settings.dateLocale, format);
+    }
+  });
 </script>
 
 <div popover class="profile-popover" bind:this={element} {onmouseenter} {onmouseleave}>
@@ -58,6 +78,10 @@
 
       {#if profile.description}
         <p><RichTextFromFacets text={profile.description} facets={[]} /></p>
+      {/if}
+
+      {#if joinedLabel}
+        <p class="joined">{joinedLabel}</p>
       {/if}
     </div>
   </div>
@@ -128,6 +152,12 @@
     color: #333;
     font-size: 11pt;
     line-height: 1.45;
+  }
+
+  p.joined {
+    font-size: 9pt;
+    margin-top: 15px;
+    color: #777;
   }
 
   .pronouns {
