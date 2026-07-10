@@ -163,6 +163,7 @@ export class BlueskyAPI extends Minisky {
     let doc: json;
 
     try {
+      // returns PDS hostname + validated handle
       doc = await slingshotAPI.getRequest("blue.microcosm.identity.resolveMiniDoc", { identifier: did });
     } catch (error) {
       let pds = await pdsEndpointForDID(did);
@@ -182,6 +183,7 @@ export class BlueskyAPI extends Minisky {
 
       if (profile) {
         doc.profile = profile;
+        doc.handle ??= profile.handle;
       }
     } catch (error) {
       doc.pdsError = error;
