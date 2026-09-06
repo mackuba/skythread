@@ -4,3 +4,4 @@ debug*
 dist/*.map
 Gemfile*
 node_modules
+og_server/target
