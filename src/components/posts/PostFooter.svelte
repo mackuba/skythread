@@ -10,15 +10,18 @@
   let { quoteCount }: { quoteCount: number | undefined } = $props();
 
   let isLiked = $state(post.liked);
+  let isLikePending = $state(false);
   let likeCount = $state(post.likeCount);
   let isUnavailableForLiking = $state(false);
 
   async function onHeartClick() {
+    if (isLikePending) { return }
+
     try {
       if (post.hasViewerInfo) {
         await likePost();
       } else if (account.loggedIn) {
-        await checkIfCanBeLiked();
+        await tryToLike();
       } else {
         showLoginDialog({ showClose: true });
       }
@@ -27,17 +30,23 @@
     }
   }
 
-  async function checkIfCanBeLiked() {
-    let data = await accountAPI.loadPostViewerInfo(post);
+  async function tryToLike() {
+    isLikePending = true;
 
-    if (data) {
-      if (post.liked) {
-        isLiked = true;
+    try {
+      let data = await accountAPI.loadPostViewerInfo(post);
+
+      if (data) {
+        if (post.liked) {
+          isLiked = true;
+        } else {
+          await likePost();
+        }
       } else {
-        await likePost();
+        isUnavailableForLiking = true;
       }
-    } else {
-      isUnavailableForLiking = true;
+    } finally {
+      isLikePending = false;
     }
   }
 
@@ -66,7 +75,8 @@
 
 <p class="stats">
   <span>
-    <i class="fa-solid fa-heart {isLiked ? 'liked' : ''}" onclick={onHeartClick}></i> <output>{likeCount}</output>
+    <i class="fa-solid fa-heart {isLiked ? 'liked' : ''} {isLikePending ? 'pending' : ''}"
+      onclick={onHeartClick}></i> <output>{likeCount}</output>
   </span>
 
   {#if post.repostCount && post.repostCount > 0}
@@ -145,6 +155,10 @@
     color: #c02020;
   }
 
+  i.fa-heart.pending, i.fa-heart.pending:hover {
+    color: #c56868;
+  }
+
   span {
     margin-right: 7px;
   }
@@ -162,5 +176,6 @@
     i.fa-heart.liked { color: #f04040; }
     i.fa-heart:hover { color: #eee; }
     i.fa-heart.liked:hover { color: #ff7070; }
+    i.fa-heart.pending, i.fa-heart.pending:hover { color: #cd7575; }
   }
 </style>
