@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { showLoginDialog } from './Dialogs.svelte';
+  import { showLoginDialog, showSettingsDialog } from './Dialogs.svelte';
   import { account } from '../models/account.svelte.js';
   import { settings } from '../models/settings.svelte.js';
   import { getBaseLocation } from '../router.js';
@@ -48,6 +48,13 @@
     menuVisible = false;
   }
 
+  function showSettings(e: Event) {
+    e.preventDefault();
+
+    showSettingsDialog();
+    menuVisible = false;
+  }
+
   function logOut(e: Event) {
     e.preventDefault();
     account.logOut();
@@ -93,6 +100,8 @@
       title="Show links to blocked and hidden comments"
       showCheckmark={settings.biohazardsEnabled !== false}
     />
+
+    <AccountMenuButton onclick={showSettings} label="Settings" />
 
     {#if !account.loggedIn}
       <AccountMenuButton onclick={showLoginScreen} label="Log in" />

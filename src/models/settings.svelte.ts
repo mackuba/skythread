@@ -31,8 +31,12 @@ class Settings {
     return this.data.dateLocale;
   }
 
-  set dateLocale(value: string) {
-    this.data.dateLocale = value;
+  set dateLocale(value: string | undefined) {
+    if (value) {
+      this.data.dateLocale = value;
+    } else {
+      delete this.data.dateLocale;
+    }
     this.save();
   }
 
