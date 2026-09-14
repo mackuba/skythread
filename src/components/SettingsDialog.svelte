@@ -38,8 +38,8 @@
     <h2>Settings</h2>
 
     <div class="setting">
-      <label for="settings_date_locale">Locale:</label>
-      <div>
+      <div class="label"><label for="settings_date_locale">Locale:</label></div>
+      <div class="field">
         <input
           type="text"
           id="settings_date_locale"
@@ -54,8 +54,8 @@
     </div>
 
     <div class="setting">
-      <label for="settings_bluesky_host">Bluesky app:</label>
-      <div>
+      <div class="label"><label for="settings_bluesky_host">Bluesky app:</label></div>
+      <div class="field">
         <input
           type="text"
           id="settings_bluesky_host"
@@ -69,17 +69,15 @@
     </div>
 
     <div class="setting checkbox-setting">
-      <span class="setting-label-spacer"></span>
-      <div>
-        <label for="settings_show_infohazards">
-          <input
-            type="checkbox"
-            id="settings_show_infohazards"
-            bind:checked={showInfohazards}
-            onchange={updateShowInfohazards}>
-
-          Show infohazards
-        </label>
+      <div class="label">
+        <input
+          type="checkbox"
+          id="settings_show_infohazards"
+          bind:checked={showInfohazards}
+          onchange={updateShowInfohazards}>
+      </div>
+      <div class="field">
+        <label for="settings_show_infohazards">Show infohazards</label>
 
         <small>E.g. links to blocked or hidden replies</small>
       </div>
@@ -93,7 +91,8 @@
   }
 
   .setting {
-    display: flex;
+    display: grid;
+    grid-template-columns: 105px auto;
     align-items: baseline;
   }
 
@@ -101,37 +100,44 @@
     margin-top: 18px;
   }
 
-  .setting > label,
-  .setting-label-spacer {
-    width: 90px;
-    flex-shrink: 0;
+  .label {
+    margin-right: 15px;
     text-align: right;
     white-space: nowrap;
   }
 
-  .checkbox-setting label {
-    display: flex;
-    align-items: center;
-    gap: 5px;
-    margin-left: -4px;
-    white-space: nowrap;
-  }
-
-  .checkbox-setting input {
-    width: 14px;
-    height: 14px;
-    margin: 0;
-  }
-
-  .checkbox-setting small {
-    margin-left: 15px;
+  .field input[type="text"] {
+    margin-left: 0;
   }
 
   small {
     display: block;
     color: #888;
     font-size: 9pt;
-    margin: 4px 20px 0;
+    margin: 4px 0 0;
+  }
+
+  .checkbox-setting {
+    .label {
+      margin-right: 5px;
+    }
+
+    input {
+      width: 14px;
+      height: 14px;
+    }
+
+    .field {
+      margin-top: 1px;
+    }
+
+    .field label {
+      white-space: nowrap;
+    }
+
+    small {
+      margin-left: 1px;
+    }
   }
 
   @media (prefers-color-scheme: dark) {
