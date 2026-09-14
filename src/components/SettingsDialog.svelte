@@ -5,6 +5,7 @@
   let { onClose = undefined }: { onClose?: () => void } = $props();
   let dateLocale = $state(settings.dateLocale ?? '');
   let blueskyHost = $state(settings.blueskyHost ?? '');
+  let showInfohazards = $state(settings.biohazardsEnabled !== false);
 
   function updateDateLocale() {
     let value = dateLocale.trim();
@@ -14,6 +15,10 @@
   function updateBlueskyHost() {
     let value = blueskyHost.trim();
     settings.blueskyHost = value || undefined;
+  }
+
+  function updateShowInfohazards() {
+    settings.biohazardsEnabled = showInfohazards;
   }
 
   function applyOnEnter(applyChanges: () => void) {
@@ -62,6 +67,23 @@
         <small>Hostname to use in links</small>
       </div>
     </div>
+
+    <div class="setting checkbox-setting">
+      <span class="setting-label-spacer"></span>
+      <div>
+        <label for="settings_show_infohazards">
+          <input
+            type="checkbox"
+            id="settings_show_infohazards"
+            bind:checked={showInfohazards}
+            onchange={updateShowInfohazards}>
+
+          Show infohazards
+        </label>
+
+        <small>E.g. links to blocked or hidden replies</small>
+      </div>
+    </div>
   </form>
 </DialogPanel>
 
@@ -79,11 +101,30 @@
     margin-top: 18px;
   }
 
-  .setting label {
+  .setting > label,
+  .setting-label-spacer {
     width: 90px;
     flex-shrink: 0;
     text-align: right;
     white-space: nowrap;
+  }
+
+  .checkbox-setting label {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    margin-left: -4px;
+    white-space: nowrap;
+  }
+
+  .checkbox-setting input {
+    width: 14px;
+    height: 14px;
+    margin: 0;
+  }
+
+  .checkbox-setting small {
+    margin-left: 15px;
   }
 
   small {

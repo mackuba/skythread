@@ -1,7 +1,6 @@
 <script lang="ts">
   import { showLoginDialog, showSettingsDialog } from './Dialogs.svelte';
   import { account } from '../models/account.svelte.js';
-  import { settings } from '../models/settings.svelte.js';
   import { getBaseLocation } from '../router.js';
   import AccountMenuButton from './AccountMenuButton.svelte';
   import LoadableImage from './LoadableImage.svelte';
@@ -24,16 +23,6 @@
   function toggleMenu(e: Event) {
     e.stopPropagation();
     menuVisible = !menuVisible;
-  }
-
-  function toggleBiohazard(e: Event) {
-    e.preventDefault();
-
-    if (settings.biohazardsEnabled === false) {
-      settings.biohazardsEnabled = true;
-    } else {
-      settings.biohazardsEnabled = false;
-    }
   }
 
   function toggleIncognito(e: Event) {
@@ -93,13 +82,6 @@
         showCheckmark={account.isIncognito}
       />
     {/if}
-
-    <AccountMenuButton
-      onclick={toggleBiohazard}
-      label="Show infohazards"
-      title="Show links to blocked and hidden comments"
-      showCheckmark={settings.biohazardsEnabled !== false}
-    />
 
     <AccountMenuButton onclick={showSettings} label="Settings" />
 

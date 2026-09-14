@@ -34,7 +34,7 @@
 
     <p>&ldquo;<em>This thread is not a place of honor... no highly esteemed post is commemorated here... nothing valued is here.</em>&rdquo;</p>
     <p>This feature allows access to comments in a thread which were hidden because one of the commenters has blocked another. Bluesky currently hides such comments to avoid escalating conflicts.</p>
-    <p>Are you sure you want to enter?<br>(You can toggle this in the menu in top-left corner.)</p>
+    <p>Are you sure you want to enter?<br>(You can toggle this in Settings.)</p>
 
     <p class="submit">
       <input type="submit" value="Show me the drama 😈" onclick={showBiohazard}>
