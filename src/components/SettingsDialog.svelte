@@ -26,16 +26,40 @@
 
     <h2>Settings</h2>
 
-    <p>
+    <div class="setting">
       <label for="settings_date_locale">Locale:</label>
-      <input
-        type="text"
-        id="settings_date_locale"
-        autofocus
-        bind:value={dateLocale}
-        onchange={updateDateLocale}
-        onkeydown={applyOnEnter(updateDateLocale)}
-      >
-    </p>
+      <div>
+        <input
+          type="text"
+          id="settings_date_locale"
+          autofocus
+          placeholder="E.g. &quot;fr-CA&quot;"
+          bind:value={dateLocale}
+          onchange={updateDateLocale}
+          onkeydown={applyOnEnter(updateDateLocale)}
+        >
+        <small>Used for date and text formatting</small>
+      </div>
+    </div>
   </form>
 </DialogPanel>
+
+<style>
+  .setting {
+    display: flex;
+    align-items: baseline;
+  }
+
+  small {
+    display: block;
+    color: #888;
+    font-size: 9pt;
+    margin: 4px 20px 0;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    small {
+      color: #aaa;
+    }
+  }
+</style>
