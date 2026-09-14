@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { linkToBluesky } from '../../linker.js';
   import { atURI } from '../../utils.js';
   import { FeedGeneratorRecord } from '../../models/records.js';
 
@@ -6,7 +7,7 @@
 
   function linkToFeed(feed: FeedGeneratorRecord) {
     let { repo, rkey } = atURI(feed.uri);
-    return `https://bsky.app/profile/${repo}/feed/${rkey}`;
+    return linkToBluesky(`/profile/${repo}/feed/${rkey}`);
   }
 </script>
 

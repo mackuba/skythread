@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { linkToBluesky } from "../linker.js";
   import { type PostingStatsResult } from "../services/posting_stats";
 
   export interface TableOptions {
@@ -62,7 +63,7 @@
         <td class="no">{i + 1}</td>
         <td class="handle">
           <img class="avatar" alt="Avatar" src="{user.avatar}">
-          <a href="https://bsky.app/profile/{user.handle}" target="_blank">{user.handle}</a>
+          <a href={linkToBluesky(`/profile/${user.handle}`)} target="_blank">{user.handle}</a>
         </td>
 
         {#if showReposts}

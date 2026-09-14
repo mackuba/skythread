@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { linkToBluesky } from '../../linker.js';
   import { atURI } from '../../utils.js';
   import { StarterPackRecord } from '../../models/records.js';
 
@@ -6,7 +7,7 @@
 
   function linkToStarterPack(starterPack: StarterPackRecord) {
     let { repo, rkey } = atURI(starterPack.uri);
-    return `https://bsky.app/starter-pack/${repo}/${rkey}`;
+    return linkToBluesky(`/starter-pack/${repo}/${rkey}`);
   }
 </script>
 

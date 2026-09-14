@@ -1,5 +1,6 @@
 interface SettingsData {
   dateLocale?: string;
+  blueskyHost?: string;
   incognito?: boolean;
   biohazard?: boolean;
 }
@@ -37,6 +38,21 @@ class Settings {
     } else {
       delete this.data.dateLocale;
     }
+
+    this.save();
+  }
+
+  get blueskyHost(): string | undefined {
+    return this.data.blueskyHost;
+  }
+
+  set blueskyHost(value: string | undefined) {
+    if (value) {
+      this.data.blueskyHost = value;
+    } else {
+      delete this.data.blueskyHost;
+    }
+
     this.save();
   }
 

@@ -1,4 +1,5 @@
 import { api } from '../api.js';
+import { linkToBluesky } from '../linker.js';
 import { atURI, castToInt } from '../utils.js';
 import { ATProtoRecord, FeedGeneratorRecord, StarterPackRecord, UserListRecord } from './records.js';
 import { Embed } from './embeds.js';
@@ -27,7 +28,7 @@ export class BasePost extends ATProtoRecord {
 
   get didLinkToAuthor(): string {
     let { repo } = atURI(this.uri);
-    return `https://bsky.app/profile/${repo}`;
+    return linkToBluesky(`/profile/${repo}`);
   }
 }
 
@@ -301,7 +302,7 @@ export class Post extends BasePost {
   }
 
   get linkToAuthor(): string {
-    return 'https://bsky.app/profile/' + (this.hasValidHandle ? this.author.handle : this.author.did);
+    return linkToBluesky('/profile/' + (this.hasValidHandle ? this.author.handle : this.author.did));
   }
 
   get linkToPost(): string {

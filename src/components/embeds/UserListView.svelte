@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { linkToBluesky } from '../../linker.js';
   import { atURI } from '../../utils.js';
   import { UserListRecord } from '../../models/records.js';
 
@@ -6,7 +7,7 @@
 
   function linkToList(list: UserListRecord) {
     let { repo, rkey } = atURI(list.uri);
-    return `https://bsky.app/profile/${repo}/lists/${rkey}`;
+    return linkToBluesky(`/profile/${repo}/lists/${rkey}`);
   }
 
   function listType(list: UserListRecord) {

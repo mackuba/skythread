@@ -1,5 +1,6 @@
 <script lang="ts">
-  import type { LikeStat } from "../services/like_stats";
+  import { linkToBluesky } from "../linker.js";
+  import type { LikeStat } from "../services/like_stats.js";
 
   let { cssClass, header, users }: { cssClass: string, header: string, users: LikeStat[] } = $props();
 </script>
@@ -18,7 +19,7 @@
       <tr>
         <td class="no">{i + 1}</td>
         <td class="handle"><img class="avatar" alt="Avatar" src="{user.avatar}">
-          <a href="https://bsky.app/profile/{user.handle}" target="_blank">{user.handle}</a>
+          <a href={linkToBluesky(`/profile/${user.handle}`)} target="_blank">{user.handle}</a>
         </td>
         <td class="count">{user.count}</td>
       </tr>
