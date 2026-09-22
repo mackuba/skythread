@@ -1,0 +1,6 @@
+Contact: https://bsky.app/profile/did:plc:oio4hkxaop4ao4wz2pp3f4cr
+Contact: https://martianbase.net/@mackuba
+Contact: mailto:mackuba@protonmail.ch
+Encryption: https://mail-api.proton.me/pks/lookup?op=get&search=mackuba@protonmail.ch
+Expires: 2027-12-31T23:59:59.999Z
+Preferred-Languages: en, pl
