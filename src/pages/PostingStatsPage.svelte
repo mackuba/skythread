@@ -30,7 +30,7 @@
   let scanner = new PostingStats((p) => { progress = Math.max(progress || 0, p) });
 
   $effect(() => {
-    fetchLists();
+    void fetchLists();
   })
 
   function onTabChange() {

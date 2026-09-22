@@ -10,9 +10,7 @@
   $effect(() => {
     let did = atURI(post.uri).repo;
 
-    api.fetchHandleForDid(did).then(loadedHandle => {
-      handle = loadedHandle;
-    });
+    void api.fetchHandleForDid(did).then(loadedHandle => { handle = loadedHandle });
   });
 </script>
 

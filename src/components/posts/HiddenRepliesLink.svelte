@@ -20,10 +20,10 @@
     e.preventDefault();
 
     if (settings.biohazardsEnabled === true) {
-      loadHiddenReplies();
+      void loadHiddenReplies();
     } else {
       showBiohazardDialog(() => {
-        loadHiddenReplies();
+        void loadHiddenReplies();
       });
     }
   }

@@ -1,4 +1,5 @@
 {
+  "type": "module",
   "scripts": {
     "test": "bun test",
     "test:watch": "bun test --watch"
@@ -14,8 +15,11 @@
     "bun-plugin-svelte": "^0.0.6",
     "esbuild": "^0.27.7",
     "esbuild-svelte": "^0.9.5",
+    "eslint": "^10.11.0",
+    "eslint-plugin-svelte": "^3.23.0",
     "jsdom": "^29.1.1",
     "svelte-check": "^4.7.1",
-    "typescript": "^5.9.3"
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.70.1"
   }
 }
