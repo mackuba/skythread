@@ -24,7 +24,7 @@ namespace :deploy do
     put script, "#{current_path}/script.sh", mode: 0755
     run "cd #{current_path} && ./script.sh && rm script.sh"
 
-    system("NODE_ENV=production bun build.js", exception: true)
+    run_locally "bun production"
 
     top.upload "dist/skythread.js", "#{current_path}/dist/skythread.js"
     top.upload "dist/skythread.js.map", "#{current_path}/dist/skythread.js.map"

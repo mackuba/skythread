@@ -1,6 +1,10 @@
 {
   "type": "module",
   "scripts": {
+    "dev": "bun scripts/build.js --dev",
+    "production": "NODE_ENV=production bun scripts/build.js",
+    "serve": "bun scripts/serve.js",
+    "lint": "bun eslint",
     "test": "bun test",
     "test:watch": "bun test --watch"
   },
