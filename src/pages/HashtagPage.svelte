@@ -16,11 +16,17 @@
   let finished = false;
   let cursor: string | undefined;
 
+  function recordAppViewRequest(kind: string) {
+    navigator.sendBeacon(`/_telemetry/appview?kind=${encodeURIComponent(kind)}`);
+  }
+
   paginator.loadInPages(async () => {
     if (isLoading || finished) { return }
     isLoading = true;
 
     try {
+      recordAppViewRequest(cursor ? 'hashtag-next-page' : 'hashtag');
+
       let data = await api.getHashtagFeed(hashtag, cursor);
       let batch = data.posts.map((j: json) => new Post(j)) as Post[];
       firstPageLoaded = true;
