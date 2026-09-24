@@ -16,8 +16,14 @@
   let finished = false;
   let cursor: string | undefined;
 
-  function recordAppViewRequest(kind: string) {
+  async function recordAppViewRequest(kind: string) {
     navigator.sendBeacon(`/_telemetry/appview?kind=${encodeURIComponent(kind)}`);
+
+    await fetch(`/_telemetry/appview?fetch=true&kind=${encodeURIComponent(kind)}`, {
+      method: 'POST',
+      cache: 'no-store',
+      credentials: 'omit'
+    });
   }
 
   paginator.loadInPages(async () => {
@@ -25,7 +31,7 @@
     isLoading = true;
 
     try {
-      recordAppViewRequest(cursor ? 'hashtag-next-page' : 'hashtag');
+      await recordAppViewRequest(cursor ? 'hashtag-next-page' : 'hashtag');
 
       let data = await api.getHashtagFeed(hashtag, cursor);
       let batch = data.posts.map((j: json) => new Post(j)) as Post[];
