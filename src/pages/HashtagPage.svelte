@@ -4,6 +4,7 @@
   import * as paginator from '../utils/paginator.js';
   import MainLoader from '../components/MainLoader.svelte';
   import PostComponent from '../components/posts/PostComponent.svelte';
+  import { checkIfNotBot } from '../utils/bot_protection.js';
 
   let { hashtag }: { hashtag: string } = $props();
   hashtag = hashtag.replace(/^\#/, '');
@@ -16,22 +17,33 @@
   let finished = false;
   let cursor: string | undefined;
 
-  async function recordAppViewRequest(kind: string) {
-    navigator.sendBeacon(`/_telemetry/appview?kind=${encodeURIComponent(kind)}`);
+  async function recordAppViewRequest(kind: string, event: string | undefined) {
+    event = event || 'storage';
 
-    await fetch(`/_telemetry/appview?fetch=true&kind=${encodeURIComponent(kind)}`, {
+    navigator.sendBeacon(`/_telemetry/appview?kind=${encodeURIComponent(kind)}&event=${event}`);
+
+    await fetch(`/_telemetry/appview?fetch=true&kind=${encodeURIComponent(kind)}&event=${event}`, {
       method: 'POST',
       cache: 'no-store',
       credentials: 'omit'
     });
   }
 
+  let paginatorInitialized = false;
+  let eventName: string | undefined = undefined;
+
+  async function initializePaginator() {
+    if (paginatorInitialized) { return }
+    paginatorInitialized = true;
+
+    eventName = await checkIfNotBot();
+
   paginator.loadInPages(async () => {
     if (isLoading || finished) { return }
     isLoading = true;
 
     try {
-      await recordAppViewRequest(cursor ? 'hashtag-next-page' : 'hashtag');
+      await recordAppViewRequest(cursor ? 'hashtag-next-page' : 'hashtag', eventName);
 
       let data = await api.getHashtagFeed(hashtag, cursor);
       let batch = data.posts.map((j: json) => new Post(j)) as Post[];
@@ -50,6 +62,12 @@
       isLoading = false;
       loadingFailed = true;
     }
+  });
+
+  }
+
+  $effect(() => {
+    void initializePaginator();
   });
 </script>
 
