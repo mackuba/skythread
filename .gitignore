@@ -1,3 +1,4 @@
 debug*
 dist/*.map
 node_modules
+og_server/target
