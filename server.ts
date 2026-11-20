@@ -27,95 +27,74 @@ function parsePostURL(value: string): PostReference | undefined {
   return undefined;
 }
 
-async function apiGet<T>(method: string, params: Record<string, string>, signal: AbortSignal, fetchAPI: FetchAPI): Promise<T> {
-  let url = new URL(method, API_URL);
-  url.search = new URLSearchParams(params).toString();
+export class SkythreadOGServer {
+  private readonly fetchAPI: FetchAPI;
+  private readonly timeout: number;
 
-  let response = await fetchAPI(url, { signal, redirect: 'error' });
+  private readonly cachedHTML: Blob;
+  private readonly prefix: string;
+  private readonly suffix: string;
 
-  if (!response.ok) {
-    await response.body?.cancel();
-    throw new Error(`Bluesky API returned ${response.status}`);
-  }
-
-  return await response.json() as T;
-}
-
-async function postMetadata(postRef: PostReference, quotes: boolean, signal: AbortSignal, fetchAPI: FetchAPI): Promise<Metadata> {
-  let { author, rkey } = postRef;
-
-  if (!author || !rkey || /[/\\?#\s]/.test(author) || !/^[A-Za-z0-9._~:-]+$/.test(rkey)) {
-    throw new Error(`Invalid post reference: { ${author}, ${rkey} }`);
-  }
-
-  if (!author.startsWith('did:')) {
-    let result: { did?: string } = await apiGet('com.atproto.identity.resolveHandle', { handle: author }, signal, fetchAPI);
-
-    if (typeof result.did != 'string' || !result.did.startsWith('did:')) {
-      throw new Error(`Missing DID for author: ${author}`);
-    }
-
-    author = result.did;
-  }
-
-  let postURI = `at://${author}/app.bsky.feed.post/${rkey}`;
-  let result: { posts?: PostData[] } = await apiGet('app.bsky.feed.getPosts', { uris: postURI }, signal, fetchAPI);
-  let post = Array.isArray(result.posts) ? result.posts[0] : undefined;
-
-  if (typeof post?.record?.text != 'string' || typeof post.author?.handle != 'string' || !post.author.handle) {
-    throw new Error(`Missing post data for post: ${postURI}`);
-  }
-
-  let text = post.record.text.replace(/(?:\r\n|[\r\n\u2028\u2029])+/g, ' ');
-
-  if (quotes) {
-    return { description: `Quotes of: "${text}"` };
-  } else {
-    return {
-      title: `Skythread • Post by @${post.author.handle}`,
-      description: text
-    };
-  }
-}
-
-function pageDescription(params: Record<string, string>): string | undefined {
-  switch (params.page) {
-    case 'notif':
-      return 'Replies & Mentions';
-    case 'posting_stats':
-      return 'Bluesky posting statistics';
-    case 'like_stats':
-      return 'Like statistics';
-    case 'search':
-      return (params.mode == 'likes') ? 'Archive search' : 'Timeline search';
-    default:
-      return undefined;
-  }
-}
-
-export function createRequestHandler(html: string, options: HandlerOptions = {}) {
-  let fetchAPI: FetchAPI = options.fetch ?? globalThis.fetch;
-  let timeout: number = options.timeoutMs ?? METADATA_TIMEOUT_MS;
-
-  // Blob stores the UTF-8 bytes once, rather than encoding the HTML on every request
-  let cachedHTML = new Blob([html], { type: 'text/html; charset=utf-8' });
-  let headers = {
+  private readonly headers = {
     'Content-Type': 'text/html; charset=utf-8',
     'Vary': 'User-Agent'
   };
 
-  let titleEnd = /<\/title>/i.exec(html);
+  constructor(html: string, options: HandlerOptions = {}) {
+    let titleEnd = /<\/title>/i.exec(html);
 
-  if (!titleEnd) {
-    throw 'Invalid HTML - missing </title>';
+    if (!titleEnd) {
+      throw 'Invalid HTML - missing </title>';
+    }
+
+    this.fetchAPI = options.fetch ?? globalThis.fetch;
+    this.timeout = options.timeoutMs ?? METADATA_TIMEOUT_MS;
+
+    // Blob stores the UTF-8 bytes once, rather than encoding the HTML on every request
+    this.cachedHTML = new Blob([html], { type: 'text/html; charset=utf-8' });
+
+    let insertionPoint = titleEnd.index + titleEnd[0].length;
+    this.prefix = html.slice(0, insertionPoint);
+    this.suffix = html.slice(insertionPoint);
   }
 
-  let insertionPoint = titleEnd.index + titleEnd[0].length;
-  let prefix = html.slice(0, insertionPoint);
-  let suffix = html.slice(insertionPoint);
-  let indexResponse = () => new Response(cachedHTML, { headers });
+  handleRequest(request: Request): Response | Promise<Response> {
+    let url = new URL(request.url);
 
-  function metadataResponse(metadata: Metadata): Response {
+    if (url.pathname != '/') {
+      return new Response('Not Found', { status: 404 });
+    }
+
+    if (request.method != 'GET') {
+      return new Response('Method Not Allowed', { status: 405, headers: { 'Allow': 'GET' } });
+    }
+
+    if (!url.search) {
+      // we don't add any meta tags for the root path /, only for content pages
+      return this.indexResponse();
+    }
+
+    let userAgent = request.headers.get('user-agent') ?? '';
+
+    if (!userAgent.startsWith('Mozilla/5.0 (')) {
+      // if it doesn't start with Mozilla/5.0 then it's not a normal browser -> serve meta tags
+      return this.botResponse(url);
+    }
+
+    if (BOT_PATTERNS.test(userAgent)) {
+      // if it starts with Mozilla/5.0 but contains terms like bot, facebook, @ -> serve meta tags
+      return this.botResponse(url);
+    }
+
+    // starts with Mozilla/5.0 and doesn't contain anything suspicious -> fast path for a normal browser
+    return this.indexResponse();
+  }
+
+  private indexResponse(): Response {
+    return new Response(this.cachedHTML, { headers: this.headers });
+  }
+
+  private metadataResponse(metadata: Metadata): Response {
     let tags = '';
 
     if (metadata.title) {
@@ -123,10 +102,10 @@ export function createRequestHandler(html: string, options: HandlerOptions = {})
     }
 
     tags += `\n  <meta property="og:description" content="${Bun.escapeHTML(metadata.description)}">`;
-    return new Response(prefix + tags + suffix, { headers });
+    return new Response(this.prefix + tags + this.suffix, { headers: this.headers });
   }
 
-  async function botResponse(url: URL): Promise<Response> {
+  private async botResponse(url: URL): Promise<Response> {
     try {
       let params = Object.fromEntries(url.searchParams);
       let postRef: PostReference | undefined;
@@ -140,18 +119,18 @@ export function createRequestHandler(html: string, options: HandlerOptions = {})
         postRef = parsePostURL(params.quotes);
         quotes = true;
       } else if (params.hash) {
-        return metadataResponse({ description: `Posts tagged with #${params.hash}` });
+        return this.metadataResponse({ description: `Posts tagged with #${params.hash}` });
       } else if (params.page) {
-        let description = pageDescription(params);
-        return description ? metadataResponse({ description }) : indexResponse();
+        let description = this.pageDescription(params);
+        return description ? this.metadataResponse({ description }) : this.indexResponse();
       }
 
       if (postRef) {
         // One deadline covers resolution, post fetching, and reading both bodies.
-        let signal = AbortSignal.timeout(timeout);
-        let metadata = await postMetadata(postRef, quotes, signal, fetchAPI);
+        let signal = AbortSignal.timeout(this.timeout);
+        let metadata = await this.postMetadata(postRef, quotes, signal);
 
-        return metadataResponse(metadata);
+        return this.metadataResponse(metadata);
       }
     } catch (e) {
       // link preview errors shouldn't prevent the app from loading
@@ -159,40 +138,80 @@ export function createRequestHandler(html: string, options: HandlerOptions = {})
     }
 
     // if nothing else returned, return normal unchanged index
-    return indexResponse();
+    return this.indexResponse();
   }
 
-  return function handleRequest(request: Request): Response | Promise<Response> {
-    let url = new URL(request.url);
+  private async apiGet<T>(method: string, params: Record<string, string>, signal: AbortSignal): Promise<T> {
+    let url = new URL(method, API_URL);
+    url.search = new URLSearchParams(params).toString();
 
-    if (url.pathname != '/') {
-      return new Response('Not Found', { status: 404 });
+    let fetchAPI = this.fetchAPI;
+    let response = await fetchAPI(url, { signal, redirect: 'error' });
+
+    if (!response.ok) {
+      await response.body?.cancel();
+      throw new Error(`Bluesky API returned ${response.status}`);
     }
 
-    if (request.method != 'GET') {
-      return new Response('Method Not Allowed', { status: 405, headers: { 'Allow': 'GET' } });
+    return await response.json() as T;
+  }
+
+  private async postMetadata(postRef: PostReference, quotes: boolean, signal: AbortSignal): Promise<Metadata> {
+    let { author, rkey } = postRef;
+
+    if (!author || !rkey || /[/\\?#\s]/.test(author) || !/^[A-Za-z0-9._~:-]+$/.test(rkey)) {
+      throw new Error(`Invalid post reference: { ${author}, ${rkey} }`);
     }
 
-    if (!url.search) {
-      // we don't add any meta tags for the root path /, only for content pages
-      return indexResponse();
+    if (!author.startsWith('did:')) {
+      let result: { did?: string } = await this.apiGet('com.atproto.identity.resolveHandle', { handle: author }, signal);
+
+      if (typeof result.did != 'string' || !result.did.startsWith('did:')) {
+        throw new Error(`Missing DID for author: ${author}`);
+      }
+
+      author = result.did;
     }
 
-    let userAgent = request.headers.get('user-agent') ?? '';
+    let postURI = `at://${author}/app.bsky.feed.post/${rkey}`;
+    let result: { posts?: PostData[] } = await this.apiGet('app.bsky.feed.getPosts', { uris: postURI }, signal);
+    let post = Array.isArray(result.posts) ? result.posts[0] : undefined;
 
-    if (!userAgent.startsWith('Mozilla/5.0 (')) {
-      // if it doesn't start with Mozilla/5.0 then it's not a normal browser -> serve meta tags
-      return botResponse(url);
+    if (typeof post?.record?.text != 'string' || typeof post.author?.handle != 'string' || !post.author.handle) {
+      throw new Error(`Missing post data for post: ${postURI}`);
     }
 
-    if (BOT_PATTERNS.test(userAgent)) {
-      // if it starts with Mozilla/5.0 but contains terms like bot, facebook, @ -> serve meta tags
-      return botResponse(url);
-    }
+    let text = post.record.text.replace(/(?:\r\n|[\r\n\u2028\u2029])+/g, ' ');
 
-    // starts with Mozilla/5.0 and doesn't contain anything suspicious -> fast path for a normal browser
-    return indexResponse();
-  };
+    if (quotes) {
+      return { description: `Quotes of: "${text}"` };
+    } else {
+      return {
+        title: `Skythread • Post by @${post.author.handle}`,
+        description: text
+      };
+    }
+  }
+
+  private pageDescription(params: Record<string, string>): string | undefined {
+    switch (params.page) {
+      case 'notif':
+        return 'Replies & Mentions';
+      case 'posting_stats':
+        return 'Bluesky posting statistics';
+      case 'like_stats':
+        return 'Like statistics';
+      case 'search':
+        return (params.mode == 'likes') ? 'Archive search' : 'Timeline search';
+      default:
+        return undefined;
+    }
+  }
+}
+
+export function createRequestHandler(html: string, options: HandlerOptions = {}) {
+  let server = new SkythreadOGServer(html, options);
+  return server.handleRequest.bind(server);
 }
 
 if (import.meta.main) {
