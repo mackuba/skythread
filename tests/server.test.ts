@@ -233,9 +233,9 @@ describe('fallbacks', () => {
     expect((await metadata(response)).description).toBe('');
   });
 
-  test('missing title leaves the HTML unchanged', async () => {
+  test('missing title throws an error', () => {
     const html = '<html><head></head><body></body></html>';
-    expect(await (await createRequestHandler(html)(request('?hash=bun'))).text()).toBe(html);
+    expect(() => createRequestHandler(html)).toThrow('Invalid HTML - missing </title>');
   });
 
   test('a shared timeout aborts both fetches and returns the original HTML', async () => {
