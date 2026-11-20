@@ -5,7 +5,8 @@ set :repository, "https://tangled.org/mackuba.eu/skythread"
 set :keep_releases, 10
 set :shared_children, []
 set :copy_exclude, [
-  '.git*', '.tm*', '.zed', '*.js', '*.lock', '*.md', '*.sh', '*.toml', 'lib', 'src', 'package.json', 'tsconfig.json'
+  '.git*', '.tm*', '.zed', '*.js', '*.lock', '*.md', '*.sh', '*.toml',
+  'config', 'lib', 'src', 'Capfile', 'Gemfile', 'tsconfig.json'
 ]
 
 after 'deploy', 'deploy:make_noindex'
