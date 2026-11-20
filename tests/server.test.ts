@@ -1,4 +1,4 @@
-import { describe, expect, mock, test } from 'bun:test';
+import { afterEach, beforeEach, describe, expect, mock, spyOn, test } from 'bun:test';
 import { JSDOM } from 'jsdom';
 import { createRequestHandler } from '../server';
 
@@ -26,7 +26,8 @@ async function metadata(response: Response) {
   expect(response.status).toBe(200);
   expect(response.headers.get('content-type')).toBe('text/html; charset=utf-8');
   expect(response.headers.get('vary')).toBe('User-Agent');
-  expect(document.querySelector('meta[charset]')?.nextElementSibling?.outerHTML).toBe('<meta name="robots" content="noindex, nofollow">');
+
+  expect(document.querySelector('meta[charset]')!.nextElementSibling!.outerHTML).toBe('<meta name="robots" content="noindex, nofollow">');
   expect(document.title).toBe('Skythread');
   expect(document.querySelectorAll('script')).toHaveLength(1);
 
@@ -38,8 +39,8 @@ async function metadata(response: Response) {
   };
 }
 
-describe('entry server fast paths', () => {
-  test('root requests return unchanged HTML synchronously and repeatedly', async () => {
+describe('fast paths', () => {
+  test('root requests return unchanged HTML synchronously', async () => {
     const fetchAPI = mock(() => Promise.reject(new Error('Unexpected API request')));
     const handle = createRequestHandler(HTML, { fetch: fetchAPI });
 
@@ -58,7 +59,7 @@ describe('entry server fast paths', () => {
     'Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.0 Mobile/15E148 Safari/604.1',
     `${CHROME} Edg/141.0.0.0`,
     'Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) FxiOS/145.0 Mobile/15E148 Safari/605.1.15'
-  ])('browser UA has a synchronous fast path: %s', async (userAgent) => {
+  ])('browser-like user agents have a synchronous fast path: %s', async (userAgent) => {
     const fetchAPI = mock(() => Promise.reject(new Error('Unexpected API request')));
     const handle = createRequestHandler(HTML, { fetch: fetchAPI });
 
@@ -71,16 +72,29 @@ describe('entry server fast paths', () => {
     expect(fetchAPI).not.toHaveBeenCalled();
   });
 
-  test.each(['Googlebot', `${CHROME} Googlebot/2.1`, `${CHROME} HeadlessChrome/141.0.0.0`, `${CHROME} facebookexternalhit/1.1`, `${CHROME} ChatGPT-User/1.0`, 'curl/8.0', '', undefined])(
-    'bots and non-browser UAs get metadata: %s', async (userAgent) => {
-      const handle = createRequestHandler(HTML);
-      // Pass a Request directly so undefined represents a missing UA, not the helper's default.
-      const response = await handle(new Request('http://localhost/?hash=bun', {
-        headers: userAgent === undefined ? {} : { 'User-Agent': userAgent }
-      }));
-      expect((await metadata(response)).description).toBe('Posts tagged with #bun');
-    }
-  );
+  test.each([
+    'Googlebot', `${CHROME} Googlebot/2.1`, `${CHROME} HeadlessChrome/141.0.0.0`,
+    `${CHROME} facebookexternalhit/1.1`, `${CHROME} ChatGPT-User/1.0`, 'curl/8.0', '', undefined,
+    'Mastodon/4.4.21 (http.rb/5.3.1; +https://mastodon.top/)',
+    'Misskey/2025.4.7 (https://mecha.garden/)',
+    'http.rb/5.1.1 (Mastodon/4.2.20; +https://retro.social/)',
+    'python-requests/2.32.5', 'node-fetch', 'Go-http-client/1.1', 'curl/8.5.0',
+    'Mozilla/5.0 (compatible; CensysInspect/1.1; +https://about.censys.io/)',
+    'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.4 Safari/605.1.15 (Applebot/0.1; +http://www.apple.com/go/applebot)',
+    'Mozilla/5.0 (compatible; InternetMeasurement/1.0; +https://internet-measurement.com/)',
+    'Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko; compatible; Claude-User/1.0; +claude-user@anthropic.com)',
+    'Mozilla/5.0 (compatible; Baiduspider/2.0; +http://www.baidu.com/search/spider.html)',
+    'Mozilla/5.0 (compatible; feedback@bytedance.com)'
+  ])('bots and non-browser user agents get metadata: %s', async (userAgent) => {
+    const handle = createRequestHandler(HTML);
+
+    // Pass a Request directly so undefined represents a missing UA, not the helper's default.
+    const response = await handle(new Request('http://localhost/?hash=bun', {
+      headers: userAgent === undefined ? {} : { 'User-Agent': userAgent }
+    }));
+
+    expect((await metadata(response)).description).toBe('Posts tagged with #bun');
+  });
 
   test('rejects other paths and methods without fetching', async () => {
     const fetchAPI = mock(() => Promise.reject(new Error('Unexpected API request')));
@@ -100,14 +114,14 @@ describe('entry server fast paths', () => {
   });
 });
 
-describe('bot metadata', () => {
-  test('escapes hashtag attributes and inserts them just after the title', async () => {
-    const hashtag = 'bun\"/><script>alert(\'x\')</script>&🐰';
+describe('metadata', () => {
+  test('for hash=, escapes hashtag attributes and inserts og:description after the title', async () => {
+    const hashtag = 'bun"/><script>alert(\'x\')</script>&🐰';
     const response = await createRequestHandler(HTML)(request(`?${new URLSearchParams({ hash: hashtag })}`));
     const result = await metadata(response);
 
-    expect(result.description).toBe(`Posts tagged with #${hashtag}`);
     expect(result.title).toBeUndefined();
+    expect(result.description).toBe(`Posts tagged with #${hashtag}`);
     expect(result.html).toContain('<title>Skythread</title>\n  <meta property="og:description"');
     expect(result.document.querySelectorAll('meta')).toHaveLength(3);
   });
@@ -118,26 +132,29 @@ describe('bot metadata', () => {
     ['like_stats', '', 'Like statistics'],
     ['search', '', 'Timeline search'],
     ['search', '&mode=likes', 'Archive search']
-  ])('describes page=%s%s', async (page, extra, expected) => {
+  ])('for page=%s%s, adds a fixed page title', async (page, extra, expected) => {
     const fetchAPI = mock(() => Promise.reject(new Error('Unexpected API request')));
     const response = await createRequestHandler(HTML, { fetch: fetchAPI })(request(`?page=${page}${extra}`));
     const result = await metadata(response);
-    expect(result.description).toBe(expected);
+
     expect(result.title).toBeUndefined();
+    expect(result.description).toBe(expected);
     expect(fetchAPI).not.toHaveBeenCalled();
   });
 
-  test('resolves handles and loads the post for author + post', async () => {
+  test('for author + post, resolves the handle and loads post record data', async () => {
     const calls: { url: URL, init: RequestInit }[] = [];
     const fetchAPI = mock((url: URL, init: RequestInit) => {
       calls.push({ url, init });
       return Promise.resolve(calls.length == 1 ? Response.json({ did: DID }) : postResponse());
     });
+
     const response = await createRequestHandler(HTML, { fetch: fetchAPI })(request('?author=alice.example&post=3abc'));
     const result = await metadata(response);
 
     expect(result.title).toBe('Skythread • Post by @alice.example');
     expect(result.description).toBe('Hello world');
+
     expect(calls).toHaveLength(2);
     expect(calls[0].url.origin).toBe('https://public.api.bsky.app');
     expect(calls[0].url.pathname).toBe('/xrpc/com.atproto.identity.resolveHandle');
@@ -154,43 +171,68 @@ describe('bot metadata', () => {
     `?q=${encodeURIComponent(`https://bsky.app/profile/${DID}/post/3abc?foo=bar`)}`,
     `?q=${encodeURIComponent(URI)}`,
     `?q=${encodeURIComponent('https://bsky.app/profile/did%3Aplc%3Aalice/post/3abc')}`
-  ])('DID references skip resolution: %s', async (query) => {
+  ])('skips resolution for author= in DID form: %s', async (query) => {
     const fetchAPI = mock((url: URL) => {
       expect(url.searchParams.get('uris')).toBe(URI);
       return Promise.resolve(postResponse());
     });
+
     const result = await metadata(await createRequestHandler(HTML, { fetch: fetchAPI })(request(query)));
+
     expect(result.description).toBe('Hello world');
     expect(fetchAPI).toHaveBeenCalledTimes(1);
   });
 
-  test.each(['q', 'quotes'])('parses handle URLs in %s and resolves the author', async (key) => {
+  test.each(['q', 'quotes'])('for %s=, parses the URL and resolves the author', async (key) => {
     const fetchAPI = mock((url: URL) => Promise.resolve(
       url.searchParams.has('handle') ? Response.json({ did: DID }) : postResponse()
     ));
+
     const query = new URLSearchParams({ [key]: 'https://bsky.app/profile/alice.example/post/3abc' });
     const result = await metadata(await createRequestHandler(HTML, { fetch: fetchAPI })(request(`?${query}`)));
-    expect(result.description).toBe(key == 'quotes' ? 'Quotes of: "Hello world"' : 'Hello world');
-    expect(result.title).toBe(key == 'quotes' ? undefined : 'Skythread • Post by @alice.example');
+
+    if (key == 'quotes') {
+      expect(result.title).toBe(undefined);
+      expect(result.description).toBe('Quotes of: "Hello world"');
+    } else {
+      expect(result.title).toBe('Skythread • Post by @alice.example');
+      expect(result.description).toBe('Hello world');
+    }
+
     expect(fetchAPI).toHaveBeenCalledTimes(2);
   });
 
-  test.each(['q', 'quotes'])('escapes post text and author handle in %s', async (key) => {
+  test.each(['q', 'quotes'])('for %s=, escapes post text and author handle', async (key) => {
     const text = 'A "quote" & <script>bad()</script>\r\nnext\rline\nlast\u2028end';
-    const handle = 'alice\" onload=\"bad()\"><script>';
+    const handle = 'alice" onload="bad()"><script>';
+
     const fetchAPI = mock(() => Promise.resolve(postResponse(text, handle)));
-    const result = await metadata(await createRequestHandler(HTML, { fetch: fetchAPI })(request(`?${new URLSearchParams({ [key]: URI })}`)));
-    const flattened = 'A "quote" & <script>bad()</script> next line last end';
-    expect(result.description).toBe(key == 'quotes' ? `Quotes of: "${flattened}"` : flattened);
-    expect(result.title).toBe(key == 'quotes' ? undefined : `Skythread • Post by @${handle}`);
+    const result = await metadata(await createRequestHandler(HTML, { fetch: fetchAPI })(
+      request(`?${new URLSearchParams({ [key]: URI })}`))
+    );
+
+    const flattenedText = 'A "quote" & <script>bad()</script> next line last end';
+
+    if (key == 'quotes') {
+      expect(result.title).toBe(undefined);
+      expect(result.description).toBe(`Quotes of: "${flattenedText}"`);
+      expect(result.document.querySelectorAll('meta')).toHaveLength(3);
+    } else {
+      expect(result.title).toBe(`Skythread • Post by @${handle}`);
+      expect(result.description).toBe(flattenedText);
+      expect(result.document.querySelectorAll('meta')).toHaveLength(4);
+    }
+
     expect(result.document.querySelectorAll('[onload]')).toHaveLength(0);
-    expect(result.document.querySelectorAll('meta')).toHaveLength(key == 'quotes' ? 3 : 4);
   });
 
   test('follows frontend route precedence and last-value-wins semantics', async () => {
     const fetchAPI = mock(() => Promise.resolve(postResponse()));
     const handle = createRequestHandler(HTML, { fetch: fetchAPI });
-    const result = await metadata(await handle(request(`?q=${encodeURIComponent(URI)}&author=other&post=other&quotes=bad&hash=other&page=notif`)));
+    const result = await metadata(await handle(
+      request(`?q=${encodeURIComponent(URI)}&author=other&post=other&quotes=bad&hash=other&page=notif`)
+    ));
+
     expect(result.description).toBe('Hello world');
     expect((await metadata(await handle(request('?hash=first&hash=last&page=notif')))).description).toBe('Posts tagged with #last');
     expect(await (await handle(request('?hash=bun&hash='))).text()).toBe(NOINDEX_HTML);
@@ -198,9 +240,24 @@ describe('bot metadata', () => {
 });
 
 describe('fallbacks', () => {
-  test.each(['?tracking=1', '?page=unknown', '?page=__proto__', '?author=alice.example', '?q=not-a-url', '?q=javascript:alert(1)', '?q=at://did:plc:alice/app.bsky.actor.profile/self', '?quotes=https://bsky.app/profile/alice.example', '?author=alice.example&post=bad/key'])('unrecognized or invalid queries return noindex HTML: %s', async (query) => {
+  let errorSpy: ReturnType<typeof spyOn>;
+
+  beforeEach(() => {
+    errorSpy = spyOn(console, 'error').mockImplementation(() => {});
+  });
+
+  afterEach(() => {
+    errorSpy.mockRestore();
+  });
+
+  test.each([
+    '?tracking=1', '?page=unknown', '?page=__proto__', '?author=alice.example',
+    '?q=not-a-url', '?q=javascript:alert(1)', '?q=at://did:plc:alice/app.bsky.actor.profile/self',
+    '?quotes=https://bsky.app/profile/alice.example', '?author=alice.example&post=bad/key'
+  ])('unrecognized or invalid queries return noindex HTML: %s', async (query) => {
     const fetchAPI = mock(() => Promise.reject(new Error('Unexpected API request')));
     const response = await createRequestHandler(HTML, { fetch: fetchAPI })(request(query));
+
     expect(await response.text()).toBe(NOINDEX_HTML);
     expect(fetchAPI).not.toHaveBeenCalled();
   });
@@ -231,7 +288,10 @@ describe('fallbacks', () => {
   });
 
   test('empty post text is valid', async () => {
-    const response = await createRequestHandler(HTML, { fetch: () => Promise.resolve(postResponse('')) })(request(`?author=${DID}&post=3abc`));
+    const response = await createRequestHandler(HTML, { fetch: () => Promise.resolve(postResponse('')) })(
+      request(`?author=${DID}&post=3abc`)
+    );
+
     expect((await metadata(response)).description).toBe('');
   });
 
@@ -250,6 +310,7 @@ describe('fallbacks', () => {
     const fetchAPI = mock((_url: URL, init: RequestInit) => {
       const signal = init.signal!;
       signals.push(signal);
+
       return new Promise<Response>((resolve, reject) => {
         signal.addEventListener('abort', () => reject(signal.reason), { once: true });
         if (signals.length == 1) {
@@ -257,8 +318,12 @@ describe('fallbacks', () => {
         }
       });
     });
+
     const started = performance.now();
-    const response = await createRequestHandler(HTML, { fetch: fetchAPI, timeoutMs: 80 })(request('?author=alice.example&post=3abc'));
+    const response = await createRequestHandler(HTML, { fetch: fetchAPI, timeoutMs: 80 })(
+      request('?author=alice.example&post=3abc')
+    );
+
     expect(await response.text()).toBe(NOINDEX_HTML);
     expect(performance.now() - started).toBeLessThan(1000);
     expect(signals).toHaveLength(2);
@@ -284,7 +349,9 @@ describe('fallbacks', () => {
         fetch: (_url, init) => fetch(upstream.url, init),
         timeoutMs: 80
       });
+
       const response = await handle(request(`?author=${DID}&post=3abc`));
+
       expect(await response.text()).toBe(NOINDEX_HTML);
       expect(performance.now() - started).toBeLessThan(1000);
     } finally {

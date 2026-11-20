@@ -1,9 +1,14 @@
 const API_URL = 'https://public.api.bsky.app/xrpc/';
-const METADATA_TIMEOUT_MS = 2500;
+const METADATA_TIMEOUT_MS = 3_000;
 
-const BOT_PATTERNS = /\(\+|@|http|bot|crawl|spider|slurp|scrap|preview|fetch|scan|headless|facebook|meta-external|google|slack|discord|telegram|whatsapp|linkedin|pinterest|embedly|quora|vkshare|archive|monitor|validator|chatgpt|claude|anthropic|perplexity|cohere|mediapartners/i;
+const BOT_PATTERNS = new RegExp([
+  String.raw`\(\+|@|http`,
+  'bot|crawl|spider|slurp|scrap|preview|fetch|scan|headless|archive|monitor|validator',
+  'facebook|meta-external|google|slack|discord|telegram|whatsapp|linkedin|pinterest|embedly|quora|vkshare',
+  'chatgpt|claude|anthropic|perplexity|cohere|mediapartners'
+].join('|'), 'i');
 
-type PostReference = { author: string, rkey: string };
+type PostReference = { repo: string, rkey: string };
 type Metadata = { title?: string, description: string };
 type PostData = { author?: { handle?: string }, record?: { text?: string } };
 
@@ -14,14 +19,14 @@ function parsePostURL(value: string): PostReference | undefined {
   let atMatch = /^at:\/\/([^/]+)\/app\.bsky\.feed\.post\/([^/?#]+)$/.exec(value);
 
   if (atMatch) {
-    return { author: atMatch[1], rkey: atMatch[2] };
+    return { repo: atMatch[1], rkey: atMatch[2] };
   }
 
   let url = new URL(value);
   let parts = url.pathname.split('/');
 
   if (['https:', 'http:'].includes(url.protocol) && parts[1] == 'profile' && parts[3] == 'post' && parts[2] && parts[4]) {
-    return { author: decodeURIComponent(parts[2]), rkey: decodeURIComponent(parts[4]) };
+    return { repo: decodeURIComponent(parts[2]), rkey: decodeURIComponent(parts[4]) };
   }
 
   return undefined;
@@ -33,10 +38,10 @@ export class SkythreadOGServer {
 
   private readonly baseHTML: Blob;
   private readonly noindexHTML: Blob;
-  private readonly prefix: string;
-  private readonly suffix: string;
+  private readonly htmlBeforeMeta: string;
+  private readonly htmlAfterMeta: string;
 
-  private readonly headers = {
+  private readonly responseHeaders = {
     'Content-Type': 'text/html; charset=utf-8',
     'Vary': 'User-Agent'
   };
@@ -60,16 +65,16 @@ export class SkythreadOGServer {
     // Blob stores the UTF-8 bytes once, rather than encoding the HTML on every request
     this.baseHTML = new Blob([html], { type: 'text/html; charset=utf-8' });
 
-    let titleOffset = titleCloseTag.index + titleCloseTag[0].length;
-    let charsetOffset = charsetTag.index + charsetTag[0].length;
+    let afterTitleOffset = titleCloseTag.index + titleCloseTag[0].length;
+    let afterCharsetOffset = charsetTag.index + charsetTag[0].length;
 
     let robotsNoindex = '\n  <meta name="robots" content="noindex, nofollow">';
-    let noindexHTML = html.slice(0, charsetOffset) + robotsNoindex + html.slice(charsetOffset);
+    let noindexHTML = html.slice(0, afterCharsetOffset) + robotsNoindex + html.slice(afterCharsetOffset);
     this.noindexHTML = new Blob([noindexHTML], { type: 'text/html; charset=utf-8' });
 
-    let metadataOffset = (charsetOffset <= titleOffset) ? titleOffset + robotsNoindex.length : titleOffset;
-    this.prefix = noindexHTML.slice(0, metadataOffset);
-    this.suffix = noindexHTML.slice(metadataOffset);
+    let metadataOffset = (afterCharsetOffset <= afterTitleOffset) ? afterTitleOffset + robotsNoindex.length : afterTitleOffset;
+    this.htmlBeforeMeta = noindexHTML.slice(0, metadataOffset);
+    this.htmlAfterMeta = noindexHTML.slice(metadataOffset);
   }
 
   handleRequest(request: Request): Response | Promise<Response> {
@@ -85,7 +90,7 @@ export class SkythreadOGServer {
 
     if (!url.search) {
       // we don't add any meta tags for the root path /, only for content pages
-      return new Response(this.baseHTML, { headers: this.headers })
+      return new Response(this.baseHTML, { headers: this.responseHeaders })
     }
 
     let userAgent = request.headers.get('user-agent') ?? '';
@@ -101,7 +106,7 @@ export class SkythreadOGServer {
     }
 
     // starts with Mozilla/5.0 and doesn't contain anything suspicious -> fast path for a normal browser
-    return new Response(this.noindexHTML, { headers: this.headers })
+    return new Response(this.noindexHTML, { headers: this.responseHeaders })
   }
 
   private metadataResponse(metadata: Metadata): Response {
@@ -112,7 +117,7 @@ export class SkythreadOGServer {
     }
 
     tags += `\n  <meta property="og:description" content="${Bun.escapeHTML(metadata.description)}">`;
-    return new Response(this.prefix + tags + this.suffix, { headers: this.headers });
+    return new Response(this.htmlBeforeMeta + tags + this.htmlAfterMeta, { headers: this.responseHeaders });
   }
 
   private async botResponse(url: URL): Promise<Response> {
@@ -124,7 +129,7 @@ export class SkythreadOGServer {
       if (params.q) {
         postRef = parsePostURL(params.q);
       } else if (params.author && params.post) {
-        postRef = { author: params.author, rkey: params.post };
+        postRef = { repo: params.author, rkey: params.post };
       } else if (params.quotes) {
         postRef = parsePostURL(params.quotes);
         quotes = true;
@@ -139,7 +144,7 @@ export class SkythreadOGServer {
       }
 
       if (postRef) {
-        // One deadline covers resolution, post fetching, and reading both bodies.
+        // one timeout for handle resolution (if needed) and post record fetch
         let signal = AbortSignal.timeout(this.timeout);
         let metadata = await this.postMetadata(postRef, quotes, signal);
 
@@ -151,7 +156,7 @@ export class SkythreadOGServer {
     }
 
     // if nothing else returned, return index without meta tags, but with a robots noindex
-    return new Response(this.noindexHTML, { headers: this.headers })
+    return new Response(this.noindexHTML, { headers: this.responseHeaders })
   }
 
   private async apiGet<T>(method: string, params: Record<string, string>, signal: AbortSignal): Promise<T> {
@@ -170,7 +175,7 @@ export class SkythreadOGServer {
   }
 
   private async postMetadata(postRef: PostReference, quotes: boolean, signal: AbortSignal): Promise<Metadata> {
-    let { author, rkey } = postRef;
+    let { repo: author, rkey } = postRef;
 
     if (!author || !rkey || /[/\\?#\s]/.test(author) || !/^[A-Za-z0-9._~:-]+$/.test(rkey)) {
       throw new Error(`Invalid post reference: { ${author}, ${rkey} }`);

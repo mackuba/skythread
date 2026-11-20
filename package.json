@@ -6,7 +6,8 @@
     "serve": "bun scripts/serve.js",
     "lint": "bun eslint",
     "test": "bun test",
-    "test:watch": "bun test --watch"
+    "test:watch": "bun test --watch",
+    "og:server": "bun server.ts"
   },
   "dependencies": {
     "dompurify": "^3.4.15",
