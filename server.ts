@@ -31,7 +31,8 @@ export class SkythreadOGServer {
   private readonly fetchAPI: FetchAPI;
   private readonly timeout: number;
 
-  private readonly cachedHTML: Blob;
+  private readonly baseHTML: Blob;
+  private readonly noindexHTML: Blob;
   private readonly prefix: string;
   private readonly suffix: string;
 
@@ -41,21 +42,34 @@ export class SkythreadOGServer {
   };
 
   constructor(html: string, options: HandlerOptions = {}) {
-    let titleEnd = /<\/title>/i.exec(html);
+    let titleCloseTag = /<\/title>/i.exec(html);
 
-    if (!titleEnd) {
+    if (!titleCloseTag) {
       throw 'Invalid HTML - missing </title>';
+    }
+
+    let charsetTag = /<meta\s+charset="UTF-8"\s*>/i.exec(html);
+
+    if (!charsetTag) {
+      throw 'Invalid HTML - missing <meta charset="UTF-8">';
     }
 
     this.fetchAPI = options.fetch ?? globalThis.fetch;
     this.timeout = options.timeoutMs ?? METADATA_TIMEOUT_MS;
 
     // Blob stores the UTF-8 bytes once, rather than encoding the HTML on every request
-    this.cachedHTML = new Blob([html], { type: 'text/html; charset=utf-8' });
+    this.baseHTML = new Blob([html], { type: 'text/html; charset=utf-8' });
 
-    let insertionPoint = titleEnd.index + titleEnd[0].length;
-    this.prefix = html.slice(0, insertionPoint);
-    this.suffix = html.slice(insertionPoint);
+    let titleOffset = titleCloseTag.index + titleCloseTag[0].length;
+    let charsetOffset = charsetTag.index + charsetTag[0].length;
+
+    let robotsNoindex = '\n  <meta name="robots" content="noindex, nofollow">';
+    let noindexHTML = html.slice(0, charsetOffset) + robotsNoindex + html.slice(charsetOffset);
+    this.noindexHTML = new Blob([noindexHTML], { type: 'text/html; charset=utf-8' });
+
+    let metadataOffset = (charsetOffset <= titleOffset) ? titleOffset + robotsNoindex.length : titleOffset;
+    this.prefix = noindexHTML.slice(0, metadataOffset);
+    this.suffix = noindexHTML.slice(metadataOffset);
   }
 
   handleRequest(request: Request): Response | Promise<Response> {
@@ -71,7 +85,7 @@ export class SkythreadOGServer {
 
     if (!url.search) {
       // we don't add any meta tags for the root path /, only for content pages
-      return this.indexResponse();
+      return new Response(this.baseHTML, { headers: this.headers })
     }
 
     let userAgent = request.headers.get('user-agent') ?? '';
@@ -87,11 +101,7 @@ export class SkythreadOGServer {
     }
 
     // starts with Mozilla/5.0 and doesn't contain anything suspicious -> fast path for a normal browser
-    return this.indexResponse();
-  }
-
-  private indexResponse(): Response {
-    return new Response(this.cachedHTML, { headers: this.headers });
+    return new Response(this.noindexHTML, { headers: this.headers })
   }
 
   private metadataResponse(metadata: Metadata): Response {
@@ -122,7 +132,10 @@ export class SkythreadOGServer {
         return this.metadataResponse({ description: `Posts tagged with #${params.hash}` });
       } else if (params.page) {
         let description = this.pageDescription(params);
-        return description ? this.metadataResponse({ description }) : this.indexResponse();
+
+        if (description) {
+          return this.metadataResponse({ description });
+        }
       }
 
       if (postRef) {
@@ -137,8 +150,8 @@ export class SkythreadOGServer {
       console.error(`Error while fetching ${url}: ${e}`);
     }
 
-    // if nothing else returned, return normal unchanged index
-    return this.indexResponse();
+    // if nothing else returned, return index without meta tags, but with a robots noindex
+    return new Response(this.noindexHTML, { headers: this.headers })
   }
 
   private async apiGet<T>(method: string, params: Record<string, string>, signal: AbortSignal): Promise<T> {

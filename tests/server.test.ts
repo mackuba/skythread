@@ -2,7 +2,8 @@ import { describe, expect, mock, test } from 'bun:test';
 import { JSDOM } from 'jsdom';
 import { createRequestHandler } from '../server';
 
-const HTML = '<!DOCTYPE html>\n<html><head>\n  <title>Skythread</title>\n</head><body><script src="dist/skythread.js"></script></body></html>';
+const HTML = '<!DOCTYPE html>\n<html><head>\n  <meta charset="UTF-8">\n  <title>Skythread</title>\n</head><body><script src="dist/skythread.js"></script></body></html>';
+const NOINDEX_HTML = HTML.replace('<meta charset="UTF-8">', '<meta charset="UTF-8">\n  <meta name="robots" content="noindex, nofollow">');
 const CHROME = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36';
 const DID = 'did:plc:alice';
 const URI = `at://${DID}/app.bsky.feed.post/3abc`;
@@ -25,6 +26,7 @@ async function metadata(response: Response) {
   expect(response.status).toBe(200);
   expect(response.headers.get('content-type')).toBe('text/html; charset=utf-8');
   expect(response.headers.get('vary')).toBe('User-Agent');
+  expect(document.querySelector('meta[charset]')?.nextElementSibling?.outerHTML).toBe('<meta name="robots" content="noindex, nofollow">');
   expect(document.title).toBe('Skythread');
   expect(document.querySelectorAll('script')).toHaveLength(1);
 
@@ -63,7 +65,7 @@ describe('entry server fast paths', () => {
     for (const query of ['?q=https://bsky.app/profile/alice.example/post/3abc', '?hash=hello', '?page=search&mode=likes']) {
       const response = handle(request(query, userAgent));
       expect(response).toBeInstanceOf(Response);
-      expect(await (response as Response).text()).toBe(HTML);
+      expect(await (response as Response).text()).toBe(NOINDEX_HTML);
     }
 
     expect(fetchAPI).not.toHaveBeenCalled();
@@ -107,7 +109,7 @@ describe('bot metadata', () => {
     expect(result.description).toBe(`Posts tagged with #${hashtag}`);
     expect(result.title).toBeUndefined();
     expect(result.html).toContain('<title>Skythread</title>\n  <meta property="og:description"');
-    expect(result.document.querySelectorAll('meta')).toHaveLength(1);
+    expect(result.document.querySelectorAll('meta')).toHaveLength(3);
   });
 
   test.each([
@@ -182,7 +184,7 @@ describe('bot metadata', () => {
     expect(result.description).toBe(key == 'quotes' ? `Quotes of: "${flattened}"` : flattened);
     expect(result.title).toBe(key == 'quotes' ? undefined : `Skythread • Post by @${handle}`);
     expect(result.document.querySelectorAll('[onload]')).toHaveLength(0);
-    expect(result.document.querySelectorAll('meta')).toHaveLength(key == 'quotes' ? 1 : 2);
+    expect(result.document.querySelectorAll('meta')).toHaveLength(key == 'quotes' ? 3 : 4);
   });
 
   test('follows frontend route precedence and last-value-wins semantics', async () => {
@@ -191,15 +193,15 @@ describe('bot metadata', () => {
     const result = await metadata(await handle(request(`?q=${encodeURIComponent(URI)}&author=other&post=other&quotes=bad&hash=other&page=notif`)));
     expect(result.description).toBe('Hello world');
     expect((await metadata(await handle(request('?hash=first&hash=last&page=notif')))).description).toBe('Posts tagged with #last');
-    expect(await (await handle(request('?hash=bun&hash='))).text()).toBe(HTML);
+    expect(await (await handle(request('?hash=bun&hash='))).text()).toBe(NOINDEX_HTML);
   });
 });
 
 describe('fallbacks', () => {
-  test.each(['?tracking=1', '?page=unknown', '?page=__proto__', '?author=alice.example', '?q=not-a-url', '?q=javascript:alert(1)', '?q=at://did:plc:alice/app.bsky.actor.profile/self', '?quotes=https://bsky.app/profile/alice.example', '?author=alice.example&post=bad/key'])('unrecognized or invalid queries return the original HTML: %s', async (query) => {
+  test.each(['?tracking=1', '?page=unknown', '?page=__proto__', '?author=alice.example', '?q=not-a-url', '?q=javascript:alert(1)', '?q=at://did:plc:alice/app.bsky.actor.profile/self', '?quotes=https://bsky.app/profile/alice.example', '?author=alice.example&post=bad/key'])('unrecognized or invalid queries return noindex HTML: %s', async (query) => {
     const fetchAPI = mock(() => Promise.reject(new Error('Unexpected API request')));
     const response = await createRequestHandler(HTML, { fetch: fetchAPI })(request(query));
-    expect(await response.text()).toBe(HTML);
+    expect(await response.text()).toBe(NOINDEX_HTML);
     expect(fetchAPI).not.toHaveBeenCalled();
   });
 
@@ -210,9 +212,9 @@ describe('fallbacks', () => {
     () => Promise.resolve(Response.json(null)),
     () => Promise.resolve(Response.json({})),
     () => Promise.resolve(Response.json({ did: 'invalid' }))
-  ])('resolution failures return unchanged HTML', async (fetchAPI) => {
+  ])('resolution failures return noindex HTML', async (fetchAPI) => {
     const response = await createRequestHandler(HTML, { fetch: fetchAPI })(request('?author=alice.example&post=3abc'));
-    expect(await response.text()).toBe(HTML);
+    expect(await response.text()).toBe(NOINDEX_HTML);
   });
 
   test.each([
@@ -223,9 +225,9 @@ describe('fallbacks', () => {
     () => Promise.resolve(Response.json({ posts: [] })),
     () => Promise.resolve(Response.json({ posts: [{}] })),
     () => Promise.resolve(Response.json({ posts: [{ author: { handle: 'alice.example' }, record: { text: 123 } }] }))
-  ])('post failures return unchanged HTML', async (fetchAPI) => {
+  ])('post failures return noindex HTML', async (fetchAPI) => {
     const response = await createRequestHandler(HTML, { fetch: fetchAPI })(request(`?author=${DID}&post=3abc`));
-    expect(await response.text()).toBe(HTML);
+    expect(await response.text()).toBe(NOINDEX_HTML);
   });
 
   test('empty post text is valid', async () => {
@@ -234,11 +236,16 @@ describe('fallbacks', () => {
   });
 
   test('missing title throws an error', () => {
-    const html = '<html><head></head><body></body></html>';
+    const html = HTML.replace('<title>Skythread</title>', '');
     expect(() => createRequestHandler(html)).toThrow('Invalid HTML - missing </title>');
   });
 
-  test('a shared timeout aborts both fetches and returns the original HTML', async () => {
+  test('missing charset throws an error', () => {
+    const html = HTML.replace('<meta charset="UTF-8">', '');
+    expect(() => createRequestHandler(html)).toThrow('Invalid HTML - missing <meta charset="UTF-8">');
+  });
+
+  test('a shared timeout aborts both fetches and returns noindex HTML', async () => {
     const signals: AbortSignal[] = [];
     const fetchAPI = mock((_url: URL, init: RequestInit) => {
       const signal = init.signal!;
@@ -252,7 +259,7 @@ describe('fallbacks', () => {
     });
     const started = performance.now();
     const response = await createRequestHandler(HTML, { fetch: fetchAPI, timeoutMs: 80 })(request('?author=alice.example&post=3abc'));
-    expect(await response.text()).toBe(HTML);
+    expect(await response.text()).toBe(NOINDEX_HTML);
     expect(performance.now() - started).toBeLessThan(1000);
     expect(signals).toHaveLength(2);
     expect(signals[0]).toBe(signals[1]);
@@ -278,7 +285,7 @@ describe('fallbacks', () => {
         timeoutMs: 80
       });
       const response = await handle(request(`?author=${DID}&post=3abc`));
-      expect(await response.text()).toBe(HTML);
+      expect(await response.text()).toBe(NOINDEX_HTML);
       expect(performance.now() - started).toBeLessThan(1000);
     } finally {
       await upstream.stop(true);
