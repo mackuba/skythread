@@ -233,7 +233,7 @@ export function createRequestHandler(html: string, options: HandlerOptions = {})
 }
 
 if (import.meta.main) {
-  let indexHtmlContents = await Bun.file(new URL('./index.html', import.meta.url)).text();
+  let indexHtmlContents = await Bun.file(new URL('../index.html', import.meta.url)).text();
 
   let server = Bun.serve({
     hostname: Bun.env.HOST ?? '127.0.0.1',

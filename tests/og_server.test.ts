@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, mock, spyOn, test } from 'bun:test';
 import { JSDOM } from 'jsdom';
-import { createRequestHandler } from '../server';
+import { createRequestHandler } from '../scripts/og_server';
 
 const HTML = '<!DOCTYPE html>\n<html><head>\n  <meta charset="UTF-8">\n  <title>Skythread</title>\n</head><body><script src="dist/skythread.js"></script></body></html>';
 const NOINDEX_HTML = HTML.replace('<meta charset="UTF-8">', '<meta charset="UTF-8">\n  <meta name="robots" content="noindex, nofollow">');
