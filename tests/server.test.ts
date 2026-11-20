@@ -40,12 +40,12 @@ async function metadata(response: Response) {
 }
 
 describe('fast paths', () => {
-  test('root requests return unchanged HTML synchronously', async () => {
+  test.each(['/', '/index.html'])('%s without params returns unchanged HTML synchronously', async (path) => {
     const fetchAPI = mock(() => Promise.reject(new Error('Unexpected API request')));
     const handle = createRequestHandler(HTML, { fetch: fetchAPI });
 
     for (const query of ['', '?']) {
-      const response = handle(request(query));
+      const response = handle(request(query, undefined, 'GET', path));
       expect(response).toBeInstanceOf(Response);
       expect(await (response as Response).text()).toBe(HTML);
     }
@@ -100,7 +100,7 @@ describe('fast paths', () => {
     const fetchAPI = mock(() => Promise.reject(new Error('Unexpected API request')));
     const handle = createRequestHandler(HTML, { fetch: fetchAPI });
 
-    for (const path of ['/index.html', '/dist/skythread.js', '/api', '//']) {
+    for (const path of ['/index.html/', '/dist/skythread.js', '/api', '//']) {
       expect((await handle(request('', CHROME, 'GET', path))).status).toBe(404);
     }
 
@@ -142,16 +142,22 @@ describe('metadata', () => {
     expect(fetchAPI).not.toHaveBeenCalled();
   });
 
-  test('for author + post, resolves the handle and loads post record data', async () => {
+  test.each(['/', '/index.html'])('for author + post at %s, resolves the handle and loads post record data', async (path) => {
     const calls: { url: URL, init: RequestInit }[] = [];
     const fetchAPI = mock((url: URL, init: RequestInit) => {
       calls.push({ url, init });
       return Promise.resolve(calls.length == 1 ? Response.json({ did: DID }) : postResponse());
     });
 
-    const response = await createRequestHandler(HTML, { fetch: fetchAPI })(request('?author=alice.example&post=3abc'));
-    const result = await metadata(response);
+    const handle = createRequestHandler(HTML, { fetch: fetchAPI });
 
+    const browser = handle(request('?author=alice.example&post=3abc', CHROME, 'GET', path));
+    expect(browser).toBeInstanceOf(Response);
+    expect(await (browser as Response).text()).toBe(NOINDEX_HTML);
+    expect(fetchAPI).not.toHaveBeenCalled();
+
+    const response = await handle(request('?author=alice.example&post=3abc', undefined, 'GET', path));
+    const result = await metadata(response);
     expect(result.title).toBe('Skythread • Post by @alice.example');
     expect(result.description).toBe('Hello world');
 

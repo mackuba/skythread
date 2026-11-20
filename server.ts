@@ -80,7 +80,7 @@ export class SkythreadOGServer {
   handleRequest(request: Request): Response | Promise<Response> {
     let url = new URL(request.url);
 
-    if (url.pathname != '/') {
+    if (url.pathname != '/' && url.pathname != '/index.html') {
       return new Response('Not Found', { status: 404 });
     }
 
