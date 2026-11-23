@@ -119,7 +119,7 @@
 
     importStatus = info.status;
 
-    let isImporting = ['in_progress', 'scheduled', 'requested'].includes(info.status);
+    let isImporting = ['requested', 'scheduled', 'importing_repo', 'in_progress'].includes(info.status);
     wasImporting = wasImporting || isImporting;
 
     if (info.status == 'not_started') {
@@ -138,13 +138,19 @@
   function showImportProgress(info: json) {
     importProgress = Math.max(0, Math.min(info.progress || 0, 1));
 
-    if (info.progress == 1.0) {
+    if (info.progress === 1.0) {
       importStatusLabel = `Import complete ✓`;
     } else if (info.position) {
       let date = new Date(info.position).toLocaleString(settings.dateLocale, { day: 'numeric', month: 'short', year: 'numeric' });
-      importStatusLabel = `Downloaded data until: ${date}`;
+      importStatusLabel = `Imported data from now until: ${date}`;
     } else if (info.status == 'requested') {
       importStatusLabel = 'Requesting import…';
+    } else if (info.status == 'importing_repo') {
+      if (info.progress) {
+        importStatusLabel = 'Processing your PDS repo…';
+      } else {
+        importStatusLabel = 'Downloading your PDS repo…';
+      }
     } else {
       importStatusLabel = 'Import started…';
     }
