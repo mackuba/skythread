@@ -10,21 +10,21 @@
     "og:server": "bun scripts/og_server.ts"
   },
   "dependencies": {
-    "dompurify": "^3.4.15",
+    "dompurify": "^3.5.0",
     "highlight.js": "^11.12.0",
-    "svelte": "^5.57.1"
+    "svelte": "^5.59.1"
   },
   "devDependencies": {
-    "@types/bun": "^1.4.2",
+    "@types/bun": "^1.4.5",
     "@types/jsdom": "^28.0.3",
     "bun-plugin-svelte": "^0.0.6",
     "esbuild": "^0.27.7",
     "esbuild-svelte": "^0.9.5",
-    "eslint": "^10.11.0",
-    "eslint-plugin-svelte": "^3.23.0",
+    "eslint": "^10.15.0",
+    "eslint-plugin-svelte": "^3.24.1",
     "jsdom": "^29.1.1",
-    "svelte-check": "^4.7.6",
+    "svelte-check": "^4.7.8",
     "typescript": "^5.9.3",
-    "typescript-eslint": "^8.70.1"
+    "typescript-eslint": "^8.74.0"
   }
 }
