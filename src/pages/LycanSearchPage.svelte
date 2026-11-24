@@ -22,6 +22,7 @@
   let importProgress = $state(0);
   let wasImporting = $state(false);
   let importTimer: number | undefined;
+  let oauthAuthorized: boolean | undefined = $state();
 
   let selectedCollection = $state(collections[0].id);
   let query = $state('');
@@ -122,6 +123,8 @@
     let isImporting = ['requested', 'scheduled', 'importing_repo', 'in_progress'].includes(info.status);
     wasImporting = wasImporting || isImporting;
 
+    oauthAuthorized = (info.oauth_authorized === true);
+
     if (info.status == 'not_started') {
       // do nothing
     } else if (isImporting) {
@@ -192,6 +195,11 @@
         <input type="radio" name="collection" value={col.id} id="collection-{col.id}" bind:group={selectedCollection}>
         <label for="collection-{col.id}">{col.title}</label>
       {/each}
+
+      {#if oauthAuthorized}
+        <input type="radio" name="collection" value="bookmarks" id="collection-bookmarks" bind:group={selectedCollection}>
+        <label for="collection-bookmarks">Bookmarks</label>
+      {/if}
     </div>
   </form>
 
