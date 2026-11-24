@@ -184,7 +184,7 @@
     <p class="search">
       Search:
       <input type="text" class="search-query" autocomplete="off"
-        disabled={importStatus != 'finished'} onkeydown={onKeyPress} bind:value={query}>
+        disabled={importStatus !== undefined && importStatus != 'finished'} onkeydown={onKeyPress} bind:value={query}>
     </p>
 
     <div class="search-collections">
